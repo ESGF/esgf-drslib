@@ -6,6 +6,16 @@ A translator specific to CMIP5
 import isenes.drslib.translate as T
 import isenes.drslib.config as config
 
+class ActivityTranslator(T.GenericTranslator):
+    path_i = T.DRS_PATH_ACTIVITY
+    file_i = None
+    component = 'activity'
+    vocab = ['cmip5', 'cmip3']
+    
+
+
+activity_t = ActivityTranslator()
+
 class ProductTranslator(T.GenericTranslator):
     path_i = T.DRS_PATH_PRODUCT
     file_i = None
@@ -114,6 +124,7 @@ frequency_t = FrequencyTranslator()
 class RealmTranslator(T.GenericTranslator):
     path_i = T.DRS_PATH_REALM
     file_i = None
+    component = 'realm'
     vocab = ['atmos', 'ocean', 'land', 'landIce', 'seaIce', 
                                  'aerosol', 'atmosChem', 'ocnBgchem']
 realm_t = RealmTranslator()
@@ -145,7 +156,8 @@ subset_t = T.SubsetTranslator()
 
 class CMIP5Translator(T.Translator):
 
-    translators = [product_t,
+    translators = [activity_t,
+                   product_t,
                    institute_t,
                    model_t,
                    experiment_t,
@@ -157,6 +169,11 @@ class CMIP5Translator(T.Translator):
                    subset_t,
                    ]
 
-    def init_drs(self):
-        return T.DRS(activity='cmip5')
+    def init_drs(self, drs=None):
+        if drs is None:
+            drs = T.DRS()
+
+        drs.activity = 'cmip5'
+
+        return drs
 

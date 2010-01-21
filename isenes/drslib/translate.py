@@ -98,9 +98,9 @@ class GenericTranslator(IComponentTranslator):
     def drs_to_filepath(self, context):
         s = self._validate(getattr(context.drs, self.component))
         
-        if self.path_i:
+        if self.path_i is not None:
             context.path_parts[self.path_i] = s
-        if self.file_i:
+        if self.file_i is not None:
             context.file_parts[self.file_i] = s
 
 
@@ -108,7 +108,7 @@ class GenericTranslator(IComponentTranslator):
 
     def _validate(self, s):
         if s not in self.vocab:
-            raise TranslationError('Component value %s not in vocabulary' % s)
+            raise TranslationError('Component value %s not in vocabulary of component %s' % (s, self.component))
 
         return s
 
@@ -187,7 +187,12 @@ class EnsembleTranslator(IComponentTranslator):
 
     def drs_to_filepath(self, context):
         (r, i, p) = context.drs.ensemble
-        v = 'r%di%dp%d' % (r, i, p)
+        a = ['r%d' % r]
+        if i is not None:
+            a.append('i%d' % i)
+        if p is not None:
+            a.append('p%d' % p)
+        v = ''.join(a)
         
         context.file_parts[DRS_FILE_ENSEMBLE] = v
         context.path_parts[DRS_PATH_ENSEMBLE] = v
@@ -280,11 +285,13 @@ class Translator(ITranslator):
 
         return context.drs
 
-    #!TODO: implement this
-    #def drs_to_path(self, drs):
-    #    pass
+    def drs_to_path(self, drs):
+        context = TranslatorContext(drs=self.init_drs(drs))
+        for t in self.translators:
+            t.drs_to_filepath(context)
 
-    #----
+        return '%s%s' % (self.prefix, context.to_string())
+
 
     def _split_prefix(self, path):
         n = len(self.prefix)
