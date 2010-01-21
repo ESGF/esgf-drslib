@@ -3,6 +3,8 @@ Tests compatible with nosetests
 
 """
 
+import os
+
 from isenes.drslib import cmip5
 
 translator = cmip5.make_translator('')
@@ -32,4 +34,26 @@ def test_2():
     
     path = translator.drs_to_path(drs)
 
-    assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v2/tas_Amon_HadCM3_historicalNat_r1_18501-200512.nc'
+    assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v2/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+
+
+
+def roundtrip_filename(filename):
+    drs = translator.filename_to_drs(filename)
+
+    drs.version = 1
+    drs.product = 'output'
+
+    path = translator.drs_to_path(drs)
+
+    assert os.path.basename(path) == filename
+
+def test_3():
+    roundtrip_filename('tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+
+
+def test_4():
+    # Read some filenames from UKMO and roundtrip them
+    fh = open(os.path.join(os.path.dirname(__file__), 'cmip5_test_ls'))
+    for filename in fh:
+        yield roundtrip_filename, filename.strip()

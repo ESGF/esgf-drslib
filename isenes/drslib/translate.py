@@ -298,14 +298,15 @@ def _to_date(date_str):
 
 def _from_date(date):
     (y, m, d, h) = date
-    if m is None:
-        m = d = h = ''
-    elif d is None:
-        d = h = ''
-    elif h is None:
-        h = ''
 
-    return '%s%s%s%s' % (y, m, d, h)
+    ret = ['%d' % y]
+    if m is not None:
+        ret.append('%02d' % m)
+    if d is not None:
+        ret.append('%02d' % d)
+    if h is not None:
+        ret.append('%02d' % h)
+    return ''.join(ret)
     
 def _int_or_none(x):
     if x is None:
