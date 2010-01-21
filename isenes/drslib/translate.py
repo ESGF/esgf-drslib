@@ -96,7 +96,6 @@ class GenericTranslator(IComponentTranslator):
             s = self._validate(context.path_parts[self.path_i])
             context.set_drs_component(self.component, s)
 
-
     def drs_to_filepath(self, context):
         s = self._validate(getattr(context.drs, self.component))
         
@@ -105,7 +104,6 @@ class GenericTranslator(IComponentTranslator):
         if self.file_i is not None:
             context.file_parts[self.file_i] = s
 
-
     #----
 
     def _validate(self, s):
@@ -113,6 +111,9 @@ class GenericTranslator(IComponentTranslator):
             raise TranslationError('Component value %s not in vocabulary of component %s' % (s, self.component))
 
         return s
+
+
+
 
 
 class CMORVarTranslator(IComponentTranslator):

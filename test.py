@@ -27,15 +27,8 @@ def test_2():
     drs = get_drs1()
 
     # Add the bits missing from the conversion
-
-    #!TODO: This can be deduced from the model
-    drs.institute='UKMO'
-    #!TODO: The translator should get this from the MIP tables
-    drs.frequency = 'mon'
     drs.version = 2
     drs.product = 'output'
-    #!TODO: The translator should get this from the MIP tables
-    drs.realm = 'atmos'
     
     path = translator.drs_to_path(drs)
 

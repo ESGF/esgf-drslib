@@ -163,5 +163,9 @@ class MIPTableStore(IMIPTableStore):
         if table not in self.tables:
             raise ValueError('Table %s not found' % table)
 
-        return self.tables[table].get_variable_attr(variable, attr)
+        v = self.tables[table].get_variable_attr(variable, attr)
+        if len(v) != 1:
+            raise ValueError('%s is a multi-valued MIP attribute' % v)
+
+        return v[0]
 

@@ -23,32 +23,67 @@ class ProductTranslator(T.GenericTranslator):
     vocab = ['output', 'requested']
 product_t = ProductTranslator()
 
+
+#!TODO: Get official list.  This is based on Karl's spreadsheet and some educated guesses
+model_institution_map = {
+        'NorESM': 'NorClim', 
+        'MRI-CGCM3': 'MRI', 
+        'MRI-ESM1': 'MRI', 
+        'MRI-AM20km': 'MRI',
+        'MRI-AM60km': 'MRI', 
+        'MIROC4-2-M': 'NIES', 
+        'MIROC4-2-H': 'NIES', 
+        'MIROC3-2-M': 'NIES',
+        'MIROC-ESM': 'NIES', 
+        'IPSL-CM6': 'IPSL', 
+        'IPSL-CM5': 'IPSL', 
+        'INMCM4': 'INM',
+        'HiGEM1-2': 'NERC-UKMO', 
+        'HadGEM2-ES': 'UKMO', 
+        'HadGEM2-AO': 'NIMR', 
+        'HadCM3Q': 'UKMO',
+        'HadCM3': 'UKMO', 
+        'GFDL-HIRAM': 'GFDL',
+        'GFDL-ESM2G': 'GFDL', 
+        'GFDL-ESM2M': 'GFDL',
+        'GFDL-CM3': 'GFDL', 
+        'GFDL-CM2-1': 'GFDL', 
+        'FGOALS-S2': 'LASG', 
+        'FGOALS-G2': 'LASG',
+        'FGOALS-gl': 'LASG', 
+        'ECHAM5-MPIOM': 'MPI-M', 
+        'CSIRO-Mk3-5A': 'CSIRO', 
+        'CCSM4-H': 'NCAR',
+        'CCSM4-M': 'NCAR', 
+        'CNRM-CM5': 'CNRM', 
+        'CanESM2': 'CCCMA', 
+        'ACCESS': 'CAWCR', 
+        'BCC-CSM': 'BCCR',
+}
+
 #!TODO: Get full list.  This is based on CMIP3
 class InstituteTranslator(T.GenericTranslator):
     path_i = T.DRS_PATH_INSTITUTE
     file_i = None
     component = 'institute'
-    vocab = ['BCCR', 'CCMA', 'CNRM', 'MIUB-KMA', 'CSIRO',
-             'GFDL', 'INM', 'IPSL', 'LASG', 'MPIM', 'MRI',
-             'NASA', 'NCAR', 'NIES', 'UKMO', 'INGV'
-             ]
+    vocab = model_institution_map.values()
+
+    def filename_to_drs(self, context):
+        model = context.drs.model
+        if model is None:
+            raise T.TranslationError('Institute translation requires model to be known')
+
+        context.drs.institute = model_institution_map[model]
+
 institute_t = InstituteTranslator()
+
 
 #!TODO: Not official identifiers
 class ModelTranslator(T.GenericTranslator):
     path_i = T.DRS_PATH_MODEL
     file_i = T.DRS_FILE_MODEL
     component = 'model'
-    vocab = [
-        'NorESM', 'MRI-CGCM3', 'MRI-ESM1', 'MRI-AM20km',
-        'MRI-AM60km', 'MIROC4.2M', 'MIROC4.2H', 'MIROC3.2M',
-        'MIROC-ESM', 'IPSL-CM6', 'IPSL-CM5', 'INMCM4.0',
-        'HiGEM1.2', 'HadGEM2-ES', 'HadGEM2-AO', 'HadCM3Q',
-        'HadCM3', 'GFDL-HIRAM', 'GFDL-ESM2G', 'GFDL-ESM2M',
-        'GFDL-CM3', 'GFDL-CM2.1', 'FGOALS-S2.0', 'FGOALS-G2.0',
-        'FGOALS-gl', 'ECHAM5-MPIOM', 'CSIRO-Mk3.5A', 'CCSM4H',
-        'CCSM4M', 'CNRM-CM5', 'CanESM2', 'ACCESS', 'BCC-CSM',
-        ]
+    vocab = model_institution_map.keys()
 model_t = ModelTranslator()
 
 class ExperimentTranslator(T.GenericTranslator):
@@ -118,6 +153,17 @@ class FrequencyTranslator(T.GenericTranslator):
     file_i = None
     component = 'frequency'
     vocab = ['yr', 'mon', 'day', '6hr', '3hr', 'subhr']
+
+    def filename_to_drs(self, context):
+        # Read frequency from MIP table
+        table = context.drs.table
+        variable = context.drs.variable
+        if (table is None) or (variable is None):
+            raise T.TranslationError('Frequency translation requires table and variable to be known')
+
+        freq = context.table_store.get_variable_attr(table, variable, 'frequency')
+        context.drs.frequency = freq
+
 frequency_t = FrequencyTranslator()
 
 #!TODO: Get this information from CMIP tables
@@ -127,6 +173,17 @@ class RealmTranslator(T.GenericTranslator):
     component = 'realm'
     vocab = ['atmos', 'ocean', 'land', 'landIce', 'seaIce', 
                                  'aerosol', 'atmosChem', 'ocnBgchem']
+
+    def filename_to_drs(self, context):
+        # Read realm from MIP table
+        table = context.drs.table
+        variable = context.drs.variable
+        if (table is None) or (variable is None):
+            raise T.TranslationError('Realm translation requires table and variable to be known')
+
+        realm = context.table_store.get_variable_attr(table, variable, 'modeling_realm')
+        context.drs.realm = realm
+
 realm_t = RealmTranslator()
 
 ensemble_t = T.EnsembleTranslator()
@@ -143,13 +200,19 @@ class CMIP5Translator(T.Translator):
 
     translators = [activity_t,
                    product_t,
-                   institute_t,
                    model_t,
+
+                   # Must follow model_t
+                   institute_t,
+
                    experiment_t,
-                   frequency_t,
-                   realm_t,
                    ensemble_t,
                    variable_t,
+
+                   # Must be processed after variable
+                   frequency_t,
+                   realm_t,
+
                    version_t,
                    subset_t,
                    ]
