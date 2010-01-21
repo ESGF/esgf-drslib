@@ -162,14 +162,26 @@ class FrequencyTranslator(T.GenericTranslator):
     vocab = ['yr', 'mon', 'day', '6hr', '3hr', 'subhr']
 
     def filename_to_drs(self, context):
+        context.drs.frequency = self._deduce_freq(context)
+
+    def drs_to_path(self, context):
+        # If context.drs.frequency is None it could be deduced from the MIP table
+        if context.drs.frequency is None:
+            context.drs.frequncy = self._deduce_freq(context)
+
+        return super(FrequencyTranslator, self).drs_to_path(context)
+            
+    #----
+
+    def _deduce_freq(self, context):
         # Read frequency from MIP table
         table = context.drs.table
         variable = context.drs.variable
         if (table is None) or (variable is None):
             raise T.TranslationError('Frequency translation requires table and variable to be known')
 
-        freq = context.table_store.get_variable_attr(table, variable, 'frequency')
-        context.drs.frequency = freq
+        return context.table_store.get_variable_attr(table, variable, 'frequency')
+        
 
 frequency_t = FrequencyTranslator()
 
