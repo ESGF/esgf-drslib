@@ -1,0 +1,50 @@
+Howto
+=====
+
+The isenes.drslib.cmip5.make_translator function takes a path or URL prefix as it's only
+argument
+
+>>> from isenes.drslib import cmip5
+>>> cmip5_trans = cmip5.make_translator('http://example.com/')
+>>> cmip5_trans.prefix
+'http://example.com/'
+
+The DRS class is used to store DRS components.  For instance to
+extract DRS components from a filename do:
+
+>>> drs = cmip5_trans.filename_to_drs('tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+>>> drs.variable
+'tas'
+>>> drs.table
+'Amon'
+>>> drs.model
+'HadCM3'
+>>> drs.subset
+((1850, 1, None, None), (2005, 12, None, None), None)
+
+Some DRS components can be deduced from the filename by consulting the
+CMIP5 MIP tables or using internally configured tables.  These are
+automatically set during translation:
+
+>>> drs.institute
+'UKMO'
+>>> drs.realm
+'atmos'
+>>> drs.frequency
+'mon'
+
+Some DRS attributes cannot be deduced from the filename.  These must
+be set in the drs object before you can generate a full DRS path.  Use
+the DRS.is_complete() method to test if the DRS object is completely specified:
+
+>>> drs.is_complete()
+False
+>>> drs.version = 3
+>>> drs.product = 'output'
+>>> drs.is_complete()
+True
+
+Once complete you can generate the full DRS path or URL:
+
+>>> cmip5_trans.drs_to_path(drs)
+'http://example.com/cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v3/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
