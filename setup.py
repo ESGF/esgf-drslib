@@ -1,3 +1,10 @@
+# BSD Licence
+# Copyright (c) 2010, Science & Technology Facilities Council (STFC)
+# All rights reserved.
+#
+# See the LICENSE file in the source distribution of this software for
+# the full license text.
+
 from setuptools import setup, find_packages
 import sys, os
 
@@ -14,7 +21,7 @@ setup(name='isenes.drslib',
       author_email='Stephen.Pascoe@stfc.ac.uk',
       url='',
       license='BSD',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=find_packages(exclude=['ez_setup', 'examples', 'test']),
       include_package_data=True,
       zip_safe=False,
       install_requires=[
@@ -23,4 +30,5 @@ setup(name='isenes.drslib',
       entry_points="""
       # -*- Entry points: -*-
       """,
+      test_suite='nose.collector',
       )
