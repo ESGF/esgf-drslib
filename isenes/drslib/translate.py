@@ -270,6 +270,12 @@ class Translator(ITranslator):
         self.prefix = prefix
         self.table_store = table_store
 
+    #!FIXME: This isn't working!
+    def update_drs(self, drs, context=None):
+        context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
+        for t in self.translators:
+            t.drs_to_filepath(context)
+
     def filename_to_drs(self, filename):
         context = TranslatorContext(filename=filename, drs=self.init_drs(),
                                     table_store = self.table_store)
@@ -287,6 +293,7 @@ class Translator(ITranslator):
         return context.drs
 
     def drs_to_path(self, drs):
+        
         context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
             t.drs_to_filepath(context)

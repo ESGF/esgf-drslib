@@ -76,11 +76,25 @@ class InstituteTranslator(T.GenericTranslator):
     vocab = model_institution_map.values()
 
     def filename_to_drs(self, context):
+        context.drs.institute = self._deduce_institute(context)
+
+    def drs_to_filepath(self, context):
+        if context.drs.version == 4:
+            import pdb; pdb.set_trace()
+        if context.drs.institute is None:
+            context.drs.institute = self._deduce_institute(context)
+
+        super(InstituteTranslator, self).drs_to_filepath(context)        
+
+    #----
+
+    def _deduce_institute(self, context):
         model = context.drs.model
         if model is None:
             raise T.TranslationError('Institute translation requires model to be known')
 
-        context.drs.institute = model_institution_map[model]
+        return model_institution_map[model]
+
 
 institute_t = InstituteTranslator()
 
@@ -164,12 +178,12 @@ class FrequencyTranslator(T.GenericTranslator):
     def filename_to_drs(self, context):
         context.drs.frequency = self._deduce_freq(context)
 
-    def drs_to_path(self, context):
+    def drs_to_filepath(self, context):
         # If context.drs.frequency is None it could be deduced from the MIP table
         if context.drs.frequency is None:
             context.drs.frequncy = self._deduce_freq(context)
 
-        return super(FrequencyTranslator, self).drs_to_path(context)
+        return super(FrequencyTranslator, self).drs_to_filepath(context)
             
     #----
 
@@ -194,14 +208,27 @@ class RealmTranslator(T.GenericTranslator):
                                  'aerosol', 'atmosChem', 'ocnBgchem']
 
     def filename_to_drs(self, context):
+        context.drs.realm = self._deduce_realm(context)
+
+    def drs_to_filepath(self, context):
+        # If context.drs.realm is None it could be deduced from the MIP table
+        if context.drs.realm is None:
+            context.drs.realm = self._deduce_freq(context)
+
+        return super(RealmTranslator, self).drs_to_filepath(context)
+
+
+    #----
+
+    def _deduce_realm(self, context):
         # Read realm from MIP table
         table = context.drs.table
         variable = context.drs.variable
         if (table is None) or (variable is None):
             raise T.TranslationError('Realm translation requires table and variable to be known')
 
-        realm = context.table_store.get_variable_attr(table, variable, 'modeling_realm')
-        context.drs.realm = realm
+        return context.table_store.get_variable_attr(table, variable, 'modeling_realm')
+
 
 realm_t = RealmTranslator()
 

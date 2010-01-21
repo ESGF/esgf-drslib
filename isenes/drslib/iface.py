@@ -108,6 +108,9 @@ class ITranslator(object):
 
     """
 
+    def update_drs(self, drs):
+        raise NotImplementedError
+
     def filename_to_drs(self, filename):
         raise NotImplementedError
 
