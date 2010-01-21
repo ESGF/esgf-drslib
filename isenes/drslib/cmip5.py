@@ -131,23 +131,8 @@ realm_t = RealmTranslator()
 
 ensemble_t = T.EnsembleTranslator()
 
-def get_table_store():
-    import os
-    from glob import glob
-    from isenes.drslib.mip_table import MIPTableStore
 
-    tables = []
-    table_store = MIPTableStore(config.table_path+'/CMIP5_*')
-
-    return table_store
-
-# Build VariableTranslator from MIP tables
-def make_vartranslator():
-    table_store = get_table_store()
-
-    return T.CMORVarTranslator(table_store.tables.values())
-
-variable_t = make_vartranslator()
+variable_t = T.CMORVarTranslator()
 
 version_t = T.VersionTranslator()
 
@@ -177,3 +162,17 @@ class CMIP5Translator(T.Translator):
 
         return drs
 
+
+def get_table_store():
+    import os
+    from glob import glob
+    from isenes.drslib.mip_table import MIPTableStore
+
+    tables = []
+    table_store = MIPTableStore(config.table_path+'/CMIP5_*')
+
+    return table_store
+
+def make_translator(prefix):
+    table_store = get_table_store()
+    return CMIP5Translator(prefix, table_store)

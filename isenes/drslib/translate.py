@@ -42,7 +42,7 @@ class DRS(IDRS):
 
 
 class TranslatorContext(ITranslatorContext):
-    def __init__(self, filename=None, path=None, drs=None):
+    def __init__(self, filename=None, path=None, drs=None, table_store=None):
         if path is None:
             self.path_parts = [None] * 10
         else:
@@ -57,6 +57,8 @@ class TranslatorContext(ITranslatorContext):
             self.drs = DRS()
         else:
             self.drs = drs
+
+        self.table_store = table_store
 
     def set_drs_component(self, drs_component, value):
         v = getattr(self.drs, drs_component)
@@ -129,32 +131,21 @@ class CMORVarTranslator(IComponentTranslator):
     included anywhere in the first string.
 
     """
-    def __init__(self, cmor_tables):
-        """
-        @param variable_map: maps the primary variable name to the CMOR table
-
-        """
-        self._tables = cmor_tables
-        self._build_varmap()
 
     def filename_to_drs(self, context):
         varname = context.file_parts[DRS_FILE_VARIABLE]
         table = context.file_parts[DRS_FILE_TABLE]
 
-        if not varname in self._varmap:
-            raise TranslationError('Variable %s not recognised' % varname)
         #!TODO: table checking
 
         context.set_drs_component('variable', varname)
         context.set_drs_component('table', table)
 
-        return (varname, table)
 
     def path_to_drs(self, context):
         varname = context.file_parts[DRS_PATH_VARIABLE]
         
-        if not varname in self._varmap:
-            raise TranslationError('Variable %s not recognised' % varname)
+        #!TODO: table checking
 
         context.set_drs_component('variable', varname)
 
@@ -166,14 +157,6 @@ class CMORVarTranslator(IComponentTranslator):
 
     #----
 
-    def _build_varmap(self):
-        self._varmap = {}
-        for table in self._tables:
-            for var in table.variables:
-                #if var in self._varmap:
-                #    if self._varmap[var] != table.name:
-                #        raise ValueError('Conflicting variable %s exists in multiple tables' % var)
-                self._varmap[var] = table.name
 
 
 class EnsembleTranslator(IComponentTranslator):
@@ -268,25 +251,28 @@ class SubsetTranslator(IComponentTranslator):
 
 
 class Translator(ITranslator):
-    def __init__(self, prefix):
+    def __init__(self, prefix, table_store):
         self.prefix = prefix
+        self.table_store = table_store
 
     def filename_to_drs(self, filename):
-        context = TranslatorContext(filename=filename, drs=self.init_drs())
+        context = TranslatorContext(filename=filename, drs=self.init_drs(),
+                                    table_store = self.table_store)
         for t in self.translators:
             t.filename_to_drs(context)
 
         return context.drs
 
     def path_to_drs(self, path):
-        context = TranslatorContext(path=self._split_prefix(path), drs=self.init_drs())
+        context = TranslatorContext(path=self._split_prefix(path), drs=self.init_drs(),
+                                    table_store = self.table_store)
         for t in self.translators:
             t.path_to_drs(context)
 
         return context.drs
 
     def drs_to_path(self, drs):
-        context = TranslatorContext(drs=self.init_drs(drs))
+        context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
             t.drs_to_filepath(context)
 

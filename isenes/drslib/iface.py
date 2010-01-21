@@ -35,6 +35,7 @@ class ITranslatorContext(object):
     @ivar path_parts: A list of directories following the DRS prefix
     @ivar file_parts: A list of '_'-separated parts of the filename
     @ivar drs: The DRS of interest
+    @ivar table_store: The mip tables being used
 
     """
 
@@ -93,6 +94,7 @@ class ITranslator(object):
     @property prefix: All paths are interpreted as relative to this prefix.
         Generated paths have this prefix added.
     @property translators: A list of translators called in order to handle translation
+    @property table_store: A IMIPTableStore instance containing all MIP tables being used.
 
     """
 
