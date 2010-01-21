@@ -1,0 +1,8 @@
+What don't we know from the filenames:
+
+ - product: from the MIP table
+ - realm: from the MIP table
+ - version: Must be deduced form datanode?
+ - institute: Configured on ingest
+ - frequency: From MIP table
+ - activity: Configured on ingest

@@ -1,0 +1,2457 @@
+table_id: Table cfMon
+modeling_realm: atmos
+
+frequency: mon
+
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.4         ! version of CF that output conforms to
+project_id:   CMIP5  ! project id
+table_date:   06 November 2009 ! date this table was constructed
+
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
+product: output
+
+required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute
+
+expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
+expt_id_ok: 'volcano-free hindcasts' 'noVolcano'
+expt_id_ok: 'prediction with 2010 volcano' 'volcano2010'
+expt_id_ok: 'pre-industrial control' 'piControl'
+expt_id_ok: 'Historical' 'historical'
+expt_id_ok: 'mid-Holocene' 'midHolocene'
+expt_id_ok: 'last glacial maximum' 'lgm'
+expt_id_ok: 'last millennium' 'past1000'
+expt_id_ok: 'RCP4.5' 'rcp45'
+expt_id_ok: 'RCP8.5' 'rcp85'
+expt_id_ok: 'RCP2.X' 'rcp2x'
+expt_id_ok: 'RCP6' 'rcp6'
+expt_id_ok: 'ESM pre-industrial control' 'esmControl'
+expt_id_ok: 'ESM historical' 'esmHistorical'
+expt_id_ok: 'ESM RCP8.5' 'esmRcp85'
+expt_id_ok: 'ESM fixed climate 1' 'esmFixClim1'
+expt_id_ok: 'ESM fixed climate 2' 'esmFixClim2'
+expt_id_ok: 'ESM feedback 1' 'esmFdbk1'
+expt_id_ok: 'ESM feedback 2' 'esmFdbk2'
+expt_id_ok: '1 percent per year CO2' '1pctCo2'
+expt_id_ok: 'abrupt 4XCO2' 'abrupt4xco2'
+expt_id_ok: 'natural-only' 'historicalNat'
+expt_id_ok: 'GHG-only' 'historicalGhg'
+expt_id_ok: 'AMIP' 'amip'
+expt_id_ok: '2030 time-slice' 'sst2030'
+expt_id_ok: 'control SST climatology' 'sstClim'
+expt_id_ok: 'CO2 forcing' 'sstClim4xco2'
+expt_id_ok: 'all aerosol forcing' 'sstClimAerosol'
+expt_id_ok: 'sulfate aerosol forcing' 'sstClimSulfate'
+expt_id_ok: '4xCO2 AMIP' 'amip4xco2'
+expt_id_ok: 'AMIP plus patterned anomaly' 'amipFuture'
+expt_id_ok: 'aqua planet control' 'aquaControl'
+expt_id_ok: '4xCO2 aqua planet' 'aqua4xco2'
+expt_id_ok: 'aqua planet plus 4K anomaly' 'aqua4K'
+expt_id_ok: 'AMIP plus 4K anomaly' 'amip4K'
+
+
+approx_interval:  0.000000     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+
+!============
+axis_entry: longitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    longitude
+units:            degrees_east
+axis:             X             ! X, Y, Z, T (default: undeclared)
+long_name:        longitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lon
+valid_min:        0         
+valid_max:        360 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: latitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    latitude
+units:            degrees_north
+axis:             Y             ! X, Y, Z, T (default: undeclared)
+long_name:        latitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lat
+valid_min:        -90         
+valid_max:        180 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: plev7
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+tolerance:        0.001
+
+type:             double
+requested_bounds: 100000. 80000. 80000. 68000. 68000. 56000. 56000. 44000. 44000. 31000. 31000. 18000. 18000.  0. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: p220
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+type:             double
+value:            22000.            ! of scalar (singleton) dimension 
+bounds_values:    0. 44000.    ! of scalar (singleton) dimension bounds
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: p560
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+type:             double
+value:            56000.            ! of scalar (singleton) dimension 
+bounds_values:    44000. 68000.    ! of scalar (singleton) dimension bounds
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: p840
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+type:             double
+value:            84000.            ! of scalar (singleton) dimension 
+bounds_values:    680. 100000.    ! of scalar (singleton) dimension bounds
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: alevel
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+long_name:        atmospheric model level
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lev
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+index_only:       ok
+!----------------------------------
+!
+
+
+!============
+axis_entry: alevbnds
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+long_name:        atmospheric model half-level
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lev
+stored_direction: increasing
+type:             double
+must_have_bounds: no
+index_only:       ok
+!----------------------------------
+!
+
+
+!============
+axis_entry: alt40
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    altitude
+units:            m
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         up         ! up or down (default: undeclared)
+long_name:        altitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         alt40
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        240. 720. 1200. 1680. 2160. 2640. 3120. 3600. 4080. 4560. 5040. 5520. 6000. 6480. 6960. 7440. 7920. 8400. 8880. 9360. 9840. 10320. 10800. 11280. 11760. 12240. 12720. 13200. 13680. 14160. 14640. 15120. 15600. 16080. 16560. 17040. 17520. 18000. 18480. 18960.        ! space-separated list of requested coordinates 
+requested_bounds: . 0. 480. 480. 960. 960. 1440. 1440. 1920. 1920. 2400. 2400. 2880. 2880. 3360. 3360. 3840. 3840. 4320. 4320. 4800. 4800. 5280. 5280. 5760. 5760. 6240. 6240. 6720. 6720. 7200. 7200. 7680. 7680. 8160. 8160. 8640. 8640. 9120. 9120. 9600. 9600. 10080. 10080. 10560. 10560. 11040. 11040. 11520. 11520. 12000. 12000. 12480. 12480. 12960. 12960. 13440. 13440. 13920. 13920. 14400. 14400. 14880. 14880. 15360. 15360. 15840. 15840. 16320. 16320. 16800. 16800. 17280. 17280. 17760. 17760. 18240. 18240. 18720. . 18720. 19200. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: time
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: tau
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    cloud_optical_depth
+units:            1
+long_name:        cloud optical depth
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         tau
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        0.15 0.8 2.45 6.5 16.2 41.5 100.        ! space-separated list of requested coordinates 
+requested_bounds: 0.0  0.3  0.3  1.3  1.3  3.6  3.6  9.4 9.4 23.0 23.0 60.0 60.0 100000. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: sza5
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    solar_zenith_angle
+units:            degree
+long_name:        solar zenith angle
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         sza
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        0. 20. 40. 60. 80.        ! space-separated list of requested coordinates 
+must_have_bounds: no
+!----------------------------------
+!
+
+!============
+axis_entry: standard_sigma
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sigma_coordinate
+axis:             Z
+positive:         down
+long_name:        sigma coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
+convert_to:       standard_hybrid_sigma
+z_factors:        ptop: ptop sigma: sigma ps: ps
+z_bounds_factors: ptop: ptop sigma: sigma_bnds ps: ps
+!----------------------------------	
+!
+!
+!============
+axis_entry:  standard_hybrid_sigma
+!============
+!
+!---------------------------------
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+units:            1
+axis:             Z 
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = a(k)*p0 + b(k)*ps(n,j,i)
+z_factors:        p0: p0 a: a b: b ps: ps
+z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  alternate_hybrid_sigma
+!============
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+stored_direction: decreasing
+units:            1
+axis:             Z
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
+convert_to:       standard_hybrid_sigma
+z_factors:        p0: p0 ap: ap b: b ps: ps
+z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  hybrid_height
+!============
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_height_coordinate
+units:            m
+axis:             Z 
+positive:         up
+long_name:        hybrid height coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: increasing
+valid_min:        0.0
+formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
+z_factors:        a: a b: b orog: orog
+z_bounds_factors: a: a_bnds b: b_bnds orog: orog
+!----------------------------------		
+!
+! ***************************************************************
+!
+! Vertical dimensionless coordinate variables:
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: p0
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       reference pressure for hybrid sigma coordinate 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: ptop
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       pressure at top of model 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: sigma
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:  sigma coordinate
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: sigma_bnds
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:  sigma coordinate for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate A coefficient for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate A coefficient for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------
+!
+!
+!============
+variable_entry: ap
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   alternate hybrid sigma coordinate A coefficient for layer
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ap_bnds
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   alternate hybrid sigma coordinate A coefficient for layer bounds
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ztop
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       height of top of model 
+units:           m
+!----------------------------------	
+!
+!
+!============
+variable_entry: az
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid height coordinate coefficient (eta) for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: bz
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid height coordinate coefficient (tau) for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: az_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate coefficient (eta) for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: bz_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient (tau) for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------
+!
+
+!============
+variable_entry:    rlu
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     upwelling_longwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Longwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rlu
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rsu
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     upwelling_shortwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Shortwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsu
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rld
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     downwelling_longwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Longwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rld
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rsd
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     downwelling_shortwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Shortwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsd
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rlucs
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     upwelling_longwave_flux_in_air_assuming_clear_sky
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Clear-Sky Longwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rlucs
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rsucs
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     upwelling_shortwave_flux_in_air_assuming_clear_sky
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Clear-Sky Shortwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsucs
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rldcs
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     downwelling_longwave_flux_in_air_assuming_clear_sky
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Clear-Sky Longwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rldcs
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rsdcs
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     downwelling_shortwave_flux_in_air_assuming_clear_sky
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Clear-Sky Shortwave Radiation
+comment:           Include also the fluxes at the surface and TOA.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsdcs
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    ta
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_temperature
+units:             K
+cell_methods:      time: mean
+long_name:         Air Temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          ta
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnt
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnt
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnta 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_advection
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Advection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnta 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntdp 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_diabatic_processes
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Diabatic Processes
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntdp 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntscce 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Stratiform Cloud Condensation and Evaporation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntscce 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntr 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_radiative_heating
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Radiative Heating
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntr 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntmc 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Moist Convection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntmc 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    hus
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     specific_humidity
+units:             1
+cell_methods:      time: mean
+long_name:         Specific Humidity
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          hus
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhus
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhus
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusa
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_advection
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Advection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusa
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusc
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_convection
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Convection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusd
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_diffusion
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Diffusion
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusd
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusscce
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Stratiform Cloud Condensation and Evaporation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusscce
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusmp
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Model Physics
+comment:           This should include sources and sinks from parametrized physics (e.g. convection, stratiform condensation/evaporation, etc.) and should exclude sources and sinks from resolved dynamics and diffusion.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusmp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    eviscu
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             m2 s-1
+cell_methods:      time: mean
+long_name:         Eddy Viscosity Coefficients for Momentum
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          eviscu
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    evisct
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             m2 s-1
+cell_methods:      time: mean
+long_name:         Eddy Diffusivity Coefficients for Temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          evisct
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    eviscw
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             m2 s-1
+cell_methods:      time: mean
+long_name:         Eddy Diffusivity Coefficients for Water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          eviscw
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clc
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             %
+cell_methods:      time: mean
+long_name:         Convective Cloud Area Fraction
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          clc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:     clwc
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             1
+cell_methods:      time: mean
+long_name:         Mass Fraction of Convective Cloud Liquid Water 
+comment:           Calculate as the mass of convective cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:           clwc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clic
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             1
+cell_methods:      time: mean
+long_name:         Mass Fraction of Convective Cloud Ice
+comment:           Calculate as the mass of convective cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          clic
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    cls
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             %
+cell_methods:      time: mean
+long_name:         Stratiform Cloud Area Fraction
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          cls
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clws
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             1
+cell_methods:      time: mean
+long_name:         Mass Fraction of Stratiform Cloud Liquid Water
+comment:           Calculate as the mass of stratiform cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          clws
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clis
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             1
+cell_methods:      time: mean
+long_name:         Mass Fraction of Stratiform Cloud Ice
+comment:           Calculate as the mass of stratiform cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          clis
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    mcu
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             kg m-2 s-1 
+cell_methods:      time: mean
+long_name:         Updraught Convective Mass Flux
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          mcu
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    mcd
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             kg m-2 s-1 
+cell_methods:      time: mean
+long_name:         Downdraught Convective Mass Flux
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          mcd
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    smc
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             kg m-2 s-1 
+cell_methods:      time: mean
+long_name:         Shallow Convective Mass Flux
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  For models with a distinct shallow convection scheme, calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          smc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    dmc
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             kg m-2 s-1 
+cell_methods:      time: mean
+long_name:         Deep Convective Mass Flux
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          dmc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwce 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Condensation and Evaporation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwce 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwcd 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water Due Convective Detrainment
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwcd 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwhon 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Homogeneous Nucleation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwhon 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwhen 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Heterogeneous Nucleation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwhen 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwri 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Riming
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwri 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwar 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Accretion to Rain
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwar 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwas 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Accretion to Snow
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwas 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwmi 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Melting From Cloud Ice
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwmi 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwac 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Autoconversion
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwac 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnsclwa 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Advection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnsclwa 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tncliscd 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice Due Convective Detrainment
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tncliscd 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclishon 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Homogeneous Nucleation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclishon 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclishencl 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Heterogeneous Nucleation From Cloud Liquid
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclishencl 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclishenv 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Heterogeneous Nucleation From Water Vapor
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclishenv 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisricl 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Riming From Cloud Liquid
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisricl 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisrir 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Riming From Rain
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisrir 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisds 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Deposition and Sublimation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisds 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisag 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Aggregation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisag 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisas
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Accretion to Snow
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisas
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisemi 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Evaporation of Melting Ice
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisemi 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclismr 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Melting to Rain
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclismr 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclismcl 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Melting to Cloud Liquid
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclismcl 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisif 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Icefall
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisif 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclisa 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Advection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclisa 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclscce 
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Condensation and Evaporation
+comment:           condensed water includes both liquid and ice.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclscce 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclscacr 
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Autoconversion to Rain
+comment:           condensed water includes both liquid and ice.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclscacr 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclscacs 
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Autoconversion to Snow
+comment:           condensed water includes both liquid and ice.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclscacs 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclscif 
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Icefall
+comment:           condensed water includes both liquid and ice.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclscif 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnclsca 
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Advection
+comment:           condensed water includes both liquid and ice.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnclsca 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    rsut4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         TOA Outgoing Shortwave Radiation in 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          rsut4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rlut4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         TOA Outgoing Longwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          rlut4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rsutcs4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         TOA Outgoing Clear-Sky Shortwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          rsutcs4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rlutcs4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         TOA Outgoing Clear-Sky Longwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          rlutcs4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rlu4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Longwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rlu4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rsu4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Shortwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsu4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rld4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Longwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rld4co2
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rsd4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Shortwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsd4co2
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rlucs4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Clear-Sky Longwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rlucs4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rsucs4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Upwelling Clear-Sky Shortwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsucs4co2
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rldcs4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Clear-Sky Longwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rldcs4co2
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rsdcs4co2
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Downwelling Clear-Sky Shortwave Radiation 4XCO2 Atmosphere
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevbnds time
+out_name:          rsdcs4co2
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    cltisccp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction
+units:             %
+cell_methods:      time: mean
+long_name:         ISCCP Total Cloud Fraction
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          cltisccp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    albisccp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_albedo
+units:             1
+cell_methods:      time: mean
+long_name:         ISCCP Mean Cloud Albedo
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          albisccp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    ctpisccp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_pressure_at_cloud_top
+units:             Pa 
+cell_methods:      time: mean
+long_name:         ISCCP Mean Cloud Top Pressure
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          ctpisccp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clisccp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     isccp_cloud_area_fraction
+units:             %
+cell_methods:      time: mean
+long_name:         ISCCP Cloud Area Fraction
+comment:            7 levels x 7 tau
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev7, tau, time
+out_name:          clisccp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    cltcalipso
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction
+units:             %
+cell_methods:      time: mean
+long_name:         CALIPSO Total Cloud Fraction
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          cltcalipso
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    cllcalipso
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
+units:             %
+cell_methods:      time: mean
+long_name:         CALIPSO Low Level Cloud Fraction 
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time p840
+out_name:          cllcalipso
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clmcalipso
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
+units:             %
+cell_methods:      time: mean
+long_name:         CALIPSO Mid Level Cloud Fraction 
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time p560
+out_name:          clmcalipso
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clhcalipso
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
+units:             %
+cell_methods:      time: mean
+long_name:         CALIPSO High Level Cloud Fraction 
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time p220
+out_name:          clhcalipso
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clcalipso
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
+units:             %
+cell_methods:      time: mean
+long_name:         CALIPSO Cloud Fraction 
+comment:            40 height levels
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alt40 time
+out_name:          clcalipso
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    parasolRefl
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             1
+cell_methods:      time: mean
+long_name:         PARASOL Reflectance 
+comment:            5 bins of solar zenith angle.  This is reflectance as seen at the top of the atmosphere.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude sza5 time
+out_name:          parasolRefl
+type:              real
+!----------------------------------
+!
+

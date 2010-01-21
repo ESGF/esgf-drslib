@@ -1,0 +1,1319 @@
+table_id: Table Oyr
+modeling_realm: ocean
+
+frequency: yr
+
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.4         ! version of CF that output conforms to
+project_id:   CMIP5  ! project id
+table_date:   06 November 2009 ! date this table was constructed
+
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
+product: output
+
+required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute
+
+expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
+expt_id_ok: 'volcano-free hindcasts' 'noVolcano'
+expt_id_ok: 'prediction with 2010 volcano' 'volcano2010'
+expt_id_ok: 'pre-industrial control' 'piControl'
+expt_id_ok: 'Historical' 'historical'
+expt_id_ok: 'mid-Holocene' 'midHolocene'
+expt_id_ok: 'last glacial maximum' 'lgm'
+expt_id_ok: 'last millennium' 'past1000'
+expt_id_ok: 'RCP4.5' 'rcp45'
+expt_id_ok: 'RCP8.5' 'rcp85'
+expt_id_ok: 'RCP2.X' 'rcp2x'
+expt_id_ok: 'RCP6' 'rcp6'
+expt_id_ok: 'ESM pre-industrial control' 'esmControl'
+expt_id_ok: 'ESM historical' 'esmHistorical'
+expt_id_ok: 'ESM RCP8.5' 'esmRcp85'
+expt_id_ok: 'ESM fixed climate 1' 'esmFixClim1'
+expt_id_ok: 'ESM fixed climate 2' 'esmFixClim2'
+expt_id_ok: 'ESM feedback 1' 'esmFdbk1'
+expt_id_ok: 'ESM feedback 2' 'esmFdbk2'
+expt_id_ok: '1 percent per year CO2' '1pctCo2'
+expt_id_ok: 'abrupt 4XCO2' 'abrupt4xco2'
+expt_id_ok: 'natural-only' 'historicalNat'
+expt_id_ok: 'GHG-only' 'historicalGhg'
+expt_id_ok: 'AMIP' 'amip'
+expt_id_ok: '2030 time-slice' 'sst2030'
+expt_id_ok: 'control SST climatology' 'sstClim'
+expt_id_ok: 'CO2 forcing' 'sstClim4xco2'
+expt_id_ok: 'all aerosol forcing' 'sstClimAerosol'
+expt_id_ok: 'sulfate aerosol forcing' 'sstClimSulfate'
+expt_id_ok: '4xCO2 AMIP' 'amip4xco2'
+expt_id_ok: 'AMIP plus patterned anomaly' 'amipFuture'
+expt_id_ok: 'aqua planet control' 'aquaControl'
+expt_id_ok: '4xCO2 aqua planet' 'aqua4xco2'
+expt_id_ok: 'aqua planet plus 4K anomaly' 'aqua4K'
+expt_id_ok: 'AMIP plus 4K anomaly' 'amip4K'
+
+
+approx_interval:  365.000000     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+
+!============
+axis_entry: longitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    longitude
+units:            degrees_east
+axis:             X             ! X, Y, Z, T (default: undeclared)
+long_name:        longitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lon
+valid_min:        0         
+valid_max:        360 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: latitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    latitude
+units:            degrees_north
+axis:             Y             ! X, Y, Z, T (default: undeclared)
+long_name:        latitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lat
+valid_min:        -90         
+valid_max:        180 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: time
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: olevel
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        ocean model level
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lev
+stored_direction: decreasing
+type:             double
+must_have_bounds: yes
+index_only:       ok
+!----------------------------------
+!
+
+!============
+variable_entry:    dissic
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Inorganic Carbon Concentration
+comment:           Dissolved inorganic carbon (CO3+HCO3+H2CO3) concentration
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          dissic
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    dissoc
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Organic Carbon Concentration
+comment:           Dissolved organic carbon concentration
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          dissoc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phyc
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Phytoplankton Carbon Concentration
+comment:           sum of phytoplankton carbon component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phyc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    zooc
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Zooplankton Carbon Concentration
+comment:           sum of zooplankton carbon component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          zooc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bacc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Bacterial Carbon Concentration
+comment:           sum of bacterial carbon component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bacc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    detoc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Detrital Organic Carbon Concentration
+comment:           sum of detrital organic carbon component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          detoc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    calc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Calcite Concentration
+comment:           sum of particulate calcite component concentrations (e.g. Phytoplankton, Detrital, etc.)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          calc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    arag
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Aragonite Concentration
+comment:           sum of particulate aragonite components (e.g. Phytoplankton, Detrital, etc.)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          arag
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phycdiat
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Diatom Carbon Concentration
+comment:           carbon from the diatom phytoplankton component concentration alone
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phycdiat
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phycmisc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Non-Diatom Phytoplankton Carbon Concentration
+comment:           carbon from additional phytoplankton component concentrations alone (e.g. Calc., diaz., cyano., etc)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phycmisc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    zoocmisc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Other Zooplankton Carbon Concentration
+comment:           carbon from additional zooplankton component concentrations alone (e.g. Micro, meso)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          zoocmisc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    talk
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             eq m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Total Alkalinity
+comment:           total alkalinity equivalent concentration (including carbonate, nitrogen, silicate, and borate components)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          talk
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    ph
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             1
+cell_methods:      time: mean area: mean where sea 
+long_name:         pH
+comment:           negative log of hydrogen ion concentration with the concentration expressed as mol H kg-1.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          ph
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    o2
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol O2 m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolve Oxygen Concentration
+comment:           dissolved oxygen gas concentration in sea water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          o2
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    no3
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol N m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Nitrate Concentration
+comment:           dissolved nitrate concentration in sea water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          no3
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    nh4
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol N m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Ammonium Concentration
+comment:           dissolved ammonium concentration in sea water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          nh4
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    po4
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol P m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Phosphate Concentration
+comment:           dissolved Phosphate concentration in sea water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          po4
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    dfe
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Iron Concentration
+comment:           dissolved iron concentration in sea water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          dfe
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    si
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Si m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dissolved Silicate Concentration
+comment:           dissolved silicate concentration in sea water
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          si
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    chl
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mg Chl m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Total Chlorophyll Mass Concentration
+comment:           sum of chlorophyll from all phytoplankton group concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          chl
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    chldiat
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mg Chl m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Diatom Chlorophyll Mass Concentration
+comment:           chlorophyll from diatom phytoplankton component concentration alone
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          chldiat
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    chlmisc
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mg Chl m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Other Phytoplankton Chlorophyll Mass Concentration
+comment:           chlorophyll from additional phytoplankton component concentrations alone
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          chlmisc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pon
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol N m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Particulate Organic Nitrogen Concentration
+comment:           sum of particulate organic nitrogen component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pon
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pop
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol P m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Particulate Organic Phosphorus Concentration
+comment:           sum of particulate organic phosphorus component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pop
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bfe
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Particulate Biogenic Iron Concentration
+comment:           sum of particulate organic iron component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bfe
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bsi
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Si m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Particulate Biogenic Silica Concentration
+comment:           sum of particulate silica component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bsi
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phyn
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol N m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Phytoplankton Nitrogen Concentration
+comment:           sum of phytoplankton nitrogen component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phyn
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phyp
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol P m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Phytoplankton Phosphorus Concentration
+comment:           sum of phytoplankton phosphorus components
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phyp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phyfe
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Phytoplankton Iron Concentration
+comment:           sum of phytoplankton iron component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phyfe
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    physi
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Si m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Phytoplankton Silica Concentration
+comment:           sum of phytoplankton silica component concentrations
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          physi
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    dms
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol DMS m-3
+cell_methods:      time: mean area: mean where sea 
+long_name:         Dimethyl Sulphide Concentration
+comment:           dimethyl sulphide concentration
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          dms
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pp
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Primary Carbon Production by Phytoplankton
+comment:           total primary (organic carbon) production by phytoplankton
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pnew
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Primary Carbon Production by Phytoplankton Based on NO3 Alone
+comment:           Primary (organic carbon) production by phytoplankton based on NO3 alone
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pnew
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pbfe
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Biogenic Iron Production
+comment:           Biogenic iron production
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pbfe
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pbsi
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Si m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Biogenic Silica Production
+comment:           Biogenic silica production
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pbsi
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pcalc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Calcite Production
+comment:           calcite production
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pcalc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    parag
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Aragonite Production
+comment:           aragonite production
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          parag
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    expc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Particulate Organic Carbon Flux
+comment:           sinking flux of organic carbon
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          expc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    expn
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol N m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Particulate Organic Nitrogen Flux
+comment:           sinking flux of organic nitrogen
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          expn
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    expp
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol P m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Particulate Organic Phosphorus Flux
+comment:           sinking flux of organic phosphorus
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          expp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    expcfe
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Particulate Iron Flux
+comment:           sinking flux of iron
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          expcfe
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    expsi
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Si m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Particulate Silica Flux
+comment:           sinking flux of silica
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          expsi
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    expcalc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Calcite Flux
+comment:           sinking flux of calcite
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          expcalc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    exparag
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-2 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Sinking Aragonite Flux
+comment:           sinking flux of aragonite
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          exparag
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    dcalc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Calcite Dissolution
+comment:           calcite dissolution
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          dcalc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    darag
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Aragonite Dissolution
+comment:           aragonite dissolution
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          darag
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pdi
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Diatom Primary Carbon Production
+comment:           Primary (organic carbon) production by the diatom component alone
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          pdi
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phypmisc
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Other Phytoplankton Carbon Production
+comment:           Primary (organic carbon) production by other phytoplankton components alone
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          phypmisc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bddtdic
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol C m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Rate of Change of Dissolved Inorganic Carbon due to Biological Activity
+comment:           Net of biological terms in time rate of change of dissolved inorganic carbon
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bddtdic
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bddtdin
+!============
+modeling_realm:    ocnBgchem
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol N m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Rate of Change of Nitrogen Nutrient due to Biological Activity
+comment:           Net of biological terms in time rate of change of nitrogen nutrients (e.g. NO3+NH4)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bddtdin
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bddtdip
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol P m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Rate of Change of Dissolved Phosphate due to Biological Activity
+comment:           Net of biological terms in time rate of change of dissolved phosphate
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bddtdip
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bddtdife
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Rate of Change of Dissolved Inorganic Iron due to Biological Activity
+comment:           Net of biological terms in time rate of change of dissolved inorganic iron
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bddtdife
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bddtdisi
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Si m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Rate of Change of Dissolved Inorganic Silicate due to Biological Activity
+comment:           Net of biological terms in time rate of change of dissolved inorganic silicate
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bddtdisi
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    bddtalk
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             eq m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Rate of Change of Alkalinity due to Biological Activity
+comment:           Net of biological terms in time rate of change of alkalinity
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          bddtalk
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    fescav
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Nonbiogenic Iron Scavenging
+comment:           Dissolved Fe removed through nonbiogenic scavenging onto particles
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          fescav
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    fediss
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Particle Source of Dissolved Iron
+comment:           Dissolution, remineralization and desorption of iron back to the dissolved phase
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          fediss
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    graz
+!============
+modeling_realm:    ocnBgchem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             mol Fe m-3 s-1
+cell_methods:      time: mean area: mean where sea 
+long_name:         Total Grazing of Phytoplankton by Zooplankton
+comment:           Total grazing of phytoplankton by zooplankton
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel time
+out_name:          graz
+type:              real
+!----------------------------------
+!
+

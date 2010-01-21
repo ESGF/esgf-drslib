@@ -1,0 +1,1277 @@
+table_id: Table 3hr
+modeling_realm: atmos
+
+frequency: 3hr
+
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.4         ! version of CF that output conforms to
+project_id:   CMIP5  ! project id
+table_date:   06 November 2009 ! date this table was constructed
+
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
+product: output
+
+required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute
+
+expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
+expt_id_ok: 'volcano-free hindcasts' 'noVolcano'
+expt_id_ok: 'prediction with 2010 volcano' 'volcano2010'
+expt_id_ok: 'pre-industrial control' 'piControl'
+expt_id_ok: 'Historical' 'historical'
+expt_id_ok: 'mid-Holocene' 'midHolocene'
+expt_id_ok: 'last glacial maximum' 'lgm'
+expt_id_ok: 'last millennium' 'past1000'
+expt_id_ok: 'RCP4.5' 'rcp45'
+expt_id_ok: 'RCP8.5' 'rcp85'
+expt_id_ok: 'RCP2.X' 'rcp2x'
+expt_id_ok: 'RCP6' 'rcp6'
+expt_id_ok: 'ESM pre-industrial control' 'esmControl'
+expt_id_ok: 'ESM historical' 'esmHistorical'
+expt_id_ok: 'ESM RCP8.5' 'esmRcp85'
+expt_id_ok: 'ESM fixed climate 1' 'esmFixClim1'
+expt_id_ok: 'ESM fixed climate 2' 'esmFixClim2'
+expt_id_ok: 'ESM feedback 1' 'esmFdbk1'
+expt_id_ok: 'ESM feedback 2' 'esmFdbk2'
+expt_id_ok: '1 percent per year CO2' '1pctCo2'
+expt_id_ok: 'abrupt 4XCO2' 'abrupt4xco2'
+expt_id_ok: 'natural-only' 'historicalNat'
+expt_id_ok: 'GHG-only' 'historicalGhg'
+expt_id_ok: 'AMIP' 'amip'
+expt_id_ok: '2030 time-slice' 'sst2030'
+expt_id_ok: 'control SST climatology' 'sstClim'
+expt_id_ok: 'CO2 forcing' 'sstClim4xco2'
+expt_id_ok: 'all aerosol forcing' 'sstClimAerosol'
+expt_id_ok: 'sulfate aerosol forcing' 'sstClimSulfate'
+expt_id_ok: '4xCO2 AMIP' 'amip4xco2'
+expt_id_ok: 'AMIP plus patterned anomaly' 'amipFuture'
+expt_id_ok: 'aqua planet control' 'aquaControl'
+expt_id_ok: '4xCO2 aqua planet' 'aqua4xco2'
+expt_id_ok: 'aqua planet plus 4K anomaly' 'aqua4K'
+expt_id_ok: 'AMIP plus 4K anomaly' 'amip4K'
+
+
+approx_interval:  0.125000     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+
+!============
+axis_entry: longitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    longitude
+units:            degrees_east
+axis:             X             ! X, Y, Z, T (default: undeclared)
+long_name:        longitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lon
+valid_min:        0         
+valid_max:        360 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: latitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    latitude
+units:            degrees_north
+axis:             Y             ! X, Y, Z, T (default: undeclared)
+long_name:        latitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lat
+valid_min:        -90         
+valid_max:        180 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: p220
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+type:             double
+value:            22000.            ! of scalar (singleton) dimension 
+bounds_values:    0. 44000.    ! of scalar (singleton) dimension bounds
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: p560
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+type:             double
+value:            56000.            ! of scalar (singleton) dimension 
+bounds_values:    44000. 68000.    ! of scalar (singleton) dimension bounds
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: p840
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+type:             double
+value:            84000.            ! of scalar (singleton) dimension 
+bounds_values:    680. 100000.    ! of scalar (singleton) dimension bounds
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: alevel
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+long_name:        atmospheric model level
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lev
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+index_only:       ok
+!----------------------------------
+!
+
+
+!============
+axis_entry: alevbnds
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+long_name:        atmospheric model half-level
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lev
+stored_direction: increasing
+type:             double
+must_have_bounds: no
+index_only:       ok
+!----------------------------------
+!
+
+
+!============
+axis_entry: alt40
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    altitude
+units:            m
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         up         ! up or down (default: undeclared)
+long_name:        altitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         alt40
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        240. 720. 1200. 1680. 2160. 2640. 3120. 3600. 4080. 4560. 5040. 5520. 6000. 6480. 6960. 7440. 7920. 8400. 8880. 9360. 9840. 10320. 10800. 11280. 11760. 12240. 12720. 13200. 13680. 14160. 14640. 15120. 15600. 16080. 16560. 17040. 17520. 18000. 18480. 18960.        ! space-separated list of requested coordinates 
+requested_bounds: . 0. 480. 480. 960. 960. 1440. 1440. 1920. 1920. 2400. 2400. 2880. 2880. 3360. 3360. 3840. 3840. 4320. 4320. 4800. 4800. 5280. 5280. 5760. 5760. 6240. 6240. 6720. 6720. 7200. 7200. 7680. 7680. 8160. 8160. 8640. 8640. 9120. 9120. 9600. 9600. 10080. 10080. 10560. 10560. 11040. 11040. 11520. 11520. 12000. 12000. 12480. 12480. 12960. 12960. 13440. 13440. 13920. 13920. 14400. 14400. 14880. 14880. 15360. 15360. 15840. 15840. 16320. 16320. 16800. 16800. 17280. 17280. 17760. 17760. 18240. 18240. 18720. . 18720. 19200. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: time
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: time1
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: height2m
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    height
+units:            m
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         up         ! up or down (default: undeclared)
+long_name:        height
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         height
+valid_min:        1         
+valid_max:        10 
+stored_direction: increasing
+type:             double
+value:            2.            ! of scalar (singleton) dimension 
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: height10m
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    height
+units:            m
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         up         ! up or down (default: undeclared)
+long_name:        height
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         height
+valid_min:        1         
+valid_max:        30 
+stored_direction: increasing
+type:             double
+value:            10.            ! of scalar (singleton) dimension 
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: scatratio
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    backscattering_ratio
+units:            1
+long_name:        lidar backscattering ratio
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         scatratio
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested_bounds: 0.01, 1.2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 60, 80, 999, 1009 ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: dbze
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    equivalent_reflectivity_factor
+units:            dBZ
+long_name:        CloudSat simulator equivalent radar reflectivity factor
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         dbze
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        -47.5 -42.5 -37.5 -32.5 -27.5 -22.5 -17.5 -12.5 -7.5 -2.5 2.5 7.5 12.5 17.5 22.5        ! space-separated list of requested coordinates 
+requested_bounds: -50, -45, -40, -35, -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25 ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: sza5
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    solar_zenith_angle
+units:            degree
+long_name:        solar zenith angle
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         sza
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        0. 20. 40. 60. 80.        ! space-separated list of requested coordinates 
+must_have_bounds: no
+!----------------------------------
+!
+
+
+!============
+axis_entry: location
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+long_name:        location index
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         loc
+stored_direction: increasing
+type:             double
+must_have_bounds: no
+index_only:       ok
+!----------------------------------
+!
+
+!============
+axis_entry: standard_sigma
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sigma_coordinate
+axis:             Z
+positive:         down
+long_name:        sigma coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
+convert_to:       standard_hybrid_sigma
+z_factors:        ptop: ptop sigma: sigma ps: ps
+z_bounds_factors: ptop: ptop sigma: sigma_bnds ps: ps
+!----------------------------------	
+!
+!
+!============
+axis_entry:  standard_hybrid_sigma
+!============
+!
+!---------------------------------
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+units:            1
+axis:             Z 
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = a(k)*p0 + b(k)*ps(n,j,i)
+z_factors:        p0: p0 a: a b: b ps: ps
+z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  alternate_hybrid_sigma
+!============
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+stored_direction: decreasing
+units:            1
+axis:             Z
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
+convert_to:       standard_hybrid_sigma
+z_factors:        p0: p0 ap: ap b: b ps: ps
+z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  hybrid_height
+!============
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_height_coordinate
+units:            m
+axis:             Z 
+positive:         up
+long_name:        hybrid height coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: increasing
+valid_min:        0.0
+formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
+z_factors:        a: a b: b orog: orog
+z_bounds_factors: a: a_bnds b: b_bnds orog: orog
+!----------------------------------		
+!
+! ***************************************************************
+!
+! Vertical dimensionless coordinate variables:
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: p0
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       reference pressure for hybrid sigma coordinate 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: ptop
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       pressure at top of model 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: sigma
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:  sigma coordinate
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: sigma_bnds
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:  sigma coordinate for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate A coefficient for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate A coefficient for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------
+!
+!
+!============
+variable_entry: ap
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   alternate hybrid sigma coordinate A coefficient for layer
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ap_bnds
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   alternate hybrid sigma coordinate A coefficient for layer bounds
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ztop
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       height of top of model 
+units:           m
+!----------------------------------	
+!
+!
+!============
+variable_entry: az
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid height coordinate coefficient (eta) for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: bz
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid height coordinate coefficient (tau) for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: az_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate coefficient (eta) for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: bz_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient (tau) for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------
+!
+
+!============
+variable_entry:    pr
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     precipitation_flux
+units:             kg m-2 s-1
+cell_methods:      time:mean
+long_name:         Precipitation
+comment:           at surface; includes both liquid and solid phases.  This is the 3-hour mean precipitation flux.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          pr
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tas
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_temperature
+units:             K
+cell_methods:      time: mean
+long_name:         Air Temperature
+comment:           near-surface (usually, 2 meter) air temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time height2m
+out_name:          tas
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    hfls
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_upward_latent_heat_flux
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Upward Latent Heat Flux
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          hfls
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    hfss
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_upward_sensible_heat_flux
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Upward Sensible Heat Flux
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          hfss
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rlds
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_downwelling_longwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Downwelling Longwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rlds
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rlus
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_upwelling_longwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Upwelling Longwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rlus
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    rsds
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_downwelling_shortwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Downwelling Shortwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rsds
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rsus
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_upwelling_shortwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Upwelling Shortwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rsus
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    uas
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     eastward_wind
+units:             m s-1
+cell_methods:      time: point
+long_name:         Eastward Near-Surface Wind Speed
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time height10m
+out_name:          uas
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    vas
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     northward_wind
+units:             m s-1
+cell_methods:      time: point
+long_name:         Northward Near-Surface Wind Speed
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time height10m
+out_name:          vas
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    huss
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     specific_humidity
+units:             1
+cell_methods:      time: point
+long_name:         Near-Surface Specific Humidity
+comment:           near-surface (usually 2 m) specific humidity.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time height2m
+out_name:          huss
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    mrsos
+!============
+modeling_realm:    land
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     moisture_content_of_soil_layer
+units:             kg m-2
+cell_methods:      time: point
+long_name:         Moisture in Upper 0.1 m of Soil Column
+comment:           Compute the mass of water in all phases in the upper 0.1 meters of soil.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          mrsos
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tsl
+!============
+modeling_realm:    land
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_temperature
+units:             K
+cell_methods:      time: point
+long_name:          Surface Temperature Where Land or Sea Ice
+comment:           """skin"" temperature of all surfaces except open ocean.  "
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          tsl
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tso
+!============
+modeling_realm:    ocean
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     sea_surface_temperature
+units:             K
+cell_methods:      time: point area: mean where sea
+long_name:         Sea Surface Temperature
+comment:           temperature of surface of open ocean
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          tso
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    prc
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     convective_precipitation_flux
+units:             kg m-2 s-1
+cell_methods:      time:mean
+long_name:         Convective Precipitation
+comment:           at surface
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          prc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    prsn
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     snowfall_flux
+units:             kg m-2 s-1
+cell_methods:      time:mean
+long_name:         Snowfall Flux
+comment:           at surface.  Includes all forms of precipitating solid phase of water.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time
+out_name:          prsn
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    mrro
+!============
+modeling_realm:    land
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     runoff_flux
+units:             kg m-2 s-1
+cell_methods:      time: mean area: mean where land
+long_name:         Total Runoff
+comment:           "compute the total runoff (including ""drainage"" through the base of the soil model) leaving the land portion of the grid cell divided by the land area in the grid cell."
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          mrro
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    rldscs
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     clear-sky_surface_downwelling_longwave_flux_in_air
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Downwelling Clear-Sky Longwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rldscs
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rsdscs
+!============
+modeling_realm:    atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_downwelling_shortwave_flux_in_air_assuming_clear_sky
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Downwelling Clear-Sky Shortwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rsdscs
+type:              real
+positive:          down
+!----------------------------------
+!
+
+!============
+variable_entry:    rluscs
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_upwelling_shortwave_flux_in_air_assuming_clear_sky
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Upwelling Clear-Sky Shortwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rluscs
+type:              real
+positive:          up
+!----------------------------------
+!
+
+!============
+variable_entry:    ps
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_pressure
+units:             Pa
+cell_methods:      time: point
+long_name:         Surface Pressure
+comment:           to diagnose atmospheric tides, this is better than mean sea level pressure.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          ps
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clt
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     total_cloud_fraction
+units:             %
+cell_methods:      time: point
+long_name:         Total Cloud Fraction
+comment:           for the whole atmospheric column, as seen from the surface or the top of the atmosphere. Include both large-scale and convective cloud.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          clt
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    rsdsdiff
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             W m-2
+cell_methods:      time: mean
+long_name:         Surface Downward Diffuse Shortwave Radiation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude time1
+out_name:          rsdsdiff
+type:              real
+!----------------------------------
+!
+
