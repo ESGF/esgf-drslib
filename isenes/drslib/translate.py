@@ -32,13 +32,20 @@ DRS_FILE_SUBSET = 5
 
 
 class DRS(IDRS):
-    def __init__(self, **kwargs):
-        attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
+    _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
                  'realm', 'variable', 'table', 'ensemble', 'version', 'subset',]
 
-        for attr in attrs:
+    def __init__(self, **kwargs):
+        
+        for attr in self._drs_attrs:
             setattr(self, attr, kwargs.get(attr))
 
+    def is_complete(self):
+        for attr in self._drs_attrs:
+            if getattr(self, attr) is None:
+                return False
+
+        return True
 
 
 class TranslatorContext(ITranslatorContext):

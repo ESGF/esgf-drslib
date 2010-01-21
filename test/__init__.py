@@ -43,6 +43,7 @@ def roundtrip_filename(filename):
 
     drs.version = 1
     drs.product = 'output'
+    assert drs.is_complete()
 
     path = translator.drs_to_path(drs)
 

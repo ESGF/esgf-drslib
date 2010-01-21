@@ -26,7 +26,10 @@ class IDRS(object):
         and clim is boolean
 
     """
-    NotImplemented
+    def is_complete(self):
+        """Returns boolean to indicate if all components are specified.
+        """
+        raise NotImplementedError
 
 class ITranslatorContext(object):
     """
