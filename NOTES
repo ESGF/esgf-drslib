@@ -1,6 +1,6 @@
 What don't we know from the filenames:
 
- - product: from the MIP table
+ - product: ? More logic needed
  - realm: from the MIP table
  - version: Must be deduced form datanode?
  - institute: Configured on ingest

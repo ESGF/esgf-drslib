@@ -113,14 +113,14 @@ class ITranslator(object):
         raise NotImplementedError
 
 
-class ICMORTable(object):
+class IMIPTable(object):
     """
-    Hold information from a CMOR table.  
+    Hold information from a MIP table.  
 
-    Initially this is used to add CMOR table names to DRS filenames.
-    Future extensions could read CMOR tables and record extra information.
+    Initially this is used to add MIP table names to DRS filenames.
+    Future extensions could read MIP tables and record extra information.
     
-    @property name: The name of the CMOR table as used in DRS filenames.
+    @property name: The name of the MIP table as used in DRS filenames.
     @property variables: A list of variables in this table.
     @property experiments: A list of valid experiment ids for this table.
 
@@ -134,3 +134,29 @@ class ICMORTable(object):
         value is returned
 
         """
+        raise NotImplementedError
+
+
+class IMIPTableStore(object):
+    """
+    Holds a collection of mip tables.
+
+    @property tables: A mapping of table names to IMIPTable instances
+
+    """
+
+    def add_table(self, filename):
+        """
+        Read filename as a MIP table and add it to the store.
+        
+        @return: The added MIPTable instance.
+
+        """
+        raise NotImplementedError
+
+    def get_variable_attr(self, table, variable, attr):
+        """
+        Return the value of a variable's attribute in a fiven table.
+
+        """
+        raise NotImplementedError

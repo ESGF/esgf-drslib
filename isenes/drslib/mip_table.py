@@ -6,8 +6,9 @@ My interpretation of the format from reading the CMIP5 tables.
 """
 
 import re
+from glob import glob
 
-from isenes.drslib.iface import ICMORTable
+from isenes.drslib.iface import IMIPTable, IMIPTableStore
 
 entry_ids = ['axis_entry', 'variable_entry']
 
@@ -88,7 +89,7 @@ def split_comment(line):
 
     return (value, comment)
 
-class CMORTable(ICMORTable):
+class MIPTable(IMIPTable):
     def __init__(self, filename):
         fh = open(filename)
         
@@ -130,9 +131,37 @@ class CMORTable(ICMORTable):
             raise ValueError('Variable %s not found' % variable)
 
         try:
-            return self._vardict[variable][d]
+            return self._vardict[variable][attr]
         except KeyError:
             try:
                 return self._globals[attr]
             except KeyError:
                 raise AttributeError('Attribute %s not in variable or global entry' % attr)
+
+
+class MIPTableStore(IMIPTableStore):
+    """
+    Holds a collection of mip tables.
+
+    @property tables: A mapping of table names to IMIPTable instances
+
+    """
+
+    def __init__(self, table_glob):
+        self.tables = {}
+
+        for filename in glob(table_glob):
+            self.add_table(filename)
+
+    def add_table(self, filename):
+        t = MIPTable(filename)
+        self.tables[t.name] = t
+
+        return t
+
+    def get_variable_attr(self, table, variable, attr):
+        if table not in self.tables:
+            raise ValueError('Table %s not found' % table)
+
+        return self.tables[table].get_variable_attr(variable, attr)
+
