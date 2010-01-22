@@ -171,7 +171,24 @@ class IMIPTableStore(object):
 
     def get_variable_attr(self, table, variable, attr):
         """
-        Return the value of a variable's attribute in a fiven table.
+        Return the value of a variable's attribute in a given table.
 
         """
         raise NotImplementedError
+
+    def get_variable_attr_mv(self, table, variable, attr):
+        """
+        Return the list of values value of a variable's attribute in a 
+        given table.
+
+        """
+        raise NotImplementedError
+
+
+    def get_variable_tables(self, variable, **attribute_constraints):
+        """
+        Return the tables in which a variable has the specified attributes
+
+        """
+        raise NotImplementedError
+

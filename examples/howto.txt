@@ -63,8 +63,9 @@ The DRS class can be used to constructed from scratch like:
 #Use the translator to deduce extra drs attributes
 #>>> drs2.institute
 #
-#>>> cmip5_trans.update_drs(drs)
+#>>> cmip5_trans.update_drs(drs2)
 #>>> drs2.institute
 #'UKMO'
+#
 #cmip5_trans.drs_to_path(drs)
 #'http://example.com/cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v3/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'

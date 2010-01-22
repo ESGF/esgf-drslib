@@ -79,8 +79,6 @@ class InstituteTranslator(T.GenericTranslator):
         context.drs.institute = self._deduce_institute(context)
 
     def drs_to_filepath(self, context):
-        if context.drs.version == 4:
-            import pdb; pdb.set_trace()
         if context.drs.institute is None:
             context.drs.institute = self._deduce_institute(context)
 
@@ -205,7 +203,7 @@ class RealmTranslator(T.GenericTranslator):
     file_i = None
     component = 'realm'
     vocab = ['atmos', 'ocean', 'land', 'landIce', 'seaIce', 
-                                 'aerosol', 'atmosChem', 'ocnBgchem']
+             'aerosol', 'atmosChem', 'ocnBgchem']
 
     def filename_to_drs(self, context):
         context.drs.realm = self._deduce_realm(context)
@@ -213,7 +211,7 @@ class RealmTranslator(T.GenericTranslator):
     def drs_to_filepath(self, context):
         # If context.drs.realm is None it could be deduced from the MIP table
         if context.drs.realm is None:
-            context.drs.realm = self._deduce_freq(context)
+            context.drs.realm = self._deduce_realm(context)
 
         return super(RealmTranslator, self).drs_to_filepath(context)
 
@@ -256,8 +254,8 @@ class CMIP5Translator(T.Translator):
                    variable_t,
 
                    # Must be processed after variable
-                   frequency_t,
                    realm_t,
+                   frequency_t,
 
                    version_t,
                    subset_t,
@@ -285,3 +283,12 @@ def get_table_store():
 def make_translator(prefix):
     table_store = get_table_store()
     return CMIP5Translator(prefix, table_store)
+
+
+
+
+def deduce_variable_details(variable, realm=None, table=None, frequency=None):
+    """
+    If you know the variable and
+    
+    """

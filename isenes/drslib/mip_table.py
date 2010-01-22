@@ -167,12 +167,32 @@ class MIPTableStore(IMIPTableStore):
         return t
 
     def get_variable_attr(self, table, variable, attr):
-        if table not in self.tables:
-            raise ValueError('Table %s not found' % table)
-
-        v = self.tables[table].get_variable_attr(variable, attr)
+        v = self.get_variable_attr_mv(table, variable, attr)
         if len(v) != 1:
             raise ValueError('%s is a multi-valued MIP attribute' % v)
 
         return v[0]
 
+    def get_variable_attr_mv(self, table, variable, attr):
+        if table not in self.tables:
+            raise ValueError('Table %s not found' % table)
+
+        return self.tables[table].get_variable_attr(variable, attr)
+        
+
+
+    #!FIXME
+    #def get_variable_tables(self, variable, **attribute_constraints):
+    #    ret = []
+    #    for table in self.tables.values():
+    #        if variable in table.variables:
+    #            for k, v in attribute_constraints.items():
+    #                try:
+    #                    if table.get_variable_attr(variable, k) != v:
+    #                        break
+    #                except AttributeError:
+    #                    pass
+    #            else:
+    #                ret.append(table.name)
+    #    
+    #    return ret

@@ -54,6 +54,11 @@ class DRS(IDRS):
 
         return True
 
+    def __repr__(self):
+        kws = []
+        for attr in self._drs_attrs:
+            kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
+        return '<DRS %s>' % ', '.join(kws)
 
 class TranslatorContext(ITranslatorContext):
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
@@ -270,7 +275,6 @@ class Translator(ITranslator):
         self.prefix = prefix
         self.table_store = table_store
 
-    #!FIXME: This isn't working!
     def update_drs(self, drs, context=None):
         context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
