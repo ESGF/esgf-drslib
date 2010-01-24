@@ -15,7 +15,6 @@ My interpretation of the format from reading the CMIP5 tables.
 import re
 from glob import glob
 
-from isenes.drslib.iface import IMIPTable, IMIPTableStore
 
 entry_ids = ['axis_entry', 'variable_entry']
 
@@ -96,7 +95,18 @@ def split_comment(line):
 
     return (value, comment)
 
-class MIPTable(IMIPTable):
+class MIPTable(object):
+    """
+    Hold information from a MIP table.  
+
+    Initially this is used to add MIP table names to DRS filenames.
+    Future extensions could read MIP tables and record extra information.
+    
+    @property name: The name of the MIP table as used in DRS filenames.
+    @property variables: A list of variables in this table.
+    @property experiments: A list of valid experiment ids for this table.
+
+    """
     def __init__(self, filename):
         fh = open(filename)
         
@@ -134,6 +144,13 @@ class MIPTable(IMIPTable):
         return self._exptdict.keys()
 
     def get_variable_attr(self, variable, attr):
+        """
+        Retrieve an attribute of variable.
+
+        If the attributes isn't in the variable entry the global
+        value is returned
+
+        """
         if variable not in self._vardict:
             raise ValueError('Variable %s not found' % variable)
 
@@ -146,7 +163,7 @@ class MIPTable(IMIPTable):
                 raise AttributeError('Attribute %s not in variable or global entry' % attr)
 
 
-class MIPTableStore(IMIPTableStore):
+class MIPTableStore(object):
     """
     Holds a collection of mip tables.
 
@@ -161,12 +178,22 @@ class MIPTableStore(IMIPTableStore):
             self.add_table(filename)
 
     def add_table(self, filename):
+        """
+        Read filename as a MIP table and add it to the store.
+        
+        @return: The added MIPTable instance.
+
+        """
         t = MIPTable(filename)
         self.tables[t.name] = t
 
         return t
 
     def get_variable_attr(self, table, variable, attr):
+        """
+        Return the value of a variable's attribute in a given table.
+
+        """
         v = self.get_variable_attr_mv(table, variable, attr)
         if len(v) != 1:
             raise ValueError('%s is a multi-valued MIP attribute' % v)
@@ -174,6 +201,10 @@ class MIPTableStore(IMIPTableStore):
         return v[0]
 
     def get_variable_attr_mv(self, table, variable, attr):
+        """
+        Return the value of a variable's attribute in a given table.
+
+        """
         if table not in self.tables:
             raise ValueError('Table %s not found' % table)
 

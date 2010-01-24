@@ -13,7 +13,6 @@ Generic implementations of IComponentTranslator
 import re, os
 from datetime import datetime
 
-from isenes.drslib.iface import ITranslator, IComponentTranslator, TranslationError, ITranslatorContext, IDRS
 
 #
 # List offsets for the DRS elements in paths and filenames
@@ -38,7 +37,27 @@ DRS_FILE_ENSEMBLE = 4
 DRS_FILE_SUBSET = 5
 
 
-class DRS(IDRS):
+class DRS(object):
+    """
+    Represents a DRS entry.  This class maintains consistency between the
+    path and filename portion of the DRS.
+
+    @ivar activity: string
+    @ivar product: string
+    @ivar institute: string
+    @ivar model: string
+    @ivar experiment: string
+    @ivar frequency: string
+    @ivar realm: string
+    @ivar variable: string
+    @ivar table: string of None
+    @ivar ensemble: (r, i, p)
+    @ivar version: integer
+    @ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h) 
+        and clim is boolean
+
+    """
+
     _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
                  'realm', 'variable', 'table', 'ensemble', 'version', 'subset',]
 
@@ -48,6 +67,9 @@ class DRS(IDRS):
             setattr(self, attr, kwargs.get(attr))
 
     def is_complete(self):
+        """Returns boolean to indicate if all components are specified.
+        """
+
         for attr in self._drs_attrs:
             if getattr(self, attr) is None:
                 return False
@@ -60,7 +82,16 @@ class DRS(IDRS):
             kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
         return '<DRS %s>' % ', '.join(kws)
 
-class TranslatorContext(ITranslatorContext):
+class TranslatorContext(object):
+    """
+    Represents a DRS URL or path being translated
+
+    @ivar path_parts: A list of directories following the DRS prefix
+    @ivar file_parts: A list of '_'-separated parts of the filename
+    @ivar drs: The DRS of interest
+    @ivar table_store: The mip tables being used
+
+    """
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
         if path is None:
             self.path_parts = [None] * 10
@@ -80,6 +111,10 @@ class TranslatorContext(ITranslatorContext):
         self.table_store = table_store
 
     def set_drs_component(self, drs_component, value):
+        """
+        Set a DRS component checking that the value doesn't conflict with any current value.
+
+        """
         v = getattr(self.drs, drs_component)
         if v is None:
             setattr(self.drs, drs_component, value)
@@ -94,10 +129,47 @@ class TranslatorContext(ITranslatorContext):
         return '_'.join(self.file_parts)
     
     def to_string(self):
+        """Returns the full DRS path and filename.
+        """
         return '%s/%s.nc' % (self.path_to_string(), self.file_to_string())
 
+class BaseComponentTranslator(object):
+    """
+    Each component is translated by a separate IComponentTranslator object.
 
-class GenericTranslator(IComponentTranslator):
+    """
+
+    def filename_to_drs(self, context):
+        """
+        Translate the relevant component of the filename to a drs component.
+
+        @raises TranslationError: if the filename is invalid
+        @returns: context
+
+        """
+        raise NotImplementedError
+
+    def path_to_drs(self, context):
+        """
+        Translate the relevant component of the DRS path to a drs component.
+
+        @raises TranslationError: if the path is invalid
+        @returns: context
+
+        """
+        raise NotImplementedError
+
+
+    def drs_to_filepath(self, context):
+        """
+        Sets context.path_parts and context.file_parts for this component.
+
+        @returns: context
+
+        """
+        raise NotImplementedError
+
+class GenericTranslator(BaseComponentTranslator):
     """
     The simplest type of translator just validating strings
 
@@ -140,7 +212,7 @@ class GenericTranslator(IComponentTranslator):
 
 
 
-class CMORVarTranslator(IComponentTranslator):
+class CMORVarTranslator(BaseComponentTranslator):
     """
     CMIP Variable translator
 
@@ -184,7 +256,7 @@ class CMORVarTranslator(IComponentTranslator):
 
 
 
-class EnsembleTranslator(IComponentTranslator):
+class EnsembleTranslator(BaseComponentTranslator):
     def filename_to_drs(self, context):
         context.drs.ensemble = self._convert(context.file_parts[DRS_FILE_ENSEMBLE])
 
@@ -216,7 +288,7 @@ class EnsembleTranslator(IComponentTranslator):
         (r, i, p) = mo.groups()
         return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
 
-class VersionTranslator(IComponentTranslator):
+class VersionTranslator(BaseComponentTranslator):
 
     def filename_to_drs(self, context):
         pass
@@ -240,7 +312,7 @@ class VersionTranslator(IComponentTranslator):
 
     
 
-class SubsetTranslator(IComponentTranslator):
+class SubsetTranslator(BaseComponentTranslator):
     """
     Currently just temporal subsets
 
@@ -278,7 +350,16 @@ class SubsetTranslator(IComponentTranslator):
         context.file_parts[DRS_FILE_SUBSET] = '-'.join(parts)
 
 
-class Translator(ITranslator):
+class Translator(object):
+    """
+
+    @property prefix: All paths are interpreted as relative to this prefix.
+        Generated paths have this prefix added.
+    @property translators: A list of translators called in order to handle translation
+    @property table_store: A IMIPTableStore instance containing all MIP tables being used.
+
+    """
+
     def __init__(self, prefix, table_store):
         self.prefix = prefix
         self.table_store = table_store
@@ -333,6 +414,14 @@ class Translator(ITranslator):
         else:
             #!TODO: warn of missing prefix
             return path
+
+    def init_drs(self):
+        """
+        Returns an empty DRS instance initialised for this translator.
+
+        """
+        raise NotImplementedError
+
 
 def _to_date(date_str):
     mo = re.match(r'(\d{4})(\d{2})?(\d{2})?(\d{2})?', date_str)
