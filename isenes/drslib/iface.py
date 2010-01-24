@@ -56,6 +56,12 @@ class ITranslatorContext(object):
         """
         raise NotImplementedError
 
+    def path_to_string(self):
+        raise NotImplementedError
+    
+    def file_to_string(self):
+        raise NotImplementedError
+    
     def to_string(self):
         """Returns the DRS string.
         """

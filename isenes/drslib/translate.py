@@ -87,9 +87,14 @@ class TranslatorContext(ITranslatorContext):
             if v != value:
                 raise TranslationError('Conflicting value of DRS component %s' % drs_component)
 
+    def path_to_string(self):
+        return '/'.join(self.path_parts)
+    
+    def file_to_string(self):
+        return '_'.join(self.file_parts)
+    
     def to_string(self):
-        return '%s/%s.nc' % ('/'.join(self.path_parts),
-                             '_'.join(self.file_parts))
+        return '%s/%s.nc' % (self.path_to_string(), self.file_to_string())
 
 
 class GenericTranslator(IComponentTranslator):
@@ -258,7 +263,10 @@ class SubsetTranslator(IComponentTranslator):
         pass
 
     def drs_to_filepath(self, context):
-        (n1, n2, clim) = context.drs.subset
+        try:
+            (n1, n2, clim) = context.drs.subset
+        except TypeError:
+            return
 
         parts = []
         parts.append(_from_date(n1))
@@ -296,15 +304,28 @@ class Translator(ITranslator):
 
         return context.drs
 
-    def drs_to_path(self, drs):
-        
+    def drs_to_context(self, drs):
         context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
             t.drs_to_filepath(context)
 
+        return context
+
+    def drs_to_filepath(self, drs):
+        context = self.drs_to_context(drs)
+
         return '%s%s' % (self.prefix, context.to_string())
 
+    def drs_to_path(self, drs):
+        context = self.drs_to_context(drs)
+        
+        return '%s%s' % (self.prefix, context.path_to_string())
 
+    def drs_to_file(self, drs):
+        context = self.drs_to_context(drs)
+        
+        return context.file_to_string()
+    
     def _split_prefix(self, path):
         n = len(self.prefix)
         if path[:n] == prefix:

@@ -46,26 +46,34 @@ True
 
 Once complete you can generate the full DRS path or URL:
 
->>> cmip5_trans.drs_to_path(drs)
+>>> cmip5_trans.drs_to_filepath(drs)
 'http://example.com/cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v3/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
 
 
-Generating DRS paths and filesnames
+Generating DRS paths and filenames
 ===================================
 
 The DRS class can be used to constructed from scratch like:
 
 >>> from isenes.drslib import DRS
 >>> drs2 = DRS(activity='cmip5', product='requested', model='HadCM3', 
-...            experiment='historicalNat', variable='tas', ensemble=(1, None, None), version=4)
+...            experiment='historicalNat', variable='tas', ensemble=(1, None, None), version=4,
+...            table='3hr', frequency='3hr')
 
-#!FIXME
-#Use the translator to deduce extra drs attributes
-#>>> drs2.institute
-#
-#>>> cmip5_trans.update_drs(drs2)
-#>>> drs2.institute
-#'UKMO'
-#
-#cmip5_trans.drs_to_path(drs)
-#'http://example.com/cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v3/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+>>> cmip5_trans.drs_to_path(drs2)
+'http://example.com/cmip5/requested/UKMO/HadCM3/historicalNat/3hr/atmos/tas/r1/v4'
+
+Extra information is needed to create the filename
+
+>>> try: cmip5_trans.drs_to_file(drs2)
+... except: print 'FAIL'
+FAIL
+>>> drs2.subset = ((2010, None, None, None), (2011, None, None, None), None)
+>>> cmip5_trans.drs_to_file(drs2)
+'tas_3hr_HadCM3_historicalNat_r1_2010-2011'
+
+
+Validating DRS paths and filenames
+==================================
+
+#!TODO

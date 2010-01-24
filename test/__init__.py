@@ -39,7 +39,7 @@ def test_2():
     drs.version = 2
     drs.product = 'output'
     
-    path = translator.drs_to_path(drs)
+    path = translator.drs_to_filepath(drs)
 
     assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v2/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
 
@@ -52,7 +52,7 @@ def roundtrip_filename(filename):
     drs.product = 'output'
     assert drs.is_complete()
 
-    path = translator.drs_to_path(drs)
+    path = translator.drs_to_filepath(drs)
 
     assert os.path.basename(path) == filename
 
