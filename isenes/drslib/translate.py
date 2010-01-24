@@ -11,8 +11,9 @@ Generic implementations of IComponentTranslator
 """
 
 import re, os
-from datetime import datetime
 
+class TranslationError(Exception):
+    pass
 
 #
 # List offsets for the DRS elements in paths and filenames
@@ -133,6 +134,7 @@ class TranslatorContext(object):
         """
         return '%s/%s.nc' % (self.path_to_string(), self.file_to_string())
 
+
 class BaseComponentTranslator(object):
     """
     Each component is translated by a separate IComponentTranslator object.
@@ -169,7 +171,7 @@ class BaseComponentTranslator(object):
         """
         raise NotImplementedError
 
-class GenericTranslator(BaseComponentTranslator):
+class GenericComponentTranslator(BaseComponentTranslator):
     """
     The simplest type of translator just validating strings
 
@@ -308,7 +310,7 @@ class VersionTranslator(BaseComponentTranslator):
         if not mo:
             raise TranslationError('Unrecognised version syntax %s' % component)
 
-        return re.group(1)
+        return mo.group(1)
 
     
 
@@ -316,10 +318,19 @@ class SubsetTranslator(BaseComponentTranslator):
     """
     Currently just temporal subsets
 
+    @cvar allow_missing_subset: A boolean value configuring whether to 
+        complain if the subset is missing.
+
     """
+
+    allow_missing_subset = True
 
     def filename_to_drs(self, context):
         v = context.file_parts[DRS_FILE_SUBSET]
+
+        if self.allow_missing_subset and not v:
+            return
+        
         mo = re.match(r'(\d+)(?:-(\d+))?(-clim)?', v)
         if not mo:
             raise TranslationError('Unrecognised temporal subset %s' % v)
@@ -335,11 +346,12 @@ class SubsetTranslator(BaseComponentTranslator):
         pass
 
     def drs_to_filepath(self, context):
-        try:
-            (n1, n2, clim) = context.drs.subset
-        except TypeError:
-            return
 
+        if self.allow_missing_subset and context.drs.subset is None:
+            return
+                
+        (n1, n2, clim) = context.drs.subset
+        
         parts = []
         parts.append(_from_date(n1))
         if n2:
@@ -360,31 +372,40 @@ class Translator(object):
 
     """
 
-    def __init__(self, prefix, table_store):
+    def __init__(self, prefix='', table_store=None):
         self.prefix = prefix
         self.table_store = table_store
 
-    def update_drs(self, drs, context=None):
-        context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
-        for t in self.translators:
-            t.drs_to_filepath(context)
-
-    def filename_to_drs(self, filename):
-        context = TranslatorContext(filename=filename, drs=self.init_drs(),
-                                    table_store = self.table_store)
+    def filename_to_drs(self, filename, context=None):
+        if context is None:
+            context = TranslatorContext(filename=filename, drs=self.init_drs(),
+                                        table_store = self.table_store)
         for t in self.translators:
             t.filename_to_drs(context)
 
         return context.drs
 
-    def path_to_drs(self, path):
-        context = TranslatorContext(path=self._split_prefix(path), drs=self.init_drs(),
-                                    table_store = self.table_store)
+    def path_to_drs(self, path, context=None):
+        if context is None:
+            context = TranslatorContext(path=self._split_prefix(path), drs=self.init_drs(),
+                                        table_store = self.table_store)
         for t in self.translators:
             t.path_to_drs(context)
 
         return context.drs
 
+    def filepath_to_drs(self, filepath, context=None):
+        filepath = self._split_prefix(filepath)
+        path, filename = os.path.split(filepath)
+        if context is None:
+            context = TranslatorContext(filename=filename, path=path, drs=self.init_drs(),
+                                        table_store = self.table_store)
+        for t in self.translators:
+            t.path_to_drs(context)
+            t.filename_to_drs(context)
+            
+        return context.drs
+            
     def drs_to_context(self, drs):
         context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
@@ -406,10 +427,11 @@ class Translator(object):
         context = self.drs_to_context(drs)
         
         return context.file_to_string()
+
     
     def _split_prefix(self, path):
         n = len(self.prefix)
-        if path[:n] == prefix:
+        if path[:n] == self.prefix:
             return path[n:]
         else:
             #!TODO: warn of missing prefix

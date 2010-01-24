@@ -13,7 +13,7 @@ A translator specific to CMIP5
 import isenes.drslib.translate as T
 import isenes.drslib.config as config
 
-class ActivityTranslator(T.GenericTranslator):
+class ActivityTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_ACTIVITY
     file_i = None
     component = 'activity'
@@ -23,7 +23,7 @@ class ActivityTranslator(T.GenericTranslator):
 
 activity_t = ActivityTranslator()
 
-class ProductTranslator(T.GenericTranslator):
+class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_PRODUCT
     file_i = None
     component = 'product'
@@ -69,7 +69,7 @@ model_institution_map = {
 }
 
 #!TODO: Get full list.  This is based on CMIP3
-class InstituteTranslator(T.GenericTranslator):
+class InstituteTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_INSTITUTE
     file_i = None
     component = 'institute'
@@ -98,14 +98,14 @@ institute_t = InstituteTranslator()
 
 
 #!TODO: Not official identifiers
-class ModelTranslator(T.GenericTranslator):
+class ModelTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_MODEL
     file_i = T.DRS_FILE_MODEL
     component = 'model'
     vocab = model_institution_map.keys()
 model_t = ModelTranslator()
 
-class ExperimentTranslator(T.GenericTranslator):
+class ExperimentTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_EXPERIMENT
     file_i = T.DRS_FILE_EXPERIMENT
     component = 'experiment'
@@ -167,7 +167,7 @@ class ExperimentTranslator(T.GenericTranslator):
         ]
 experiment_t = ExperimentTranslator()
 
-class FrequencyTranslator(T.GenericTranslator):
+class FrequencyTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_FREQUENCY
     file_i = None
     component = 'frequency'
@@ -198,7 +198,7 @@ class FrequencyTranslator(T.GenericTranslator):
 frequency_t = FrequencyTranslator()
 
 #!TODO: Get this information from CMIP tables
-class RealmTranslator(T.GenericTranslator):
+class RealmTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_REALM
     file_i = None
     component = 'realm'

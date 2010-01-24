@@ -73,7 +73,3 @@ FAIL
 'tas_3hr_HadCM3_historicalNat_r1_2010-2011'
 
 
-Validating DRS paths and filenames
-==================================
-
-#!TODO

@@ -65,3 +65,4 @@ def test_4():
     fh = open(os.path.join(os.path.dirname(__file__), 'cmip5_test_ls'))
     for filename in fh:
         yield roundtrip_filename, filename.strip()
+
