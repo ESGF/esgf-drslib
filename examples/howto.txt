@@ -65,9 +65,8 @@ The DRS class can be used to constructed from scratch like:
 
 Extra information is needed to create the filename
 
->>> try: cmip5_trans.drs_to_file(drs2)
-... except: print 'FAIL'
-FAIL
+>>> cmip5_trans.drs_to_file(drs2)
+'tas_3hr_HadCM3_historicalNat_r1'
 >>> drs2.subset = ((2010, None, None, None), (2011, None, None, None), None)
 >>> cmip5_trans.drs_to_file(drs2)
 'tas_3hr_HadCM3_historicalNat_r1_2010-2011'

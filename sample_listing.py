@@ -8,13 +8,17 @@ Usage: sample_listing.py n <listing.txt
 
 import sys, random
 
-n = int(sys.argv[1])
+def main():
+    n = int(sys.argv[1])
 
-fns = []
-for line in sys.stdin:
-    fn, size = line.strip().split()
-    fns.append(fn)
+    fns = []
+    for line in sys.stdin:
+        fn, size = line.strip().split()
+        fns.append(fn)
 
-s = random.sample(fns, n)
-for fn in s:
-    print fn
+    s = random.sample(fns, n)
+    for fn in s:
+        print fn
+
+if __name__ == '__main__':
+    main()

@@ -333,11 +333,8 @@ class CMIP5Translator(T.Translator):
 
 
 def get_table_store():
-    import os
-    from glob import glob
     from isenes.drslib.mip_table import MIPTableStore
 
-    tables = []
     table_store = MIPTableStore(config.table_path+'/CMIP5_*')
 
     return table_store
