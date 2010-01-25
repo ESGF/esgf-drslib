@@ -66,6 +66,32 @@ model_institution_map = {
         'CanESM2': 'CCCMA', 
         'ACCESS': 'CAWCR', 
         'BCC-CSM': 'BCCR',
+        
+        # Models used in CMIP3
+        'BCM2': 'BCCR',
+        'CGCM3-1-T47': 'CCCMA',
+        'CGCM3-1-T63': 'CCCMA',
+        'CM3': 'CNRM',
+        'ECHO-G': 'MIUB-KMA',
+        'MK3': 'CSIRO',
+        'MK3-5': 'CSIRO',
+        'CM2': 'GFDL',
+        'CM2-1': 'GFDL',
+        'CM3': 'INM',
+        'CM4': 'IPSL',
+        'FGOALS-G1-0': 'LASG',
+        'ECHAM5': 'MPIM',
+        'CGCM2-3-2': 'MRI',
+        'GISS-AOM': 'NASA',
+        'GISS-EH': 'NASA',
+        'GISS-ER': 'NASA',
+        'CCSM3': 'NCAR',
+        'PCM': 'NCAR',
+        'MIROC3-2-HI': 'NIES',
+        'MIROC3-2-MED': 'NIES',
+        'HADCM3': 'UKMO',
+        'HADGEM1': 'UKMO',
+        'ECHAM4': 'INGV',
 }
 
 #!TODO: Get full list.  This is based on CMIP3
@@ -164,6 +190,20 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         'aqua4xco2',
         'aqua4K',
         'amip4K',
+        
+        # Experiments for CMIP3
+        '1pctto2x',  
+        '2xco2',
+        'pdcntrl',
+        'sresa1b',
+        '1pctto4x',
+        'amip',
+        'picntrl', 
+        'sresa2',
+        '20c3m',
+        'commit',
+        'slabcntl', 
+        'sresb1',
         ]
 experiment_t = ExperimentTranslator()
 
@@ -171,7 +211,7 @@ class FrequencyTranslator(T.GenericComponentTranslator):
     path_i = T.DRS_PATH_FREQUENCY
     file_i = None
     component = 'frequency'
-    vocab = ['yr', 'mon', 'day', '6hr', '3hr', 'subhr']
+    vocab = ['yr', 'mon', 'day', '6hr', '3hr', 'subhr', 'fx']
 
     def filename_to_drs(self, context):
         context.drs.frequency = self._deduce_freq(context)
@@ -265,7 +305,8 @@ class CMIP5Translator(T.Translator):
         if drs is None:
             drs = T.DRS()
 
-        drs.activity = 'cmip5'
+        if drs.activity is None:
+            drs.activity = 'cmip5'
 
         return drs
 

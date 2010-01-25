@@ -19,7 +19,6 @@ on translating paths to DRS instances.
 import re
 
 import isenes.drslib.translate as T
-import isenes.drslib.config as config
 
 TranslationError = T.TranslationError
 
@@ -98,7 +97,7 @@ class ExperimentTranslator(T.GenericComponentTranslator):
 experiment_t = ExperimentTranslator()
 
 class FrequencyTranslator(T.BaseComponentTranslator):
-    vocab = {'yr': None, 'mo': 'mon', 'da': 'day', '3h': '3hr',
+    vocab = {'yr': 'yr', 'mo': 'mon', 'da': 'day', '3h': '3hr',
              'fixed': 'fx'}
     
     def path_to_drs(self, context):
@@ -134,12 +133,12 @@ class RealmTranslator(T.GenericComponentTranslator):
     #CMIP3 atmos variables can map onto 4 different cmip5 realms.  
     #The atmos_map dictionary defines this mapping
     #Assume CMIP3 atm variables map onto CMIP5 atmos realm unless they appear in this dictionary 
-    var_map={'atmos': {'mrsos': ('land',),
-                              'trsult': ('aerosol',),
-                              'trsul': ('aerosol',),
-                              'tro3': ('atmoschem',),
+    var_map={'atmos': {'mrsos': 'land',
+                              'trsult': 'aerosol',
+                              'trsul': 'aerosol',
+                              'tro3': 'atmoschem',
                               },
-             'land': {'sftgif': ('landIce',),}
+             'land': {'sftgif': 'landIce',}
              }
                                
     def path_to_drs(self, context):
@@ -173,7 +172,8 @@ class EnsembleTranslator(T.BaseComponentTranslator):
         if not mo:
             raise TranslationError('Unrecognised CMIP3 ensemble identifier %s' % r_str)
         
-        context.set_drs_component('ensemble', int(mo.group(1)))
+        ensemble = (int(mo.group(1)), None, None)
+        context.set_drs_component('ensemble', ensemble)
 
     def filename_to_drs(self, context):
         pass
@@ -182,7 +182,7 @@ ensemble_t = EnsembleTranslator()
 
 
 class VariableTranslator(T.GenericComponentTranslator):
-    path_i = DRS_PATH_EXPERIMENT
+    path_i = DRS_PATH_VARIABLE
     file_i = None
     component = 'variable'
 

@@ -102,8 +102,9 @@ class TranslatorContext(object):
         if filename is None:
             self.file_parts = [None] * 6
         else:
-            self.file_parts = os.path.splitext(filename)[0].split('_')
-
+            # CMIP3 sometimes uses "." as separator
+            self.file_parts = re.split('[_.]', os.path.splitext(filename)[0])
+            
         if drs is None:
             self.drs = DRS()
         else:
@@ -127,7 +128,12 @@ class TranslatorContext(object):
         return '/'.join(self.path_parts)
     
     def file_to_string(self):
-        return '_'.join(self.file_parts)
+        # Allow subset to be optional
+        if self.file_parts[-1] is None:
+            fp = self.file_parts[:-1]
+        else:
+            fp = self.file_parts
+        return '_'.join(fp)
     
     def to_string(self):
         """Returns the full DRS path and filename.
