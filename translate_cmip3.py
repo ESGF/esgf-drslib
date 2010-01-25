@@ -6,32 +6,26 @@
 # the full license text.
 
 """
-Tests compatible with nosetests
-
+Translate a stream of filepaths from CMIP3 to CMIP5 syntax
 """
 
 
-import os
+import sys
 
 from isenes.drslib import cmip3, cmip5
 
 translator = cmip3.make_translator('')
 cmip5_translator = cmip5.make_translator('')
 
-def test_1():
-    p = 'cmip3/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc'
-    p2 = convert(p)
-    assert p2 == 'cmip3/output/GFDL/CM2/20c3m/day/atmos/rsus/r1/v1/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc'
-    
-def test_listing():
-    """
-    Test successful conversion of part of the CMIP3 listing
-    
-    """
-    
-    fh = open(os.path.join(os.path.dirname(__file__), 'cmip3_test_ls'))
-    for line in fh:
-        yield convert, line.strip()
+def main():
+    paths = set()
+    for line in sys.stdin:
+        filename, size = line.strip().split()
+        fn = convert(filename)
+        
+        # Make sure no duplicate paths are created
+        assert fn not in paths
+        paths.add(fn)
     
 def convert(filepath):
     drs = translator.filepath_to_drs(filepath)
@@ -40,3 +34,6 @@ def convert(filepath):
     print '%s --> %s' % (filepath, cmip5_filepath)
     
     return cmip5_filepath
+
+if __name__ == '__main__':
+    main()

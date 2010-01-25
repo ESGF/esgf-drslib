@@ -36,6 +36,7 @@ DRS_FILE_MODEL = 2
 DRS_FILE_EXPERIMENT = 3
 DRS_FILE_ENSEMBLE = 4
 DRS_FILE_SUBSET = 5
+DRS_FILE_EXTENDED = 6
 
 
 class DRS(object):
@@ -56,11 +57,13 @@ class DRS(object):
     @ivar version: integer
     @ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h) 
         and clim is boolean
+    @ivar extended: A string containing miscellaneous stuff.  Useful for
+        representing irregular CMIP3 files
 
     """
 
     _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-                 'realm', 'variable', 'table', 'ensemble', 'version', 'subset',]
+                 'realm', 'variable', 'table', 'ensemble', 'version', 'subset', 'extended']
 
     def __init__(self, **kwargs):
         
@@ -72,6 +75,8 @@ class DRS(object):
         """
 
         for attr in self._drs_attrs:
+            if attr is 'extended':
+                continue
             if getattr(self, attr) is None:
                 return False
 
@@ -100,10 +105,9 @@ class TranslatorContext(object):
             self.path_parts = path.split('/')
 
         if filename is None:
-            self.file_parts = [None] * 6
+            self.file_parts = [None] * 7
         else:
-            # CMIP3 sometimes uses "." as separator
-            self.file_parts = re.split('[_.]', os.path.splitext(filename)[0])
+            self.file_parts = os.path.splitext(filename)[0].split('_')
             
         if drs is None:
             self.drs = DRS()
@@ -128,11 +132,12 @@ class TranslatorContext(object):
         return '/'.join(self.path_parts)
     
     def file_to_string(self):
-        # Allow subset to be optional
-        if self.file_parts[-1] is None:
-            fp = self.file_parts[:-1]
-        else:
-            fp = self.file_parts
+        # To allow optional portions any None's are removed
+        fp = [x for x in self.file_parts if x is not None]
+
+        # Check there is at last 1 item in the list
+        assert len(fp) > 0
+
         return '_'.join(fp)
     
     def to_string(self):
@@ -375,8 +380,11 @@ class Translator(object):
         Generated paths have this prefix added.
     @property translators: A list of translators called in order to handle translation
     @property table_store: A IMIPTableStore instance containing all MIP tables being used.
+    @cvar ContextClass: The class of context to use.
 
     """
+
+    ContextClass = TranslatorContext
 
     def __init__(self, prefix='', table_store=None):
         self.prefix = prefix
@@ -384,7 +392,7 @@ class Translator(object):
 
     def filename_to_drs(self, filename, context=None):
         if context is None:
-            context = TranslatorContext(filename=filename, drs=self.init_drs(),
+            context = self.ContextClass(filename=filename, drs=self.init_drs(),
                                         table_store = self.table_store)
         for t in self.translators:
             t.filename_to_drs(context)
@@ -393,7 +401,7 @@ class Translator(object):
 
     def path_to_drs(self, path, context=None):
         if context is None:
-            context = TranslatorContext(path=self._split_prefix(path), drs=self.init_drs(),
+            context = self.ContextClass(path=self._split_prefix(path), drs=self.init_drs(),
                                         table_store = self.table_store)
         for t in self.translators:
             t.path_to_drs(context)
@@ -404,7 +412,7 @@ class Translator(object):
         filepath = self._split_prefix(filepath)
         path, filename = os.path.split(filepath)
         if context is None:
-            context = TranslatorContext(filename=filename, path=path, drs=self.init_drs(),
+            context = self.ContextClass(filename=filename, path=path, drs=self.init_drs(),
                                         table_store = self.table_store)
         for t in self.translators:
             t.path_to_drs(context)
@@ -413,7 +421,7 @@ class Translator(object):
         return context.drs
             
     def drs_to_context(self, drs):
-        context = TranslatorContext(drs=self.init_drs(drs), table_store = self.table_store)
+        context = self.ContextClass(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
             t.drs_to_filepath(context)
 

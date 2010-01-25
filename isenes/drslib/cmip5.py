@@ -243,7 +243,11 @@ class RealmTranslator(T.GenericComponentTranslator):
     file_i = None
     component = 'realm'
     vocab = ['atmos', 'ocean', 'land', 'landIce', 'seaIce', 
-             'aerosol', 'atmosChem', 'ocnBgchem']
+             'aerosol', 'atmosChem', 'ocnBgchem',
+             
+             # CMIP3 realms
+             'atmosChem', 
+             ]
 
     def filename_to_drs(self, context):
         context.drs.realm = self._deduce_realm(context)
@@ -279,6 +283,22 @@ version_t = T.VersionTranslator()
 
 subset_t = T.SubsetTranslator()
 
+class ExtendedTranslator(T.BaseComponentTranslator):
+    """
+    The extended DRS component is only used when converting DRS->filename.
+    It is needed for CMIP3 conversions.
+    
+    """
+    def drs_to_filepath(self, context):
+        context.file_parts[T.DRS_FILE_EXTENDED] = context.drs.extended
+        
+    def path_to_drs(self, context):
+        pass
+    
+    def filename_to_drs(self, context):
+        pass
+    
+extended_t = ExtendedTranslator()
 
 class CMIP5Translator(T.Translator):
 
@@ -299,6 +319,7 @@ class CMIP5Translator(T.Translator):
 
                    version_t,
                    subset_t,
+                   extended_t,
                    ]
 
     def init_drs(self, drs=None):

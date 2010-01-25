@@ -32,8 +32,8 @@ DRS_PATH_ENSEMBLE = 6
 
 DRS_FILE_VARIABLE = 0
 DRS_FILE_TABLE = 1
-DRS_FILE_SUBSET = 2
-
+#DRS_FILE_SUBSET = 2
+DRS_FILE_EXTENDED = 6
 
 #!NOTE: there is no product component in CMIP3
 
@@ -136,7 +136,7 @@ class RealmTranslator(T.GenericComponentTranslator):
     var_map={'atmos': {'mrsos': 'land',
                               'trsult': 'aerosol',
                               'trsul': 'aerosol',
-                              'tro3': 'atmoschem',
+                              'tro3': 'atmosChem',
                               },
              'land': {'sftgif': 'landIce',}
              }
@@ -202,10 +202,59 @@ variable_t = VariableTranslator()
 #!NOTE: No version in CMIP3
 
 #!TODO: Subset translator
-#subset_t = T.SubsetTranslator()
 
+class SubsetTranslator(T.BaseComponentTranslator):
+    """
+    Subsets are irregular in CMIP3 so we just extract the irregular bit
+    and put it in DRS.extended.
+    
+    """
+    def filename_to_drs(self, context):
+        extended = context.file_parts[DRS_FILE_EXTENDED]
+        context.set_drs_component('extended', extended)
+        
+    def path_to_drs(self, context):
+        pass
+    
+subset_t = SubsetTranslator()
+
+class CMIP3TranslatorContext(T.TranslatorContext):
+    """
+    A customised context class for converting CMIP3 paths
+
+    CMIP3 filenames are irregular so we need to override some behaviour of
+    TranslatorContext.
+    
+    """
+
+    _fnrexp = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9]+)(?:[._-](.*))?.nc$')
+    
+    def __init__(self, filename=None, path=None, drs=None, table_store=None):
+        assert table_store is None
+        
+        if path is None:
+            self.path_parts = [None] * 10
+        else:
+            self.path_parts = path.split('/')
+    
+        self.file_parts = [None] * 7
+        if filename is not None:
+            # CMIP3 requires different filename parsing
+            mo = self._fnrexp.match(filename)
+            if not mo:
+                raise TranslationError('Unrecognised CMIP3 filename %s' % filename)
+            self.file_parts[DRS_FILE_VARIABLE] = mo.group(1)
+            self.file_parts[DRS_FILE_TABLE] = mo.group(2)
+            self.file_parts[DRS_FILE_EXTENDED] = mo.group(3)
+            
+        if drs is None:
+            self.drs = T.DRS()
+        else:
+            self.drs = drs
 
 class CMIP3Translator(T.Translator):
+    
+    ContextClass = CMIP3TranslatorContext
 
     translators = [instmodel_t,
                    experiment_t,
@@ -215,7 +264,7 @@ class CMIP3Translator(T.Translator):
                    # Must be processed after variable
                    realm_t,
                    frequency_t,
-                   #subset_t,
+                   subset_t,
                    ]
 
     def init_drs(self, drs=None):
