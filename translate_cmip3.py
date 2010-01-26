@@ -115,12 +115,24 @@ def convert(filepath):
 def main(args):
     from optparse import OptionParser
 
-    usage = "usage: %prog [options] cmip3_path cmip5_path"
+    usage = "usage: %prog [options] cmip3_root cmip5_root"
     parser = OptionParser(usage=usage)
     #!NOTE: any options will be defined here
+    #!TODO: --include and --exclude options for just doing parts of the archive
+
+    parser.add_option('-i', '--include', action='append', destination='include',
+                      help='Include branches matching GLOB')
+    parser.add_option('-e', '--exclude', action='append', destination='include',
+                      help='Exclude branches matching GLOB')
+
+
+    #!TODO: --dry-run flag
 
     (options, args) = parser.parse_args()
     cmip3_path, cmip5_path = args
+
+    #!TODO: Both cmip3_path and cmip5_path should start with the DRS activity
+    
 
     move_files(cmip3_path, cmip5_path, dry_run=True)
 

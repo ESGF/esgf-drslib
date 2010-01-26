@@ -29,7 +29,7 @@ TranslationError = T.TranslationError
 
 # From Charlotte's wiki page
 instmodel_map = {
-    'bcc_cm1': ('CMA', 'BCC-CM1'), #!TODO: Confirm with Charlotte
+    'bcc_cm1': ('CMA', 'BCC-CM1'),
     'bccr_bcm2_0': ('BCCR', 'BCM2'), 
     'cccma_cgcm3_1': ('CCCMA', 'CGCM3-1-T47'),     
     'cccma_cgcm3_1_t63': ('CCCMA','CGCM3-1-T63'),
@@ -154,7 +154,6 @@ class RealmTranslator(T.GenericComponentTranslator):
 
 realm_t = RealmTranslator()
 
-#!TODO: EnsembleTranslator
 class EnsembleTranslator(T.BaseComponentTranslator):
     def path_to_drs(self, context):
         r_str = context.path_parts[CMIP3_DRS.PATH_ENSEMBLE]

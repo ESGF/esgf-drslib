@@ -12,6 +12,9 @@ Generic implementations of IComponentTranslator
 
 import re, os
 
+import logging
+log = logging.getLogger(__name__)
+
 from isenes.drslib.drs import DRS
 from isenes.drslib.config import CMIP5_DRS
 
@@ -69,12 +72,12 @@ class TranslatorContext(object):
         # Check there is at last 1 item in the list
         assert len(fp) > 0
 
-        return '_'.join(fp)
+        return '_'.join(fp)+'.nc'
     
     def to_string(self):
         """Returns the full DRS path and filename.
         """
-        return '%s/%s.nc' % (self.path_to_string(), self.file_to_string())
+        return '%s/%s' % (self.path_to_string(), self.file_to_string())
 
 
 class BaseComponentTranslator(object):
@@ -184,7 +187,7 @@ class CMORVarTranslator(BaseComponentTranslator):
 
 
     def path_to_drs(self, context):
-        varname = context.file_parts[CMIP5_DRS.PATH_VARIABLE]
+        varname = context.file_parts[CMIP5_DRS.FILE_VARIABLE]
         
         #!TODO: table checking
 
@@ -242,7 +245,6 @@ class VersionTranslator(BaseComponentTranslator):
 
 
     def drs_to_filepath(self, context):
-        #!TODO: check component is integer
         context.path_parts[CMIP5_DRS.PATH_VERSION] = 'v%d' % context.drs.version
         
     #----
@@ -252,7 +254,12 @@ class VersionTranslator(BaseComponentTranslator):
         if not mo:
             raise TranslationError('Unrecognised version syntax %s' % component)
 
-        return mo.group(1)
+        try:
+            v = int(mo.group(1))
+        except TypeError:
+            raise TranslationError('Unrecognised version syntax %s' % component)
+
+        return v
 
     
 
@@ -379,7 +386,7 @@ class Translator(object):
         if path[:n] == self.prefix:
             return path[n:]
         else:
-            #!TODO: warn of missing prefix
+            log.warn('Path %s does not have prefix %s' % (path, self.prefix))
             return path
 
     def init_drs(self):
