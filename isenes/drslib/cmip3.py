@@ -19,21 +19,11 @@ on translating paths to DRS instances.
 import re
 
 import isenes.drslib.translate as T
+from isenes.drslib.drs import DRS
+from isenes.drslib.config import CMIP5_DRS, CMIP3_DRS
 
 TranslationError = T.TranslationError
 
-DRS_PATH_ACTIVITY = 0
-DRS_PATH_INSTMODEL = 5
-DRS_PATH_EXPERIMENT = 1
-DRS_PATH_FREQUENCY = 3
-DRS_PATH_REALM = 2
-DRS_PATH_VARIABLE = 4
-DRS_PATH_ENSEMBLE = 6
-
-DRS_FILE_VARIABLE = 0
-DRS_FILE_TABLE = 1
-#DRS_FILE_SUBSET = 2
-DRS_FILE_EXTENDED = 6
 
 #!NOTE: there is no product component in CMIP3
 
@@ -67,7 +57,7 @@ instmodel_map = {
 
 class InstituteModelTranslator(T.BaseComponentTranslator):
     def path_to_drs(self, context):
-        instmodel = context.path_parts[DRS_PATH_INSTMODEL]
+        instmodel = context.path_parts[CMIP3_DRS.PATH_INSTMODEL]
         
         try:
             institute, model = instmodel_map[instmodel]
@@ -84,7 +74,7 @@ instmodel_t = InstituteModelTranslator()
 
 
 class ExperimentTranslator(T.GenericComponentTranslator):
-    path_i = DRS_PATH_EXPERIMENT
+    path_i = CMIP3_DRS.PATH_EXPERIMENT
     file_i = None
     component = 'experiment'
 
@@ -101,7 +91,7 @@ class FrequencyTranslator(T.BaseComponentTranslator):
              'fixed': 'fx'}
     
     def path_to_drs(self, context):
-        cmip3_freq = context.path_parts[DRS_PATH_FREQUENCY]
+        cmip3_freq = context.path_parts[CMIP3_DRS.PATH_FREQUENCY]
         try:
             freq = self.vocab[cmip3_freq]
         except KeyError:
@@ -117,7 +107,7 @@ frequency_t = FrequencyTranslator()
 
 
 class RealmTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_REALM
+    path_i = CMIP5_DRS.PATH_REALM
     file_i = None
     component = 'realm'
     #mapping cmip3 realms and variables and realms to cmip5 
@@ -142,7 +132,7 @@ class RealmTranslator(T.GenericComponentTranslator):
              }
                                
     def path_to_drs(self, context):
-        cmip3_realm = context.path_parts[DRS_PATH_REALM]
+        cmip3_realm = context.path_parts[CMIP3_DRS.PATH_REALM]
         try:
             realm_list = self.realm_map[cmip3_realm]
         except KeyError:
@@ -167,7 +157,7 @@ realm_t = RealmTranslator()
 #!TODO: EnsembleTranslator
 class EnsembleTranslator(T.BaseComponentTranslator):
     def path_to_drs(self, context):
-        r_str = context.path_parts[DRS_PATH_ENSEMBLE]
+        r_str = context.path_parts[CMIP3_DRS.PATH_ENSEMBLE]
         mo = re.match(r'run(\d+)', r_str)
         if not mo:
             raise TranslationError('Unrecognised CMIP3 ensemble identifier %s' % r_str)
@@ -182,12 +172,12 @@ ensemble_t = EnsembleTranslator()
 
 
 class VariableTranslator(T.GenericComponentTranslator):
-    path_i = DRS_PATH_VARIABLE
+    path_i = CMIP3_DRS.PATH_VARIABLE
     file_i = None
     component = 'variable'
 
     def filename_to_drs(self, context):
-        table = context.file_parts[DRS_FILE_TABLE]
+        table = context.file_parts[CMIP3_DRS.FILE_TABLE]
         context.set_drs_component('table', table)
 
     def _validate(self, s):
@@ -210,7 +200,7 @@ class SubsetTranslator(T.BaseComponentTranslator):
     
     """
     def filename_to_drs(self, context):
-        extended = context.file_parts[DRS_FILE_EXTENDED]
+        extended = context.file_parts[CMIP3_DRS.FILE_EXTENDED]
         context.set_drs_component('extended', extended)
         
     def path_to_drs(self, context):
@@ -243,12 +233,12 @@ class CMIP3TranslatorContext(T.TranslatorContext):
             mo = self._fnrexp.match(filename)
             if not mo:
                 raise TranslationError('Unrecognised CMIP3 filename %s' % filename)
-            self.file_parts[DRS_FILE_VARIABLE] = mo.group(1)
-            self.file_parts[DRS_FILE_TABLE] = mo.group(2)
-            self.file_parts[DRS_FILE_EXTENDED] = mo.group(3)
+            self.file_parts[CMIP3_DRS.PATH_VARIABLE] = mo.group(1)
+            self.file_parts[CMIP3_DRS.FILE_TABLE] = mo.group(2)
+            self.file_parts[CMIP3_DRS.FILE_EXTENDED] = mo.group(3)
             
         if drs is None:
-            self.drs = T.DRS()
+            self.drs = DRS()
         else:
             self.drs = drs
 
@@ -269,7 +259,7 @@ class CMIP3Translator(T.Translator):
 
     def init_drs(self, drs=None):
         if drs is None:
-            drs = T.DRS()
+            drs = DRS()
 
         drs.activity = 'cmip3'
         drs.version = 1

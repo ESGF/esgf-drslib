@@ -12,81 +12,12 @@ Generic implementations of IComponentTranslator
 
 import re, os
 
+from isenes.drslib.drs import DRS
+from isenes.drslib.config import CMIP5_DRS
+
 class TranslationError(Exception):
     pass
 
-#
-# List offsets for the DRS elements in paths and filenames
-#
-
-DRS_PATH_ACTIVITY = 0
-DRS_PATH_PRODUCT = 1
-DRS_PATH_INSTITUTE = 2
-DRS_PATH_MODEL = 3
-DRS_PATH_EXPERIMENT = 4
-DRS_PATH_FREQUENCY = 5
-DRS_PATH_REALM = 6
-DRS_PATH_VARIABLE = 7
-DRS_PATH_ENSEMBLE = 8
-DRS_PATH_VERSION = 9
-
-DRS_FILE_VARIABLE = 0
-DRS_FILE_TABLE = 1
-DRS_FILE_MODEL = 2
-DRS_FILE_EXPERIMENT = 3
-DRS_FILE_ENSEMBLE = 4
-DRS_FILE_SUBSET = 5
-DRS_FILE_EXTENDED = 6
-
-
-class DRS(object):
-    """
-    Represents a DRS entry.  This class maintains consistency between the
-    path and filename portion of the DRS.
-
-    @ivar activity: string
-    @ivar product: string
-    @ivar institute: string
-    @ivar model: string
-    @ivar experiment: string
-    @ivar frequency: string
-    @ivar realm: string
-    @ivar variable: string
-    @ivar table: string of None
-    @ivar ensemble: (r, i, p)
-    @ivar version: integer
-    @ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h) 
-        and clim is boolean
-    @ivar extended: A string containing miscellaneous stuff.  Useful for
-        representing irregular CMIP3 files
-
-    """
-
-    _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-                 'realm', 'variable', 'table', 'ensemble', 'version', 'subset', 'extended']
-
-    def __init__(self, **kwargs):
-        
-        for attr in self._drs_attrs:
-            setattr(self, attr, kwargs.get(attr))
-
-    def is_complete(self):
-        """Returns boolean to indicate if all components are specified.
-        """
-
-        for attr in self._drs_attrs:
-            if attr is 'extended':
-                continue
-            if getattr(self, attr) is None:
-                return False
-
-        return True
-
-    def __repr__(self):
-        kws = []
-        for attr in self._drs_attrs:
-            kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
-        return '<DRS %s>' % ', '.join(kws)
 
 class TranslatorContext(object):
     """
@@ -243,8 +174,8 @@ class CMORVarTranslator(BaseComponentTranslator):
     """
 
     def filename_to_drs(self, context):
-        varname = context.file_parts[DRS_FILE_VARIABLE]
-        table = context.file_parts[DRS_FILE_TABLE]
+        varname = context.file_parts[CMIP5_DRS.FILE_VARIABLE]
+        table = context.file_parts[CMIP5_DRS.FILE_TABLE]
 
         #!TODO: table checking
 
@@ -253,16 +184,16 @@ class CMORVarTranslator(BaseComponentTranslator):
 
 
     def path_to_drs(self, context):
-        varname = context.file_parts[DRS_PATH_VARIABLE]
+        varname = context.file_parts[CMIP5_DRS.PATH_VARIABLE]
         
         #!TODO: table checking
 
         context.set_drs_component('variable', varname)
 
     def drs_to_filepath(self, context):
-        context.file_parts[DRS_FILE_VARIABLE] = context.drs.variable
-        context.file_parts[DRS_FILE_TABLE] = context.drs.table
-        context.path_parts[DRS_PATH_VARIABLE] = context.drs.variable
+        context.file_parts[CMIP5_DRS.FILE_VARIABLE] = context.drs.variable
+        context.file_parts[CMIP5_DRS.FILE_TABLE] = context.drs.table
+        context.path_parts[CMIP5_DRS.PATH_VARIABLE] = context.drs.variable
 
 
     #----
@@ -271,11 +202,11 @@ class CMORVarTranslator(BaseComponentTranslator):
 
 class EnsembleTranslator(BaseComponentTranslator):
     def filename_to_drs(self, context):
-        context.drs.ensemble = self._convert(context.file_parts[DRS_FILE_ENSEMBLE])
+        context.drs.ensemble = self._convert(context.file_parts[CMIP5_DRS.FILE_ENSEMBLE])
 
 
     def path_to_drs(self, context):
-        context.drs.ensemble = self._convert(context.path_parts[DRS_PATH_ENSEMBLE])
+        context.drs.ensemble = self._convert(context.path_parts[CMIP5_DRS.PATH_ENSEMBLE])
 
 
     def drs_to_filepath(self, context):
@@ -287,8 +218,8 @@ class EnsembleTranslator(BaseComponentTranslator):
             a.append('p%d' % p)
         v = ''.join(a)
         
-        context.file_parts[DRS_FILE_ENSEMBLE] = v
-        context.path_parts[DRS_PATH_ENSEMBLE] = v
+        context.file_parts[CMIP5_DRS.FILE_ENSEMBLE] = v
+        context.path_parts[CMIP5_DRS.PATH_ENSEMBLE] = v
 
 
     #----
@@ -307,12 +238,12 @@ class VersionTranslator(BaseComponentTranslator):
         pass
 
     def path_to_drs(self, context):
-        context.drs.version = self._convert(context.path_parts[DRS_PATH_VERSION])
+        context.drs.version = self._convert(context.path_parts[CMIP5_DRS.PATH_VERSION])
 
 
     def drs_to_filepath(self, context):
         #!TODO: check component is integer
-        context.path_parts[DRS_PATH_VERSION] = 'v%d' % context.drs.version
+        context.path_parts[CMIP5_DRS.PATH_VERSION] = 'v%d' % context.drs.version
         
     #----
 
@@ -337,7 +268,7 @@ class SubsetTranslator(BaseComponentTranslator):
     allow_missing_subset = True
 
     def filename_to_drs(self, context):
-        v = context.file_parts[DRS_FILE_SUBSET]
+        v = context.file_parts[CMIP5_DRS.FILE_SUBSET]
 
         if self.allow_missing_subset and not v:
             return
@@ -370,7 +301,7 @@ class SubsetTranslator(BaseComponentTranslator):
         if clim:
             parts.append('clim')
 
-        context.file_parts[DRS_FILE_SUBSET] = '-'.join(parts)
+        context.file_parts[CMIP5_DRS.FILE_SUBSET] = '-'.join(parts)
 
 
 class Translator(object):

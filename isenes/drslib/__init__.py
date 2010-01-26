@@ -5,4 +5,3 @@
 # See the LICENSE file in the source distribution of this software for
 # the full license text.
 
-from isenes.drslib.translate import DRS

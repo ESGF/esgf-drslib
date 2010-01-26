@@ -55,7 +55,7 @@ Generating DRS paths and filenames
 
 The DRS class can be used to constructed from scratch like:
 
->>> from isenes.drslib import DRS
+>>> from isenes.drslib.drs import DRS
 >>> drs2 = DRS(activity='cmip5', product='requested', model='HadCM3', 
 ...            experiment='historicalNat', variable='tas', ensemble=(1, None, None), version=4,
 ...            table='3hr', frequency='3hr')

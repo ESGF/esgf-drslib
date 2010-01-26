@@ -13,8 +13,11 @@ A translator specific to CMIP5
 import isenes.drslib.translate as T
 import isenes.drslib.config as config
 
+CMIP5_DRS = config.CMIP5_DRS
+
+
 class ActivityTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_ACTIVITY
+    path_i = T.CMIP5_DRS.PATH_ACTIVITY
     file_i = None
     component = 'activity'
     vocab = ['cmip5', 'cmip3']
@@ -24,7 +27,7 @@ class ActivityTranslator(T.GenericComponentTranslator):
 activity_t = ActivityTranslator()
 
 class ProductTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_PRODUCT
+    path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
     component = 'product'
     vocab = ['output', 'requested']
@@ -96,7 +99,7 @@ model_institution_map = {
 
 #!TODO: Get full list.  This is based on CMIP3
 class InstituteTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_INSTITUTE
+    path_i = T.CMIP5_DRS.PATH_INSTITUTE
     file_i = None
     component = 'institute'
     vocab = model_institution_map.values()
@@ -125,15 +128,15 @@ institute_t = InstituteTranslator()
 
 #!TODO: Not official identifiers
 class ModelTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_MODEL
-    file_i = T.DRS_FILE_MODEL
+    path_i = T.CMIP5_DRS.PATH_MODEL
+    file_i = T.CMIP5_DRS.FILE_MODEL
     component = 'model'
     vocab = model_institution_map.keys()
 model_t = ModelTranslator()
 
 class ExperimentTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_EXPERIMENT
-    file_i = T.DRS_FILE_EXPERIMENT
+    path_i = T.CMIP5_DRS.PATH_EXPERIMENT
+    file_i = T.CMIP5_DRS.FILE_EXPERIMENT
     component = 'experiment'
     vocab = [
         'decadalXXXX', #!TODO: replace XXXX with decades
@@ -208,7 +211,7 @@ class ExperimentTranslator(T.GenericComponentTranslator):
 experiment_t = ExperimentTranslator()
 
 class FrequencyTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_FREQUENCY
+    path_i = T.CMIP5_DRS.PATH_FREQUENCY
     file_i = None
     component = 'frequency'
     vocab = ['yr', 'mon', 'day', '6hr', '3hr', 'subhr', 'fx']
@@ -239,7 +242,7 @@ frequency_t = FrequencyTranslator()
 
 #!TODO: Get this information from CMIP tables
 class RealmTranslator(T.GenericComponentTranslator):
-    path_i = T.DRS_PATH_REALM
+    path_i = T.CMIP5_DRS.PATH_REALM
     file_i = None
     component = 'realm'
     vocab = ['atmos', 'ocean', 'land', 'landIce', 'seaIce', 
@@ -290,7 +293,7 @@ class ExtendedTranslator(T.BaseComponentTranslator):
     
     """
     def drs_to_filepath(self, context):
-        context.file_parts[T.DRS_FILE_EXTENDED] = context.drs.extended
+        context.file_parts[T.CMIP5_DRS.FILE_EXTENDED] = context.drs.extended
         
     def path_to_drs(self, context):
         pass
