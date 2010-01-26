@@ -57,7 +57,8 @@ The DRS class can be used to constructed from scratch like:
 
 >>> from isenes.drslib.drs import DRS
 >>> drs2 = DRS(activity='cmip5', product='requested', model='HadCM3', 
-...            experiment='historicalNat', variable='tas', ensemble=(1, None, None), version=4,
+...            experiment='historicalNat', variable='tas', 
+...	       ensemble=(1, None, None), version=4,
 ...            table='3hr', frequency='3hr')
 
 >>> cmip5_trans.drs_to_path(drs2)
@@ -72,3 +73,17 @@ Extra information is needed to create the filename
 'tas_3hr_HadCM3_historicalNat_r1_2010-2011'
 
 
+Converting CMIP3 paths to CMIP5 paths
+=====================================
+
+The isenes.drslib.cmip3 module implements a similar API to
+isenes.drslib.cmip5 thus allowing CMIP3 paths to be converted to DRS
+instances then converted into CMIP5 DRS format.
+
+>>> from isenes.drslib import cmip3
+>>> cmip3_trans = cmip3.make_translator('')
+>>> drs3 = cmip3_trans.filepath_to_drs('cmip3/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc')
+>>> drs3
+<DRS activity='cmip3', product='output', institute='GFDL', model='CM2', experiment='20c3m', frequency='day', realm='atmos', variable='rsus', table='A2', ensemble=(1, None, None), version=1, subset=None, extended='19610101-19651231'>
+>>> cmip5_trans.drs_to_filepath(drs3)
+'http://example.com/cmip3/output/GFDL/CM2/20c3m/day/atmos/rsus/r1/v1/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc'

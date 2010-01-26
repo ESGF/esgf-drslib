@@ -71,6 +71,7 @@ model_institution_map = {
         'BCC-CSM': 'BCCR',
         
         # Models used in CMIP3
+        'BCC-CM1': 'CMA',
         'BCM2': 'BCCR',
         'CGCM3-1-T47': 'CCCMA',
         'CGCM3-1-T63': 'CCCMA',

@@ -29,6 +29,7 @@ TranslationError = T.TranslationError
 
 # From Charlotte's wiki page
 instmodel_map = {
+    'bcc_cm1': ('CMA', 'BCC-CM1'), #!TODO: Confirm with Charlotte
     'bccr_bcm2_0': ('BCCR', 'BCM2'), 
     'cccma_cgcm3_1': ('CCCMA', 'CGCM3-1-T47'),     
     'cccma_cgcm3_1_t63': ('CCCMA','CGCM3-1-T63'),
@@ -110,25 +111,24 @@ class RealmTranslator(T.GenericComponentTranslator):
     path_i = CMIP5_DRS.PATH_REALM
     file_i = None
     component = 'realm'
-    #mapping cmip3 realms and variables and realms to cmip5 
-    #http://metaforclimate.eu/trac/browser/cmip5q/trunk/CMIP5Outputs_to_Components
+    # mapping cmip3 realms and variables and realms to cmip5 
+    # http://metaforclimate.eu/trac/browser/cmip5q/trunk/CMIP5Outputs_to_Components
     
-    #realm_map = {'cmip3Realm': ('CMIP3Realm',),}
-    #atmos, ocean, land, landIce, seaIce, aerosol atmosChem, ocnBgchem
+    # realm_map = {'cmip3Realm': ('CMIP5Realm',),}
+    # atmos, ocean, land, landIce, seaIce, aerosol atmosChem, ocnBgchem
     realm_map = {'atm': ('atmos', 'aerosol', 'atmosChem','land'),
-                            'ice': ('seaIce',),
-                            'land': ('land','landIce'), 
-                            'ocn': ('ocean',),
-                            }
-    #CMIP3 atmos variables can map onto 4 different cmip5 realms.  
-    #The atmos_map dictionary defines this mapping
-    #Assume CMIP3 atm variables map onto CMIP5 atmos realm unless they appear in this dictionary 
+                 'ice': ('seaIce',),
+                 'land': ('land','landIce'), 
+                 'ocn': ('ocean',),
+                 }
+    # CMIP3 atmos and land variables can map onto 4 different cmip5 realms.  
+    # Assume CMIP3 atm variables map onto CMIP5 atmos realm unless they appear in this dictionary 
     var_map={'atmos': {'mrsos': 'land',
-                              'trsult': 'aerosol',
-                              'trsul': 'aerosol',
-                              'tro3': 'atmosChem',
-                              },
-             'land': {'sftgif': 'landIce',}
+                       'trsult': 'aerosol',
+                       'trsul': 'aerosol',
+                       'tro3': 'atmosChem',
+                       },
+             'land': {'sftgif': 'landIce',},
              }
                                
     def path_to_drs(self, context):
