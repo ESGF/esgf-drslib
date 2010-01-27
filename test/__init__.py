@@ -14,7 +14,7 @@ import os
 
 from isenes.drslib import cmip5
 
-translator = cmip5.make_translator('')
+translator = cmip5.make_translator('cmip5')
 
 def get_drs1():
     return translator.filename_to_drs('tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')

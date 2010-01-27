@@ -15,13 +15,13 @@ import os
 
 from isenes.drslib import cmip3, cmip5
 
-translator = cmip3.make_translator('')
-cmip5_translator = cmip5.make_translator('')
+translator = cmip3.make_translator('/')
+cmip5_translator = cmip5.make_translator('cmip5')
 
 def test_1():
-    p = 'cmip3/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc'
+    p = '/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc'
     p2 = convert(p)
-    assert p2 == 'cmip3/output/GFDL/CM2/20c3m/day/atmos/rsus/r1/v1/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc'
+    assert p2 == 'cmip5/output/GFDL/CM2/20c3m/day/atmos/rsus/r1/v1/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc'
     
 def test_listing():
     """
@@ -34,9 +34,10 @@ def test_listing():
         yield convert, line.strip()
     
 def convert(filepath):
+    print ('%s -->' % filepath),
     drs = translator.filepath_to_drs(filepath)
     cmip5_filepath = cmip5_translator.drs_to_filepath(drs)
 
-    print '%s --> %s' % (filepath, cmip5_filepath)
+    print cmip5_filepath
     
     return cmip5_filepath

@@ -81,7 +81,7 @@ def move_files(cmip3_path, cmip5_path, dry_run=True):
             
             try:
                 drs2 = cmip3_t.filepath_to_drs(os.path.join(dirpath, filename))
-                filename2 = cmip5_t.drs_to_file(drs2)+ext
+                filename2 = cmip5_t.drs_to_file(drs2)
             except TranslationError, e:
                 log.error('Failed to translate filename %s: %s' % (filename, e))
                 continue
@@ -120,9 +120,9 @@ def main(args):
     #!NOTE: any options will be defined here
     #!TODO: --include and --exclude options for just doing parts of the archive
 
-    parser.add_option('-i', '--include', action='append', destination='include',
+    parser.add_option('-i', '--include', action='append', dest='include',
                       help='Include branches matching GLOB')
-    parser.add_option('-e', '--exclude', action='append', destination='include',
+    parser.add_option('-e', '--exclude', action='append', dest='include',
                       help='Exclude branches matching GLOB')
 
 

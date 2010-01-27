@@ -16,16 +16,6 @@ import isenes.drslib.config as config
 CMIP5_DRS = config.CMIP5_DRS
 
 
-class ActivityTranslator(T.GenericComponentTranslator):
-    path_i = T.CMIP5_DRS.PATH_ACTIVITY
-    file_i = None
-    component = 'activity'
-    vocab = ['cmip5', 'cmip3']
-    
-
-
-activity_t = ActivityTranslator()
-
 class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
@@ -306,8 +296,7 @@ extended_t = ExtendedTranslator()
 
 class CMIP5Translator(T.Translator):
 
-    translators = [activity_t,
-                   product_t,
+    translators = [product_t,
                    model_t,
 
                    # Must follow model_t

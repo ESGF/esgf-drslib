@@ -19,13 +19,12 @@ table_path = os.path.join(os.path.dirname(__file__), 'cmip5_tables')
 #
 
 class CMIP3_DRS:
-    PATH_ACTIVITY = 0
-    PATH_INSTMODEL = 5
-    PATH_EXPERIMENT = 1
-    PATH_FREQUENCY = 3
-    PATH_REALM = 2
-    PATH_VARIABLE = 4
-    PATH_ENSEMBLE = 6
+    PATH_INSTMODEL = 4
+    PATH_EXPERIMENT = 0
+    PATH_FREQUENCY = 2
+    PATH_REALM = 1
+    PATH_VARIABLE = 3
+    PATH_ENSEMBLE = 5
 
     FILE_VARIABLE = 0
     FILE_TABLE = 1
@@ -37,16 +36,15 @@ class CMIP3_DRS:
 #
 
 class CMIP5_DRS:
-    PATH_ACTIVITY = 0
-    PATH_PRODUCT = 1
-    PATH_INSTITUTE = 2
-    PATH_MODEL = 3
-    PATH_EXPERIMENT = 4
-    PATH_FREQUENCY = 5
-    PATH_REALM = 6
-    PATH_VARIABLE = 7
-    PATH_ENSEMBLE = 8
-    PATH_VERSION = 9
+    PATH_PRODUCT = 0
+    PATH_INSTITUTE = 1
+    PATH_MODEL = 2
+    PATH_EXPERIMENT = 3
+    PATH_FREQUENCY = 4
+    PATH_REALM = 5
+    PATH_VARIABLE = 6
+    PATH_ENSEMBLE = 7
+    PATH_VERSION = 8
     
     FILE_VARIABLE = 0
     FILE_TABLE = 1

@@ -34,7 +34,7 @@ class TranslatorContext(object):
     """
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
         if path is None:
-            self.path_parts = [None] * 10
+            self.path_parts = [None] * 9
         else:
             self.path_parts = path.split('/')
 
@@ -63,7 +63,7 @@ class TranslatorContext(object):
                 raise TranslationError('Conflicting value of DRS component %s' % drs_component)
 
     def path_to_string(self):
-        return '/'.join(self.path_parts)
+        return os.path.join(*self.path_parts)
     
     def file_to_string(self):
         # To allow optional portions any None's are removed
@@ -77,7 +77,7 @@ class TranslatorContext(object):
     def to_string(self):
         """Returns the full DRS path and filename.
         """
-        return '%s/%s' % (self.path_to_string(), self.file_to_string())
+        return os.path.join(self.path_to_string(), self.file_to_string())
 
 
 class BaseComponentTranslator(object):
@@ -314,7 +314,8 @@ class SubsetTranslator(BaseComponentTranslator):
 class Translator(object):
     """
 
-    @property prefix: All paths are interpreted as relative to this prefix.
+    @property prefix: The prefix for all DRS paths including the activity.
+        All paths are interpreted as relative to this prefix.
         Generated paths have this prefix added.
     @property translators: A list of translators called in order to handle translation
     @property table_store: A IMIPTableStore instance containing all MIP tables being used.
@@ -368,12 +369,12 @@ class Translator(object):
     def drs_to_filepath(self, drs):
         context = self.drs_to_context(drs)
 
-        return '%s%s' % (self.prefix, context.to_string())
+        return os.path.join(self.prefix, context.to_string())
 
     def drs_to_path(self, drs):
         context = self.drs_to_context(drs)
         
-        return '%s%s' % (self.prefix, context.path_to_string())
+        return os.path.join(self.prefix, context.path_to_string())
 
     def drs_to_file(self, drs):
         context = self.drs_to_context(drs)
@@ -384,7 +385,7 @@ class Translator(object):
     def _split_prefix(self, path):
         n = len(self.prefix)
         if path[:n] == self.prefix:
-            return path[n:]
+            return path[n:].lstrip('/')
         else:
             log.warn('Path %s does not have prefix %s' % (path, self.prefix))
             return path
