@@ -27,8 +27,8 @@ setup(name='isenes.drslib',
       install_requires=[
           # -*- Extra requirements: -*-
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
+      entry_points= {
+        'console_scripts': ['translate_cmip3 = isenes.drslib.translate_cmip3:main'],
+        },
       test_suite='nose.collector',
       )

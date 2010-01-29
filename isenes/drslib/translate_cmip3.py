@@ -147,7 +147,7 @@ def trans_files(cmip3_path, cmip5_path):
     log.info('Translation complete')
 
 
-def main(args):
+def main(argv=sys.argv):
     from optparse import OptionParser
 
     usage = "usage: %prog [options] cmip3_root cmip5_root"
@@ -172,14 +172,14 @@ def main(args):
                       default='INFO',
                       help="Set logging level")
 
-    (options, p_args) = parser.parse_args()
-    cmip3_path, cmip5_path = p_args
+    (options, args) = parser.parse_args()
+    cmip3_path, cmip5_path = args
 
     loglevel = getattr(logging, options.loglevel)    
     logging.basicConfig(level=loglevel,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
-    log.info('Calling with arguments %s' % args)
+    log.info('Calling with arguments %s' % sys.argv[1:])
 
     if options.include:
         log.info('Include %s' % options.include)
@@ -199,4 +199,4 @@ def main(args):
 
 if __name__ == '__main__':
 
-    main(sys.argv[1:])
+    main(sys.argv)
