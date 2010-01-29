@@ -89,13 +89,13 @@ def _mkdirs(name, mode=511):
 def _copy(old, new):
     cmd = 'cp %s %s' % (old, new)
     log.info(cmd)
-    #if not dry_run:
-    #    os.system(cmd)
+    if not dry_run:
+        os.system(cmd)
 
 def _rename(old, new):
     log.info('mv %s %s' % (old, new))
-    #if not dry_run:
-    #    os.rename(old, new)
+    if not dry_run:
+        os.rename(old, new)
              
 
 def trans_files(cmip3_path, cmip5_path):
