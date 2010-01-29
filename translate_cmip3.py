@@ -22,134 +22,130 @@ from isenes.drslib.translate import TranslationError
 cmip3_translator = cmip3.make_translator('')
 cmip5_translator = cmip5.make_translator('')
 
+# Redefined in main
+include = None
+exclude = None
+dry_run = True
+copy_trans = False
+ 
+def walk_cmip3(base_path):
+    """
+    Walk through the CMIP3 archive
+    @yield: (dirname, filenames) for terminal directories
 
-class FileMover(object):
-    def __init__(self, include, exclude, dry_run=True):
-        self.dry_run = dry_run
-        self.include = [re.compile(x) for x in include]
-        self.exclude = [re.compile(x) for x in exclude]
+    """
+    for (dirpath, dirnames, filenames) in os.walk(base_path):
 
-    def walk_cmip3(self, base_path):
-        """
-        Walk through the CMIP3 archive
-        @yield: (dirname, filenames) for terminal directories
-        
-        """
-        for (dirpath, dirnames, filenames) in os.walk(base_path):
+        # Store whether dirnames is empty before removing excluded
+        # directories.
+        is_leaf = not dirnames
+        check_dirnames(dirpath, dirnames)
 
-            # Store whether dirnames is empty before removing excluded
-            # directories.
-            is_leaf = not dirnames
-            self.check_dirnames(dirpath, dirnames)
+        if is_leaf:
+            yield (dirpath, filenames)
 
-            if is_leaf:
-                yield (dirpath, filenames)
-
-            # This code won't be needed in Python 2.6 which has a followlinks
-            # option to os.walk
-            for dirname in dirnames:
-                path = os.path.join(dirpath, dirname)
-                if os.path.islink(path):
-                    log.info('Following symlink %s' % path)
-                    # Recursively walk the symlink
-                    for t in self.walk_cmip3(path): 
-                        yield t
-
-    def check_dirnames(self, dirpath, dirnames):
-        """
-        Modify dirnames in place to remove directories according to
-        self.include and self.exclude
-
-        """
-        log.debug('checking dirnames %s' % dirnames)
-        
-        
-        for dirname in dirnames[:]:
+        # This code won't be needed in Python 2.6 which has a followlinks
+        # option to os.walk
+        for dirname in dirnames:
             path = os.path.join(dirpath, dirname)
-            delete = False
+            if os.path.islink(path):
+                log.info('Following symlink %s' % path)
+                # Recursively walk the symlink
+                for t in walk_cmip3(path): 
+                    yield t
 
-            for rexp in self.exclude:
-                if rexp.match(path):
-                    delete = True
-            for rexp in self.include:
-                if rexp.match(path):
-                    delete = False
+def check_dirnames(dirpath, dirnames):
+    """
+    Modify dirnames in place to remove directories according to
+    include and exclude
 
-            if delete:
-                log.info('Excluding directory %s' % dirname)
-                dirnames.remove(dirname)
-
-        log.debug('dirnames remaining %s' % dirnames)
+    """
+    log.debug('checking dirnames %s' % dirnames)
 
 
-    def _mkdirs(self, name, mode=511):
-        log.info('mkdir -p %s' % name)
-        #if not self.dry_run:
-        #    os.makedirs(name)
+    for dirname in dirnames[:]:
+        path = os.path.join(dirpath, dirname)
+        delete = False
 
-    def _rename(self, old, new):
-        log.info('mv %s %s' % (old, new))
-        #if not self.dry_run:
-        #    os.rename(old, new)
+        for rexp in exclude:
+            if rexp.match(path):
+                delete = True
+        for rexp in include:
+            if rexp.match(path):
+                delete = False
 
-    def move_files(self, cmip3_path, cmip5_path):
-        cmip3_t = cmip3.make_translator(cmip3_path)
-        cmip5_t = cmip5.make_translator(cmip5_path)
+        if delete:
+            log.info('Excluding directory %s' % dirname)
+            dirnames.remove(dirname)
 
-        log.info('Dry run is %s' % self.dry_run)
+    log.debug('dirnames remaining %s' % dirnames)
 
-        for dirpath, filenames in self.walk_cmip3(cmip3_path):
-            log.info('Processing directory %s' % dirpath)
+
+def _mkdirs(name, mode=511):
+    log.info('mkdir -p %s' % name)
+    if not dry_run:
+        os.makedirs(name)
+
+def _copy(old, new):
+    cmd = 'cp %s %s' % (old, new)
+    log.info(cmd)
+    #if not dry_run:
+    #    os.system(cmd)
+
+def _rename(old, new):
+    log.info('mv %s %s' % (old, new))
+    #if not dry_run:
+    #    os.rename(old, new)
+             
+
+def trans_files(cmip3_path, cmip5_path):
+    cmip3_t = cmip3.make_translator(cmip3_path)
+    cmip5_t = cmip5.make_translator(cmip5_path)
+
+    log.info('Dry run is %s' % dry_run)
+    log.info('Copying is %s' % copy_trans)
+
+    for dirpath, filenames in walk_cmip3(cmip3_path):
+        log.info('Processing directory %s' % dirpath)
+
+        try:
+            drs = cmip3_t.path_to_drs(dirpath)
+            path = cmip5_t.drs_to_path(drs)
+        except TranslationError, e:
+            log.error('Failed to translate path %s: %s' % (dirpath, e))
+            continue
+        except:
+            log.exception('Error translating path %s' % dirpath)
+            continue
+
+        log.info('Translating atomic dataset %s' % drs)
+
+        if not os.path.exists(path):
+            _mkdirs(path)
+
+        for filename in filenames:
+            ext = os.path.splitext(filename)[1]
 
             try:
-                drs = cmip3_t.path_to_drs(dirpath)
-                path = cmip5_t.drs_to_path(drs)
+                drs2 = cmip3_t.filepath_to_drs(os.path.join(dirpath, filename))
+                filename2 = cmip5_t.drs_to_file(drs2)
             except TranslationError, e:
-                log.error('Failed to translate path %s: %s' % (dirpath, e))
-                continue
-            except:
-                log.exception('Error translating path %s' % dirpath)
+                log.error('Failed to translate filename %s: %s' % (filename, e))
                 continue
 
-            log.info('Moving atomic dataset %s' % drs)
+            # Sanity check
+            path2 = cmip5_t.drs_to_path(drs2)
+            assert path2 == path
 
-            if not os.path.exists(path):
-                self._mkdirs(path)
+            if copy_trans:
+                _copy(os.path.join(dirpath, filename),
+                      os.path.join(path, filename2))
+            else:
+                _rename(os.path.join(dirpath, filename),
+                        os.path.join(path, filename2))
 
-            for filename in filenames:
-                ext = os.path.splitext(filename)[1]
+    log.info('Translation complete')
 
-                try:
-                    drs2 = cmip3_t.filepath_to_drs(os.path.join(dirpath, filename))
-                    filename2 = cmip5_t.drs_to_file(drs2)
-                except TranslationError, e:
-                    log.error('Failed to translate filename %s: %s' % (filename, e))
-                    continue
-
-                # Sanity check
-                path2 = cmip5_t.drs_to_path(drs2)
-                assert path2 == path
-
-                self._rename(os.path.join(dirpath, filename),
-                             os.path.join(path, filename2))
-
-def main_old():
-    paths = set()
-    for line in sys.stdin:
-        filename, size = line.strip().split()
-        fn = convert(filename)
-        
-        # Make sure no duplicate paths are created
-        assert fn not in paths
-        paths.add(fn)
-    
-def convert(filepath):
-    drs = cmip3_translator.filepath_to_drs(filepath)
-    cmip5_filepath = cmip5_translator.drs_to_filepath(drs)
-
-    print '%s --> %s' % (filepath, cmip5_filepath)
-    
-    return cmip5_filepath
 
 def main(args):
     from optparse import OptionParser
@@ -157,25 +153,50 @@ def main(args):
     usage = "usage: %prog [options] cmip3_root cmip5_root"
     parser = OptionParser(usage=usage)
 
-    parser.add_option('-i', '--include', action='append', dest='include', default=[],
+    parser.add_option('-i', '--include', action='append', dest='include', 
+                      default=[], 
                       help='Include paths matching INCLUDE regular expression')
-    parser.add_option('-e', '--exclude', action='append', dest='exclude', default=[],
+    parser.add_option('-e', '--exclude', action='append', dest='exclude', 
+                      default=[],
                       help='Exclude paths matching EXCLUDE regular expression')
 
-    #!TODO: --dry-run flag
+    parser.add_option('-c', '--copy', dest='copy', action='store_true', 
+                     default=False,
+                     help='Copy rather than move files')
 
-    (options, args) = parser.parse_args()
-    cmip3_path, cmip5_path = args
+    parser.add_option('-d', '--dryrun', dest='dryrun', action='store_true', 
+                      default=False, 
+                      help="Emit log messages but don't translate anything")
+
+    parser.add_option('-l', '--loglevel', dest='loglevel', action='store', 
+                      default='INFO',
+                      help="Set logging level")
+
+    (options, p_args) = parser.parse_args()
+    cmip3_path, cmip5_path = p_args
+
+    loglevel = getattr(logging, options.loglevel)    
+    logging.basicConfig(level=loglevel,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
+
+    log.info('Calling with arguments %s' % args)
 
     if options.include:
         log.info('Include %s' % options.include)
     if options.exclude:
         log.info('Exclude %s' % options.exclude)
 
-    mover = FileMover(options.include, options.exclude)
-    mover.move_files(cmip3_path, cmip5_path)
+
+    # Set global variables
+    global include, exclude, dry_run, copy_trans
+    include = [re.compile(x) for x in options.include]
+    exclude = [re.compile(x) for x in options.exclude]
+    dry_run = options.dryrun
+    copy_trans = options.copy
+
+    trans_files(cmip3_path, cmip5_path)
+
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
 
     main(sys.argv[1:])
