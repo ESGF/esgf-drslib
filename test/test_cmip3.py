@@ -41,3 +41,14 @@ def convert(filepath):
     print cmip5_filepath
     
     return cmip5_filepath
+
+def test_var_underscore():
+    """test_var_underscore
+
+    Regression test found in CMIP3 when a variable contains an underscore.
+
+    """
+    p = '/1pctto2x/atm/mo/rlftoaa_co2/ipsl_cm4/run1/rlftoaa_co2_A5_1860-1869.nc'
+    p2 = convert(p)
+
+    assert p2 == 'cmip5/output/IPSL/CM4/1pctto2x/mon/atmos/rlftoaa_co2/r1/v1/rlftoaa_co2_A5_CM4_1pctto2x_r1_1860-1869.nc'

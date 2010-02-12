@@ -93,9 +93,11 @@ def _copy(old, new):
         os.system(cmd)
 
 def _rename(old, new):
-    log.info('mv %s %s' % (old, new))
+    cmd = 'mv %s %s' % (old, new)
+    log.info(cmd)
     if not dry_run:
-        os.rename(old, new)
+        os.system(cmd)
+
              
 
 def trans_files(cmip3_path, cmip5_path):

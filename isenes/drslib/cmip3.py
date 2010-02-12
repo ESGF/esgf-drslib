@@ -216,8 +216,11 @@ class CMIP3TranslatorContext(T.TranslatorContext):
     
     """
 
+    #!FIXME: This regular expression doesn't allow underscores in variable
+    #        names.  Unfortunately CMIP3 has them.
     _fnrexp = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9]+)(?:[._-](.*))?.nc$')
     
+
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
         assert table_store is None
         
