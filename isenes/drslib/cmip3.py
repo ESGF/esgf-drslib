@@ -18,6 +18,9 @@ on translating paths to DRS instances.
 
 import re
 
+import logging
+log = logging.getLogger(__name__)
+
 import isenes.drslib.translate as T
 from isenes.drslib.drs import DRS
 from isenes.drslib.config import CMIP5_DRS, CMIP3_DRS
@@ -207,6 +210,35 @@ class SubsetTranslator(T.BaseComponentTranslator):
     
 subset_t = SubsetTranslator()
 
+class FnFixTranslator(T.BaseComponentTranslator):
+    """
+    Fix problem filenames in the DRS structure.
+
+    """
+    def drs_to_filepath(self, context):
+        pass
+        
+    def path_to_drs(self, context):
+        pass
+    
+    def filename_to_drs(self, context):
+        # Detect variables containing underscores and fix.
+        varbits = context.drs.variable.split('_')
+        if len(varbits) > 1 and context.drs.table == varbits[-1]:
+            extbits = context.drs.extended.split('_')
+            #context.drs.variable = '_'.join(varbits[:-1])
+            context.drs.table = extbits[0]
+            context.drs.extended = '_'.join(extbits[1:])
+
+            log.warn(('Variable containing underscore detected'
+                      +'Setting variable=%s, table=%s, extended=%s')
+                     % (context.drs.variable,
+                        context.drs.table,
+                        context.drs.extended))
+                     
+
+fnfix_t = FnFixTranslator()
+
 class CMIP3TranslatorContext(T.TranslatorContext):
     """
     A customised context class for converting CMIP3 paths
@@ -252,11 +284,14 @@ class CMIP3Translator(T.Translator):
                    experiment_t,
                    ensemble_t,
                    variable_t,
-
+                   
                    # Must be processed after variable
                    realm_t,
                    frequency_t,
                    subset_t,
+
+                   # Fix some unusual CMIP3 filenames
+                   fnfix_t,
                    ]
 
     def init_drs(self, drs=None):

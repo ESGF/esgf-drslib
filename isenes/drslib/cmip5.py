@@ -130,9 +130,10 @@ class ExperimentTranslator(T.GenericComponentTranslator):
     file_i = T.CMIP5_DRS.FILE_EXPERIMENT
     component = 'experiment'
     vocab = [
-        'decadalXXXX', #!TODO: replace XXXX with decades
-        'noVolcano',
-        'volcano2010',
+        #!TODO: replace XXXX with decades
+        'decadalXXXX', 
+        'noVolcXXXX',
+        'volcIn2010',
         'piControl',
         'historical',
         'midHolocene',
@@ -144,44 +145,48 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         'rcp60',
         'esmControl',
         'esmHistorical',
-        'esmRcp85',
+        'esmrcp85',
         'esmFixClim1',
         'esmFixClim2',
         'esmFdbk1',
         'esmFdbk2',
-        'lpctCo2',
-        'abrupt4xco2',
+        'lpctCO2',
+        'abrupt4xCO2',
 
         'historicalNat',
         'historicalAnt',
-        'historicalGhg', 
-        'historicalSd', 
-        'historicalSi', 
-        'historicalSa', 
-        'historicalTo', 
-        'historicalSo', 
+        'historicalG', 
+        'historicalSD', 
+        'historicalSI', 
+        'historicalSA', 
+        'historicalTO', 
+        'historicalSO',
+        #!FIXME: shouldn't this be capital Z?  check with Karl.
         'historicalOz', 
-        'historicalLu', 
+        'historicalLU',
+        #!FIXME: capitalise?
         'historicalSl', 
+        #!FIXME: capitalise?
         'historicalVl', 
-        'historicalSs', 
+        'historicalSS', 
+        #!FIXME: capitalise?
         'historicalDs', 
-        'historicalBc', 
-        'historicalMd', 
-        'historicalOc', 
-        'historicalAa', 
+        'historicalBC', 
+        'historicalMD', 
+        'historicalOC', 
+        'historicalAA', 
 
         'amip',
         'sst2030',
         'sst2030',
         'sstClim',
-        'sstClim4xco2',
+        'sstClim4xCO2',
         'sstCimAerosol',
         'sstClimSulfate',
-        'amip4xco2',
+        'amip4xCO2',
         'amipFuture',
         'aquaControl',
-        'aqua4xco2',
+        'aqua4xCO2',
         'aqua4K',
         'amip4K',
         
@@ -293,6 +298,8 @@ class ExtendedTranslator(T.BaseComponentTranslator):
         pass
     
 extended_t = ExtendedTranslator()
+
+
 
 class CMIP5Translator(T.Translator):
 

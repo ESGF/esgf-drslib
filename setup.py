@@ -9,12 +9,20 @@ from setuptools import setup, find_packages
 import sys, os
 
 version = '0.1.2'
+drs_version = '0.24'
+
 
 setup(name='isenes.drslib',
       version=version,
       description="A library for processing the CMIP5 Data Reference Syntax",
       long_description="""\
-""",
+
+This library supports the generation of paths and filenames corresponding to 
+version %(drs_version)s of the CMIP Data Reference Syntax [DRS]_
+
+.. [DRS] http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
+
+""" % globals(),
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='',
       author='Stephen Pascoe',
