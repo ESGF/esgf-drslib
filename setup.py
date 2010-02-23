@@ -8,7 +8,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.1.2'
+version = '0.1.3'
 drs_version = '0.24'
 cmor2_version = '2.0rc6'
 

@@ -69,3 +69,8 @@ def test_4():
 def test_5():
     # Regression test for a bug
     print translator.path_to_drs('cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/v3/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+
+def test_6():
+    # Bug reported by Ag
+    print translator.filename_to_drs('cct_Amon_HadGEM2-ES_piControl_r1.nc')
+

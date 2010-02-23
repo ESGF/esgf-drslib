@@ -275,10 +275,13 @@ class SubsetTranslator(BaseComponentTranslator):
     allow_missing_subset = True
 
     def filename_to_drs(self, context):
-        v = context.file_parts[CMIP5_DRS.FILE_SUBSET]
-
-        if self.allow_missing_subset and not v:
-            return
+        try:
+            v = context.file_parts[CMIP5_DRS.FILE_SUBSET]
+        except IndexError:
+            if self.allow_missing_subset:
+                return
+            else:
+                raise TranslationError('Missing temporal subset')
         
         mo = re.match(r'(\d+)(?:-(\d+))?(-clim)?', v)
         if not mo:
