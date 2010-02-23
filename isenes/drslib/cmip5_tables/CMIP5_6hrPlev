@@ -6,7 +6,7 @@ frequency: 6hr
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -96,7 +96,7 @@ long_name:        latitude
 !----------------------------------
 out_name:         lat
 valid_min:        -90         
-valid_max:        180 
+valid_max:        90 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -110,7 +110,7 @@ axis_entry: plev3
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -123,7 +123,7 @@ stored_direction: decreasing
 tolerance:        0.001
 
 type:             double
-requested:        85000. 50000. 25000.        ! space-separated list of requested coordinates 
+requested:        85000. 50000. 25000.         ! space-separated list of requested coordinates 
 must_have_bounds: no
 !----------------------------------
 !
@@ -216,7 +216,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     sea_level_pressure
+standard_name:     air_pressure_at_sea_level
 units:             Pa
 long_name:         Sea Level Pressure
 !----------------------------------

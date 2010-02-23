@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -96,7 +96,7 @@ long_name:        latitude
 !----------------------------------
 out_name:         lat
 valid_min:        -90         
-valid_max:        180 
+valid_max:        90 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -110,7 +110,7 @@ axis_entry: p220
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -134,7 +134,7 @@ axis_entry: p560
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -158,7 +158,7 @@ axis_entry: p840
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -335,7 +335,7 @@ type:              real
 !
 
 !============
-variable_entry:     cfaddbze94
+variable_entry:     cfadDbze94
 !============
 modeling_realm:    atmos
 !----------------------------------
@@ -350,7 +350,7 @@ comment:           CFADs (Cloud Frequency Altitude Diagrams) are joint height - 
 ! Additional variable information:
 !----------------------------------
 dimensions:        longitude latitude alt40 dbze time
-out_name:           cfaddbze94
+out_name:           cfadDbze94
 type:              real
 !----------------------------------
 !
@@ -387,7 +387,7 @@ standard_name:     toa_bidirectional_reflectance
 units:             1
 cell_methods:      time: mean
 long_name:         PARASOL Reflectance
-comment:            5 bins of solar zenith angle.  This is reflectance as seen at the top of the atmosphere.
+comment:           Simulated reflectance from PARASOL as seen at the top of the atmosphere for 5 solar zenith angles. Valid only over ocean and for one viewing direction (viewing zenith angle of 30 degrees and relative azimuth angle 320 degrees).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------

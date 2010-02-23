@@ -6,7 +6,7 @@ frequency: 6hr
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -96,30 +96,10 @@ long_name:        latitude
 !----------------------------------
 out_name:         lat
 valid_min:        -90         
-valid_max:        180 
+valid_max:        90 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
-!----------------------------------
-!
-
-
-!============
-axis_entry: alevel
-!============
-!----------------------------------
-! Axis attributes:
-!----------------------------------
-axis:             Z             ! X, Y, Z, T (default: undeclared)
-long_name:        atmospheric model level
-!----------------------------------
-! Additional axis information:
-!----------------------------------
-out_name:         lev
-stored_direction: increasing
-type:             double
-must_have_bounds: yes
-index_only:       ok
 !----------------------------------
 !
 
@@ -145,8 +125,74 @@ must_have_bounds: no
 !
 
 !============
+axis_entry: smooth_level
+!============
+!
+! This coordinate is a hybrid height coordinate with units of meters (m).
+!  It increases upward.
+!  The values of a(k)*ztop, which appear in the formula below, should be stored as smooth_level. 
+!  Note that in the netCDF file the variable will be named "lev", not smooth_level.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sleve_coordinate
+units:            m
+axis:             Z
+positive:	      up
+long_name:        atmosphere smooth level vertical (SLEVE) coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: increasing
+valid_min:        -200.
+valid_max:        800000.
+formula:          z(n,k,j,i) = a(k)*ztop + b1(k)*zsurf1(n,j,i) + b2(k)*zsurf2(n,j,i)
+z_factors:        a: a b1: b1 b2: b2 ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+z_bounds_factors: a: a_bnds b1: b1_bnds b2: b2_bnds ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+!----------------------------------	
+!
+!============
+axis_entry: natural_log_pressure
+!============
+!
+!This coordinate is dimensionless and varies from near 0 at the surface and increases upward.
+!  The values of lev(k), which appears in the formula below, should be stored as natural_log_pressure.  
+!  Note that in the netCDF file the variable will be named "lev", not natural_log_pressure.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_ln_pressure_coordinate
+axis:             Z
+long_name:        atmosphere natural log pressure coordinate
+positive:	      down
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        -1.
+valid_max:        20.
+formula:          p(k) = p0 * exp(-lev(k))
+z_factors:        p0: p0 lev: lev
+z_bounds_factors: p0: p0 lev: lev_bnds
+!----------------------------------	
+!
+!============
 axis_entry: standard_sigma
 !============
+!
+! This coordinate is dimensionless and varies from 0 at the model top to 1.0 at the surface.
+!  The values of sigma(k), which appears in the formula below, should be stored as standard_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_sigma.
 !
 !------------
 !
@@ -161,19 +207,23 @@ long_name:        sigma coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
-convert_to:       standard_hybrid_sigma
-z_factors:        ptop: ptop sigma: sigma ps: ps
-z_bounds_factors: ptop: ptop sigma: sigma_bnds ps: ps
+z_factors:        ptop: ptop sigma: lev ps: ps
+z_bounds_factors: ptop: ptop sigma: lev_bnds ps: ps
 !----------------------------------	
 !
 !
 !============
 axis_entry:  standard_hybrid_sigma
 !============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of a(k)+ b(k), which appear in the formula below, should be stored as standard_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_hybrid_sigma.
 !
 !---------------------------------
 ! Axis attributes:
@@ -187,6 +237,7 @@ long_name:        hybrid sigma pressure coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
@@ -199,12 +250,16 @@ z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
 !============
 axis_entry:  alternate_hybrid_sigma
 !============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of ap(k)/p0 + b(k), which appear in the formula below, should be stored as alternate_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not alternate_hybrid_sigma.
+!
 !------------
 !
 ! Axis attributes:
 !----------------------------------	
 standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
-stored_direction: decreasing
 units:            1
 axis:             Z
 positive:         down
@@ -214,10 +269,11 @@ long_name:        hybrid sigma pressure coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
-convert_to:       standard_hybrid_sigma
 z_factors:        p0: p0 ap: ap b: b ps: ps
 z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
 !----------------------------------		
@@ -226,6 +282,11 @@ z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
 !============
 axis_entry:  hybrid_height
 !============
+!
+! This coordinate has dimension of meters (m) and increases upward.
+!  The values of a(k) which appear in the formula below, should be stored as hybrid_height.  
+!  Note that in the netCDF file the variable will be named "lev", not hybrid_height.
+!
 !------------
 !
 ! Axis attributes:
@@ -240,19 +301,41 @@ long_name:        hybrid height coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: increasing
 valid_min:        0.0
 formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
-z_factors:        a: a b: b orog: orog
-z_bounds_factors: a: a_bnds b: b_bnds orog: orog
+z_factors:        a: lev b: b orog: orog
+z_bounds_factors: a: lev_bnds b: b_bnds orog: orog
 !----------------------------------		
 !
 ! ***************************************************************
 !
-! Vertical dimensionless coordinate variables:
+! Vertical coordinate formula terms:
 !
 ! ***************************************************************
 !
+!
+!============
+variable_entry:    orog
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_altitude
+units:             m
+long_name:         Surface Altitude
+comment:           height above the geoid; as defined here, ""the geoid"" is a surface of constant geopotential that, if the ocean were at rest, would coincide with mean sea level. Under this definition, the geoid changes as the mean volume of the ocean changes (e.g., due to glacial melt, or global warming of the ocean).  Report here the height above the present-day geoid.  Over ocean, report as 0.0
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude
+out_name:          orog
+type:              real
+valid_min:         -700
+valid_max:         1.00E+04
+!----------------------------------
 !
 !
 !============
@@ -262,7 +345,7 @@ variable_entry: p0
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:       reference pressure for hybrid sigma coordinate 
+long_name:       vertical coordinate formula term: reference pressure 
 units:           Pa
 !----------------------------------	
 !
@@ -280,39 +363,6 @@ units:           Pa
 !----------------------------------	
 !
 !
-!============
-variable_entry: sigma
-!============
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:  sigma coordinate
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: sigma_bnds
-!============
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:  sigma coordinate for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
 !
 !============
 variable_entry: a
@@ -321,12 +371,12 @@ variable_entry: a
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate A coefficient for layer
+long_name:   vertical coordinate formula term: a(k)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -338,12 +388,12 @@ variable_entry: b
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient for layer
+long_name:   vertical coordinate formula term: b(k)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -356,12 +406,12 @@ variable_entry: a_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate A coefficient for layer bounds
+long_name:   vertical coordinate formula term: a(k+1/2)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -374,12 +424,12 @@ variable_entry: b_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient for layer bounds
+long_name:   vertical coordinate formula term: b(k+1/2)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------
 !
@@ -390,13 +440,13 @@ variable_entry: ap
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   alternate hybrid sigma coordinate A coefficient for layer
+long_name:   vertical coordinate formula term: ap(k)
 units:           Pa
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -407,13 +457,13 @@ variable_entry: ap_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   alternate hybrid sigma coordinate A coefficient for layer bounds
+long_name:   vertical coordinate formula term: ap(k+1/2)
 units:           Pa
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -431,78 +481,25 @@ units:           m
 !----------------------------------	
 !
 !
-!============
-variable_entry: az
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid height coordinate coefficient (eta) for layer
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
 !
 !
 !============
-variable_entry: bz
+variable_entry: ps
 !============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid height coordinate coefficient (tau) for layer
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: az_bnds
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid sigma coordinate coefficient (eta) for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: bz_bnds
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient (tau) for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
+modeling_realm:  atmos
 !----------------------------------
-!
-
+! Variable attributes:
+!----------------------------------
+standard_name:  surface_air_pressure
+units:         Pa
+cell_methods:     time: mean
+long_name:          Surface Air Pressure
+comment:      not, in general, the same as mean sea-level pressure
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:      longitude latitude time
+out_name:  p
 !============
 variable_entry:    ta
 !============

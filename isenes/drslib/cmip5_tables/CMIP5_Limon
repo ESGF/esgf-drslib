@@ -1,4 +1,4 @@
-table_id: Table Limon
+table_id: Table LImon
 modeling_realm: land
 
 frequency: mon
@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -57,6 +57,97 @@ expt_id_ok: 'AMIP plus 4K anomaly' 'amip4K'
 approx_interval:  30.000000     ! approximate spacing between successive time
                           !   samples (in units of the output time 
                           !   coordinate.
+
+!============
+axis_entry: longitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    longitude
+units:            degrees_east
+axis:             X             ! X, Y, Z, T (default: undeclared)
+long_name:        longitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lon
+valid_min:        0         
+valid_max:        360 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: latitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    latitude
+units:            degrees_north
+axis:             Y             ! X, Y, Z, T (default: undeclared)
+long_name:        latitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lat
+valid_min:        -90         
+valid_max:        90 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: time
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: sdepth
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    depth
+units:            m
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        depth
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         depth
+valid_min:        0         
+valid_max:        200 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
 !============
 variable_entry:    snc
 !============
@@ -169,10 +260,10 @@ modeling_realm:    landIce land
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     soil_water_content
+standard_name:     soil_moisture_content
 units:             kg m-2
 cell_methods:      time: mean
-long_name:         Soil Water Content
+long_name:         Soil Moisture Content
 comment:           summed over all soil layers, where land over land: compute by dividing the total mass of water (both liquid and ice) contained in the soil layer of the grid cell by the land area in the grid cell; report as 0.0 where the land fraction is 0.
 !----------------------------------
 ! Additional variable information:

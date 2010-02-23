@@ -10,15 +10,16 @@ import sys, os
 
 version = '0.1.2'
 drs_version = '0.24'
-
+cmor2_version = '2.0rc6'
 
 setup(name='isenes.drslib',
       version=version,
       description="A library for processing the CMIP5 Data Reference Syntax",
       long_description="""\
 
-This library supports the generation of paths and filenames corresponding to 
-version %(drs_version)s of the CMIP Data Reference Syntax [DRS]_
+This library supports the generation of paths and filenames
+corresponding to version %(drs_version)s of the CMIP Data Reference
+Syntax [DRS]_.  MIP table support is based on CMOR-%(cmor2_version)s.
 
 .. [DRS] http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
 

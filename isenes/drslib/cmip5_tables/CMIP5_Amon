@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -96,7 +96,7 @@ long_name:        latitude
 !----------------------------------
 out_name:         lat
 valid_min:        -90         
-valid_max:        180 
+valid_max:        90 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -105,12 +105,12 @@ must_have_bounds: yes
 
 
 !============
-axis_entry: plev17
+axis_entry: plevs
 !============
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -125,26 +125,6 @@ tolerance:        0.001
 type:             double
 requested:        100000. 92500. 85000. 70000. 60000. 50000. 40000. 30000. 25000. 20000. 15000. 10000. 7000. 5000. 3000. 2000. 1000.        ! space-separated list of requested coordinates 
 must_have_bounds: no
-!----------------------------------
-!
-
-
-!============
-axis_entry: alevel
-!============
-!----------------------------------
-! Axis attributes:
-!----------------------------------
-axis:             Z             ! X, Y, Z, T (default: undeclared)
-long_name:        atmospheric model level
-!----------------------------------
-! Additional axis information:
-!----------------------------------
-out_name:         lev
-stored_direction: increasing
-type:             double
-must_have_bounds: yes
-index_only:       ok
 !----------------------------------
 !
 
@@ -262,8 +242,74 @@ must_have_bounds: no
 !
 
 !============
+axis_entry: smooth_level
+!============
+!
+! This coordinate is a hybrid height coordinate with units of meters (m).
+!  It increases upward.
+!  The values of a(k)*ztop, which appear in the formula below, should be stored as smooth_level. 
+!  Note that in the netCDF file the variable will be named "lev", not smooth_level.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sleve_coordinate
+units:            m
+axis:             Z
+positive:	      up
+long_name:        atmosphere smooth level vertical (SLEVE) coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: increasing
+valid_min:        -200.
+valid_max:        800000.
+formula:          z(n,k,j,i) = a(k)*ztop + b1(k)*zsurf1(n,j,i) + b2(k)*zsurf2(n,j,i)
+z_factors:        a: a b1: b1 b2: b2 ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+z_bounds_factors: a: a_bnds b1: b1_bnds b2: b2_bnds ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+!----------------------------------	
+!
+!============
+axis_entry: natural_log_pressure
+!============
+!
+!This coordinate is dimensionless and varies from near 0 at the surface and increases upward.
+!  The values of lev(k), which appears in the formula below, should be stored as natural_log_pressure.  
+!  Note that in the netCDF file the variable will be named "lev", not natural_log_pressure.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_ln_pressure_coordinate
+axis:             Z
+long_name:        atmosphere natural log pressure coordinate
+positive:	      down
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        -1.
+valid_max:        20.
+formula:          p(k) = p0 * exp(-lev(k))
+z_factors:        p0: p0 lev: lev
+z_bounds_factors: p0: p0 lev: lev_bnds
+!----------------------------------	
+!
+!============
 axis_entry: standard_sigma
 !============
+!
+! This coordinate is dimensionless and varies from 0 at the model top to 1.0 at the surface.
+!  The values of sigma(k), which appears in the formula below, should be stored as standard_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_sigma.
 !
 !------------
 !
@@ -278,19 +324,23 @@ long_name:        sigma coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
-convert_to:       standard_hybrid_sigma
-z_factors:        ptop: ptop sigma: sigma ps: ps
-z_bounds_factors: ptop: ptop sigma: sigma_bnds ps: ps
+z_factors:        ptop: ptop sigma: lev ps: ps
+z_bounds_factors: ptop: ptop sigma: lev_bnds ps: ps
 !----------------------------------	
 !
 !
 !============
 axis_entry:  standard_hybrid_sigma
 !============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of a(k)+ b(k), which appear in the formula below, should be stored as standard_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_hybrid_sigma.
 !
 !---------------------------------
 ! Axis attributes:
@@ -304,6 +354,7 @@ long_name:        hybrid sigma pressure coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
@@ -316,12 +367,16 @@ z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
 !============
 axis_entry:  alternate_hybrid_sigma
 !============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of ap(k)/p0 + b(k), which appear in the formula below, should be stored as alternate_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not alternate_hybrid_sigma.
+!
 !------------
 !
 ! Axis attributes:
 !----------------------------------	
 standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
-stored_direction: decreasing
 units:            1
 axis:             Z
 positive:         down
@@ -331,10 +386,11 @@ long_name:        hybrid sigma pressure coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
-convert_to:       standard_hybrid_sigma
 z_factors:        p0: p0 ap: ap b: b ps: ps
 z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
 !----------------------------------		
@@ -343,6 +399,11 @@ z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
 !============
 axis_entry:  hybrid_height
 !============
+!
+! This coordinate has dimension of meters (m) and increases upward.
+!  The values of a(k) which appear in the formula below, should be stored as hybrid_height.  
+!  Note that in the netCDF file the variable will be named "lev", not hybrid_height.
+!
 !------------
 !
 ! Axis attributes:
@@ -357,19 +418,41 @@ long_name:        hybrid height coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: increasing
 valid_min:        0.0
 formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
-z_factors:        a: a b: b orog: orog
-z_bounds_factors: a: a_bnds b: b_bnds orog: orog
+z_factors:        a: lev b: b orog: orog
+z_bounds_factors: a: lev_bnds b: b_bnds orog: orog
 !----------------------------------		
 !
 ! ***************************************************************
 !
-! Vertical dimensionless coordinate variables:
+! Vertical coordinate formula terms:
 !
 ! ***************************************************************
 !
+!
+!============
+variable_entry:    orog
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_altitude
+units:             m
+long_name:         Surface Altitude
+comment:           height above the geoid; as defined here, ""the geoid"" is a surface of constant geopotential that, if the ocean were at rest, would coincide with mean sea level. Under this definition, the geoid changes as the mean volume of the ocean changes (e.g., due to glacial melt, or global warming of the ocean).  Report here the height above the present-day geoid.  Over ocean, report as 0.0
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude
+out_name:          orog
+type:              real
+valid_min:         -700
+valid_max:         1.00E+04
+!----------------------------------
 !
 !
 !============
@@ -379,7 +462,7 @@ variable_entry: p0
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:       reference pressure for hybrid sigma coordinate 
+long_name:       vertical coordinate formula term: reference pressure 
 units:           Pa
 !----------------------------------	
 !
@@ -397,39 +480,6 @@ units:           Pa
 !----------------------------------	
 !
 !
-!============
-variable_entry: sigma
-!============
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:  sigma coordinate
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: sigma_bnds
-!============
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:  sigma coordinate for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
 !
 !============
 variable_entry: a
@@ -438,12 +488,12 @@ variable_entry: a
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate A coefficient for layer
+long_name:   vertical coordinate formula term: a(k)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -455,12 +505,12 @@ variable_entry: b
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient for layer
+long_name:   vertical coordinate formula term: b(k)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -473,12 +523,12 @@ variable_entry: a_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate A coefficient for layer bounds
+long_name:   vertical coordinate formula term: a(k+1/2)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -491,12 +541,12 @@ variable_entry: b_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient for layer bounds
+long_name:   vertical coordinate formula term: b(k+1/2)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------
 !
@@ -507,13 +557,13 @@ variable_entry: ap
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   alternate hybrid sigma coordinate A coefficient for layer
+long_name:   vertical coordinate formula term: ap(k)
 units:           Pa
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -524,13 +574,13 @@ variable_entry: ap_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   alternate hybrid sigma coordinate A coefficient for layer bounds
+long_name:   vertical coordinate formula term: ap(k+1/2)
 units:           Pa
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -548,78 +598,25 @@ units:           m
 !----------------------------------	
 !
 !
-!============
-variable_entry: az
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid height coordinate coefficient (eta) for layer
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
 !
 !
 !============
-variable_entry: bz
+variable_entry: ps
 !============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid height coordinate coefficient (tau) for layer
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: az_bnds
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid sigma coordinate coefficient (eta) for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: bz_bnds
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient (tau) for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
+modeling_realm:  atmos
 !----------------------------------
-!
-
+! Variable attributes:
+!----------------------------------
+standard_name:  surface_air_pressure
+units:         Pa
+cell_methods:     time: mean
+long_name:          Surface Air Pressure
+comment:      not, in general, the same as mean sea-level pressure
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:      longitude latitude time
+out_name:  p
 !============
 variable_entry:    tas
 !============
@@ -673,7 +670,7 @@ standard_name:     air_temperature
 units:             K
 cell_methods:      time: minimum within days time: mean over time
 long_name:         Daily Minimum Near-Surface Air Temperature
-comment:           monthly mean of the daily-minimum near-surface (usually, 2 meter) air temperature. 
+comment:           monthly mean of the daily-minimum near-surface (usually, 2 meter) air temperature.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -694,7 +691,7 @@ standard_name:     air_temperature
 units:             K
 cell_methods:      time: maximum within days time: mean over time
 long_name:         Daily Maximum Near-Surface Air Temperature
-comment:           monthly mean of the daily-maximum near-surface (usually, 2 meter) air temperature. 
+comment:           monthly mean of the daily-maximum near-surface (usually, 2 meter) air temperature.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1377,7 +1374,7 @@ standard_name:     atmosphere_cloud_condensed_water_content
 units:             kg m-2
 cell_methods:      time: mean
 long_name:         Condensed Water Path
-comment:           include both liquid and ice phases, consider all the mass of condensed water in the column and divide by the grid-cell area (in the longitude-latitude plane)
+comment:           calculate mass of condensed (liquid + ice) water in the column divided by the area of the column (not just the area of the cloudy portion of the column). Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1398,7 +1395,7 @@ standard_name:     atmosphere_cloud_ice_content
 units:             kg m-2
 cell_methods:      time: mean
 long_name:         Ice Water Path
-comment:           consider all the mass of ice-phase water in the column and divide by the grid-cell area (in the longitude-latitude plane)
+comment:           calculate mass of ice water in the column divided by the area of the column (not just the area of the cloudy portion of the column). Include precipitating frozen hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1605,7 +1602,7 @@ standard_name:     mass_fraction_of_cloud_liquid_water_in_air
 units:             1
 cell_methods:      time: mean
 long_name:         Mass Fraction of Cloud Liquid Water
-comment:           Report on model layers (not standard pressures).  Include both large-scale and convective cloud.  Calculate as the mass of cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cells.
+comment:           Report on model layers (not standard pressures).  Include both large-scale and convective cloud.  Calculate as the mass of cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cells. Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1626,7 +1623,7 @@ standard_name:     mass_fraction_of_cloud_ice_in_air
 units:             1
 cell_methods:      time: mean
 long_name:         Mass Fraction of Cloud Ice
-comment:           Report on model layers (not standard pressures).  Include both large-scale and convective cloud.  Calculate as the mass of cloud ice in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+comment:           Report on model layers (not standard pressures).  Include both large-scale and convective cloud.  Calculate as the mass of cloud ice in the grid cell divided by the mass of air (including the water in all phases) in the grid cell. Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1643,7 +1640,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     convective_mass_flux
+standard_name:     atmosphere_convective_mass_flux
 units:             kg m-2 s-1
 cell_methods:      time: mean
 long_name:         Convective Mass Flux
@@ -1671,7 +1668,7 @@ long_name:         Air Temperature
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          ta
 type:              real
 !----------------------------------
@@ -1691,7 +1688,7 @@ long_name:         Eastward Wind
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          ua
 type:              real
 !----------------------------------
@@ -1711,7 +1708,7 @@ long_name:         Northward Wind
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          va
 type:              real
 !----------------------------------
@@ -1731,7 +1728,7 @@ long_name:         Specific Humidity
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          hus
 type:              real
 !----------------------------------
@@ -1752,7 +1749,7 @@ comment:           This is the relative humidity with respect to liquid water fo
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          hur
 type:              real
 !----------------------------------
@@ -1773,7 +1770,7 @@ comment:           commonly referred to as ""omega"", this represents the vertic
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          wap
 type:              real
 !----------------------------------
@@ -1793,7 +1790,7 @@ long_name:         Geopotential Height
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          zg
 type:              real
 !----------------------------------
@@ -1810,11 +1807,32 @@ standard_name:     mole_fraction_of_ozone_in_air
 units:             1e-9
 cell_methods:      time: mean
 long_name:         Mole Fraction of O3
-comment:           If this does not change over time (except possibly to vary identically over each annual cycle), report only 12 months, starting with January.   (Note: include all 12 months even if the values don't vary seasonally.)  
+comment:           If this does not change over time (except possibly to vary identically over each annual cycle), report instead the variable described in the next table entry. 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
+out_name:          tro3
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tro3Clim
+!============
+modeling_realm:    atmos atmosChem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mole_fraction_of_ozone_in_air
+units:             1e-9
+cell_methods:      time: mean within years time: mean over years
+long_name:         Mole Fraction of O3
+comment:           If O3 does not vary from one year to the next, report 12 months, starting with January.   (Note: include all 12 months even if the values don't vary seasonally.)  When calling CMOR, identify this variable as tro3Clim, not tro3. If the O3 varies from one year to the next,  then report instead the field described in the previous table entry.  
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plevs time2
 out_name:          tro3
 type:              real
 !----------------------------------
@@ -1831,18 +1849,39 @@ standard_name:     mole_fraction_of_carbon_dioxide_in_air
 units:             1e-6
 cell_methods:      time: mean
 long_name:         Mole Fraction of CO2
-comment:           This field should not be reported for models simulations in which CO2 is well-mixed (i.e., uniform everywhere).  For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report values for only 12 months, starting with January.  (Note: include all 12 months even if the values don't vary seasonally.)  If spatially uniform, omit this field, but report the next one (Total Atmospheric Mass of CO2).
+comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report instead the variable described in the next table entry.  If spatially uniform, omit this field, but report Total Atmospheric Mass of CO2 (see the table entry after the next one). 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
 out_name:          co2
 type:              real
 !----------------------------------
 !
 
 !============
-variable_entry:    co2global
+variable_entry:    co2Clim
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mole_fraction_of_carbon_dioxide_in_air
+units:             1e-6
+cell_methods:      time: mean within years time: mean over years
+long_name:         Mole Fraction of CO2
+comment:           Report only for simulations (e.g., prescribed concentration pi-control run), in which the CO2 does not vary from one year to the next. Report 12 monthly values, starting with January, even if the values don't vary seasonally.  When calling CMOR, identify this variable as co2Clim, not co2.   If  CO2 is spatially uniform, omit this field, but report Total Atmospheric Mass of CO2 (see the table entry after the next).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plevs time2
+out_name:          co2
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    co2mass
 !============
 modeling_realm:    atmos
 !----------------------------------
@@ -1851,11 +1890,31 @@ modeling_realm:    atmos
 units:             kg
 cell_methods:      time: mean
 long_name:         Total Atmospheric Mass of CO2
-comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report values for only 12 months, starting with January.  (Note: include all 12 months even if the values don't vary seasonally.)  
+comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report instead the variable described in the next table entry.  If CO2 is spatially nonuniform, omit this field, but report Mole Fraction of CO2 (see the table entry before the previous one). 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
 dimensions:        time
+out_name:          co2mass
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    co2massClim
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:             kg
+cell_methods:      time: mean within years time: mean over years
+long_name:         Total Atmospheric Mass of CO2
+comment:           Report only for simulations (e.g., prescribed concentration pi-control run), in which the CO2 does not vary from one year to the next. Report 12 monthly values, starting with January, even if the values don't vary seasonally.  When calling CMOR, identify this variable as co2massClim, not co2mass.  If CO2 is spatially nonuniform, omit this field, but report Mole Fraction of CO2 (see the table entry before the previous one). 
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        time2
 out_name:          co2mass
 type:              real
 !----------------------------------
@@ -1872,11 +1931,32 @@ standard_name:     mole_fraction_of_methane_in_air
 units:             1e-9
 cell_methods:      time: mean
 long_name:         Mole Fraction of CH4
-comment:           If assumed spatially uniform, report only time-series of the single value.  For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report values for only 12 months, starting with January.  (Note: include all 12 months even if the values don't vary seasonally.)  
+comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report instead the variable described in the next table entry.  If CH4 is spatially uniform, omit this field, but report Global Mean Mole Fraction of CH4 (see the table entry after the next one). 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
+out_name:          ch4
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    ch4
+!============
+modeling_realm:    atmos atmosChem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mole_fraction_of_methane_in_air
+units:             1e-9
+cell_methods:      time: mean within years time: mean over years
+long_name:         Mole Fraction of CH4
+comment:           Report only for simulations (e.g., prescribed concentration pi-control run), in which the CH4 does not vary from one year to the next. Report 12 monthly values, starting with January, even if the values don't vary seasonally.  When calling CMOR, identify this variable as ch4global, not ch4.   If  CH4 is spatially uniform, omit this field, but report Global Mean Mole Fraction of CH4 (see the table entry after the next).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plevs time2
 out_name:          ch4
 type:              real
 !----------------------------------
@@ -1893,11 +1973,32 @@ standard_name:     mole_fraction_of_methane_in_air
 units:             1e-9
 cell_methods:      time: mean
 long_name:         Global Mean Mole Fraction of CH4
-comment:           Global mean mole fraction of methane. For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report values for only 12 months, starting with January.  (Note: include all 12 months even if the values don't vary seasonally.)  
+comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report instead the variable described in the next table entry.  If CH4 is spatially nonuniform, omit this field, but report Mole Fraction of CH4 (see the table entry before the previous one). 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
 dimensions:        time
+out_name:          ch4global
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    ch4globalClim
+!============
+modeling_realm:    atmos atmosChem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mole_fraction_of_methane_in_air
+units:             1e-9
+cell_methods:      time: mean within years time: mean over years
+long_name:         Global Mean Mole Fraction of CH4
+comment:           Report only for simulations (e.g., prescribed concentration pi-control run), in which the CH4 does not vary from one year to the next. Report 12 monthly values, starting with January, even if the values don't vary seasonally.  When calling CMOR, identify this variable as ch4globalClim, not ch4global.  If CH4 is spatially nonuniform, omit this field, but report Global Mean Mole Fraction of CH4 (see the table entry before the previous one). 
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        time2
 out_name:          ch4global
 type:              real
 !----------------------------------
@@ -1914,11 +2015,32 @@ standard_name:     mole_fraction_of_nitrous_oxide_in_air
 units:             1e-9
 cell_methods:      time: mean
 long_name:         Mole Fraction of N2O
-comment:           If assumed spatially uniform, report only time-series of the single value.  For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report values for only 12 months, starting with January.  (Note: include all 12 months even if the values don't vary seasonally.)  
+comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report instead the variable described in the next table entry.  If N2O is spatially uniform, omit this field, but report Global Mean Mole Fraction of N2O (see the table entry after the next one). 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude plev17 time
+dimensions:        longitude latitude plevs time
+out_name:          n2o
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    n2oClim
+!============
+modeling_realm:    atmos atmosChem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mole_fraction_of_nitrous_oxide_in_air
+units:             1e-9
+cell_methods:      time: mean within years time: mean over years
+long_name:         Mole Fraction of N2O
+comment:           Report only for simulations (e.g., prescribed concentration pi-control run), in which the N2O does not vary from one year to the next. Report 12 monthly values, starting with January, even if the values don't vary seasonally.  When calling CMOR, identify this variable as n2oglobal, not n2o.   If  N2O is spatially uniform, omit this field, but report Global Mean Mole Fraction of N2O (see the table entry after the next).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plevs time2
 out_name:          n2o
 type:              real
 !----------------------------------
@@ -1935,11 +2057,32 @@ standard_name:     mole_fraction_of_nitrous_oxide_in_air
 units:             1e-9
 cell_methods:      time: mean
 long_name:         Global Mean Mole Fraction of N2O
-comment:           Global mean mole fraction of N2O.  For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report values for only 12 months, starting with January.  (Note: include all 12 months even if the values don't vary seasonally.)  
+comment:           For some simulations (e.g., prescribed concentration pi-control run), this will not vary from one year to the next, and so report instead the variable described in the next table entry.  If N2O is spatially nonuniform, omit this field, but report Mole Fraction of N2O (see the table entry before the previous one). 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
 dimensions:        time
+out_name:          n2oglobal
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    n2oglobalClim
+!============
+modeling_realm:    atmos atmosChem
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mole_fraction_of_nitrous_oxide_in_air
+units:             1e-9
+cell_methods:      time: mean within years time: mean over years
+long_name:         Global Mean Mole Fraction of N2O
+comment:           Report only for simulations (e.g., prescribed concentration pi-control run), in which the N2O does not vary from one year to the next. Report 12 monthly values, starting with January, even if the values don't vary seasonally.  When calling CMOR, identify this variable as ch4globalClim, not ch4global.  If N2O is spatially nonuniform, omit this field, but report Global Mean Mole Fraction of N2O (see the table entry before the previous one). 
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        time2
 out_name:          n2oglobal
 type:              real
 !----------------------------------

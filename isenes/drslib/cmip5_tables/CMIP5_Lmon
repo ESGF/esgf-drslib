@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -96,7 +96,7 @@ long_name:        latitude
 !----------------------------------
 out_name:         lat
 valid_min:        -90         
-valid_max:        180 
+valid_max:        90 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -181,7 +181,7 @@ axis_entry: vegtype
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-long_name:        platnt functional type
+long_name:        plant functional type
 !----------------------------------
 ! Additional axis information:
 !----------------------------------
@@ -190,6 +190,7 @@ stored_direction: increasing
 type:             double
 must_have_bounds: no
 index_only:       ok
+coords_attrib:    described
 !----------------------------------
 !
 
@@ -242,7 +243,7 @@ modeling_realm:    land
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     soil_frozen_water_content_
+standard_name:     soil_frozen_water_content
 units:             kg m-2
 cell_methods:      time: mean area: mean where land
 long_name:         Soil Frozen Water Content 
@@ -692,10 +693,10 @@ modeling_realm:    land
 ! Variable attributes:
 !----------------------------------
 standard_name:     leaf_area_index
-units:             %
+units:             1
 cell_methods:      time: mean area: mean where land
-long_name:         Leaf Area Fraction
-comment:           projected leaf area per unit of ground area (i.e., only the land portion of the grid cell), expressed as a percent.  This is the same as 100 times the ""leaf area index"".
+long_name:         Leaf Area Index
+comment:           projected leaf area per unit of ground area (i.e., only the land portion of the grid cell), expressed as a proper fraction (not a percentage)
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -801,7 +802,7 @@ modeling_realm:    land
 units:             kg C m-2 s-1
 cell_methods:      time: mean area: mean where land
 long_name:         CO2 Emission from Fire
-comment:           CO2 emissions from natural fires + human ignition fires as calculated by the fire module of the DGVM, but excluding any CO2 flux from fire reported under variable  Lmon 58
+comment:           CO2 emissions from natural fires + human ignition fires as calculated by the fire module of the DGVM, but excluding any CO2 flux from fire included in fLuc, defined below (CO2 Flux to Atmosphere from Land Use Change).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1032,7 +1033,7 @@ modeling_realm:    land
 units:             kg C m-2
 cell_methods:      time: mean area: mean where land
 long_name:         Carbon in Other Living Compartments
-comment:           e.g., labile, fruits, reserves, …. 
+comment:           e.g., labile, fruits, reserves, _. 
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1113,7 +1114,7 @@ modeling_realm:    land
 units:             kg C m-2
 cell_methods:      time: mean area: mean where land
 long_name:         Carbon in Fast Soil Pool
-comment:           fast is meant as lifetime of less than 10 years for  reference climate conditions (20°C, no water limitations).
+comment:           fast is meant as lifetime of less than 10 years for  reference climate conditions (20øC, no water limitations).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1134,7 +1135,7 @@ modeling_realm:    land
 units:             kg C m-2
 cell_methods:      time: mean area: mean where land
 long_name:         Carbon in Medium Soil Pool
-comment:           medium is meant as lifetime of more than than 10 years and less than 100 years for  reference climate conditions (20°C, no water limitations)
+comment:           medium is meant as lifetime of more than than 10 years and less than 100 years for  reference climate conditions (20øC, no water limitations)
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1155,7 +1156,7 @@ modeling_realm:    land
 units:             kg C m-2
 cell_methods:      time: mean area: mean where land
 long_name:         Carbon in Slow Soil Pool
-comment:           fast is meant as lifetime of more than 100 years for  reference climate conditions (20°C, no water limitations)
+comment:           fast is meant as lifetime of more than 100 years for  reference climate conditions (20øC, no water limitations)
 !----------------------------------
 ! Additional variable information:
 !----------------------------------

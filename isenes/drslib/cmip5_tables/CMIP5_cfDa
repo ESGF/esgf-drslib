@@ -6,7 +6,7 @@ frequency: da
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   06 November 2009 ! date this table was constructed
+table_date:   09 February 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -96,7 +96,7 @@ long_name:        latitude
 !----------------------------------
 out_name:         lat
 valid_min:        -90         
-valid_max:        180 
+valid_max:        90 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -110,7 +110,7 @@ axis_entry: plev7
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -135,7 +135,7 @@ axis_entry: p500
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -158,7 +158,7 @@ axis_entry: p700
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    pressure
+standard_name:    air_pressure
 units:            Pa
 axis:             Z             ! X, Y, Z, T (default: undeclared)
 positive:         down         ! up or down (default: undeclared)
@@ -171,26 +171,6 @@ stored_direction: decreasing
 type:             double
 value:            70000.            ! of scalar (singleton) dimension 
 must_have_bounds: no
-!----------------------------------
-!
-
-
-!============
-axis_entry: alevel
-!============
-!----------------------------------
-! Axis attributes:
-!----------------------------------
-axis:             Z             ! X, Y, Z, T (default: undeclared)
-long_name:        atmospheric model level
-!----------------------------------
-! Additional axis information:
-!----------------------------------
-out_name:         lev
-stored_direction: increasing
-type:             double
-must_have_bounds: yes
-index_only:       ok
 !----------------------------------
 !
 
@@ -268,9 +248,9 @@ axis_entry: tau
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
-standard_name:    cloud_optical_depth
+standard_name:    atmosphere_optical_thickness_due_to_cloud
 units:            1
-long_name:        cloud optical depth
+long_name:        cloud optical thickness
 !----------------------------------
 ! Additional axis information:
 !----------------------------------
@@ -309,8 +289,74 @@ must_have_bounds: no
 !
 
 !============
+axis_entry: smooth_level
+!============
+!
+! This coordinate is a hybrid height coordinate with units of meters (m).
+!  It increases upward.
+!  The values of a(k)*ztop, which appear in the formula below, should be stored as smooth_level. 
+!  Note that in the netCDF file the variable will be named "lev", not smooth_level.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sleve_coordinate
+units:            m
+axis:             Z
+positive:	      up
+long_name:        atmosphere smooth level vertical (SLEVE) coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: increasing
+valid_min:        -200.
+valid_max:        800000.
+formula:          z(n,k,j,i) = a(k)*ztop + b1(k)*zsurf1(n,j,i) + b2(k)*zsurf2(n,j,i)
+z_factors:        a: a b1: b1 b2: b2 ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+z_bounds_factors: a: a_bnds b1: b1_bnds b2: b2_bnds ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+!----------------------------------	
+!
+!============
+axis_entry: natural_log_pressure
+!============
+!
+!This coordinate is dimensionless and varies from near 0 at the surface and increases upward.
+!  The values of lev(k), which appears in the formula below, should be stored as natural_log_pressure.  
+!  Note that in the netCDF file the variable will be named "lev", not natural_log_pressure.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_ln_pressure_coordinate
+axis:             Z
+long_name:        atmosphere natural log pressure coordinate
+positive:	      down
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        -1.
+valid_max:        20.
+formula:          p(k) = p0 * exp(-lev(k))
+z_factors:        p0: p0 lev: lev
+z_bounds_factors: p0: p0 lev: lev_bnds
+!----------------------------------	
+!
+!============
 axis_entry: standard_sigma
 !============
+!
+! This coordinate is dimensionless and varies from 0 at the model top to 1.0 at the surface.
+!  The values of sigma(k), which appears in the formula below, should be stored as standard_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_sigma.
 !
 !------------
 !
@@ -325,19 +371,23 @@ long_name:        sigma coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
-convert_to:       standard_hybrid_sigma
-z_factors:        ptop: ptop sigma: sigma ps: ps
-z_bounds_factors: ptop: ptop sigma: sigma_bnds ps: ps
+z_factors:        ptop: ptop sigma: lev ps: ps
+z_bounds_factors: ptop: ptop sigma: lev_bnds ps: ps
 !----------------------------------	
 !
 !
 !============
 axis_entry:  standard_hybrid_sigma
 !============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of a(k)+ b(k), which appear in the formula below, should be stored as standard_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_hybrid_sigma.
 !
 !---------------------------------
 ! Axis attributes:
@@ -351,6 +401,7 @@ long_name:        hybrid sigma pressure coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
@@ -363,12 +414,16 @@ z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
 !============
 axis_entry:  alternate_hybrid_sigma
 !============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of ap(k)/p0 + b(k), which appear in the formula below, should be stored as alternate_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not alternate_hybrid_sigma.
+!
 !------------
 !
 ! Axis attributes:
 !----------------------------------	
 standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
-stored_direction: decreasing
 units:            1
 axis:             Z
 positive:         down
@@ -378,10 +433,11 @@ long_name:        hybrid sigma pressure coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
-convert_to:       standard_hybrid_sigma
 z_factors:        p0: p0 ap: ap b: b ps: ps
 z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
 !----------------------------------		
@@ -390,6 +446,11 @@ z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
 !============
 axis_entry:  hybrid_height
 !============
+!
+! This coordinate has dimension of meters (m) and increases upward.
+!  The values of a(k) which appear in the formula below, should be stored as hybrid_height.  
+!  Note that in the netCDF file the variable will be named "lev", not hybrid_height.
+!
 !------------
 !
 ! Axis attributes:
@@ -404,19 +465,41 @@ long_name:        hybrid height coordinate
 ! Additional axis information:
 !----------------------------------	
 out_name:         lev
+must_have_bounds: yes
 stored_direction: increasing
 valid_min:        0.0
 formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
-z_factors:        a: a b: b orog: orog
-z_bounds_factors: a: a_bnds b: b_bnds orog: orog
+z_factors:        a: lev b: b orog: orog
+z_bounds_factors: a: lev_bnds b: b_bnds orog: orog
 !----------------------------------		
 !
 ! ***************************************************************
 !
-! Vertical dimensionless coordinate variables:
+! Vertical coordinate formula terms:
 !
 ! ***************************************************************
 !
+!
+!============
+variable_entry:    orog
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_altitude
+units:             m
+long_name:         Surface Altitude
+comment:           height above the geoid; as defined here, ""the geoid"" is a surface of constant geopotential that, if the ocean were at rest, would coincide with mean sea level. Under this definition, the geoid changes as the mean volume of the ocean changes (e.g., due to glacial melt, or global warming of the ocean).  Report here the height above the present-day geoid.  Over ocean, report as 0.0
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude
+out_name:          orog
+type:              real
+valid_min:         -700
+valid_max:         1.00E+04
+!----------------------------------
 !
 !
 !============
@@ -426,7 +509,7 @@ variable_entry: p0
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:       reference pressure for hybrid sigma coordinate 
+long_name:       vertical coordinate formula term: reference pressure 
 units:           Pa
 !----------------------------------	
 !
@@ -444,39 +527,6 @@ units:           Pa
 !----------------------------------	
 !
 !
-!============
-variable_entry: sigma
-!============
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:  sigma coordinate
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: sigma_bnds
-!============
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:  sigma coordinate for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
 !
 !============
 variable_entry: a
@@ -485,12 +535,12 @@ variable_entry: a
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate A coefficient for layer
+long_name:   vertical coordinate formula term: a(k)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -502,12 +552,12 @@ variable_entry: b
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient for layer
+long_name:   vertical coordinate formula term: b(k)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -520,12 +570,12 @@ variable_entry: a_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate A coefficient for layer bounds
+long_name:   vertical coordinate formula term: a(k+1/2)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -538,12 +588,12 @@ variable_entry: b_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient for layer bounds
+long_name:   vertical coordinate formula term: b(k+1/2)
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------
 !
@@ -554,13 +604,13 @@ variable_entry: ap
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   alternate hybrid sigma coordinate A coefficient for layer
+long_name:   vertical coordinate formula term: ap(k)
 units:           Pa
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -571,13 +621,13 @@ variable_entry: ap_bnds
 !
 ! Variable attributes:
 !----------------------------------	
-long_name:   alternate hybrid sigma coordinate A coefficient for layer bounds
+long_name:   vertical coordinate formula term: ap(k+1/2)
 units:           Pa
 !----------------------------------	
 !
 ! Additional variable information:
 !----------------------------------	
-dimensions:         zlevel
+dimensions:         alevel
 type:               double
 !----------------------------------	
 !
@@ -595,78 +645,25 @@ units:           m
 !----------------------------------	
 !
 !
-!============
-variable_entry: az
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid height coordinate coefficient (eta) for layer
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
 !
 !
 !============
-variable_entry: bz
+variable_entry: ps
 !============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid height coordinate coefficient (tau) for layer
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: az_bnds
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid sigma coordinate coefficient (eta) for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
-!----------------------------------	
-!
-!
-!============
-variable_entry: bz_bnds
-!============
-!
-!------------
-!
-! Variable attributes:
-!----------------------------------	
-long_name:   hybrid sigma coordinate B coefficient (tau) for layer bounds
-!----------------------------------	
-!
-! Additional variable information:
-!----------------------------------	
-dimensions:         zlevel
-type:               double
+modeling_realm:  atmos
 !----------------------------------
-!
-
+! Variable attributes:
+!----------------------------------
+standard_name:  surface_air_pressure
+units:         Pa
+cell_methods:     time: mean
+long_name:          Surface Air Pressure
+comment:      not, in general, the same as mean sea-level pressure
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:      longitude latitude time
+out_name:  p
 !============
 variable_entry:    ps
 !============
@@ -694,6 +691,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     toa_incoming_shortwave_flux
 units:             W m-2
 cell_methods:      time: mean
 long_name:         TOA Incident Shortwave Radiation
@@ -714,6 +712,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     toa_outgoing_shortwave_flux
 units:             W m-2
 cell_methods:      time: mean
 long_name:         TOA Outgoing Shortwave Radiation
@@ -734,6 +733,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_downwelling_shortwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Downwelling Clear-Sky Shortwave Radiation 
@@ -776,6 +776,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_downwelling_longwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Downwelling Clear-Sky Longwave Radiation 
@@ -797,6 +798,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     toa_outgoing_longwave_flux_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
 long_name:         TOA Outgoing Clear-Sky Longwave Radiation
@@ -818,6 +820,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     toa_outgoing_shortwave_flux_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
 long_name:         TOA Outgoing Clear-Sky Shortwave Radiation
@@ -839,6 +842,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction
 units:             % 
 cell_methods:      time: mean
 long_name:         Total Cloud Fraction
@@ -860,10 +864,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     atmosphere_cloud_condensed_water_content
 units:             kg m-2 
 cell_methods:      time: mean
 long_name:         Condensed Water Path
-comment:           calculate mass of condensed (liquid + ice) water in the column divided by the area of the column (not just the area of the cloudy portion of the column)
+comment:           calculate mass of condensed (liquid + ice) water in the column divided by the area of the column (not just the area of the cloudy portion of the column). Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -881,10 +886,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     atmosphere_cloud_ice_content
 units:             kg m-2 
 cell_methods:      time: mean
 long_name:         Ice Water Path
-comment:           calculate mass of ice in the column divided by the area of the column (not just the area of the cloudy portion of the column)
+comment:           calculate mass of ice water in the column divided by the area of the column (not just the area of the cloudy portion of the column). Include precipitating frozen hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -902,6 +908,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     lagrangian_tendency_of_air_pressure
 units:             Pa s-1
 cell_methods:      time: mean
 long_name:         omega (=dp/dt)
@@ -923,6 +930,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     air_temperature
 units:             K
 cell_methods:      time: mean
 long_name:         Air Temperature
@@ -944,6 +952,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     air_pressure_at_convective_cloud_base
 units:             Pa
 cell_methods:      time: mean
 long_name:         Air Pressure at Convective Cloud Base
@@ -964,6 +973,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     air_pressure_at_convective_cloud_top
 units:             Pa
 cell_methods:      time: mean
 long_name:         Air Pressure at Convective Cloud Top
@@ -984,6 +994,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     convective_precipitation_flux
 units:             kg m-2 s-1 
 cell_methods:      time: mean
 long_name:         Convective Precipitation
@@ -1004,6 +1015,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_upward_latent_heat_flux
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Upward Latent Heat Flux
@@ -1025,6 +1037,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_upward_sensible_heat_flux
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Upward Sensible Heat Flux
@@ -1046,6 +1059,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_downwelling_longwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Downwelling Longwave Radiation
@@ -1067,6 +1081,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_upwelling_longwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Upwelling Longwave Radiation
@@ -1087,6 +1102,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_downwelling_shortwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Downwelling Shortwave Radiation
@@ -1107,6 +1123,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_upwelling_shortwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
 long_name:         Surface Upwelling Shortwave Radiation
@@ -1127,6 +1144,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     toa_outgoing_longwave_flux
 units:             W m-2
 cell_methods:      time: mean
 long_name:         TOA Outgoing Longwave Radiation
@@ -1147,6 +1165,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction
 units:             %
 cell_methods:      time: mean
 long_name:         ISCCP Total Total Cloud Fraction
@@ -1166,9 +1185,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_albedo
 units:             1
 cell_methods:      time: mean
 long_name:         ISCCP Mean Cloud Albedo
+comment:           When computing time-means, weight by the ISCCP Total Cloud Fraction - see  http://www.cfmip.net/README
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1185,9 +1206,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     air_pressure_at_cloud_top
 units:             Pa 
 cell_methods:      time: mean
 long_name:         ISCCP Mean Cloud Top Pressure
+comment:           When computing time-means, weight by the ISCCP Total Cloud Fraction - see  http://www.cfmip.net/README
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1204,10 +1227,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     toa_bidirectional_reflectance
 units:             1
 cell_methods:      time: mean
 long_name:         PARASOL Reflectance
-comment:            5 bins of solar zenith angle.  This is reflectance as seen at the top of the atmosphere.
+comment:           Simulated reflectance from PARASOL as seen at the top of the atmosphere for 5 solar zenith angles. Valid only over ocean and for one viewing direction (viewing zenith angle of 30 degrees and relative azimuth angle 320 degrees).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1224,6 +1248,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction
 units:             %
 cell_methods:      time: mean
 long_name:         CALIPSO Total Cloud Fraction 
@@ -1243,6 +1268,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
 long_name:         CALIPSO Low Level Cloud Fraction 
@@ -1262,6 +1288,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
 long_name:         CALIPSO Mid Level Cloud Fraction 
@@ -1281,6 +1308,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
 long_name:         CALIPSO High Level Cloud Fraction 
@@ -1442,6 +1470,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
 long_name:         Cloud Area Fraction in Atmosphere Layer
@@ -1461,10 +1490,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     mass_fraction_of_cloud_liquid_water_in_air
 units:             1
 cell_methods:      time: mean
 long_name:         Mass Fraction of Cloud Liquid Water
-comment:           Calculate as the mass of  cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+comment:           Calculate as the mass of  cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1481,10 +1511,11 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     mass_fraction_of_cloud_ice_in_air
 units:             1
 cell_methods:      time: mean
 long_name:         Mass Fraction of Cloud Ice
-comment:           Calculate as the mass of cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.
+comment:           Calculate as the mass of cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1501,6 +1532,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     atmosphere_convective_mass_flux
 units:             kg m-2 s-1 
 cell_methods:      time: mean
 long_name:         Convective Mass Flux
@@ -1521,6 +1553,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
 long_name:         CALIPSO Cloud Fraction
@@ -1541,6 +1574,7 @@ modeling_realm:    atmos
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
 long_name:         ISCCP Cloud Area Fraction
