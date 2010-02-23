@@ -28,6 +28,14 @@ Quick Start
 
 See the ``examples`` directory and ``translate_cmip3.py``.
 
+Configuration
+=============
+
+isenes.drslib contains copies of the CMIP5 MIP tables distributed with
+CMOR2.  See the package's description (e.g. in ``setup.py``) for
+details of which version of CMOR2 was used.  You can also configure
+the package to use an external MIP table source with the environment variable ``MIP_TABLE_PATH``.  All tables should be named ``CMIP5_*``.
+
 Testing
 =======
 

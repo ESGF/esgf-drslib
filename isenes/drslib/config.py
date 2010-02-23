@@ -12,7 +12,10 @@ Central configuration module
 
 import os
 
-table_path = os.path.join(os.path.dirname(__file__), 'cmip5_tables')
+if 'MIP_TABLE_PATH' in os.environ:
+    table_path = os.environ['MIP_TABLE_PATH']
+else:
+    table_path = os.path.join(os.path.dirname(__file__), 'cmip5_tables')
 
 #
 # CMIP3 component to file/path position mapping
