@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   19 February 2010 ! date this table was constructed
+table_date:   02 April 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,10 +15,12 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute parent_experiment_id branch_time
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+
+forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
 expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
-expt_id_ok: 'volcano-free hindcasts' 'noVolcXXXX'
+expt_id_ok: 'volcano-free hindcasts XXXX' 'noVolcXXXX'
 expt_id_ok: 'prediction with 2010 volcano' 'volcIn2010'
 expt_id_ok: 'pre-industrial control' 'piControl'
 expt_id_ok: 'Historical' 'historical'
@@ -256,7 +258,7 @@ stored_direction: increasing
 tolerance:        0.001
 
 type:             double
-requested_bounds: 0.01, 1.2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 60, 80, 999, 1009 ! space-separated list of requested coordinate bounds
+requested_bounds: 0.01 1.2 3 5 7 10 15 20 25 30 40 50 60 80 999 1009 ! space-separated list of requested coordinate bounds
 must_have_bounds: yes
 !----------------------------------
 !
@@ -280,7 +282,7 @@ tolerance:        0.001
 
 type:             double
 requested:        -47.5 -42.5 -37.5 -32.5 -27.5 -22.5 -17.5 -12.5 -7.5 -2.5 2.5 7.5 12.5 17.5 22.5        ! space-separated list of requested coordinates 
-requested_bounds: -50, -45, -40, -35, -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25 ! space-separated list of requested coordinate bounds
+requested_bounds: -50 -45 -40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 ! space-separated list of requested coordinate bounds
 must_have_bounds: yes
 !----------------------------------
 !
@@ -318,6 +320,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Cloud Fraction
 comment:           (40 height levels)
 !----------------------------------
@@ -339,6 +342,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Cloud Fraction Undetected by CloudSat
 comment:           (40 height levels)  Clouds detected by CALIPSO but below the detectability threshold of CloudSat
 !----------------------------------
@@ -360,6 +364,7 @@ modeling_realm:    atmos
 standard_name:     histogram_of_equivalent_reflectivity_factor_over_height_above_reference_ellipsoid
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CloudSat Radar Reflectivity
 comment:           CFADs (Cloud Frequency Altitude Diagrams) are joint height - radar reflectivity (or lidar scattering ratio) distributions  (40 levelsx15 bins) .
 !----------------------------------
@@ -381,6 +386,7 @@ modeling_realm:    atmos
 standard_name:     histogram_of_backscattering_ratio_over_height_above_reference_ellipsoid
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Scattering Ratio
 comment:           CFADs (Cloud Frequency Altitude Diagrams) are joint height - radar reflectivity (or lidar scattering ratio) distributions  (40 levelsx15 bins) .
 !----------------------------------
@@ -402,6 +408,7 @@ modeling_realm:    atmos
 standard_name:     toa_bidirectional_reflectance
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         PARASOL Reflectance
 comment:           Simulated reflectance from PARASOL as seen at the top of the atmosphere for 5 solar zenith angles. Valid only over ocean and for one viewing direction (viewing zenith angle of 30 degrees and relative azimuth angle 320 degrees).
 !----------------------------------
@@ -423,6 +430,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Total Cloud Fraction 
 !----------------------------------
 ! Additional variable information:
@@ -443,6 +451,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Low Level Cloud Fraction 
 !----------------------------------
 ! Additional variable information:
@@ -463,6 +472,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Mid Level Cloud Fraction 
 !----------------------------------
 ! Additional variable information:
@@ -483,6 +493,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO High Level Cloud Fraction 
 !----------------------------------
 ! Additional variable information:

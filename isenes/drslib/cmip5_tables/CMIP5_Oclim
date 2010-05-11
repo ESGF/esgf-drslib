@@ -1,12 +1,12 @@
 table_id: Table Oclim
 modeling_realm: ocean
 
-frequency: mon
+frequency: monClim
 
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   19 February 2010 ! date this table was constructed
+table_date:   02 April 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,10 +15,12 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute parent_experiment_id branch_time
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+
+forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
 expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
-expt_id_ok: 'volcano-free hindcasts' 'noVolcXXXX'
+expt_id_ok: 'volcano-free hindcasts XXXX' 'noVolcXXXX'
 expt_id_ok: 'prediction with 2010 volcano' 'volcIn2010'
 expt_id_ok: 'pre-industrial control' 'piControl'
 expt_id_ok: 'Historical' 'historical'
@@ -536,6 +538,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_heat_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Heat Diffusivity
 !----------------------------------
 ! Additional variable information:
@@ -553,8 +556,10 @@ modeling_realm:    ocean
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     ocean_vertical_salt_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Salt Diffusivity 
 !----------------------------------
 ! Additional variable information:
@@ -575,6 +580,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_tracer_diffusivity_due_to_background
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Tracer Diffusivity due to Background 
 !----------------------------------
 ! Additional variable information:
@@ -595,6 +601,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_tracer_diffusivity_due_to_tides
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Tracer Diffusivity due to Tides 
 !----------------------------------
 ! Additional variable information:
@@ -615,6 +622,7 @@ modeling_realm:    ocean
 standard_name:     tendency_of_ocean_potential_energy_content
 units:             W m-2
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Tendency of Ocean Potential Energy Content 
 !----------------------------------
 ! Additional variable information:
@@ -635,6 +643,7 @@ modeling_realm:    ocean
 standard_name:     tendency_of_ocean_potential_energy_content_due_to_tides
 units:             W m-2
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Tendency of Ocean Potential Energy Content due to Tides 
 !----------------------------------
 ! Additional variable information:
@@ -655,6 +664,7 @@ modeling_realm:    ocean
 standard_name:     tendency_of_ocean_potential_energy_content_due_to_background
 units:             W m-2
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Tendency of Ocean Potential Energy Content due to Background
 !----------------------------------
 ! Additional variable information:
@@ -675,6 +685,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_momentum_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Momentum Diffusivity
 !----------------------------------
 ! Additional variable information:
@@ -695,6 +706,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_momentum_diffusivity_due_to_background
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Momentum Diffusivity due to Background
 !----------------------------------
 ! Additional variable information:
@@ -715,6 +727,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_momentum_diffusivity_due_to_tides
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Momentum Diffusivity due to Tides
 !----------------------------------
 ! Additional variable information:
@@ -735,6 +748,7 @@ modeling_realm:    ocean
 standard_name:     ocean_vertical_momentum_diffusivity_due_to_form_drag
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Vertical Momentum Diffusivity due to Form Drag
 !----------------------------------
 ! Additional variable information:
@@ -755,6 +769,7 @@ modeling_realm:    ocean
 standard_name:     ocean_kinetic_energy_dissipation_per_unit_area_due_to_vertical_friction
 units:             W m-2
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Kinetic Energy Dissipation Per Unit Area due to Vertical Friction
 !----------------------------------
 ! Additional variable information:
@@ -795,6 +810,7 @@ modeling_realm:    ocean
 standard_name:     ocean_tracer_bolus_biharmonic_diffusivity
 units:             m4 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Tracer Bolus Biharmonic Diffusivity 
 !----------------------------------
 ! Additional variable information:
@@ -815,6 +831,7 @@ modeling_realm:    ocean
 standard_name:     ocean_tracer_epineutral_laplacian_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Tracer Epineutral Laplacian Diffusivity 
 !----------------------------------
 ! Additional variable information:
@@ -833,8 +850,9 @@ modeling_realm:    ocean
 ! Variable attributes:
 !----------------------------------
 standard_name:     ocean_tracer_epineutral_biharmonic_diffusivity
-units:             m2 s-1
+units:             m4 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Tracer Epineutral Biharmonic Diffusivity 
 !----------------------------------
 ! Additional variable information:
@@ -855,6 +873,7 @@ modeling_realm:    ocean
 standard_name:     ocean_tracer_xy_laplacian_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Tracer XY Laplacian Diffusivity 
 !----------------------------------
 ! Additional variable information:
@@ -873,8 +892,9 @@ modeling_realm:    ocean
 ! Variable attributes:
 !----------------------------------
 standard_name:     ocean_tracer_xy_biharmonic_diffusivity
-units:             m2 s-1
+units:             m4 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Tracer XY Biharmonic Diffusivity 
 !----------------------------------
 ! Additional variable information:
@@ -895,6 +915,7 @@ modeling_realm:    ocean
 standard_name:     tendency_of_ocean_eddy_kinetic_energy_content_due_to_bolus_transport
 units:             W m-2
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Tendency of Ocean Eddy Kinetic Energy Content due to Bolus Transport 
 !----------------------------------
 ! Additional variable information:
@@ -915,6 +936,7 @@ modeling_realm:    ocean
 standard_name:     ocean_momentum_xy_laplacian_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Momentum XY Laplacian Diffusivity
 !----------------------------------
 ! Additional variable information:
@@ -933,8 +955,9 @@ modeling_realm:    ocean
 ! Variable attributes:
 !----------------------------------
 standard_name:     ocean_momentum_xy_biharmonic_diffusivity
-units:             m2 s-1
+units:             m4 s-1
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Momentum XY Biharmonic Diffusivity
 !----------------------------------
 ! Additional variable information:
@@ -955,6 +978,7 @@ modeling_realm:    ocean
 standard_name:     ocean_kinetic_energy_dissipation_per_unit_area_due_to_xy_friction
 units:             W m-2
 cell_methods:      time: mean within years time: mean over years
+cell_measures:      area: areacello volume: volcello
 long_name:         Ocean Kinetic Energy Dissipation Per Unit Area due to XY Friction
 !----------------------------------
 ! Additional variable information:

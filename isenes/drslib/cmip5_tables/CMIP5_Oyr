@@ -6,7 +6,7 @@ frequency: yr
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   19 February 2010 ! date this table was constructed
+table_date:   02 April 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,10 +15,12 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute parent_experiment_id branch_time
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+
+forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
 expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
-expt_id_ok: 'volcano-free hindcasts' 'noVolcXXXX'
+expt_id_ok: 'volcano-free hindcasts XXXX' 'noVolcXXXX'
 expt_id_ok: 'prediction with 2010 volcano' 'volcIn2010'
 expt_id_ok: 'pre-industrial control' 'piControl'
 expt_id_ok: 'Historical' 'historical'
@@ -532,8 +534,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Inorganic Carbon Concentration
 comment:           Dissolved inorganic carbon (CO3+HCO3+H2CO3) concentration
 !----------------------------------
@@ -552,8 +555,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Organic Carbon Concentration
 comment:           Dissolved organic carbon concentration
 !----------------------------------
@@ -572,8 +576,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Phytoplankton Carbon Concentration
 comment:           sum of phytoplankton carbon component concentrations.  In most (all?) cases this is the sum of phycdiat and phycmisc (i.e., ""Diatom Carbon Concentration"" and ""Non-Diatom Phytoplankton Carbon Concentration""
 !----------------------------------
@@ -592,8 +597,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Zooplankton Carbon Concentration
 comment:           sum of zooplankton carbon component concentrations
 !----------------------------------
@@ -609,12 +615,12 @@ type:              real
 variable_entry:    bacc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Bacterial Carbon Concentration
 comment:           sum of bacterial carbon component concentrations
 !----------------------------------
@@ -630,12 +636,12 @@ type:              real
 variable_entry:    detoc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Detrital Organic Carbon Concentration
 comment:           sum of detrital organic carbon component concentrations
 !----------------------------------
@@ -651,12 +657,12 @@ type:              real
 variable_entry:    calc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Calcite Concentration
 comment:           sum of particulate calcite component concentrations (e.g. Phytoplankton, Detrital, etc.)
 !----------------------------------
@@ -672,12 +678,12 @@ type:              real
 variable_entry:    arag
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Aragonite Concentration
 comment:           sum of particulate aragonite components (e.g. Phytoplankton, Detrital, etc.)
 !----------------------------------
@@ -689,60 +695,25 @@ type:              real
 !----------------------------------
 !
 
-!============
-variable_entry:    phycdiat
-!============
-modeling_realm:    ocnBgchem
 
-!----------------------------------
-! Variable attributes:
-!----------------------------------
-units:             mol C m-3
-cell_methods:      time: mean area: mean where sea 
-long_name:         Diatom Carbon Concentration
-comment:           carbon from the diatom phytoplankton component concentration alone
-!----------------------------------
-! Additional variable information:
-!----------------------------------
-dimensions:        longitude latitude olevel time
-out_name:          phycdiat
-type:              real
-!----------------------------------
-!
 
-!============
-variable_entry:    phycmisc
-!============
-modeling_realm:    ocnBgchem
 
-!----------------------------------
-! Variable attributes:
-!----------------------------------
-units:             mol C m-3
-cell_methods:      time: mean area: mean where sea 
-long_name:         Non-Diatom Phytoplankton Carbon Concentration
-comment:           carbon from additional phytoplankton component concentrations alone (e.g. Calc., diaz., cyano., etc)
-!----------------------------------
-! Additional variable information:
-!----------------------------------
-dimensions:        longitude latitude olevel time
-out_name:          phycmisc
-type:              real
-!----------------------------------
-!
+
+
+
 
 !============
 variable_entry:    zoocmisc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Other Zooplankton Carbon Concentration
-comment:           carbon from additional zooplankton component concentrations alone (e.g. Micro, meso)
+comment:           carbon from additional zooplankton component concentrations alone (e.g. Micro, meso).  Since the models all have different numbers of components, this variable has been included to provide a check for intercomparison between models since some phytoplankton groups are supersets.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -756,12 +727,12 @@ type:              real
 variable_entry:    talk
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             eq m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Total Alkalinity
 comment:           total alkalinity equivalent concentration (including carbonate, nitrogen, silicate, and borate components)
 !----------------------------------
@@ -777,12 +748,12 @@ type:              real
 variable_entry:    ph
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 units:             1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         pH
 comment:           negative log of hydrogen ion concentration with the concentration expressed as mol H kg-1.
 !----------------------------------
@@ -798,12 +769,12 @@ type:              real
 variable_entry:    o2
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol O2 m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolve Oxygen Concentration
 comment:           dissolved oxygen gas concentration in sea water
 !----------------------------------
@@ -819,12 +790,13 @@ type:              real
 variable_entry:    no3
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol N m-3
+standard_name:     mole_concentration_of_nitrate_in_sea_water
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Nitrate Concentration
 comment:           dissolved nitrate concentration in sea water
 !----------------------------------
@@ -840,12 +812,13 @@ type:              real
 variable_entry:    nh4
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol N m-3
+standard_name:     mole_concentration_of_ammonium_in_sea_water
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Ammonium Concentration
 comment:           dissolved ammonium concentration in sea water
 !----------------------------------
@@ -861,12 +834,13 @@ type:              real
 variable_entry:    po4
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol P m-3
+standard_name:     mole_concentration_of_phosphate_in_sea_water
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Phosphate Concentration
 comment:           dissolved Phosphate concentration in sea water
 !----------------------------------
@@ -882,12 +856,12 @@ type:              real
 variable_entry:    dfe
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Iron Concentration
 comment:           dissolved iron concentration in sea water
 !----------------------------------
@@ -903,12 +877,13 @@ type:              real
 variable_entry:    si
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Si m-3
+standard_name:     mole_concentration_of_silicate_in_sea_water
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dissolved Silicate Concentration
 comment:           dissolved silicate concentration in sea water
 !----------------------------------
@@ -924,12 +899,13 @@ type:              real
 variable_entry:    chl
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mg Chl m-3
+standard_name:     mass_concentration_of_phytoplankton_expressed_as_chlorophyll_in_sea_water
+units:             kg m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Total Chlorophyll Mass Concentration
 comment:           sum of chlorophyll from all phytoplankton group concentrations.  In most models this is equal to chldiat+chlmisc, that is the sum of ""Diatom Chlorophyll Mass Concentration"" plus ""Other Phytoplankton Chlorophyll Mass Concentration""
 !----------------------------------
@@ -948,8 +924,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mg Chl m-3
+units:             kg m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Diatom Chlorophyll Mass Concentration
 comment:           chlorophyll from diatom phytoplankton component concentration alone
 !----------------------------------
@@ -961,6 +938,9 @@ type:              real
 !----------------------------------
 !
 
+
+
+
 !============
 variable_entry:    chlmisc
 !============
@@ -968,8 +948,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mg Chl m-3
+units:             kg m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Other Phytoplankton Chlorophyll Mass Concentration
 comment:           chlorophyll from additional phytoplankton component concentrations alone
 !----------------------------------
@@ -988,8 +969,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol N m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Particulate Organic Nitrogen Concentration
 comment:           sum of particulate organic nitrogen component concentrations
 !----------------------------------
@@ -1008,8 +990,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol P m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Particulate Organic Phosphorus Concentration
 comment:           sum of particulate organic phosphorus component concentrations
 !----------------------------------
@@ -1028,8 +1011,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Particulate Biogenic Iron Concentration
 comment:           sum of particulate organic iron component concentrations
 !----------------------------------
@@ -1048,8 +1032,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Si m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Particulate Biogenic Silica Concentration
 comment:           sum of particulate silica component concentrations
 !----------------------------------
@@ -1068,8 +1053,10 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol N m-3
+standard_name:     mole_concentration_of_phytoplankton_expressed_as_nitrogen_in_sea_water
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Phytoplankton Nitrogen Concentration
 comment:           sum of phytoplankton nitrogen component concentrations
 !----------------------------------
@@ -1088,8 +1075,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol P m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Phytoplankton Phosphorus Concentration
 comment:           sum of phytoplankton phosphorus components
 !----------------------------------
@@ -1108,8 +1096,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Phytoplankton Iron Concentration
 comment:           sum of phytoplankton iron component concentrations
 !----------------------------------
@@ -1128,8 +1117,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Si m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Phytoplankton Silica Concentration
 comment:           sum of phytoplankton silica component concentrations
 !----------------------------------
@@ -1148,8 +1138,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol DMS m-3
+units:             mol m-3
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Dimethyl Sulphide Concentration
 comment:           dimethyl sulphide concentration
 !----------------------------------
@@ -1161,6 +1152,9 @@ type:              real
 !----------------------------------
 !
 
+
+
+
 !============
 variable_entry:    pp
 !============
@@ -1168,8 +1162,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Primary Carbon Production by Phytoplankton
 comment:           total primary (organic carbon) production by phytoplankton
 !----------------------------------
@@ -1188,8 +1183,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Primary Carbon Production by Phytoplankton Based on NO3 Alone
 comment:           Primary (organic carbon) production by phytoplankton based on NO3 alone
 !----------------------------------
@@ -1208,8 +1204,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Biogenic Iron Production
 comment:           Biogenic iron production
 !----------------------------------
@@ -1225,12 +1222,12 @@ type:              real
 variable_entry:    pbsi
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Si m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Biogenic Silica Production
 comment:           Biogenic silica production
 !----------------------------------
@@ -1246,12 +1243,12 @@ type:              real
 variable_entry:    pcalc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Calcite Production
 comment:           calcite production
 !----------------------------------
@@ -1267,12 +1264,12 @@ type:              real
 variable_entry:    parag
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Aragonite Production
 comment:           aragonite production
 !----------------------------------
@@ -1288,12 +1285,12 @@ type:              real
 variable_entry:    expc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Sinking Particulate Organic Carbon Flux
 comment:           sinking flux of organic carbon
 !----------------------------------
@@ -1302,6 +1299,7 @@ comment:           sinking flux of organic carbon
 dimensions:        longitude latitude olevel time
 out_name:          expc
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1309,12 +1307,12 @@ type:              real
 variable_entry:    expn
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol N m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Sinking Particulate Organic Nitrogen Flux
 comment:           sinking flux of organic nitrogen
 !----------------------------------
@@ -1323,6 +1321,7 @@ comment:           sinking flux of organic nitrogen
 dimensions:        longitude latitude olevel time
 out_name:          expn
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1330,11 +1329,10 @@ type:              real
 variable_entry:    expp
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol P m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
 long_name:         Sinking Particulate Organic Phosphorus Flux
 comment:           sinking flux of organic phosphorus
@@ -1344,6 +1342,7 @@ comment:           sinking flux of organic phosphorus
 dimensions:        longitude latitude olevel time
 out_name:          expp
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1351,11 +1350,10 @@ type:              real
 variable_entry:    expcfe
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
 long_name:         Sinking Particulate Iron Flux
 comment:           sinking flux of iron
@@ -1365,6 +1363,7 @@ comment:           sinking flux of iron
 dimensions:        longitude latitude olevel time
 out_name:          expcfe
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1372,12 +1371,12 @@ type:              real
 variable_entry:    expsi
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Si m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Sinking Particulate Silica Flux
 comment:           sinking flux of silica
 !----------------------------------
@@ -1386,6 +1385,7 @@ comment:           sinking flux of silica
 dimensions:        longitude latitude olevel time
 out_name:          expsi
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1393,12 +1393,12 @@ type:              real
 variable_entry:    expcalc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Sinking Calcite Flux
 comment:           sinking flux of calcite
 !----------------------------------
@@ -1407,6 +1407,7 @@ comment:           sinking flux of calcite
 dimensions:        longitude latitude olevel time
 out_name:          expcalc
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1414,12 +1415,12 @@ type:              real
 variable_entry:    exparag
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-2 s-1
+units:             mol m-2 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Sinking Aragonite Flux
 comment:           sinking flux of aragonite
 !----------------------------------
@@ -1428,6 +1429,7 @@ comment:           sinking flux of aragonite
 dimensions:        longitude latitude olevel time
 out_name:          exparag
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1435,12 +1437,12 @@ type:              real
 variable_entry:    dcalc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Calcite Dissolution
 comment:           calcite dissolution
 !----------------------------------
@@ -1456,12 +1458,12 @@ type:              real
 variable_entry:    darag
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Aragonite Dissolution
 comment:           aragonite dissolution
 !----------------------------------
@@ -1477,12 +1479,12 @@ type:              real
 variable_entry:    pdi
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Diatom Primary Carbon Production
 comment:           Primary (organic carbon) production by the diatom component alone
 !----------------------------------
@@ -1494,16 +1496,19 @@ type:              real
 !----------------------------------
 !
 
+
+
+
 !============
 variable_entry:    phypmisc
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Other Phytoplankton Carbon Production
 comment:           Primary (organic carbon) production by other phytoplankton components alone
 !----------------------------------
@@ -1519,12 +1524,12 @@ type:              real
 variable_entry:    bddtdic
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol C m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Rate of Change of Dissolved Inorganic Carbon due to Biological Activity
 comment:           Net of biological terms in time rate of change of dissolved inorganic carbon
 !----------------------------------
@@ -1540,12 +1545,12 @@ type:              real
 variable_entry:    bddtdin
 !============
 modeling_realm:    ocnBgchem
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol N m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Rate of Change of Nitrogen Nutrient due to Biological Activity
 comment:           Net of biological terms in time rate of change of nitrogen nutrients (e.g. NO3+NH4)
 !----------------------------------
@@ -1564,8 +1569,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol P m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Rate of Change of Dissolved Phosphate due to Biological Activity
 comment:           Net of biological terms in time rate of change of dissolved phosphate
 !----------------------------------
@@ -1584,8 +1590,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Rate of Change of Dissolved Inorganic Iron due to Biological Activity
 comment:           Net of biological terms in time rate of change of dissolved inorganic iron
 !----------------------------------
@@ -1604,8 +1611,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Si m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Rate of Change of Dissolved Inorganic Silicate due to Biological Activity
 comment:           Net of biological terms in time rate of change of dissolved inorganic silicate
 !----------------------------------
@@ -1624,8 +1632,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             eq m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Rate of Change of Alkalinity due to Biological Activity
 comment:           Net of biological terms in time rate of change of alkalinity
 !----------------------------------
@@ -1644,8 +1653,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Nonbiogenic Iron Scavenging
 comment:           Dissolved Fe removed through nonbiogenic scavenging onto particles
 !----------------------------------
@@ -1664,8 +1674,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Particle Source of Dissolved Iron
 comment:           Dissolution, remineralization and desorption of iron back to the dissolved phase
 !----------------------------------
@@ -1684,8 +1695,9 @@ modeling_realm:    ocnBgchem
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-units:             mol Fe m-3 s-1
+units:             mol m-3 s-1
 cell_methods:      time: mean area: mean where sea 
+cell_measures:      area: areacello volume: volcello
 long_name:         Total Grazing of Phytoplankton by Zooplankton
 comment:           Total grazing of phytoplankton by zooplankton
 !----------------------------------

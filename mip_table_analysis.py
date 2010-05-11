@@ -23,7 +23,10 @@ create table var (
     
 for table in table_store.tables.values():
     for var in table.variables:
-        realms = table.get_variable_attr(var, 'modeling_realm')
+        try:
+            realms = table.get_variable_attr(var, 'modeling_realm')
+        except AttributeError:
+            continue
         # Only one realm should be defined but just in case
         for realm in realms:
             c.execute('insert into var values (?, ?, ?)', (var, table.name, realm))

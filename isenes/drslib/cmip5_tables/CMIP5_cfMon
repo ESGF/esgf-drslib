@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   19 February 2010 ! date this table was constructed
+table_date:   02 April 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,10 +15,12 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute parent_experiment_id branch_time
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+
+forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
 expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
-expt_id_ok: 'volcano-free hindcasts' 'noVolcXXXX'
+expt_id_ok: 'volcano-free hindcasts XXXX' 'noVolcXXXX'
 expt_id_ok: 'prediction with 2010 volcano' 'volcIn2010'
 expt_id_ok: 'pre-industrial control' 'piControl'
 expt_id_ok: 'Historical' 'historical'
@@ -218,18 +220,18 @@ must_have_bounds: no
 
 
 !============
-axis_entry: alevbnds
+axis_entry: alevhalf
 !============
 !----------------------------------
 ! Axis attributes:
 !----------------------------------
 axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         up         ! up or down (default: undeclared)
 long_name:        atmospheric model half-level
 !----------------------------------
 ! Additional axis information:
 !----------------------------------
 out_name:         lev
-stored_direction: increasing
 type:             double
 must_have_bounds: no
 index_only:       ok
@@ -480,8 +482,8 @@ stored_direction: decreasing
 valid_min:        0.0
 valid_max:        1.0
 formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
-z_factors:        p0: p0 ap: ap b: b ps: ps
-z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
+z_factors:        ap: ap b: b ps: ps
+z_bounds_factors: ap: ap_bnds b: b_bnds ps: ps
 !----------------------------------		
 !
 !
@@ -719,12 +721,13 @@ modeling_realm:    atmos
 standard_name:     upwelling_longwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Longwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rlu
 type:              real
 positive:          up
@@ -741,12 +744,13 @@ modeling_realm:    atmos
 standard_name:     upwelling_shortwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Shortwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsu
 type:              real
 positive:          up
@@ -763,12 +767,13 @@ modeling_realm:    atmos
 standard_name:     downwelling_longwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Longwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rld
 type:              real
 positive:          down
@@ -785,12 +790,13 @@ modeling_realm:    atmos
 standard_name:     downwelling_shortwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Shortwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsd
 type:              real
 positive:          down
@@ -801,19 +807,19 @@ positive:          down
 variable_entry:    rlucs
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     upwelling_longwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Clear-Sky Longwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rlucs
 type:              real
 positive:          up
@@ -824,19 +830,19 @@ positive:          up
 variable_entry:    rsucs
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     upwelling_shortwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Clear-Sky Shortwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsucs
 type:              real
 positive:          up
@@ -847,19 +853,19 @@ positive:          up
 variable_entry:    rldcs
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     downwelling_longwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Clear-Sky Longwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rldcs
 type:              real
 positive:          down
@@ -870,19 +876,19 @@ positive:          down
 variable_entry:    rsdcs
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     downwelling_shortwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Clear-Sky Shortwave Radiation
 comment:           Include also the fluxes at the surface and TOA.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsdcs
 type:              real
 positive:          down
@@ -893,13 +899,13 @@ positive:          down
 variable_entry:    ta
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     air_temperature
 units:             K
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Air Temperature
 !----------------------------------
 ! Additional variable information:
@@ -914,13 +920,13 @@ type:              real
 variable_entry:    tnt
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_air_temperature
 units:             K s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Air Temperature
 !----------------------------------
 ! Additional variable information:
@@ -935,13 +941,13 @@ type:              real
 variable_entry:    tnta 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_air_temperature_due_to_advection
 units:             K s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Air Temperature due to Advection
 !----------------------------------
 ! Additional variable information:
@@ -956,13 +962,13 @@ type:              real
 variable_entry:    tntmp
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_air_temperature_due_to_model_physics
 units:             K s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Air Temperature due to Diabatic Processes
 !----------------------------------
 ! Additional variable information:
@@ -977,13 +983,13 @@ type:              real
 variable_entry:    tntscpbl
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_air_temperature_due_to_stratiform_cloud_and_precipitation_and_boundary_layer_mixing
 units:             K s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Air Temperature Due to Stratiform Cloud and Precipitation and Boundary Layer Mixing
 !----------------------------------
 ! Additional variable information:
@@ -998,13 +1004,13 @@ type:              real
 variable_entry:    tntr 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_air_temperature_due_to_radiative_heating
 units:             K s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Air Temperature due to Radiative Heating
 !----------------------------------
 ! Additional variable information:
@@ -1019,13 +1025,13 @@ type:              real
 variable_entry:    tntc
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_air_temperature_due_to_convection
 units:             K s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Air Temperature due to Moist Convection
 !----------------------------------
 ! Additional variable information:
@@ -1040,13 +1046,13 @@ type:              real
 variable_entry:    hus
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     specific_humidity
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Specific Humidity
 !----------------------------------
 ! Additional variable information:
@@ -1061,13 +1067,13 @@ type:              real
 variable_entry:    tnhus
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_specific_humidity
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Specific Humidity
 !----------------------------------
 ! Additional variable information:
@@ -1082,13 +1088,13 @@ type:              real
 variable_entry:    tnhusa
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_specific_humidity_due_to_advection
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Specific Humidity due to Advection
 !----------------------------------
 ! Additional variable information:
@@ -1103,13 +1109,13 @@ type:              real
 variable_entry:    tnhusc
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_specific_humidity_due_to_convection
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Specific Humidity due to Convection
 !----------------------------------
 ! Additional variable information:
@@ -1124,13 +1130,13 @@ type:              real
 variable_entry:    tnhusd
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_specific_humidity_due_to_diffusion
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Specific Humidity due to Diffusion
 !----------------------------------
 ! Additional variable information:
@@ -1145,13 +1151,13 @@ type:              real
 variable_entry:    tnhusscpbl
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_specific_humidity_due_to_stratiform_cloud_and_precipitation_and_boundary_layer_mixing
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Specific Humidity due to Stratiform Cloud Condensation and Evaporation
 !----------------------------------
 ! Additional variable information:
@@ -1166,13 +1172,13 @@ type:              real
 variable_entry:    tnhusmp
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_specific_humidity_due_to_model_physics
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Specific Humidity due to Model Physics
 comment:           This should include sources and sinks from parametrized physics (e.g. convection, stratiform condensation/evaporation, etc.) and should exclude sources and sinks from resolved dynamics and diffusion.
 !----------------------------------
@@ -1188,13 +1194,13 @@ type:              real
 variable_entry:    eviscu
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     atmosphere_momentum_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Eddy Viscosity Coefficients for Momentum
 !----------------------------------
 ! Additional variable information:
@@ -1209,13 +1215,13 @@ type:              real
 variable_entry:    evisct
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     atmosphere_heat_diffusivity
 units:             m2 s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Eddy Diffusivity Coefficients for Temperature
 !----------------------------------
 ! Additional variable information:
@@ -1230,13 +1236,13 @@ type:              real
 variable_entry:    clc
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     convective_cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Convective Cloud Area Fraction
 !----------------------------------
 ! Additional variable information:
@@ -1251,13 +1257,13 @@ type:              real
 variable_entry:     clwc
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     mass_fraction_of_convective_cloud_liquid_water_in_air
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Mass Fraction of Convective Cloud Liquid Water 
 comment:           Calculate as the mass of convective cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
@@ -1273,13 +1279,13 @@ type:              real
 variable_entry:    clic
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     mass_fraction_of_convective_cloud_ice_in_air
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Mass Fraction of Convective Cloud Ice
 comment:           Calculate as the mass of convective cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
@@ -1295,13 +1301,13 @@ type:              real
 variable_entry:    cls
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     stratiform_cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Stratiform Cloud Area Fraction
 !----------------------------------
 ! Additional variable information:
@@ -1316,13 +1322,13 @@ type:              real
 variable_entry:    clws
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     mass_fraction_of_stratiform_cloud_liquid_water_in_air
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Mass Fraction of Stratiform Cloud Liquid Water
 comment:           Calculate as the mass of stratiform cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
@@ -1338,13 +1344,13 @@ type:              real
 variable_entry:    clis
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     mass_fraction_of_stratiform_cloud_ice_in_air
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Mass Fraction of Stratiform Cloud Ice
 comment:           Calculate as the mass of stratiform cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
 !----------------------------------
@@ -1360,21 +1366,22 @@ type:              real
 variable_entry:    mcu
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     atmosphere_updraft_convective_mass_flux
 units:             kg m-2 s-1 
 cell_methods:      time: mean
-long_name:         Updraught Convective Mass Flux
-comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+cell_measures:      area: areacella
+long_name:         Updraft Convective Mass Flux
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).   Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          mcu
 type:              real
+positive:          up
 !----------------------------------
 !
 
@@ -1382,21 +1389,22 @@ type:              real
 variable_entry:    mcd
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     atmosphere_downdraft_convective_mass_flux
 units:             kg m-2 s-1 
 cell_methods:      time: mean
-long_name:         Downdraught Convective Mass Flux
+cell_measures:      area: areacella
+long_name:         Downdraft Convective Mass Flux
 comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          mcd
 type:              real
+positive:          down
 !----------------------------------
 !
 
@@ -1404,21 +1412,22 @@ type:              real
 variable_entry:    smc
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     atmosphere_shallow_convective_mass_flux
+standard_name:     atmosphere_net_upward_shallow_convective_mass_flux
 units:             kg m-2 s-1 
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Shallow Convective Mass Flux
-comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  For models with a distinct shallow convection scheme, calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).   The net mass flux should represent the difference between the updraft and downdraft components.  For models with a distinct shallow convection scheme, calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          smc
 type:              real
+positive:          up
 !----------------------------------
 !
 
@@ -1426,21 +1435,22 @@ type:              real
 variable_entry:    dmc
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     atmosphere_deep_convective_mass_flux
+standard_name:     atmosphere_net_upward_deep_convective_mass_flux
 units:             kg m-2 s-1 
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Deep Convective Mass Flux
-comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  The net mass flux should represent the difference between the updraft and downdraft components.   Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          dmc
 type:              real
+positive:          up
 !----------------------------------
 !
 
@@ -1448,13 +1458,13 @@ type:              real
 variable_entry:    tnsclwce 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_condensation_and_evaporation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Condensation and Evaporation
 !----------------------------------
 ! Additional variable information:
@@ -1469,13 +1479,13 @@ type:              real
 variable_entry:    tnsclwcd 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_convective_detrainment
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water Due to Convective Detrainment
 !----------------------------------
 ! Additional variable information:
@@ -1490,13 +1500,13 @@ type:              real
 variable_entry:    tnsclwhon 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_homogeneous_nucleation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Homogeneous Nucleation
 !----------------------------------
 ! Additional variable information:
@@ -1511,13 +1521,13 @@ type:              real
 variable_entry:    tnsclwhen 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_heterogeneous_nucleation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Heterogeneous Nucleation
 !----------------------------------
 ! Additional variable information:
@@ -1532,13 +1542,13 @@ type:              real
 variable_entry:    tnsclwri 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_riming
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Riming
 !----------------------------------
 ! Additional variable information:
@@ -1553,13 +1563,13 @@ type:              real
 variable_entry:    tnsclwar 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_accretion_to_rain
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Accretion to Rain
 !----------------------------------
 ! Additional variable information:
@@ -1574,13 +1584,13 @@ type:              real
 variable_entry:    tnsclwas 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_accretion_to_snow
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Accretion to Snow
 !----------------------------------
 ! Additional variable information:
@@ -1595,13 +1605,13 @@ type:              real
 variable_entry:    tnsclwmi 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_melting_from_cloud_ice
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Melting From Cloud Ice
 !----------------------------------
 ! Additional variable information:
@@ -1616,13 +1626,13 @@ type:              real
 variable_entry:    tnsclwac 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_autoconversion
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Autoconversion
 !----------------------------------
 ! Additional variable information:
@@ -1637,13 +1647,13 @@ type:              real
 variable_entry:    tnsclwa 
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_liquid_water_in_air_due_to_advection
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Liquid Water due to Advection
 !----------------------------------
 ! Additional variable information:
@@ -1658,13 +1668,13 @@ type:              real
 variable_entry:    tnsclicd
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_convective_detrainment
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice Due Convective Detrainment
 comment:           Tendency of Mass Fraction of Stratiform Cloud Ice Due to Convective Detrainment
 !----------------------------------
@@ -1680,13 +1690,13 @@ type:              real
 variable_entry:    tnsclihon
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_homogeneous_nucleation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Homogeneous Nucleation
 !----------------------------------
 ! Additional variable information:
@@ -1701,13 +1711,13 @@ type:              real
 variable_entry:    tnsclihencl
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_heterogeneous_nucleation_from_cloud_liquid
+standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_heterogeneous_nucleation_from_cloud_liquid_water
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Heterogeneous Nucleation From Cloud Liquid
 !----------------------------------
 ! Additional variable information:
@@ -1722,13 +1732,13 @@ type:              real
 variable_entry:    tnsclihenv
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_heterogeneous_nucleation_from_water_vapor
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Heterogeneous Nucleation From Water Vapor
 !----------------------------------
 ! Additional variable information:
@@ -1743,13 +1753,13 @@ type:              real
 variable_entry:    tnscliricl
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_riming_from_cloud_liquid
+standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_riming_from_cloud_liquid_water
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Riming From Cloud Liquid
 !----------------------------------
 ! Additional variable information:
@@ -1764,13 +1774,13 @@ type:              real
 variable_entry:    tnsclirir
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_riming_from_rain
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Riming From Rain
 !----------------------------------
 ! Additional variable information:
@@ -1785,13 +1795,13 @@ type:              real
 variable_entry:    tnsclids
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_deposition_and_sublimation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Deposition and Sublimation
 !----------------------------------
 ! Additional variable information:
@@ -1806,13 +1816,13 @@ type:              real
 variable_entry:    tnscliag
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_aggregation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Aggregation
 !----------------------------------
 ! Additional variable information:
@@ -1827,13 +1837,13 @@ type:              real
 variable_entry:    tnsclias
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_accretion_to_snow
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Accretion to Snow
 !----------------------------------
 ! Additional variable information:
@@ -1848,13 +1858,13 @@ type:              real
 variable_entry:    tnscliemi
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_evaporation_of_melting_ice
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Evaporation of Melting Ice
 !----------------------------------
 ! Additional variable information:
@@ -1869,13 +1879,13 @@ type:              real
 variable_entry:    tnsclimr
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_melting_to_rain
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Melting to Rain
 !----------------------------------
 ! Additional variable information:
@@ -1890,13 +1900,13 @@ type:              real
 variable_entry:    tnsclimcl
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
-standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_melting_to_cloud_liquid
+standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_melting_to_cloud_liquid_water
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Melting to Cloud Liquid
 !----------------------------------
 ! Additional variable information:
@@ -1911,13 +1921,13 @@ type:              real
 variable_entry:    tnscliif
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_icefall
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Icefall
 !----------------------------------
 ! Additional variable information:
@@ -1932,13 +1942,13 @@ type:              real
 variable_entry:    tnsclia
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_ice_in_air_due_to_advection
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Ice due to Advection
 !----------------------------------
 ! Additional variable information:
@@ -1953,13 +1963,13 @@ type:              real
 variable_entry:    tnsccwce
 !============
 modeling_realm:    atmos
-
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_condensed_water_in_air_due_to_condensation_and_evaporation
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Condensation and Evaporation
 comment:           condensed water includes both liquid and ice.
 !----------------------------------
@@ -1981,6 +1991,7 @@ modeling_realm:    atmos
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_condensed_water_in_air_due_to_autoconversion_to_rain
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Autoconversion to Rain
 comment:           condensed water includes both liquid and ice.
 !----------------------------------
@@ -2002,6 +2013,7 @@ modeling_realm:    atmos
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_condensed_water_in_air_due_to_autoconversion_to_snow
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Autoconversion to Snow
 comment:           condensed water includes both liquid and ice.
 !----------------------------------
@@ -2023,6 +2035,7 @@ modeling_realm:    atmos
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_condensed_water_in_air_due_to_icefall
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Icefall
 comment:           condensed water includes both liquid and ice.
 !----------------------------------
@@ -2044,6 +2057,7 @@ modeling_realm:    atmos
 standard_name:     tendency_of_mass_fraction_of_stratiform_cloud_condensed_water_in_air_due_to_advection
 units:             s-1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Tendency of Mass Fraction of Stratiform Cloud Condensed Water due to Advection
 comment:           condensed water includes both liquid and ice.
 !----------------------------------
@@ -2065,6 +2079,7 @@ modeling_realm:    atmos
 standard_name:     toa_outgoing_shortwave_flux
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         TOA Outgoing Shortwave Radiation in 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
@@ -2086,6 +2101,7 @@ modeling_realm:    atmos
 standard_name:     toa_outgoing_longwave_flux
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         TOA Outgoing Longwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
@@ -2107,6 +2123,7 @@ modeling_realm:    atmos
 standard_name:     toa_outgoing_shortwave_flux_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         TOA Outgoing Clear-Sky Shortwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
@@ -2128,6 +2145,7 @@ modeling_realm:    atmos
 standard_name:     toa_outgoing_longwave_flux_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         TOA Outgoing Clear-Sky Longwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
@@ -2149,11 +2167,12 @@ modeling_realm:    atmos
 standard_name:     upwelling_longwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Longwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rlu4co2
 type:              real
 positive:          up
@@ -2170,11 +2189,12 @@ modeling_realm:    atmos
 standard_name:     upwelling_shortwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Shortwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsu4co2
 type:              real
 positive:          up
@@ -2191,11 +2211,12 @@ modeling_realm:    atmos
 standard_name:     downwelling_longwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Longwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rld4co2
 type:              real
 positive:          down
@@ -2212,11 +2233,12 @@ modeling_realm:    atmos
 standard_name:     downwelling_shortwave_flux_in_air
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Shortwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsd4co2
 type:              real
 positive:          down
@@ -2233,11 +2255,12 @@ modeling_realm:    atmos
 standard_name:     upwelling_longwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Clear-Sky Longwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rlucs4co2
 type:              real
 positive:          up
@@ -2254,11 +2277,12 @@ modeling_realm:    atmos
 standard_name:     upwelling_shortwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Upwelling Clear-Sky Shortwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsucs4co2
 type:              real
 positive:          up
@@ -2275,11 +2299,12 @@ modeling_realm:    atmos
 standard_name:     downwelling_longwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Clear-Sky Longwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rldcs4co2
 type:              real
 positive:          down
@@ -2296,11 +2321,12 @@ modeling_realm:    atmos
 standard_name:     downwelling_shortwave_flux_in_air_assuming_clear_sky
 units:             W m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Downwelling Clear-Sky Shortwave Radiation 4XCO2 Atmosphere
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alevbnds time
+dimensions:        longitude latitude alevhalf time
 out_name:          rsdcs4co2
 type:              real
 positive:          down
@@ -2317,6 +2343,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         ISCCP Total Cloud Fraction
 !----------------------------------
 ! Additional variable information:
@@ -2337,6 +2364,7 @@ modeling_realm:    atmos
 standard_name:     cloud_albedo
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         ISCCP Mean Cloud Albedo
 comment:           When computing time-means, weight by the ISCCP Total Cloud Fraction - see  http://www.cfmip.net/README
 !----------------------------------
@@ -2358,6 +2386,7 @@ modeling_realm:    atmos
 standard_name:     air_pressure_at_cloud_top
 units:             Pa 
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         ISCCP Mean Cloud Top Pressure
 comment:           When computing time-means, weight by the ISCCP Total Cloud Fraction - see  http://www.cfmip.net/README
 !----------------------------------
@@ -2379,6 +2408,7 @@ modeling_realm:    atmos
 standard_name:     isccp_cloud_area_fraction
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         ISCCP Cloud Area Fraction
 comment:            7 levels x 7 tau
 !----------------------------------
@@ -2400,6 +2430,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Total Cloud Fraction
 !----------------------------------
 ! Additional variable information:
@@ -2420,6 +2451,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Low Level Cloud Fraction 
 !----------------------------------
 ! Additional variable information:
@@ -2440,6 +2472,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Mid Level Cloud Fraction 
 !----------------------------------
 ! Additional variable information:
@@ -2460,6 +2493,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO High Level Cloud Fraction 
 !----------------------------------
 ! Additional variable information:
@@ -2480,6 +2514,7 @@ modeling_realm:    atmos
 standard_name:     cloud_area_fraction_in_atmosphere_layer
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         CALIPSO Cloud Fraction 
 comment:            40 height levels
 !----------------------------------
@@ -2501,6 +2536,7 @@ modeling_realm:    atmos
 standard_name:     toa_bidirectional_reflectance
 units:             1
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         PARASOL Reflectance 
 comment:            5 bins of solar zenith angle.  This is reflectance as seen at the top of the atmosphere.
 !----------------------------------

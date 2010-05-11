@@ -6,7 +6,7 @@ frequency: 6hr
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   19 February 2010 ! date this table was constructed
+table_date:   02 April 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,10 +15,12 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute parent_experiment_id branch_time
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+
+forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
 expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
-expt_id_ok: 'volcano-free hindcasts' 'noVolcXXXX'
+expt_id_ok: 'volcano-free hindcasts XXXX' 'noVolcXXXX'
 expt_id_ok: 'prediction with 2010 volcano' 'volcIn2010'
 expt_id_ok: 'pre-industrial control' 'piControl'
 expt_id_ok: 'Historical' 'historical'
@@ -174,6 +176,7 @@ modeling_realm:    atmos
 !----------------------------------
 standard_name:     eastward_wind
 units:             m s-1
+cell_measures:      area: areacella
 long_name:         Eastward Wind
 comment:           on the following pressure levels: 850, 500, 250 hPa
 !----------------------------------
@@ -194,6 +197,7 @@ modeling_realm:    atmos
 !----------------------------------
 standard_name:     northward_wind
 units:             m s-1
+cell_measures:      area: areacella
 long_name:         Northward Wind
 comment:           on the following pressure levels: 850, 500, 250 hPa
 !----------------------------------
@@ -214,6 +218,7 @@ modeling_realm:    atmos
 !----------------------------------
 standard_name:     air_temperature
 units:             K
+cell_measures:      area: areacella
 long_name:         Air Temperature
 comment:           on the following pressure levels: 850, 500, 250 hPa
 !----------------------------------
@@ -234,6 +239,7 @@ modeling_realm:    atmos
 !----------------------------------
 standard_name:     air_pressure_at_sea_level
 units:             Pa
+cell_measures:      area: areacella
 long_name:         Sea Level Pressure
 !----------------------------------
 ! Additional variable information:

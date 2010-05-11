@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   19 February 2010 ! date this table was constructed
+table_date:   02 April 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,10 +15,12 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute parent_experiment_id branch_time
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+
+forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
 expt_id_ok: '10- or 30-year run initialized in year XXXX' 'decadalXXXX'
-expt_id_ok: 'volcano-free hindcasts' 'noVolcXXXX'
+expt_id_ok: 'volcano-free hindcasts XXXX' 'noVolcXXXX'
 expt_id_ok: 'prediction with 2010 volcano' 'volcIn2010'
 expt_id_ok: 'pre-industrial control' 'piControl'
 expt_id_ok: 'Historical' 'historical'
@@ -174,6 +176,7 @@ modeling_realm:    landIce land
 standard_name:     surface_snow_area_fraction
 units:             %
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Snow Area Fraction
 comment:           Fraction of each grid cell that is occupied by snow that rests on land portion of cell.
 !----------------------------------
@@ -195,6 +198,7 @@ modeling_realm:    landIce land
 standard_name:     surface_snow_amount
 units:             kg m-2
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Surface Snow Amount
 comment:           Compute as the mass of surface snow on the land portion of the grid cell divided by the land area in the grid cell; report as 0.0 where the land fraction is 0; exclude snow on vegetation canopy or on sea ice.
 !----------------------------------
@@ -216,6 +220,7 @@ modeling_realm:    landIce land
 standard_name:     surface_snow_thickness
 units:             m
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Snow Depth
 comment:           where land over land.  Compute the mean thickness of snow in the land portion of the grid cell (averaging over the entire land portion, including the snow-free fraction.  Report as 0.0 where the land fraction is 0.
 !----------------------------------
@@ -237,6 +242,7 @@ modeling_realm:    landIce land
 standard_name:     liquid_water_content_of_snow_layer
 units:             kg m-2
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Liquid Water Content of Snow Layer
 comment:           where land over land: compute the total mass of liquid water contained interstitially within the snow layer of the land portion of a grid cell divided by the area of the land portion of the cell.
 !----------------------------------
@@ -258,6 +264,7 @@ modeling_realm:    landIce land
 standard_name:     soil_frozen_water_content
 units:             kg m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Soil Frozen Water Content
 comment:           summed over all soil layers, where land over land: compute by dividing the total mass of frozen water contained in the soil layer of the grid cell by the land area in the grid cell; report as 0.0 where the land fraction is 0.
 !----------------------------------
@@ -279,6 +286,7 @@ modeling_realm:    landIce land
 standard_name:     soil_moisture_content
 units:             kg m-2
 cell_methods:      time: mean
+cell_measures:      area: areacella
 long_name:         Soil Moisture Content
 comment:           summed over all soil layers, where land over land: compute by dividing the total mass of water (both liquid and ice) contained in the soil layer of the grid cell by the land area in the grid cell; report as 0.0 where the land fraction is 0.
 !----------------------------------
@@ -297,8 +305,10 @@ modeling_realm:    landIce land
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     snow_soot_content
 units:             kg m-2
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Snow Soot Content
 comment:           Consider the entire land portion of the grid cell, with snow soot content set to 0.0 in regions free of snow.
 !----------------------------------
@@ -319,6 +329,7 @@ modeling_realm:    landIce land
 !----------------------------------
 units:             day
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Snow Age
 comment:           When computing the time-mean here, the time samples, weighted by the mass of snow on the land portion of the grid cell, are accumulated and then divided by the sum of the weights.  Report as ""missing in regions free of snow on land.
 !----------------------------------
@@ -337,8 +348,10 @@ modeling_realm:    landIce land
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     snow_temperature
 units:             K
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Snow Internal Temperature
 comment:           This temperature is averaged over all the snow in the grid cell that rests on land or land ice.  When computing the time-mean here, the time samples, the weighted by the mass of snow on the land portion of the grid cell, are accumulated and then divided by the sum of the weights.   Report as ""missing in regions free of snow on land.
 !----------------------------------
@@ -360,6 +373,7 @@ modeling_realm:    landIce land
 standard_name:     surface_snow_melt_flux
 units:             kg m-2 s-1
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Surface Snow Melt
 comment:           Compute as the total surface melt water on the land portion of the grid cell divided by the land area in the grid cell; report as 0.0 for snow-free land regions; report as 0.0 where the land fraction is 0.
 !----------------------------------
@@ -378,8 +392,10 @@ modeling_realm:    landIce land
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
+standard_name:     surface_snow_and_ice_sublimation_flux
 units:             kg m-2 s-1
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Surface Snow and Ice Sublimation Flux
 comment:           The snow and ice sublimation flux is the loss of snow and ice mass resulting from their conversion to water vapor.  Compute as the total sublimation on the land portion of the grid cell divided by the land area in the grid cell; report as 0.0 for snow-free land regions; report as 0.0 where the land fraction is 0.
 !----------------------------------
@@ -400,6 +416,7 @@ modeling_realm:    landIce land
 !----------------------------------
 units:             W m-2
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Downward Heat Flux into Snow Where Land over Land
 comment:           Compute the net downward heat flux from the atmosphere into the snow that lies on land divided by the land area in the grid cell; report as 0.0 for snow-free land regions or where the land fraction is 0.
 !----------------------------------
@@ -421,6 +438,7 @@ modeling_realm:    landIce land
 !----------------------------------
 units:             m
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Permafrost Layer Thickness
 comment:           where land over land. Compute the mean thickness of the permafrost layer in the land portion of the grid cell.  Report as 0.0 in permafrost-free regions.
 !----------------------------------
@@ -441,6 +459,7 @@ modeling_realm:    landIce land
 !----------------------------------
 units:             kg m-2
 cell_methods:      time: mean area: mean where land
+cell_measures:      area: areacella
 long_name:         Liquid Water Content of Permafrost Layer
 comment:           ""where land over land"", i.e., this is the total mass of liquid water contained within the permafrost layer within the land portion of a grid cell divided by the area of the land portion of the cell.
 !----------------------------------
