@@ -249,6 +249,16 @@ class RealmTranslator(T.GenericComponentTranslator):
              'atmosChem', 
              ]
 
+    def _validate(self, s):
+        # Multi-valued realms.  self._validate automatically selects
+        # the first realm to put in the DRS syntax.
+        #!TODO: smarter algorithm for deciding main realm
+        if ' ' in s:
+            s = s.split(' ')[0]
+
+        return super(RealmTranslator, self)._validate(s)
+
+
     def filename_to_drs(self, context):
         context.drs.realm = self._deduce_realm(context)
 
