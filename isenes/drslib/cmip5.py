@@ -206,8 +206,16 @@ class FrequencyTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_FREQUENCY
     file_i = None
     component = 'frequency'
-    #!FIXME: It's not clear whether days are "da" or "day".  Both are allowed for now.
-    vocab = ['yr', 'mon', 'day', 'da', '6hr', '3hr', 'subhr', 'fx']
+
+    def __init__(self, table_store):
+        super(FrequencyTranslator, self).__init__(table_store)
+
+        self.vocab = set()
+        for table in self.table_store.tables.values():
+            try:
+                self.vocab.add(table.frequency)
+            except AttributeError:
+                pass
 
     def filename_to_drs(self, context):
         context.drs.frequency = self._deduce_freq(context)
