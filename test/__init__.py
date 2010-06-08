@@ -75,3 +75,15 @@ def test_6():
     print translator.filename_to_drs('cct_Amon_HadGEM2-ES_piControl_r1.nc')
 
 
+def test_7():
+    # Test creating path without version
+
+    drs = get_drs1()
+
+    # Add the bits missing from the conversion
+    drs.version = 2
+    drs.product = 'output'
+    
+    path = translator.drs_to_filepath(drs, with_version=False)
+
+    assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'

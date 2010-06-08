@@ -62,8 +62,12 @@ class TranslatorContext(object):
             if v != value:
                 raise TranslationError('Conflicting value of DRS component %s' % drs_component)
 
-    def path_to_string(self):
-        return os.path.join(*self.path_parts)
+    def path_to_string(self, with_version=True):
+        if with_version:
+            parts = self.path_parts
+        else:
+            parts = self.path_parts[:CMIP5_DRS.PATH_VERSION]+self.path_parts[CMIP5_DRS.PATH_VERSION+1:]
+        return os.path.join(*parts)
     
     def file_to_string(self):
         # To allow optional portions any None's are removed
@@ -74,10 +78,10 @@ class TranslatorContext(object):
 
         return '_'.join(fp)+'.nc'
     
-    def to_string(self):
+    def to_string(self, with_version=True):
         """Returns the full DRS path and filename.
         """
-        return os.path.join(self.path_to_string(), self.file_to_string())
+        return os.path.join(self.path_to_string(with_version), self.file_to_string())
 
 
 class BaseComponentTranslator(object):
@@ -372,15 +376,15 @@ class Translator(object):
 
         return context
 
-    def drs_to_filepath(self, drs):
+    def drs_to_filepath(self, drs, with_version=True):
         context = self.drs_to_context(drs)
 
-        return os.path.join(self.prefix, context.to_string())
+        return os.path.join(self.prefix, context.to_string(with_version))
 
-    def drs_to_path(self, drs):
+    def drs_to_path(self, drs, with_version=True):
         context = self.drs_to_context(drs)
         
-        return os.path.join(self.prefix, context.path_to_string())
+        return os.path.join(self.prefix, context.path_to_string(with_version))
 
     def drs_to_file(self, drs):
         context = self.drs_to_context(drs)
