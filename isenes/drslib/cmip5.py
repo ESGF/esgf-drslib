@@ -244,12 +244,21 @@ class RealmTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_REALM
     file_i = None
     component = 'realm'
-    vocab = ['atmos', 'ocean', 'land', 'landIce', 'seaIce', 
-             'aerosol', 'atmosChem', 'ocnBgchem',
-             
-             # CMIP3 realms
-             'atmosChem', 
-             ]
+
+    def __init__(self, table_store):
+        super(RealmTranslator, self).__init__(table_store)
+
+        # Extract valid realms from the MIP tables
+        self.vocab = set()
+        for table in table_store.tables.values():
+            for var in table.variables:
+                try:
+                    realms = table.get_variable_attr(var, 'modeling_realm')[0]
+                except AttributeError:
+                    pass
+                else:
+                    realms = realms.split()
+                    self.vocab.update(realms)
 
     def _validate(self, s):
         # Multi-valued realms.  self._validate automatically selects
