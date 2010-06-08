@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   02 April 2010 ! date this table was constructed
+table_date:   28 May 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,7 +15,7 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact institute_id ! space separated required global attribute 
 
 forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
@@ -90,8 +90,8 @@ long_name:        longitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lon
-valid_min:        0         
-valid_max:        360 
+valid_min:        0.0         
+valid_max:        360.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -113,8 +113,8 @@ long_name:        latitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lat
-valid_min:        -90         
-valid_max:        90 
+valid_min:        -90.0         
+valid_max:        90.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -1544,7 +1544,7 @@ comment:           mass_concentration_of_organic_aerosol_in_air: In model lowest
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcoa
 type:              real
 !----------------------------------
@@ -1566,7 +1566,7 @@ comment:           mass_concentration_of_primary_organic_aerosol_in_air: In mode
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcpoa
 type:              real
 !----------------------------------
@@ -1588,7 +1588,7 @@ comment:           mass_concentration_of_secondary_organic_aerosol_in_air: In mo
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcsoa
 type:              real
 !----------------------------------
@@ -1610,7 +1610,7 @@ comment:           mass_concentration_of_black_carbon_aerosol_in_air: In model l
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcbc
 type:              real
 !----------------------------------
@@ -1632,7 +1632,7 @@ comment:           mass_concentration_of_sulfate_aerosol_in_air: In model lowest
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcso4
 type:              real
 !----------------------------------
@@ -1654,7 +1654,7 @@ comment:           mass_concentration_of_dust_aerosol_in_air: In model lowest la
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcdust
 type:              real
 !----------------------------------
@@ -1676,7 +1676,7 @@ comment:           mass_concentration_of_seasalt_aerosol_in_air: In model lowest
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcss
 type:              real
 !----------------------------------
@@ -1698,7 +1698,7 @@ comment:           mass_concentration_of_nitrate_aerosol_in_air: In model lowest
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcno3
 type:              real
 !----------------------------------
@@ -1720,7 +1720,7 @@ comment:           mass_concentration_of_ammonium_aerosol_in_air: In model lowes
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
-dimensions:        longitude latitude alev1, time
+dimensions:        longitude latitude alev1 time
 out_name:          sconcnh4
 type:              real
 !----------------------------------
@@ -1779,7 +1779,7 @@ units:             m
 cell_methods:      time: mean
 cell_measures:      area: areacella
 long_name:         Cloud-Top Effective Droplet Radius
-comment:           Droplets are liquid only.  Report effective radiaus ""as seen from space"" over liquid cloudy portion of grid cell.  This is the value from uppermost model layer with liquid cloud or, if available, it is better to sum over all liquid cloud tops, no matter where they occur, as long as they are seen from the top of the atmosphere. Weight by total liquid cloud top fraction of  (as seen from TOA) each time sample when computing monthly mean.
+comment:           Droplets are liquid only.  Report effective radius ""as seen from space"" over liquid cloudy portion of grid cell.  This is the value from uppermost model layer with liquid cloud or, if available, it is better to sum over all liquid cloud tops, no matter where they occur, as long as they are seen from the top of the atmosphere. Weight by total liquid cloud top fraction of  (as seen from TOA) each time sample when computing monthly mean.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------

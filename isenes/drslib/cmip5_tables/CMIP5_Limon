@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   02 April 2010 ! date this table was constructed
+table_date:   28 May 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,7 +15,7 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact institute_id ! space separated required global attribute 
 
 forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
@@ -90,8 +90,8 @@ long_name:        longitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lon
-valid_min:        0         
-valid_max:        360 
+valid_min:        0.0         
+valid_max:        360.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -113,8 +113,8 @@ long_name:        latitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lat
-valid_min:        -90         
-valid_max:        90 
+valid_min:        -90.0         
+valid_max:        90.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -158,8 +158,8 @@ long_name:        depth
 ! Additional axis information:
 !----------------------------------
 out_name:         depth
-valid_min:        0         
-valid_max:        200 
+valid_min:        0.0         
+valid_max:        200.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -185,6 +185,10 @@ comment:           Fraction of each grid cell that is occupied by snow that rest
 dimensions:        longitude latitude time
 out_name:          snc
 type:              real
+valid_min:         0
+valid_max:         1e+02
+ok_min_mean_abs:   -18
+ok_max_mean_abs:   67
 !----------------------------------
 !
 
@@ -207,6 +211,10 @@ comment:           Compute as the mass of surface snow on the land portion of th
 dimensions:        longitude latitude time
 out_name:          snw
 type:              real
+valid_min:         -0.005
+valid_max:         8e+05
+ok_min_mean_abs:   -4e+03
+ok_max_mean_abs:   1e+04
 !----------------------------------
 !
 
@@ -229,6 +237,10 @@ comment:           where land over land.  Compute the mean thickness of snow in 
 dimensions:        longitude latitude time
 out_name:          snd
 type:              real
+valid_min:         0
+valid_max:         8.1e+02
+ok_min_mean_abs:   -1.3
+ok_max_mean_abs:   3.8
 !----------------------------------
 !
 
@@ -250,50 +262,6 @@ comment:           where land over land: compute the total mass of liquid water 
 !----------------------------------
 dimensions:        longitude latitude time
 out_name:          lwsnl
-type:              real
-!----------------------------------
-!
-
-!============
-variable_entry:    mrfso
-!============
-modeling_realm:    landIce land
-!----------------------------------
-! Variable attributes:
-!----------------------------------
-standard_name:     soil_frozen_water_content
-units:             kg m-2
-cell_methods:      time: mean
-cell_measures:      area: areacella
-long_name:         Soil Frozen Water Content
-comment:           summed over all soil layers, where land over land: compute by dividing the total mass of frozen water contained in the soil layer of the grid cell by the land area in the grid cell; report as 0.0 where the land fraction is 0.
-!----------------------------------
-! Additional variable information:
-!----------------------------------
-dimensions:        longitude latitude time
-out_name:          mrfso
-type:              real
-!----------------------------------
-!
-
-!============
-variable_entry:    mfrso
-!============
-modeling_realm:    landIce land
-!----------------------------------
-! Variable attributes:
-!----------------------------------
-standard_name:     soil_moisture_content
-units:             kg m-2
-cell_methods:      time: mean
-cell_measures:      area: areacella
-long_name:         Soil Moisture Content
-comment:           summed over all soil layers, where land over land: compute by dividing the total mass of water (both liquid and ice) contained in the soil layer of the grid cell by the land area in the grid cell; report as 0.0 where the land fraction is 0.
-!----------------------------------
-! Additional variable information:
-!----------------------------------
-dimensions:        longitude latitude time
-out_name:          mfrso
 type:              real
 !----------------------------------
 !
@@ -382,6 +350,10 @@ comment:           Compute as the total surface melt water on the land portion o
 dimensions:        longitude latitude time
 out_name:          snm
 type:              real
+valid_min:         0
+valid_max:         0.00036
+ok_min_mean_abs:   -1.1e-06
+ok_max_mean_abs:   5.2e-06
 !----------------------------------
 !
 
@@ -404,6 +376,10 @@ comment:           The snow and ice sublimation flux is the loss of snow and ice
 dimensions:        longitude latitude time
 out_name:          sbl
 type:              real
+valid_min:         -0.004
+valid_max:         0.00083
+ok_min_mean_abs:   -3.6e-05
+ok_max_mean_abs:   7.7e-05
 !----------------------------------
 !
 

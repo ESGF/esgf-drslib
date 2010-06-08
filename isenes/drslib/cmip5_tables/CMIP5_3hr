@@ -6,7 +6,7 @@ frequency: 3hr
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   02 April 2010 ! date this table was constructed
+table_date:   28 May 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,7 +15,7 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact institute_id ! space separated required global attribute 
 
 forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
@@ -90,8 +90,8 @@ long_name:        longitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lon
-valid_min:        0         
-valid_max:        360 
+valid_min:        0.0         
+valid_max:        360.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -113,8 +113,8 @@ long_name:        latitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lat
-valid_min:        -90         
-valid_max:        90 
+valid_min:        -90.0         
+valid_max:        90.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -179,8 +179,8 @@ long_name:        height
 ! Additional axis information:
 !----------------------------------
 out_name:         height
-valid_min:        1         
-valid_max:        10 
+valid_min:        1.0         
+valid_max:        10.0 
 stored_direction: increasing
 type:             double
 value:            2.            ! of scalar (singleton) dimension 
@@ -204,8 +204,8 @@ long_name:        height
 ! Additional axis information:
 !----------------------------------
 out_name:         height
-valid_min:        1         
-valid_max:        30 
+valid_min:        1.0         
+valid_max:        30.0 
 stored_direction: increasing
 type:             double
 value:            10.            ! of scalar (singleton) dimension 
@@ -232,6 +232,10 @@ comment:           at surface; includes both liquid and solid phases.  This is t
 dimensions:        longitude latitude time
 out_name:          pr
 type:              real
+valid_min:         -1.3e-09
+valid_max:         0.0011
+ok_min_mean_abs:   2.3e-05
+ok_max_mean_abs:   3.1e-05
 !----------------------------------
 !
 
@@ -254,6 +258,10 @@ comment:           near-surface (usually, 2 meter) air temperature, sampled syno
 dimensions:        longitude latitude time1 height2m
 out_name:          tas
 type:              real
+valid_min:         1.8e+02
+valid_max:         3.2e+02
+ok_min_mean_abs:   2.7e+02
+ok_max_mean_abs:   2.8e+02
 !----------------------------------
 !
 
@@ -277,6 +285,10 @@ dimensions:        longitude latitude time
 out_name:          hfls
 type:              real
 positive:          up
+valid_min:         -67
+valid_max:         7.3e+02
+ok_min_mean_abs:   53
+ok_max_mean_abs:   71
 !----------------------------------
 !
 
@@ -300,6 +312,10 @@ dimensions:        longitude latitude time
 out_name:          hfss
 type:              real
 positive:          up
+valid_min:         -2.4e+02
+valid_max:         7.6e+02
+ok_min_mean_abs:   13
+ok_max_mean_abs:   32
 !----------------------------------
 !
 
@@ -323,6 +339,10 @@ dimensions:        longitude latitude time
 out_name:          rlds
 type:              real
 positive:          down
+valid_min:         36
+valid_max:         5.1e+02
+ok_min_mean_abs:   2.8e+02
+ok_max_mean_abs:   3.2e+02
 !----------------------------------
 !
 
@@ -346,6 +366,10 @@ dimensions:        longitude latitude time
 out_name:          rlus
 type:              real
 positive:          up
+valid_min:         51
+valid_max:         6.4e+02
+ok_min_mean_abs:   3.4e+02
+ok_max_mean_abs:   3.7e+02
 !----------------------------------
 !
 
@@ -369,6 +393,10 @@ dimensions:        longitude latitude time
 out_name:          rsds
 type:              real
 positive:          down
+valid_min:         -0.002
+valid_max:         5.1e+02
+ok_min_mean_abs:   1.5e+02
+ok_max_mean_abs:   1.8e+02
 !----------------------------------
 !
 
@@ -392,6 +420,10 @@ dimensions:        longitude latitude time
 out_name:          rsus
 type:              real
 positive:          up
+valid_min:         -0.0057
+valid_max:         4.1e+02
+ok_min_mean_abs:   28
+ok_max_mean_abs:   42
 !----------------------------------
 !
 
@@ -414,6 +446,10 @@ comment:           sampled synoptically.
 dimensions:        longitude latitude time1 height2m
 out_name:          uas
 type:              real
+valid_min:         -18
+valid_max:         18
+ok_min_mean_abs:   1.9
+ok_max_mean_abs:   3.8
 !----------------------------------
 !
 
@@ -436,6 +472,10 @@ comment:           sampled synoptically.
 dimensions:        longitude latitude time1 height2m
 out_name:          vas
 type:              real
+valid_min:         -17
+valid_max:         21
+ok_min_mean_abs:   1.2
+ok_max_mean_abs:   2.5
 !----------------------------------
 !
 
@@ -458,6 +498,10 @@ comment:           near-surface (usually 2 m) specific humidity, sampled synopti
 dimensions:        longitude latitude time1 height2m
 out_name:          huss
 type:              real
+valid_min:         -4.8e-06
+valid_max:         0.029
+ok_min_mean_abs:   0.0067
+ok_max_mean_abs:   0.0085
 !----------------------------------
 !
 
@@ -480,6 +524,10 @@ comment:           Compute the mass of water in all phases in the upper 0.1 mete
 dimensions:        longitude latitude time1
 out_name:          mrsos
 type:              real
+valid_min:         -1.3
+valid_max:         1.3e+02
+ok_min_mean_abs:   -19
+ok_max_mean_abs:   1.1e+02
 !----------------------------------
 !
 
@@ -546,6 +594,10 @@ comment:           at surface.  This is a 3-hour mean convective precipitation f
 dimensions:        longitude latitude time
 out_name:          prc
 type:              real
+valid_min:         -8.1e-10
+valid_max:         0.00057
+ok_min_mean_abs:   1.2e-06
+ok_max_mean_abs:   2.8e-05
 !----------------------------------
 !
 
@@ -568,6 +620,10 @@ comment:           at surface.  Includes all forms of precipitating solid phase 
 dimensions:        longitude latitude time
 out_name:          prsn
 type:              real
+valid_min:         -2.2e-10
+valid_max:         0.00027
+ok_min_mean_abs:   2e-06
+ok_max_mean_abs:   5.6e-06
 !----------------------------------
 !
 
@@ -590,6 +646,10 @@ comment:           compute the total runoff (including ""drainage"" through the 
 dimensions:        longitude latitude time
 out_name:          mrro
 type:              real
+valid_min:         -0.00017
+valid_max:         0.00093
+ok_min_mean_abs:   -3.8e-06
+ok_max_mean_abs:   1.6e-05
 !----------------------------------
 !
 
@@ -613,6 +673,10 @@ dimensions:        longitude latitude time
 out_name:          rldscs
 type:              real
 positive:          down
+valid_min:         37
+valid_max:         5.3e+02
+ok_min_mean_abs:   2.4e+02
+ok_max_mean_abs:   2.9e+02
 !----------------------------------
 !
 
@@ -636,6 +700,10 @@ dimensions:        longitude latitude time
 out_name:          rsdscs
 type:              real
 positive:          down
+valid_min:         -1.5e+30
+valid_max:         5.1e+02
+ok_min_mean_abs:   2.1e+02
+ok_max_mean_abs:   2.3e+02
 !----------------------------------
 !
 
@@ -681,6 +749,10 @@ comment:           sampled synoptically to diagnose atmospheric tides, this is b
 dimensions:        longitude latitude time1
 out_name:          ps
 type:              real
+valid_min:         4.9e+04
+valid_max:         1.1e+05
+ok_min_mean_abs:   9.6e+04
+ok_max_mean_abs:   9.7e+04
 !----------------------------------
 !
 
@@ -703,6 +775,10 @@ comment:           for the whole atmospheric column, as seen from the surface or
 dimensions:        longitude latitude time
 out_name:          clt
 type:              real
+valid_min:         -0.00012
+valid_max:         1e+02
+ok_min_mean_abs:   44
+ok_max_mean_abs:   80
 !----------------------------------
 !
 

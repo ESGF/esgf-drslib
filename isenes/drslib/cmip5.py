@@ -21,7 +21,6 @@ class ProductTranslator(T.GenericComponentTranslator):
     file_i = None
     component = 'product'
     vocab = ['output', 'requested']
-product_t = ProductTranslator()
 
 
 #!TODO: Get official list.  This is based on Karl's spreadsheet and some educated guesses
@@ -114,8 +113,6 @@ class InstituteTranslator(T.GenericComponentTranslator):
         return model_institution_map[model]
 
 
-institute_t = InstituteTranslator()
-
 
 #!TODO: Not official identifiers
 class ModelTranslator(T.GenericComponentTranslator):
@@ -204,7 +201,6 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         'slabcntl', 
         'sresb1',
         ]
-experiment_t = ExperimentTranslator()
 
 class FrequencyTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_FREQUENCY
@@ -232,10 +228,8 @@ class FrequencyTranslator(T.GenericComponentTranslator):
         if (table is None) or (variable is None):
             raise T.TranslationError('Frequency translation requires table and variable to be known')
 
-        return context.table_store.get_variable_attr(table, variable, 'frequency')
+        return context.table_store.get_global_attr(table, 'frequency')
         
-
-frequency_t = FrequencyTranslator()
 
 #!TODO: Get this information from CMIP tables
 class RealmTranslator(T.GenericComponentTranslator):
@@ -282,16 +276,6 @@ class RealmTranslator(T.GenericComponentTranslator):
         return context.table_store.get_variable_attr(table, variable, 'modeling_realm')
 
 
-realm_t = RealmTranslator()
-
-ensemble_t = T.EnsembleTranslator()
-
-
-variable_t = T.CMORVarTranslator()
-
-version_t = T.VersionTranslator()
-
-subset_t = T.SubsetTranslator()
 
 class ExtendedTranslator(T.BaseComponentTranslator):
     """
@@ -308,30 +292,10 @@ class ExtendedTranslator(T.BaseComponentTranslator):
     def filename_to_drs(self, context):
         pass
     
-extended_t = ExtendedTranslator()
 
 
 
 class CMIP5Translator(T.Translator):
-
-    translators = [product_t,
-                   model_t,
-
-                   # Must follow model_t
-                   institute_t,
-
-                   experiment_t,
-                   ensemble_t,
-                   variable_t,
-
-                   # Must be processed after variable
-                   realm_t,
-                   frequency_t,
-
-                   version_t,
-                   subset_t,
-                   extended_t,
-                   ]
 
     def init_drs(self, drs=None):
         if drs is None:
@@ -352,7 +316,41 @@ def get_table_store():
 
 def make_translator(prefix):
     table_store = get_table_store()
-    return CMIP5Translator(prefix, table_store)
+
+    product_t = ProductTranslator(table_store)
+    institute_t = InstituteTranslator(table_store)
+    model_t = ModelTranslator(table_store)
+    experiment_t = ExperimentTranslator(table_store)
+    frequency_t = FrequencyTranslator(table_store)
+    realm_t = RealmTranslator(table_store)
+    version_t = T.VersionTranslator(table_store)
+    variable_t = T.CMORVarTranslator(table_store)
+    ensemble_t = T.EnsembleTranslator(table_store)
+    subset_t = T.SubsetTranslator(table_store)
+    extended_t = ExtendedTranslator(table_store)
+
+    t = CMIP5Translator(prefix, table_store)
+    t.translators = [product_t,
+                   model_t,
+
+                   # Must follow model_t
+                   institute_t,
+
+                   experiment_t,
+                   ensemble_t,
+                   variable_t,
+
+                   # Must be processed after variable
+                   realm_t,
+                   frequency_t,
+
+                   version_t,
+                   subset_t,
+                   extended_t,
+                   ]
+
+
+    return t
 
 
 

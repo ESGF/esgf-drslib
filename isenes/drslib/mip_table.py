@@ -142,6 +142,13 @@ class MIPTable(object):
     @property
     def experiments(self):
         return self._exptdict.keys()
+    
+    @property
+    def frequency(self):
+        try:
+            return self._globals['frequency'][0]
+        except KeyError:
+            raise AttributeError()
 
     def get_variable_attr(self, variable, attr):
         """
@@ -157,11 +164,13 @@ class MIPTable(object):
         try:
             return self._vardict[variable][attr]
         except KeyError:
-            try:
-                return self._globals[attr]
-            except KeyError:
-                raise AttributeError('Attribute %s not in variable or global entry' % attr)
-
+            return self.get_global_attr(attr)
+            
+    def get_global_attr(self, attr):
+        try:
+            return self._globals[attr]
+        except KeyError:
+            raise AttributeError('Attribute %s is not a global entry' % attr)
 
 class MIPTableStore(object):
     """
@@ -210,6 +219,26 @@ class MIPTableStore(object):
 
         return self.tables[table].get_variable_attr(variable, attr)
         
+    def get_global_attr(self, table, attr):
+        """
+        Return global table attribute.
+
+        """
+        v = self.get_global_attr_mv(table, attr)
+        if len(v) != 1:
+            raise ValueError('%s is a multi-valued MIP attribute' % v)
+
+        return v[0]
+
+    def get_global_attr_mv(self, table, attr):
+        """
+        Return the value of a variable's attribute in a given table.
+
+        """
+        if table not in self.tables:
+            raise ValueError('Table %s not found' % table)
+
+        return self.tables[table].get_global_attr(attr)
 
 
     #!FIXME

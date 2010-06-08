@@ -86,6 +86,9 @@ class BaseComponentTranslator(object):
 
     """
 
+    def __init__(self, table_store=None):
+        self.table_store = table_store
+
     def filename_to_drs(self, context):
         """
         Translate the relevant component of the filename to a drs component.

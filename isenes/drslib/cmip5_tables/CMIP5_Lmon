@@ -6,7 +6,7 @@ frequency: mon
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   02 April 2010 ! date this table was constructed
+table_date:   28 May 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,7 +15,7 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact institute_id ! space separated required global attribute 
 
 forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
@@ -90,8 +90,8 @@ long_name:        longitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lon
-valid_min:        0         
-valid_max:        360 
+valid_min:        0.0         
+valid_max:        360.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -113,8 +113,8 @@ long_name:        latitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lat
-valid_min:        -90         
-valid_max:        90 
+valid_min:        -90.0         
+valid_max:        90.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -158,8 +158,8 @@ long_name:        depth
 ! Additional axis information:
 !----------------------------------
 out_name:         depth
-valid_min:        0         
-valid_max:        200 
+valid_min:        0.0         
+valid_max:        200.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -182,7 +182,7 @@ long_name:        depth
 ! Additional axis information:
 !----------------------------------
 out_name:         depth
-valid_min:        0         
+valid_min:        0.0         
 valid_max:        0.2 
 stored_direction: increasing
 type:             double
@@ -230,6 +230,10 @@ comment:           Compute the mass of water in all phases in the upper 0.1 mete
 dimensions:        longitude latitude time sdepth1
 out_name:          mrsos
 type:              real
+valid_min:         -1.3
+valid_max:         1.3e+02
+ok_min_mean_abs:   -19
+ok_max_mean_abs:   1.1e+02
 !----------------------------------
 !
 
@@ -252,13 +256,17 @@ comment:           Compute the mass per unit area  (summed over all soil layers)
 dimensions:        longitude latitude time
 out_name:          mrso
 type:              real
+valid_min:         -44
+valid_max:         5e+03
+ok_min_mean_abs:   -9.4e+02
+ok_max_mean_abs:   2.5e+03
 !----------------------------------
 !
 
 !============
-variable_entry:    mrlso
+variable_entry:    mrfso
 !============
-modeling_realm:    land
+modeling_realm:    land landIce
 !----------------------------------
 ! Variable attributes:
 !----------------------------------
@@ -272,8 +280,12 @@ comment:           Compute the mass (summed over all all layers) of frozen water
 ! Additional variable information:
 !----------------------------------
 dimensions:        longitude latitude time
-out_name:          mrlso
+out_name:          mrfso
 type:              real
+valid_min:         0
+valid_max:         5e+03
+ok_min_mean_abs:   -2.7e+02
+ok_max_mean_abs:   7.9e+02
 !----------------------------------
 !
 
@@ -296,6 +308,10 @@ comment:           Compute the total surface runoff leaving the land portion of 
 dimensions:        longitude latitude time
 out_name:          mrros
 type:              real
+valid_min:         -5.9e-06
+valid_max:         0.00086
+ok_min_mean_abs:   -3.8e-06
+ok_max_mean_abs:   1.1e-05
 !----------------------------------
 !
 
@@ -318,6 +334,10 @@ comment:           "compute the total runoff (including ""drainage"" through the
 dimensions:        longitude latitude time
 out_name:          mrro
 type:              real
+valid_min:         -0.00017
+valid_max:         0.00093
+ok_min_mean_abs:   -3.8e-06
+ok_max_mean_abs:   1.6e-05
 !----------------------------------
 !
 
@@ -1068,7 +1088,7 @@ units:             kg m-2
 cell_methods:      time: mean area: mean where land
 cell_measures:      area: areacella
 long_name:         Carbon Mass in Other Living Compartments on Land
-comment:           e.g., labile, fruits, reserves, _. 
+comment:           e.g., labile, fruits, reserves, etc.
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1149,7 +1169,7 @@ units:             kg m-2
 cell_methods:      time: mean area: mean where land
 cell_measures:      area: areacella
 long_name:         Carbon Mass in Fast Soil Pool
-comment:           fast is meant as lifetime of less than 10 years for  reference climate conditions (20øC, no water limitations).
+comment:           fast is meant as lifetime of less than 10 years for  reference climate conditions (20 C, no water limitations).
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1170,7 +1190,7 @@ units:             kg m-2
 cell_methods:      time: mean area: mean where land
 cell_measures:      area: areacella
 long_name:         Carbon Mass in Medium Soil Pool
-comment:           medium is meant as lifetime of more than than 10 years and less than 100 years for  reference climate conditions (20øC, no water limitations)
+comment:           medium is meant as lifetime of more than than 10 years and less than 100 years for  reference climate conditions (20 C, no water limitations)
 !----------------------------------
 ! Additional variable information:
 !----------------------------------
@@ -1191,7 +1211,7 @@ units:             kg m-2
 cell_methods:      time: mean area: mean where land
 cell_measures:      area: areacella
 long_name:         Carbon Mass in Slow Soil Pool
-comment:           fast is meant as lifetime of more than 100 years for  reference climate conditions (20øC, no water limitations)
+comment:           fast is meant as lifetime of more than 100 years for  reference climate conditions (20 C, no water limitations)
 !----------------------------------
 ! Additional variable information:
 !----------------------------------

@@ -6,7 +6,7 @@ frequency: fx
 cmor_version: 2.0         ! version of CMOR that can read this table
 cf_version:   1.4         ! version of CF that output conforms to
 project_id:   CMIP5  ! project id
-table_date:   02 April 2010 ! date this table was constructed
+table_date:   28 May 2010 ! date this table was constructed
 
 missing_value: 1.e20      ! value used to indicate a missing value
                           !   in arrays output by netCDF as 32-bit IEEE 
@@ -15,7 +15,7 @@ missing_value: 1.e20      ! value used to indicate a missing value
 baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
 product: output
 
-required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact ! space separated required global attribute 
+required_global_attributes: creation_date tracking_id forcing model_id parent_experiment_id branch_time contact institute_id ! space separated required global attribute 
 
 forcings:   N/A Nat Ant GHG SD SI SA TO SO Oz LU Sl Vl SS Ds BC MD OC AA
 
@@ -90,8 +90,8 @@ long_name:        longitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lon
-valid_min:        0         
-valid_max:        360 
+valid_min:        0.0         
+valid_max:        360.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -113,29 +113,8 @@ long_name:        latitude
 ! Additional axis information:
 !----------------------------------
 out_name:         lat
-valid_min:        -90         
-valid_max:        90 
-stored_direction: increasing
-type:             double
-must_have_bounds: yes
-!----------------------------------
-!
-
-
-!============
-axis_entry: time
-!============
-!----------------------------------
-! Axis attributes:
-!----------------------------------
-standard_name:    time
-units:            days since ?
-axis:             T             ! X, Y, Z, T (default: undeclared)
-long_name:        time
-!----------------------------------
-! Additional axis information:
-!----------------------------------
-out_name:         time
+valid_min:        -90.0         
+valid_max:        90.0 
 stored_direction: increasing
 type:             double
 must_have_bounds: yes
@@ -193,86 +172,6 @@ z_factors:        sigma: sigma depth: depth z1: z1 z2: z2 a: a_coeff href: href 
 z_bounds_factors: sigma: sigma_bnds depth: depth z1: z1 z2: z2 a: a href: href k_c: k_c
 !----------------------------------	
 !
-!============
-axis_entry: ocean_sigma_z
-!============
-!
-!------------
-!
-! Axis attributes:
-!----------------------------------	
-standard_name:    ocean_sigma_z
-axis:             Z
-long_name:        ocean sigma over z coordinate
-!----------------------------------	
-!
-! Additional axis information:
-!----------------------------------	
-out_name:         lev
-must_have_bounds: yes
-formula:          for k <= nsigma: z(n,k,j,i) = eta(n,j,i) + sigma(k)*(min(depth_c,depth(j,i))+eta(n,j,i)) ; for k > nsigma: z(n,k,j,i) = zlev(k)
-z_factors:        sigma: sigma eta: eta depth: depth depth_c: depth_c nsigma: nsigma zlev: zlev
-z_bounds_factors: sigma: sigma_bnds eta: eta depth: depth depth_c: depth_c nsigma: nsigma zlev: zlev_bnds
-!----------------------------------	
-!
-!============
-axis_entry: ocean_s
-!============
-!
-!  This coordinate is dimensionless and varies from 0 at the surface to -1. at the ocean floor.
-!  The values of s(k), which appears in the formula below, should be stored as ocean_s.  
-!  Note that in the netCDF file the variable will be named "lev", not ocean_s.
-!
-!------------
-!
-! Axis attributes:
-!----------------------------------	
-standard_name:    ocean_s_coordinate
-axis:             Z
-positive:	  up
-long_name:        ocean s-coordinate
-!----------------------------------	
-!
-! Additional axis information:
-!----------------------------------	
-out_name:         lev
-must_have_bounds: yes
-stored_direction: decreasing
-valid_min:        -1.
-valid_max:        0.
-formula:          z(n,k,j,i) = eta(n,j,i)*(1+s(k)) + depth_c*s(k) + (depth(j,i)-depth_c)*C(k) \n where \n C(k)=(1-b)*sinh(a*s(k))/sinh(a) +\n           b*(tanh(a*(s(k)+0.5))/(2*tanh(0.5*a)) - 0.5)
-z_factors:        s: lev eta: eta depth: depth a: a_coeff b: b_coeff depth_c: depth_c
-z_bounds_factors: s: lev_bnds eta: eta depth: depth a: a b: b depth_c: depth_c
-!----------------------------------	
-!
-!============
-axis_entry: ocean_sigma
-!============
-!
-!  This coordinate is dimensionless and varies from 0 at the surface to -1. at the ocean floor.
-!  The values of sigma(k), which appears in the formula below, should be stored as ocean_sigma.  
-!  Note that in the netCDF file the variable will be named "lev", not ocean_sigma.
-!
-!------------
-!
-! Axis attributes:
-!----------------------------------	
-standard_name:    ocean_sigma_coordinate
-axis:             Z
-positive:	      up
-long_name:        ocean sigma coordinate
-!----------------------------------	
-!
-! Additional axis information:
-!----------------------------------	
-out_name:         lev
-must_have_bounds: yes
-stored_direction: decreasing
-valid_min:        -1.
-valid_max:        0.
-formula:          z(n,k,j,i) = eta(n,j,i) + sigma(k)*(depth(j,i)+eta(n,j,i))
-z_factors:        sigma: lev eta: eta depth: depth
-z_bounds_factors: sigma: lev_bnds eta: eta depth: depth
 !----------------------------------	
 !
 !
@@ -281,23 +180,6 @@ z_bounds_factors: sigma: lev_bnds eta: eta depth: depth
 ! Vertical coordinate formula_terms:
 !
 ! ***************************************************************
-!
-!============
-variable_entry: eta
-!============
-!----------------------------------
-! Variable attributes:
-!----------------------------------
-units:            m
-cell_methods:     time: mean
-long_name:        Sea Surface Height
-!----------------------------------
-! Additional variable information:
-!----------------------------------
-dimensions:      longitude latitude time
-type:      real
-!----------------------------------
-!
 !
 !============
 variable_entry: depth
@@ -543,8 +425,10 @@ long_name:         Atmosphere Grid-Cell Area
 dimensions:        longitude latitude
 out_name:          areacella
 type:              real
-valid_min:         500
-valid_max:         2.50E+05
+valid_min:         100000.0
+valid_max:         1e+12
+ok_min_mean_abs:   100000.0
+ok_max_mean_abs:   1e+12
 !----------------------------------
 !
 
@@ -566,8 +450,10 @@ comment:           height above the geoid; as defined here, ""the geoid"" is a s
 dimensions:        longitude latitude
 out_name:          orog
 type:              real
-valid_min:         -700
-valid_max:         1.00E+04
+valid_min:         -700.0
+valid_max:         10000.0
+ok_min_mean_abs:   3.4e+02
+ok_max_mean_abs:   4.2e+02
 !----------------------------------
 !
 
@@ -588,8 +474,10 @@ long_name:         Land Area Fraction
 dimensions:        longitude latitude
 out_name:          sftlf
 type:              real
-valid_min:         0
-valid_max:         100
+valid_min:         0.0
+valid_max:         100.0
+ok_min_mean_abs:   31
+ok_max_mean_abs:   36
 !----------------------------------
 !
 
@@ -611,8 +499,10 @@ comment:           fraction of grid cell occupied by ""permanent"" ice (i.e., gl
 dimensions:        longitude latitude
 out_name:          sftgif
 type:              real
-valid_min:         0
-valid_max:         100
+valid_min:         0.0
+valid_max:         100.0
+ok_min_mean_abs:   8.1
+ok_max_mean_abs:   14
 !----------------------------------
 !
 
@@ -634,6 +524,10 @@ comment:           """where land"": divide the total water holding capacity of a
 dimensions:        longitude latitude
 out_name:          mrsofc
 type:              real
+valid_min:         -35
+valid_max:         4.3e+03
+ok_min_mean_abs:   -5.2e+02
+ok_max_mean_abs:   1.9e+03
 !----------------------------------
 !
 
@@ -655,8 +549,10 @@ comment:           report the maximum soil depth reachable by plant roots (if de
 dimensions:        longitude latitude
 out_name:          rootd
 type:              real
-valid_min:         0
-valid_max:         30
+valid_min:         0.0
+valid_max:         30.0
+ok_min_mean_abs:   2
+ok_max_mean_abs:   2
 !----------------------------------
 !
 
@@ -678,10 +574,34 @@ comment:           Ocean bathymetry.   Report here the sea floor depth for prese
 dimensions:        longitude latitude
 out_name:          deptho
 type:              real
-valid_min:         0
-valid_max:         10000
-ok_min_mean_abs:   2000
-ok_max_mean_abs:   5000
+valid_min:         0.0
+valid_max:         10000.0
+ok_min_mean_abs:   2000.0
+ok_max_mean_abs:   5000.0
+!----------------------------------
+!
+
+!============
+variable_entry:    volcello
+!============
+modeling_realm:    ocean
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     ocean_volume
+units:             m3
+long_name:         Ocean Grid-Cell Volume
+comment:           3-D field: grid-cell volume ca. 2000.  
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude olevel
+out_name:          volcello
+type:              real
+valid_min:         1000.0
+valid_max:         1e+15
+ok_min_mean_abs:   10000000000.0
+ok_max_mean_abs:   1e+15
 !----------------------------------
 !
 
@@ -701,8 +621,10 @@ long_name:         Ocean Grid-Cell Area
 dimensions:        longitude latitude
 out_name:          areacello
 type:              real
-valid_min:         10
-valid_max:         2.50E+05
+valid_min:         100000.0
+valid_max:         1e+12
+ok_min_mean_abs:   100000.0
+ok_max_mean_abs:   1e+12
 !----------------------------------
 !
 
@@ -724,8 +646,8 @@ comment:           Report on the same grid that ocean fields are reported (i.e.,
 dimensions:        longitude latitude
 out_name:          sftof
 type:              real
-valid_min:         0
-valid_max:         100
+valid_min:         0.0
+valid_max:         100.0
 !----------------------------------
 !
 
@@ -747,8 +669,8 @@ comment:           Report on the same grid as the temperature field.  flag_value
 dimensions:        longitude latitude
 out_name:          basin
 type:              integer
-valid_min:         1
-valid_max:         10
+valid_min:         1.0
+valid_max:         10.0
 !----------------------------------
 !
 
@@ -769,8 +691,8 @@ comment:           Report on the same grid as the ocean flag_values=0,1,2,3,4,5,
 dimensions:        longitude latitude
 out_name:          basinv
 type:              integer
-valid_min:         1
-valid_max:         10
+valid_min:         1.0
+valid_max:         10.0
 !----------------------------------
 !
 

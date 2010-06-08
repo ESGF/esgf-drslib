@@ -8,9 +8,9 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.1.5'
+version = '0.1.6'
 drs_version = '0.24'
-cmor2_version = '2.0rc8b'
+cmor2_version = '2.0rc10'
 
 setup(name='isenes.drslib',
       version=version,
