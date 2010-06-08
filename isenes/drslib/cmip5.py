@@ -126,67 +126,8 @@ class ExperimentTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_EXPERIMENT
     file_i = T.CMIP5_DRS.FILE_EXPERIMENT
     component = 'experiment'
-    vocab = [
-        #!TODO: replace XXXX with decades
-        'decadalXXXX', 
-        'noVolcXXXX',
-        'volcIn2010',
-        'piControl',
-        'historical',
-        'midHolocene',
-        'lgm',
-        'past1000',
-        'rcp45',
-        'rcp85',
-        'rcp26',
-        'rcp60',
-        'esmControl',
-        'esmHistorical',
-        'esmrcp85',
-        'esmFixClim1',
-        'esmFixClim2',
-        'esmFdbk1',
-        'esmFdbk2',
-        'lpctCO2',
-        'abrupt4xCO2',
-
-        'historicalNat',
-        'historicalAnt',
-        'historicalG', 
-        'historicalSD', 
-        'historicalSI', 
-        'historicalSA', 
-        'historicalTO', 
-        'historicalSO',
-        #!FIXME: shouldn't this be capital Z?  check with Karl.
-        'historicalOz', 
-        'historicalLU',
-        #!FIXME: capitalise?
-        'historicalSl', 
-        #!FIXME: capitalise?
-        'historicalVl', 
-        'historicalSS', 
-        #!FIXME: capitalise?
-        'historicalDs', 
-        'historicalBC', 
-        'historicalMD', 
-        'historicalOC', 
-        'historicalAA', 
-
-        'amip',
-        'sst2030',
-        'sst2030',
-        'sstClim',
-        'sstClim4xCO2',
-        'sstCimAerosol',
-        'sstClimSulfate',
-        'amip4xCO2',
-        'amipFuture',
-        'aquaControl',
-        'aqua4xCO2',
-        'aqua4K',
-        'amip4K',
-        
+    #!TODO: replace XXXX with decades
+    vocab = set([    
         # Experiments for CMIP3
         '1pctto2x',  
         '2xco2',
@@ -200,7 +141,15 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         'commit',
         'slabcntl', 
         'sresb1',
-        ]
+        ])
+
+    def __init__(self, table_store):
+        super(ExperimentTranslator, self).__init__(table_store)
+
+        # Get valid experiment ids from MIP tables
+        for table in self.table_store.tables.values():
+            self.vocab.update(table.experiments)
+
 
 class FrequencyTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_FREQUENCY
