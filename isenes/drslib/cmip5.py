@@ -112,6 +112,9 @@ class InstituteTranslator(T.GenericComponentTranslator):
 
         return model_institution_map[model]
 
+    # Allow all institutes
+    def _validate(self, s):
+        return s
 
 
 #!TODO: Not official identifiers
@@ -280,7 +283,7 @@ def get_table_store():
 
     return table_store
 
-def make_translator(prefix):
+def make_translator(prefix, with_version=True):
     table_store = get_table_store()
 
     product_t = ProductTranslator(table_store)
@@ -295,7 +298,7 @@ def make_translator(prefix):
     subset_t = T.SubsetTranslator(table_store)
     extended_t = ExtendedTranslator(table_store)
 
-    t = CMIP5Translator(prefix, table_store)
+    t = CMIP5Translator(prefix, table_store, with_version)
     t.translators = [product_t,
                    model_t,
 
@@ -315,6 +318,8 @@ def make_translator(prefix):
                    extended_t,
                    ]
 
+    if not with_version:
+        t.translators.remove(version_t)
 
     return t
 

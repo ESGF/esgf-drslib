@@ -18,9 +18,9 @@ Definitions
 -----------
 
 DRSTree: A DRS filesystem hierarchy rooted at a given path.  Each DRS
-tree is associated with a set of RealmDirecties.
+tree is associated with a set of RealmTree.
 
-RealmDirectory: A directory containing multiple versions of a
+RealmTree: A directory containing multiple versions of a
 RealmDataset.  A RealmDirectory can be in one of several states:
 
  1. InitialCMOR

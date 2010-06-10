@@ -335,9 +335,10 @@ class Translator(object):
 
     ContextClass = TranslatorContext
 
-    def __init__(self, prefix='', table_store=None):
+    def __init__(self, prefix='', table_store=None, with_version=True):
         self.prefix = prefix
         self.table_store = table_store
+        self.with_version = with_version
 
     def filename_to_drs(self, filename, context=None):
         if context is None:
@@ -376,15 +377,15 @@ class Translator(object):
 
         return context
 
-    def drs_to_filepath(self, drs, with_version=True):
+    def drs_to_filepath(self, drs):
         context = self.drs_to_context(drs)
 
-        return os.path.join(self.prefix, context.to_string(with_version))
+        return os.path.join(self.prefix, context.to_string(self.with_version))
 
-    def drs_to_path(self, drs, with_version=True):
+    def drs_to_path(self, drs):
         context = self.drs_to_context(drs)
         
-        return os.path.join(self.prefix, context.path_to_string(with_version))
+        return os.path.join(self.prefix, context.path_to_string(self.with_version))
 
     def drs_to_file(self, drs):
         context = self.drs_to_context(drs)
