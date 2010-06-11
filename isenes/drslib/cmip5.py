@@ -13,9 +13,6 @@ A translator specific to CMIP5
 import isenes.drslib.translate as T
 import isenes.drslib.config as config
 
-CMIP5_DRS = config.CMIP5_DRS
-
-
 class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
@@ -286,40 +283,41 @@ def get_table_store():
 def make_translator(prefix, with_version=True):
     table_store = get_table_store()
 
-    product_t = ProductTranslator(table_store)
-    institute_t = InstituteTranslator(table_store)
-    model_t = ModelTranslator(table_store)
-    experiment_t = ExperimentTranslator(table_store)
-    frequency_t = FrequencyTranslator(table_store)
-    realm_t = RealmTranslator(table_store)
-    version_t = T.VersionTranslator(table_store)
-    variable_t = T.CMORVarTranslator(table_store)
-    ensemble_t = T.EnsembleTranslator(table_store)
-    subset_t = T.SubsetTranslator(table_store)
-    extended_t = ExtendedTranslator(table_store)
+    t = CMIP5Translator(prefix, table_store)
+    t.translators = [
+        ProductTranslator(table_store),
+        ModelTranslator(table_store),
 
-    t = CMIP5Translator(prefix, table_store, with_version)
-    t.translators = [product_t,
-                   model_t,
+        # Must follow model_t
+        InstituteTranslator(table_store),
+        ExperimentTranslator(table_store),
+        ]
 
-                   # Must follow model_t
-                   institute_t,
+    if with_version:
+        t.translators += [
+            T.VersionedEnsembleTranslator(table_store),
+            T.VersionedVarTranslator(table_store),
+            ]
+    else:
+        t.translators += [
+            T.EnsembleTranslator(table_store),
+            T.CMORVarTranslator(table_store),
+            ]
+        
+    t.translators += [
+        # Must be processed after variable
+        RealmTranslator(table_store),
+        FrequencyTranslator(table_store),
+        ]
 
-                   experiment_t,
-                   ensemble_t,
-                   variable_t,
+    if with_version:
+        t.translators.append(T.VersionTranslator(table_store))
 
-                   # Must be processed after variable
-                   realm_t,
-                   frequency_t,
+    t.translators += [
+        T.SubsetTranslator(table_store),
+        ExtendedTranslator(table_store),
+        ]
 
-                   version_t,
-                   subset_t,
-                   extended_t,
-                   ]
-
-    if not with_version:
-        t.translators.remove(version_t)
 
     return t
 

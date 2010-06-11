@@ -16,7 +16,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from isenes.drslib.drs import DRS
-from isenes.drslib.config import CMIP5_DRS
+from isenes.drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
 
 class TranslationError(Exception):
     pass
@@ -62,11 +62,9 @@ class TranslatorContext(object):
             if v != value:
                 raise TranslationError('Conflicting value of DRS component %s' % drs_component)
 
-    def path_to_string(self, with_version=True):
-        if with_version:
-            parts = self.path_parts
-        else:
-            parts = self.path_parts[:CMIP5_DRS.PATH_VERSION]+self.path_parts[CMIP5_DRS.PATH_VERSION+1:]
+    def path_to_string(self):
+        parts = self.path_parts
+        
         return os.path.join(*parts)
     
     def file_to_string(self):
@@ -78,10 +76,22 @@ class TranslatorContext(object):
 
         return '_'.join(fp)+'.nc'
     
-    def to_string(self, with_version=True):
+    def to_string(self):
         """Returns the full DRS path and filename.
         """
-        return os.path.join(self.path_to_string(with_version), self.file_to_string())
+        self._trim_parts()
+
+        return os.path.join(self.path_to_string(), self.file_to_string())
+
+    def _trim_parts(self):
+        """Remove extranious Nones from path_parts and file_parts.
+        """
+
+        while self.path_parts[-1] is None:
+            self.path_parts.pop()
+
+        while self.file_parts[-1] is None:
+            self.file_parts.pop()
 
 
 class BaseComponentTranslator(object):
@@ -183,9 +193,13 @@ class CMORVarTranslator(BaseComponentTranslator):
 
     """
 
+    file_var_i = CMIP5_CMOR_DRS.FILE_VARIABLE
+    file_table_i = CMIP5_CMOR_DRS.FILE_TABLE
+    path_var_i = CMIP5_CMOR_DRS.PATH_VARIABLE
+
     def filename_to_drs(self, context):
-        varname = context.file_parts[CMIP5_DRS.FILE_VARIABLE]
-        table = context.file_parts[CMIP5_DRS.FILE_TABLE]
+        varname = context.file_parts[self.file_var_i]
+        table = context.file_parts[self.file_table_i]
 
         #!TODO: table checking
 
@@ -194,29 +208,35 @@ class CMORVarTranslator(BaseComponentTranslator):
 
 
     def path_to_drs(self, context):
-        varname = context.file_parts[CMIP5_DRS.FILE_VARIABLE]
+        varname = context.file_parts[self.file_var_i]
         
         #!TODO: table checking
 
         context.set_drs_component('variable', varname)
 
     def drs_to_filepath(self, context):
-        context.file_parts[CMIP5_DRS.FILE_VARIABLE] = context.drs.variable
-        context.file_parts[CMIP5_DRS.FILE_TABLE] = context.drs.table
-        context.path_parts[CMIP5_DRS.PATH_VARIABLE] = context.drs.variable
+        context.file_parts[self.file_var_i] = context.drs.variable
+        context.file_parts[self.file_table_i] = context.drs.table
+        context.path_parts[self.path_var_i] = context.drs.variable
 
 
     #----
 
-
+class VersionedVarTranslator(CMORVarTranslator):
+    file_var_i = CMIP5_DRS.FILE_VARIABLE
+    file_table_i = CMIP5_DRS.FILE_TABLE
+    path_var_i = CMIP5_DRS.PATH_VARIABLE
 
 class EnsembleTranslator(BaseComponentTranslator):
+    file_i = CMIP5_CMOR_DRS.FILE_ENSEMBLE
+    path_i = CMIP5_CMOR_DRS.PATH_ENSEMBLE
+
     def filename_to_drs(self, context):
-        context.drs.ensemble = self._convert(context.file_parts[CMIP5_DRS.FILE_ENSEMBLE])
+        context.drs.ensemble = self._convert(context.file_parts[self.file_i])
 
 
     def path_to_drs(self, context):
-        context.drs.ensemble = self._convert(context.path_parts[CMIP5_DRS.PATH_ENSEMBLE])
+        context.drs.ensemble = self._convert(context.path_parts[self.path_i])
 
 
     def drs_to_filepath(self, context):
@@ -228,8 +248,8 @@ class EnsembleTranslator(BaseComponentTranslator):
             a.append('p%d' % p)
         v = ''.join(a)
         
-        context.file_parts[CMIP5_DRS.FILE_ENSEMBLE] = v
-        context.path_parts[CMIP5_DRS.PATH_ENSEMBLE] = v
+        context.file_parts[self.file_i] = v
+        context.path_parts[self.path_i] = v
 
 
     #----
@@ -241,6 +261,11 @@ class EnsembleTranslator(BaseComponentTranslator):
 
         (r, i, p) = mo.groups()
         return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
+
+class VersionedEnsembleTranslator(EnsembleTranslator):
+    file_i = CMIP5_DRS.FILE_ENSEMBLE
+    path_i = CMIP5_DRS.PATH_ENSEMBLE
+
 
 class VersionTranslator(BaseComponentTranslator):
 
@@ -335,10 +360,9 @@ class Translator(object):
 
     ContextClass = TranslatorContext
 
-    def __init__(self, prefix='', table_store=None, with_version=True):
+    def __init__(self, prefix='', table_store=None):
         self.prefix = prefix
         self.table_store = table_store
-        self.with_version = with_version
 
     def filename_to_drs(self, filename, context=None):
         if context is None:
@@ -380,12 +404,12 @@ class Translator(object):
     def drs_to_filepath(self, drs):
         context = self.drs_to_context(drs)
 
-        return os.path.join(self.prefix, context.to_string(self.with_version))
+        return os.path.join(self.prefix, context.to_string())
 
     def drs_to_path(self, drs):
         context = self.drs_to_context(drs)
         
-        return os.path.join(self.prefix, context.path_to_string(self.with_version))
+        return os.path.join(self.prefix, context.path_to_string())
 
     def drs_to_file(self, drs):
         context = self.drs_to_context(drs)
