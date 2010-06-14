@@ -82,7 +82,7 @@ def subset_range(date1, date2, clim, n):
 def eg1():
     template = DRS(activity='cmip5', product='output', institute='TEST',
                    model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', realm='atmos', table='foo',
+                   frequency='day', realm='atmos', table='day',
                    )
 
     variables = ['tas', 'pr', 'rsus']

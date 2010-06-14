@@ -6,6 +6,7 @@ Classes modelling the DRS directory hierarchy.
 import os
 
 from isenes.drslib.cmip5 import make_translator
+from isenes.drslib.drs import DRS
 
 import logging
 log = logging.getLogger(__name__)
@@ -17,9 +18,8 @@ class RealmTree(object):
     """
 
     STATE_INITIAL = 0
-    STATE_VERSIONED_PREPUB = 1
-    STATE_VERSIONED_PUB = 2
-    STATE_VERSIONED_TRANS = 3
+    STATE_VERSIONED = 1
+    STATE_VERSIONED_TRANS = 2
 
     def __init__(self, drs_root, drs):
         """
@@ -50,6 +50,26 @@ class RealmTree(object):
         self.deduce_state()
 
 
+    @classmethod
+    def from_path(Class, path):
+        """
+        Construct a RealmTree from a realm-level filesystem path.
+
+        """
+        p = os.path.normpath(os.path.abspath(path))
+        p, realm = os.path.split(p)
+        p, frequency = os.path.split(p)
+        p, experiment = os.path.split(p)
+        p, model = os.path.split(p)
+        p, institute = os.path.split(p)
+        p, product = os.path.split(p)
+        drs_root = p
+
+        drs = DRS(realm=realm, frequency=frequency, experiment=experiment,
+                  model=model, institute=institute, product=product)
+
+        return Class(drs_root, drs)
+
     def deduce_state(self):
         """
         Scan the directory structure to work out what state the
@@ -60,9 +80,21 @@ class RealmTree(object):
         self._deduce_versions()
         self._deduce_todo()
 
+        if not self.versions:
+            self.state = self.STATE_INITIAL
+        elif self._todo:
+            self.state = self.STATE_VERSIONED_TRANS
+        else:
+            self.state = self.STATE_VERSIONED
+
+
+    def do_version(self):
+        """
+        Move incoming files into the next version
+
+        """
         #!TODO
-
-
+        raise NotImplementedError
 
     #-------------------------------------------------------------------
     
@@ -72,6 +104,7 @@ class RealmTree(object):
         while True:
             vpath = os.path.join(self.realm_dir, 'v%d' % i)
             if not os.path.exists(vpath):
+                self._next_version = i
                 return v
 
             contents = []
@@ -81,6 +114,8 @@ class RealmTree(object):
                     drs = self._vtrans.filepath_to_drs(filepath)
                     contents.append(drs)
             v['v%d' % i] = contents
+            
+            i += 1
             
     def _deduce_todo(self):
         #!WARNING: Only call after _deduce_versions()
