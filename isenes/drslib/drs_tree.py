@@ -4,12 +4,52 @@ Classes modelling the DRS directory hierarchy.
 """
 
 import os
+from glob import glob
 
 from isenes.drslib.cmip5 import make_translator
-from isenes.drslib.drs import DRS
+from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
 
 import logging
 log = logging.getLogger(__name__)
+
+class DRSTree(object):
+    """
+    Manage a Data Reference Syntax directory structure.
+
+    """
+
+    def __init__(self, drs_root):
+        self.drs_root = drs_root
+        self.realm_trees = []
+        
+        
+    def discover(self, product, institute, model, experiment=None,
+                 frequency=None, realm=None):
+        """
+        Scan the directory structure for RealmTrees.
+
+        This implementation is a compromise between the need to
+        auto-discover RealmTrees and the fact that scanning the entire
+        DRSTree may be infeasible.  You must specify the are of the
+        DRS to scan up to the model level.
+
+        """
+
+        drs = DRS(product=product, institute=institute, model=model,
+                  experiment=experiment, frequency=frequency, realm=realm)
+
+        if not frequency:
+            drs.frequency = '*'
+        if not realm:
+            drs.realm = '*'
+        if not experiment:
+            drs.experiment = '*'
+
+        rt_glob = drs_to_cmorpath(self.drs_root, drs)
+        realm_trees = glob(rt_glob)
+        for rt_path in realm_trees:
+            drs = cmorpath_to_drs(self.drs_root, rt_path)
+            self.realm_trees.append(RealmTree(self.drs_root, drs))
 
 class RealmTree(object):
     """

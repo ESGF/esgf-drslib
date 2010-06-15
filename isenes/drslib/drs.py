@@ -12,7 +12,8 @@ Created on 25 Jan 2010
 
 '''
 
-
+import os
+import itertools
 
 class DRS(object):
     """
@@ -62,3 +63,36 @@ class DRS(object):
         for attr in self._drs_attrs:
             kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
         return '<DRS %s>' % ', '.join(kws)
+
+
+
+#--------------------------------------------------------------------------
+# A more lightweight way of getting the DRS attributes from a path.
+# This is effective for the path part of a DRS path but doesn't verify
+# or parse the filename
+#
+
+def cmorpath_to_drs(drs_root, path, activity=None):
+    nroot = drs_root.rstrip('/') + '/'
+    relpath = os.path.normpath(path[len(nroot):])
+
+    p = relpath.split('/')
+    attrs = ['product', 'institute', 'model', 'experiment',
+             'frequency', 'realm', 'variable'] 
+    drs = DRS(activity=activity)
+    for val, attr in itertools.izip(p, attrs):
+        setattr(drs, attr, val)
+
+    return drs
+        
+def drs_to_cmorpath(drs_root, drs):
+    attrs = ['product', 'institute', 'model', 'experiment',
+             'frequency', 'realm', 'variable'] 
+    path = [drs_root]
+    for attr in attrs:
+        val = getattr(drs, attr)
+        if val is None:
+            break
+        path.append(val)
+
+    return os.path.join(*path)
