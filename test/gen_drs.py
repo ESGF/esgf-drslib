@@ -98,13 +98,40 @@ def eg1():
         
         yield t2
     
-def write_eg1(prefix):
+def eg2():
+    template = DRS(activity='cmip5', product='output', institute='TEST',
+                   model='HadCM3', experiment='1pctto4x', 
+                   frequency='day', table='day',
+                   )
+
+    variables = ['tas', 'pr', 'rsus']
+    realms = ['atmos', 'ocean']
+    N1 = datetime(2000, 1, 1)
+    N2 = datetime(2010, 1, 1)
+    n = 5
+    clim = False
+
+    for t2 in iter_drs_template(template, 
+                                dict(variable=variables, 
+                                     realm=realms,
+                                     ensemble=emember_range(3),
+                                     subset=subset_range(N1, N2, clim, n))):
+        
+        yield t2
+
+def write_eg_file(filepath):
+    fh = open(filepath, 'w')
+    fh.write('I am %s\n' % os.path.basename(filepath))
+    fh.close()
+
+
+def write_eg(prefix, seq):
     """
     Create a test directory tree under prefix.
 
     """
     trans = cmip5.make_translator(prefix, with_version=False)
-    for drs in eg1():
+    for drs in seq:
         path = trans.drs_to_filepath(drs)
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
@@ -112,6 +139,10 @@ def write_eg1(prefix):
             if os.path.exists(path):
                 raise RuntimeError("%s exists" % path)
 
-        fh = open(path,'w')
-        fh.write('I am %s\n' % os.path.basename(path))
-        fh.close()
+        write_eg_file(path)
+
+def write_eg1(prefix):
+    write_eg(prefix, eg1())
+
+def write_eg2(prefix):
+    write_eg(prefix, eg2())

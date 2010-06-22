@@ -12,6 +12,13 @@ from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
 import logging
 log = logging.getLogger(__name__)
 
+#---------------------------------------------------------------------------
+# DRY definitions
+
+VERSIONING_FILES_DIR = 'files'
+
+#---------------------------------------------------------------------------
+
 class DRSTree(object):
     """
     Manage a Data Reference Syntax directory structure.
@@ -56,10 +63,15 @@ class RealmTree(object):
     A directory tree at the Realm level.
 
     """
+    #!TODO: At some point we want to check incoming files to see if they are
+    #       duplicates of already versioned files.
 
     STATE_INITIAL = 0
     STATE_VERSIONED = 1
     STATE_VERSIONED_TRANS = 2
+
+    CMD_MOVE = 0
+    CMD_LINK = 1
 
     def __init__(self, drs_root, drs):
         """
@@ -138,6 +150,48 @@ class RealmTree(object):
 
     #-------------------------------------------------------------------
     
+    def _todo_commands(self):
+        """
+        Yield a sequence of tuples (CMD, SRS, DEST) indicating the
+        files that need to be moved and linked to transfer to next version.
+
+        """
+        v = self._next_version
+        done = set()
+        for filepath, drs in self._todo:
+            filename = os.path.basename(filepath)
+            ensemble = 'r%di%dp%d' % drs.ensemble
+            fdir = '%s_%s_%d' % (drs.variable, ensemble, v)
+            newpath = os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
+                                   fdir, filename)
+
+            yield self.CMD_MOVE, filepath, newpath
+
+            linkpath = os.path.join(self.realm_dir, 'v%d' % v,
+                                    drs.variable, ensemble, 
+                                    filename)
+            yield self.CMD_LINK, newpath, linkpath
+            done.add((drs.frequency, drs.variable, drs.ensemble))
+
+        #!TODO: Handle deleted files!
+
+        # Now scan through previous version to find files to update
+        if v > 1:
+            for filepath, drs in self.versions[v-1]:
+                if (drs.frequency, drs.variable, drs.ensemble) not in done:
+                    #!TODO: ...
+                    yield self.CMD_LINK, filepath, linkpath
+
+
+
+    def _setup_versioning(self):
+        """
+        Do initial configuration of directory tree to support versioning.
+
+        """
+        os.mkdir(os.path.join(realm_dir, VERSIONING_FILES_DIR))
+
+
     def _deduce_versions(self):
         i = 1
         v = self.versions
@@ -150,10 +204,11 @@ class RealmTree(object):
             contents = []
             for dirpath, dirnames, filenames in os.walk(vpath,
                                                         topdown=False):
-                for filepath in (os.path.join(dirpath, f) for f in filenames):
+                for filename in filenames:
+                    filpath = os.path.join(dirpath, filename)
                     drs = self._vtrans.filepath_to_drs(filepath)
-                    contents.append(drs)
-            v['v%d' % i] = contents
+                    contents.append(filename, drs)
+            v[i] = contents
             
             i += 1
             
@@ -169,4 +224,6 @@ class RealmTree(object):
             for dirpath, dirnames, filenames in os.walk(path, topdown=False):
                 for filepath in (os.path.join(dirpath, f) for f in filenames):
                     drs = self._cmortrans.filepath_to_drs(filepath)
-                    todo.append(drs)
+                    todo.append((filepath, drs))
+
+
