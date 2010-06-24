@@ -119,6 +119,86 @@ def eg2():
         
         yield t2
 
+
+def eg3_1():
+    template = DRS(activity='cmip5', product='output', institute='TEST',
+                   model='HadCM3', experiment='1pctto4x', 
+                   frequency='day', realm='atmos', table='day',
+                   )
+
+    variables = ['tas', 'pr']
+    N1 = datetime(2000, 1, 1)
+    N2 = datetime(2010, 1, 1)
+    n = 5
+    clim = False
+
+    for t2 in iter_drs_template(template, 
+                                dict(variable=variables, 
+                                     ensemble=emember_range(3),
+                                     subset=subset_range(N1, N2, clim, n))):
+        
+        yield t2
+
+def eg3_2():
+    template = DRS(activity='cmip5', product='output', institute='TEST',
+                   model='HadCM3', experiment='1pctto4x', 
+                   frequency='day', realm='atmos', table='day',
+                   )
+
+    variables = ['rsus']
+    N1 = datetime(2000, 1, 1)
+    N2 = datetime(2010, 1, 1)
+    n = 5
+    clim = False
+
+    for t2 in iter_drs_template(template, 
+                                dict(variable=variables, 
+                                     ensemble=emember_range(3),
+                                     subset=subset_range(N1, N2, clim, n))):
+        
+        yield t2
+
+
+def eg4_1():
+    template = DRS(activity='cmip5', product='output', institute='TEST',
+                   model='HadCM3', experiment='1pctto4x', 
+                   frequency='day', realm='atmos', table='day',
+                   )
+
+    variables = ['tas']
+    N1 = datetime(2000, 1, 1)
+    N2 = datetime(2006, 1, 1)
+    n = 3
+    clim = False
+
+    for t2 in iter_drs_template(template, 
+                                dict(variable=variables, 
+                                     ensemble=emember_range(3),
+                                     subset=subset_range(N1, N2, clim, n))):
+        
+        yield t2
+
+def eg4_2():
+    template = DRS(activity='cmip5', product='output', institute='TEST',
+                   model='HadCM3', experiment='1pctto4x', 
+                   frequency='day', realm='atmos', table='day',
+                   )
+
+    variables = ['tas']
+    N1 = datetime(2008, 1, 1)
+    N2 = datetime(2010, 1, 1)
+    n = 2
+    clim = False
+
+    for t2 in iter_drs_template(template, 
+                                dict(variable=variables, 
+                                     ensemble=emember_range(3),
+                                     subset=subset_range(N1, N2, clim, n))):
+        
+        yield t2
+
+
+
 def write_eg_file(filepath):
     fh = open(filepath, 'w')
     fh.write('I am %s\n' % os.path.basename(filepath))
@@ -146,3 +226,13 @@ def write_eg1(prefix):
 
 def write_eg2(prefix):
     write_eg(prefix, eg2())
+
+def write_eg3_1(prefix):
+    write_eg(prefix, eg3_1())
+def write_eg3_2(prefix):
+    write_eg(prefix, eg3_2())
+
+def write_eg4_1(prefix):
+    write_eg(prefix, eg4_1())
+def write_eg4_2(prefix):
+    write_eg(prefix, eg4_2())

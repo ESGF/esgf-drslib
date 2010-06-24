@@ -174,15 +174,18 @@ class RealmTree(object):
                                     drs.variable, ensemble, 
                                     filename)
             yield self.CMD_LINK, newpath, linkpath
-            done.add((drs.frequency, drs.variable, drs.ensemble))
+            done.add(filename)
 
         #!TODO: Handle deleted files!
 
         # Now scan through previous version to find files to update
         if v > 1:
             for filepath, drs in self.versions[v-1]:
-                if (drs.frequency, drs.variable, drs.ensemble) not in done:
-                    #!TODO: ...
+                filename = os.path.basename(filepath)
+                if filename not in done:
+                    ensemble = 'r%di%dp%d' % drs.ensemble
+                    linkpath = os.path.join(self.realm_dir, 'v%d' % v,
+                                            drs.variable, ensemble, filename)
                     yield self.CMD_LINK, filepath, linkpath
 
     def _do_commands(self, commands):
@@ -235,7 +238,7 @@ class RealmTree(object):
                 for filename in filenames:
                     filepath = os.path.join(dirpath, filename)
                     drs = self._vtrans.filepath_to_drs(filepath)
-                    contents.append((filename, drs))
+                    contents.append((filepath, drs))
             v[i] = contents
             
             i += 1

@@ -1,6 +1,7 @@
 
 import tempfile
 import shutil
+import os
 
 from unittest import TestCase
 
@@ -67,7 +68,107 @@ class TestEg2(TestEg):
         assert len(dt.realm_trees) == 2
         assert set([x.drs.realm for x in dt.realm_trees]) == set(['atmos', 'ocean'])
 
+#!TODO: latest
 
+#
+# Test Moving from one version to another, adding a variable
+#
+class TestEg3(TestEg):
+    __test__ = True
+
+    def _cmor1(self):
+        gen_drs.write_eg3_1(self.tmpdir)
+        dt = DRSTree(self.tmpdir)
+        dt.discover(product='output', institute='TEST', model='HadCM3')
+
+        (self.rt, ) = dt.realm_trees
+
+    def _cmor2(self):
+        gen_drs.write_eg3_2(self.tmpdir)
+        self.rt.deduce_state()
+
+        
+    def _exists(self, x):
+        return os.path.exists(os.path.join(self.rt.realm_dir, x))
+    def _listdir(self, x):
+        return os.listdir(os.path.join(self.rt.realm_dir, x))
+
+
+
+    def test_1(self):
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+        self.rt.do_version()
+
+        assert self._exists('files')
+        assert self._exists('files/rsus_r1i1p1_2')
+        assert not self._exists('files/rsus_r1i1p1_1')
+
+        assert self._exists('v1/tas')
+        assert self._exists('v1/pr')
+        assert not self._exists('v1/rsus')
+        assert self._exists('v2/rsus')
+
+    def test_2(self):
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+        self.rt.do_version()
+
+        assert self._exists('v2/pr/r1i1p1/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc')
+
+    def test_3(self):
+        self._cmor1()
+        assert self.rt.state == self.rt.STATE_INITIAL
+        self.rt.do_version()
+        assert self.rt.state == self.rt.STATE_VERSIONED
+        self._cmor2()
+        assert self.rt.state == self.rt.STATE_VERSIONED_TRANS
+        self.rt.do_version()
+        assert self.rt.state == self.rt.STATE_VERSIONED
+        
+#
+# Test Moving from one version to another, updating a variable
+#
+class TestEg4(TestEg3):
+    __test__ = True
+
+    def _cmor1(self):
+        gen_drs.write_eg4_1(self.tmpdir)
+        dt = DRSTree(self.tmpdir)
+        dt.discover(product='output', institute='TEST', model='HadCM3')
+
+        (self.rt, ) = dt.realm_trees
+
+    def _cmor2(self):
+        gen_drs.write_eg4_2(self.tmpdir)
+        self.rt.deduce_state()
+
+    def test_1(self):
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+        self.rt.do_version()
+
+        assert self._exists('files')
+        assert self._exists('files/tas_r1i1p1_2')
+        assert self._exists('v1/tas')
+
+
+    def test_2(self):
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+        self.rt.do_version()
+
+        assert len(self._listdir('files/tas_r1i1p1_1')) == 3
+        assert len(self._listdir('files/tas_r1i1p1_2')) == 2
+        assert len(self._listdir('v1/tas/r1i1p1')) == 3
+        assert len(self._listdir('v2/tas/r1i1p1')) == 5
+
+    # Do test_3 from superclass
+        
 
 def test_1():
     drs = cmorpath_to_drs('/cmip5', '/cmip5/output')
