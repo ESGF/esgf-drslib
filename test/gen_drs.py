@@ -79,124 +79,34 @@ def subset_range(date1, date2, clim, n):
         N2 = (dt2.year, dt2.month, dt2.day, dt2.hour)
         yield (N1, N2, clim)
 
-def eg1():
+
+def make_eg(N1_y=2000, N2_y=2010, n=5, **iter_template):
     template = DRS(activity='cmip5', product='output', institute='TEST',
                    model='HadCM3', experiment='1pctto4x', 
                    frequency='day', realm='atmos', table='day',
                    )
-
-    variables = ['tas', 'pr', 'rsus']
-    N1 = datetime(2000, 1, 1)
-    N2 = datetime(2010, 1, 1)
-    n = 5
     clim = False
+    N1 = datetime(N1_y, 1, 1)
+    N2 = datetime(N2_y, 1, 1)
+    d = dict(ensemble=emember_range(3), subset=subset_range(N1, N2, clim, n))
+    d.update(iter_template)
 
-    for t2 in iter_drs_template(template, 
-                                dict(variable=variables, 
-                                     ensemble=emember_range(3),
-                                     subset=subset_range(N1, N2, clim, n))):
-        
-        yield t2
-    
+    return iter_drs_template(template, d)
+
+def eg1():
+    return make_eg(variable=['tas', 'pr', 'rsus'])
 def eg2():
-    template = DRS(activity='cmip5', product='output', institute='TEST',
-                   model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', table='day',
-                   )
-
-    variables = ['tas', 'pr', 'rsus']
-    realms = ['atmos', 'ocean']
-    N1 = datetime(2000, 1, 1)
-    N2 = datetime(2010, 1, 1)
-    n = 5
-    clim = False
-
-    for t2 in iter_drs_template(template, 
-                                dict(variable=variables, 
-                                     realm=realms,
-                                     ensemble=emember_range(3),
-                                     subset=subset_range(N1, N2, clim, n))):
-        
-        yield t2
-
+    return make_eg(variable=['tas', 'pr', 'rsus'], realm=['atmos', 'ocean'])
 
 def eg3_1():
-    template = DRS(activity='cmip5', product='output', institute='TEST',
-                   model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', realm='atmos', table='day',
-                   )
-
-    variables = ['tas', 'pr']
-    N1 = datetime(2000, 1, 1)
-    N2 = datetime(2010, 1, 1)
-    n = 5
-    clim = False
-
-    for t2 in iter_drs_template(template, 
-                                dict(variable=variables, 
-                                     ensemble=emember_range(3),
-                                     subset=subset_range(N1, N2, clim, n))):
-        
-        yield t2
-
+    return make_eg(variable=['tas', 'pr'])
 def eg3_2():
-    template = DRS(activity='cmip5', product='output', institute='TEST',
-                   model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', realm='atmos', table='day',
-                   )
-
-    variables = ['rsus']
-    N1 = datetime(2000, 1, 1)
-    N2 = datetime(2010, 1, 1)
-    n = 5
-    clim = False
-
-    for t2 in iter_drs_template(template, 
-                                dict(variable=variables, 
-                                     ensemble=emember_range(3),
-                                     subset=subset_range(N1, N2, clim, n))):
-        
-        yield t2
-
+    return make_eg(variable=['rsus'])
 
 def eg4_1():
-    template = DRS(activity='cmip5', product='output', institute='TEST',
-                   model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', realm='atmos', table='day',
-                   )
-
-    variables = ['tas']
-    N1 = datetime(2000, 1, 1)
-    N2 = datetime(2006, 1, 1)
-    n = 3
-    clim = False
-
-    for t2 in iter_drs_template(template, 
-                                dict(variable=variables, 
-                                     ensemble=emember_range(3),
-                                     subset=subset_range(N1, N2, clim, n))):
-        
-        yield t2
-
+    return make_eg(2000, 2006, 3, variable=['tas'])
 def eg4_2():
-    template = DRS(activity='cmip5', product='output', institute='TEST',
-                   model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', realm='atmos', table='day',
-                   )
-
-    variables = ['tas']
-    N1 = datetime(2008, 1, 1)
-    N2 = datetime(2010, 1, 1)
-    n = 2
-    clim = False
-
-    for t2 in iter_drs_template(template, 
-                                dict(variable=variables, 
-                                     ensemble=emember_range(3),
-                                     subset=subset_range(N1, N2, clim, n))):
-        
-        yield t2
-
+    return make_eg(2008, 2006, 2, variable=['tas'])
 
 
 def write_eg_file(filepath):
