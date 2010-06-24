@@ -40,6 +40,18 @@ class TestEg1(TestEg):
         assert len(dt.realm_trees) == 1
         assert dt.realm_trees[0].drs.realm == 'atmos'
 
+    def test_3(self):
+        dt = DRSTree(self.tmpdir)
+        dt.discover(product='output', institute='TEST', model='HadCM3')
+        
+        rt = dt.realm_trees[0]
+        assert rt.state == rt.STATE_INITIAL
+
+        rt.do_version()
+        assert rt.state == rt.STATE_VERSIONED
+        assert len(rt.versions.keys()) == 1
+        assert 1 in rt.versions.keys()
+
 class TestEg2(TestEg):
     __test__ = True
 
@@ -54,7 +66,6 @@ class TestEg2(TestEg):
 
         assert len(dt.realm_trees) == 2
         assert set([x.drs.realm for x in dt.realm_trees]) == set(['atmos', 'ocean'])
-
 
 
 

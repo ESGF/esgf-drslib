@@ -12,10 +12,17 @@ Central configuration module
 
 import os
 
+import metaconfig
+config = metaconfig.get_config('isenes.drslib')
+
 if 'MIP_TABLE_PATH' in os.environ:
     table_path = os.environ['MIP_TABLE_PATH']
 else:
-    table_path = os.path.join(os.path.dirname(__file__), 'cmip5_tables')
+    try:
+        table_path = config.get('tables', 'path')
+    except:
+        raise Exception("Please configure your MIP table path using MIP_TABLE_PATH or a config file")
+
 
 #
 # CMIP3 component to file/path position mapping

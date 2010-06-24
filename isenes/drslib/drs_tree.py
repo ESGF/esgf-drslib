@@ -3,8 +3,9 @@ Classes modelling the DRS directory hierarchy.
 
 """
 
-import os
+import os, shutil
 from glob import glob
+import re
 
 from isenes.drslib.cmip5 import make_translator
 from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
@@ -100,7 +101,7 @@ class RealmTree(object):
             raise RuntimeError('Realm directory %s does not exist' % self.realm_dir)
 
         self.deduce_state()
-
+        self._setup_versioning()
 
     @classmethod
     def from_path(Class, path):
@@ -145,8 +146,10 @@ class RealmTree(object):
         Move incoming files into the next version
 
         """
-        #!TODO
-        raise NotImplementedError
+        log.info('Transfering %s to version %d' % (self.realm_dir, self._next_version))
+        self._do_commands(self._todo_commands())
+        self.deduce_state()
+        
 
     #-------------------------------------------------------------------
     
@@ -182,14 +185,39 @@ class RealmTree(object):
                     #!TODO: ...
                     yield self.CMD_LINK, filepath, linkpath
 
+    def _do_commands(self, commands):
+        for cmd, src, dest in commands:
+            if cmd == self.CMD_MOVE:
+                self._do_mv(src, dest)
+            elif cmd == self.CMD_LINK:
+                self._do_link(src, dest)
+            
 
+    def _do_mv(self, src, dest):
+        dir = os.path.dirname(dest)
+        if not os.path.exists(dir):
+            log.info('Creating %s' % dir)
+            os.makedirs(dir)
+        log.info('Moving %s %s' % (src, dest))
+        shutil.move(src, dest)
+
+    def _do_link(self, src, dest):
+        dir = os.path.dirname(dest)
+        if not os.path.exists(dir):
+            log.info('Creating %s' % dir)
+            os.makedirs(dir)
+        log.info('Linking %s %s' % (src, dest))
+        os.symlink(src, dest)
 
     def _setup_versioning(self):
         """
         Do initial configuration of directory tree to support versioning.
 
         """
-        os.mkdir(os.path.join(realm_dir, VERSIONING_FILES_DIR))
+        path = os.path.join(self.realm_dir, VERSIONING_FILES_DIR)
+        if not os.path.exists(path):
+            log.info('Initialising %s for versioning.' % self.realm_dir)
+            os.mkdir(path)
 
 
     def _deduce_versions(self):
@@ -205,19 +233,20 @@ class RealmTree(object):
             for dirpath, dirnames, filenames in os.walk(vpath,
                                                         topdown=False):
                 for filename in filenames:
-                    filpath = os.path.join(dirpath, filename)
+                    filepath = os.path.join(dirpath, filename)
                     drs = self._vtrans.filepath_to_drs(filepath)
-                    contents.append(filename, drs)
+                    contents.append((filename, drs))
             v[i] = contents
             
             i += 1
             
     def _deduce_todo(self):
         #!WARNING: Only call after _deduce_versions()
-        todo = self._todo
+        todo = self._todo = []
         
         for dir in os.listdir(self.realm_dir):
-            if dir in self.versions:
+            pat = r'%s|v\d+' % VERSIONING_FILES_DIR
+            if re.match(pat, dir):
                 continue
 
             path = os.path.join(self.realm_dir, dir)
