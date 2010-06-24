@@ -2,6 +2,7 @@
 import tempfile
 import shutil
 import os
+from glob import glob
 
 from unittest import TestCase
 
@@ -92,7 +93,9 @@ class TestEg3(TestEg):
         return os.path.exists(os.path.join(self.rt.realm_dir, x))
     def _listdir(self, x):
         return os.listdir(os.path.join(self.rt.realm_dir, x))
-
+    def _listlinks(self, x):
+        links = glob('%s/*' % os.path.join(self.rt.realm_dir, x))
+        return [os.readlink(lnk) for lnk in links if os.path.islink(lnk)]
 
 
     def test_1(self):
@@ -127,7 +130,33 @@ class TestEg3(TestEg):
         assert self.rt.state == self.rt.STATE_VERSIONED_TRANS
         self.rt.do_version()
         assert self.rt.state == self.rt.STATE_VERSIONED
-        
+    
+
+    def test_4(self):
+        # Check all links are to the "files" branch
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+        self.rt.do_version()
+
+        links = self._listlinks('v2/tas/r1i1p1')
+        for link in links:
+            assert '/files/' in link
+
+    def test_5(self):
+        self._cmor1()
+        self.rt.do_version()
+
+        latest = os.readlink(os.path.join(self.rt.realm_dir, 'latest'))
+        assert latest[-2:] == 'v1'
+
+        self._cmor2()
+        self.rt.do_version()
+
+        latest = os.readlink(os.path.join(self.rt.realm_dir, 'latest'))
+        assert latest[-2:] == 'v2'
+
+
 #
 # Test Moving from one version to another, updating a variable
 #
@@ -169,6 +198,41 @@ class TestEg4(TestEg3):
 
     # Do test_3 from superclass
         
+    # Do test_4 from superclass
+
+
+class TestEg5(TestEg4):
+    __test__ = True
+
+    def _cmor1(self):
+        gen_drs.write_eg5_1(self.tmpdir)
+        dt = DRSTree(self.tmpdir)
+        dt.discover(product='output', institute='TEST', model='HadCM3')
+
+        (self.rt, ) = dt.realm_trees
+
+    def _cmor2(self):
+        gen_drs.write_eg5_2(self.tmpdir)
+        self.rt.deduce_state()
+
+    # Do test1 from superclass
+
+    def test_2(self):
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+        self.rt.do_version()
+
+        assert len(self._listdir('files/tas_r1i1p1_1')) == 5
+        assert len(self._listdir('files/tas_r1i1p1_2')) == 2
+        assert len(self._listdir('v1/tas/r1i1p1')) == 5
+        assert len(self._listdir('v2/tas/r1i1p1')) == 5
+
+    # Do test_3 from superclass
+        
+    # Do test_4 from superclass
+
+
 
 def test_1():
     drs = cmorpath_to_drs('/cmip5', '/cmip5/output')

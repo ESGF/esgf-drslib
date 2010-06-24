@@ -80,34 +80,46 @@ def subset_range(date1, date2, clim, n):
         yield (N1, N2, clim)
 
 
-def make_eg(N1_y=2000, N2_y=2010, n=5, **iter_template):
+def make_eg(**iter_template):
     template = DRS(activity='cmip5', product='output', institute='TEST',
                    model='HadCM3', experiment='1pctto4x', 
                    frequency='day', realm='atmos', table='day',
                    )
-    clim = False
-    N1 = datetime(N1_y, 1, 1)
-    N2 = datetime(N2_y, 1, 1)
-    d = dict(ensemble=emember_range(3), subset=subset_range(N1, N2, clim, n))
+    d = dict(ensemble=emember_range(1), subset=make_subset())
     d.update(iter_template)
 
     return iter_drs_template(template, d)
 
+def make_subset(y1=2000, y2=2010, n=5):
+    clim = False
+    N1 = datetime(y1, 1, 1)
+    N2 = datetime(y2, 1, 1)
+    
+    return list(subset_range(N1, N2, clim, n))
+
+# New realm added
 def eg1():
-    return make_eg(variable=['tas', 'pr', 'rsus'])
+    return make_eg(variable=['tas', 'pr', 'rsus'], ensemble=emember_range(3))
 def eg2():
     return make_eg(variable=['tas', 'pr', 'rsus'], realm=['atmos', 'ocean'])
 
+# New variable added to realm
 def eg3_1():
     return make_eg(variable=['tas', 'pr'])
 def eg3_2():
     return make_eg(variable=['rsus'])
 
+# New files added to variable
 def eg4_1():
-    return make_eg(2000, 2006, 3, variable=['tas'])
+    return make_eg(variable=['tas'], subset=make_subset()[:3])
 def eg4_2():
-    return make_eg(2008, 2006, 2, variable=['tas'])
+    return make_eg(variable=['tas'], subset=make_subset()[3:])
 
+# Files replaced in variable
+def eg5_1():
+    return make_eg(variable=['tas'])
+def eg5_2():
+    return make_eg(variable=['tas'], subset=make_subset()[:2])
 
 def write_eg_file(filepath):
     fh = open(filepath, 'w')
@@ -146,3 +158,8 @@ def write_eg4_1(prefix):
     write_eg(prefix, eg4_1())
 def write_eg4_2(prefix):
     write_eg(prefix, eg4_2())
+
+def write_eg5_1(prefix):
+    write_eg(prefix, eg5_1())
+def write_eg5_2(prefix):
+    write_eg(prefix, eg5_2())

@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 # DRY definitions
 
 VERSIONING_FILES_DIR = 'files'
+VERSIONING_LATEST_DIR = 'latest'
 
 #---------------------------------------------------------------------------
 
@@ -149,10 +150,20 @@ class RealmTree(object):
         log.info('Transfering %s to version %d' % (self.realm_dir, self._next_version))
         self._do_commands(self._todo_commands())
         self.deduce_state()
-        
+        self._do_latest()
 
     #-------------------------------------------------------------------
     
+    def _do_latest(self):
+        version = max(self.versions.keys())
+        latest_dir = 'v%d' % version
+        log.info('Setting latest to %s' % latest_dir)
+        latest_lnk = os.path.join(self.realm_dir, VERSIONING_LATEST_DIR)
+
+        if os.path.exists(latest_lnk):
+            os.remove(latest_lnk)
+        os.symlink(latest_dir, latest_lnk)
+
     def _todo_commands(self):
         """
         Yield a sequence of tuples (CMD, SRS, DEST) indicating the
@@ -184,9 +195,12 @@ class RealmTree(object):
                 filename = os.path.basename(filepath)
                 if filename not in done:
                     ensemble = 'r%di%dp%d' % drs.ensemble
+                    fdir = '%s_%s_%d' % (drs.variable, ensemble, v-1)
                     linkpath = os.path.join(self.realm_dir, 'v%d' % v,
                                             drs.variable, ensemble, filename)
-                    yield self.CMD_LINK, filepath, linkpath
+                    pfilepath = os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
+                                             fdir, filename)
+                    yield self.CMD_LINK, pfilepath, linkpath
 
     def _do_commands(self, commands):
         for cmd, src, dest in commands:
@@ -248,7 +262,7 @@ class RealmTree(object):
         todo = self._todo = []
         
         for dir in os.listdir(self.realm_dir):
-            pat = r'%s|v\d+' % VERSIONING_FILES_DIR
+            pat = r'%s|%s|v\d+' % (VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR)
             if re.match(pat, dir):
                 continue
 
