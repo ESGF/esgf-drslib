@@ -87,3 +87,11 @@ def test_7():
     path = translator_noversion.drs_to_filepath(drs)
 
     assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+
+def test_8():
+    # Test files created from the cmor test suite (2010-06-25)
+    # This list has been adapted from the result of running "make test"
+    # in cmor.  Numeric prefixes to the "hfls" variable name have been removed.
+    fh = open(os.path.join(os.path.dirname(__file__), 'cmor_test_ls'))
+    for filename in fh:
+        yield roundtrip_filename, filename.strip()

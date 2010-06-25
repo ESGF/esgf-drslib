@@ -82,6 +82,9 @@ model_institution_map = {
         'HADCM3': 'UKMO',
         'HADGEM1': 'UKMO',
         'ECHAM4': 'INGV',
+
+        # Models from CMOR test suite
+        'GICCM1': 'TEST',
 }
 
 #!TODO: Get full list.  This is based on CMIP3
@@ -120,6 +123,7 @@ class ModelTranslator(T.GenericComponentTranslator):
     file_i = T.CMIP5_DRS.FILE_MODEL
     component = 'model'
     vocab = model_institution_map.keys()
+
 model_t = ModelTranslator()
 
 class ExperimentTranslator(T.GenericComponentTranslator):
