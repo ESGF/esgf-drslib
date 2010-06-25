@@ -9,6 +9,7 @@ import re
 
 from isenes.drslib.cmip5 import make_translator
 from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
+from isenes.drslib import config
 
 import logging
 log = logging.getLogger(__name__)
@@ -32,7 +33,8 @@ class DRSTree(object):
         self.realm_trees = []
         
         
-    def discover(self, product, institute, model, experiment=None,
+    def discover(self, product=None, institute=None, model=None, 
+                 experiment=None,
                  frequency=None, realm=None):
         """
         Scan the directory structure for RealmTrees.
@@ -47,6 +49,18 @@ class DRSTree(object):
         drs = DRS(product=product, institute=institute, model=model,
                   experiment=experiment, frequency=frequency, realm=realm)
 
+        # Grab options from the config
+        if not product:
+            product = config.drs_defaults.get('product')
+        if not institute:
+            institute = config.drs_defaults.get('institute')
+        if not model:
+            model = config.drs_defaults.get('model')
+
+        if product is None or institute is None or model is None:
+            raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
+
+        # If these options are not specified they default to wildcards
         if not frequency:
             drs.frequency = '*'
         if not realm:
@@ -58,6 +72,7 @@ class DRSTree(object):
         realm_trees = glob(rt_glob)
         for rt_path in realm_trees:
             drs = cmorpath_to_drs(self.drs_root, rt_path)
+            log.info('Discovered realm-tree at %s' % rt_path)
             self.realm_trees.append(RealmTree(self.drs_root, drs))
 
 class RealmTree(object):
@@ -68,9 +83,9 @@ class RealmTree(object):
     #!TODO: At some point we want to check incoming files to see if they are
     #       duplicates of already versioned files.
 
-    STATE_INITIAL = 0
-    STATE_VERSIONED = 1
-    STATE_VERSIONED_TRANS = 2
+    STATE_INITIAL = 'INITIAL'
+    STATE_VERSIONED = 'VERSIONED'
+    STATE_VERSIONED_TRANS = 'VERSIONED_TRANS'
 
     CMD_MOVE = 0
     CMD_LINK = 1

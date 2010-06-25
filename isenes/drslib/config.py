@@ -23,6 +23,10 @@ else:
     except:
         raise Exception("Please configure your MIP table path using MIP_TABLE_PATH or a config file")
 
+if config.has_section('drs'):
+    drs_defaults = dict(config.items('drs'))
+else:
+    drs_defaults = {}
 
 #
 # CMIP3 component to file/path position mapping

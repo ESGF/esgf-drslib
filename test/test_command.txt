@@ -1,0 +1,38 @@
+Test the command line client for dataset version managment.
+
+
+Something like
+
+# Show list of realm-trees with a status summary
+$ drs-tree list --root=<drs-root> --product=p --institute=i --model=m ...
+
+Defaults are taken from the config.
+
+# Show detailed status
+$ drs-tree status --root=<drs-root> ...
+
+# Move to next version
+$ drs-tree next ...
+
+Imports for this test.
+
+>>> import tempfile
+>>> from isenes.drslib.drs_command import main
+>>> from test import gen_drs
+
+Create a directory and build a drs-tree in it
+
+>>> tmpdir = tempfile.mkdtemp(prefix='isenes_drslib')
+>>> gen_drs.write_eg2(tmpdir)
+
+List the realm-trees
+
+>>> cmd = "drs_tree list --root=%s --product=output --institute=TEST --model=HadCM3" % tmpdir
+>>> main(cmd.split()) # doctest:+ELLIPSIS
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+.../output/TEST/HadCM3/1pctto4x/day/ocean  INITIAL
+.../output/TEST/HadCM3/1pctto4x/day/atmos  INITIAL
+------------------------------------------------------------------------------
+
