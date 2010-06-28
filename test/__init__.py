@@ -42,7 +42,7 @@ def test_2():
     
     path = translator.drs_to_filepath(drs)
 
-    assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/v2/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/v2/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
 
 
 
@@ -69,7 +69,7 @@ def test_4():
 
 def test_5():
     # Regression test for a bug
-    print translator.path_to_drs('cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/v3/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+    print translator.path_to_drs('cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/v3/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
 
 def test_6():
     # Bug reported by Ag
@@ -86,7 +86,7 @@ def test_7():
     
     path = translator_noversion.drs_to_filepath(drs)
 
-    assert path=='cmip5/output/UKMO/HadCM3/historicalNat/mon/atmos/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
 
 def test_8():
     # Test files created from the cmor test suite (2010-06-25)

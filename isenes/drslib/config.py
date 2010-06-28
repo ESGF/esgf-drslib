@@ -28,6 +28,13 @@ if config.has_section('drs'):
 else:
     drs_defaults = {}
 
+
+try:
+    model_table = config.get('tables', 'model_table')
+except:
+    model_table = os.path.join(os.path.dirname(__file__), 'data', 
+                               'CMIP5_models.csv')
+
 #
 # CMIP3 component to file/path position mapping
 #

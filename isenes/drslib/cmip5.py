@@ -11,7 +11,8 @@ A translator specific to CMIP5
 """
 
 import isenes.drslib.translate as T
-import isenes.drslib.config as config
+from isenes.drslib import config
+from isenes.drslib.mip_table import read_model_table
 
 class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
@@ -21,78 +22,52 @@ class ProductTranslator(T.GenericComponentTranslator):
 
 
 #!TODO: Get official list.  This is based on Karl's spreadsheet and some educated guesses
-model_institution_map = {
-        'NorESM': 'NorClim', 
-        'MRI-CGCM3': 'MRI', 
-        'MRI-ESM1': 'MRI', 
-        'MRI-AM20km': 'MRI',
-        'MRI-AM60km': 'MRI', 
-        'MIROC4-2-M': 'NIES', 
-        'MIROC4-2-H': 'NIES', 
-        'MIROC3-2-M': 'NIES',
-        'MIROC-ESM': 'NIES', 
-        'IPSL-CM6': 'IPSL', 
-        'IPSL-CM5': 'IPSL', 
-        'INMCM4': 'INM',
-        'HiGEM1-2': 'NERC-UKMO', 
-        'HadGEM2-ES': 'UKMO', 
-        'HadGEM2-AO': 'NIMR', 
-        'HadCM3Q': 'UKMO',
-        'HadCM3': 'UKMO', 
-        'GFDL-HIRAM': 'GFDL',
-        'GFDL-ESM2G': 'GFDL', 
-        'GFDL-ESM2M': 'GFDL',
-        'GFDL-CM3': 'GFDL', 
-        'GFDL-CM2-1': 'GFDL', 
-        'FGOALS-S2': 'LASG', 
-        'FGOALS-G2': 'LASG',
-        'FGOALS-gl': 'LASG', 
-        'ECHAM5-MPIOM': 'MPI-M', 
-        'CSIRO-Mk3-5A': 'CSIRO', 
-        'CCSM4-H': 'NCAR',
-        'CCSM4-M': 'NCAR', 
-        'CNRM-CM5': 'CNRM', 
-        'CanESM2': 'CCCMA', 
-        'ACCESS': 'CAWCR', 
-        'BCC-CSM': 'BCCR',
-        
-        # Models used in CMIP3
-        'BCC-CM1': 'CMA',
-        'BCM2': 'BCCR',
-        'CGCM3-1-T47': 'CCCMA',
-        'CGCM3-1-T63': 'CCCMA',
-        'CM3': 'CNRM',
-        'ECHO-G': 'MIUB-KMA',
-        'MK3': 'CSIRO',
-        'MK3-5': 'CSIRO',
-        'CM2': 'GFDL',
-        'CM2-1': 'GFDL',
-        'CM3': 'INM',
-        'CM4': 'IPSL',
-        'FGOALS-G1-0': 'LASG',
-        'ECHAM5': 'MPIM',
-        'CGCM2-3-2': 'MRI',
-        'GISS-AOM': 'NASA',
-        'GISS-EH': 'NASA',
-        'GISS-ER': 'NASA',
-        'CCSM3': 'NCAR',
-        'PCM': 'NCAR',
-        'MIROC3-2-HI': 'NIES',
-        'MIROC3-2-MED': 'NIES',
-        'HADCM3': 'UKMO',
-        'HADGEM1': 'UKMO',
-        'ECHAM4': 'INGV',
 
-        # Models from CMOR test suite
-        'GICCM1': 'TEST',
+# CCSR, CNRM, CSIRO, GFDL, INM, IPSL, LASG, MOHC, MPI-M, MRI, NCAR, NCC, NIMR
+
+
+
+model_institute_map = read_model_table(config.model_table)        
+cmip3_models = {
+    'BCC-CM1': 'CMA',
+    'BCM2': 'BCCR',
+    'CGCM3-1-T47': 'CCCMA',
+    'CGCM3-1-T63': 'CCCMA',
+    'CM3': 'CNRM',
+    'ECHO-G': 'MIUB-KMA',
+    'MK3': 'CSIRO',
+    'MK3-5': 'CSIRO',
+    'CM2': 'GFDL',
+    'CM2-1': 'GFDL',
+    'CM3': 'INM',
+    'CM4': 'IPSL',
+    'FGOALS-G1-0': 'LASG',
+    'ECHAM5': 'MPIM',
+    'CGCM2-3-2': 'MRI',
+    'GISS-AOM': 'NASA',
+    'GISS-EH': 'NASA',
+    'GISS-ER': 'NASA',
+    'CCSM3': 'NCAR',
+    'PCM': 'NCAR',
+    'MIROC3-2-HI': 'NIES',
+    'MIROC3-2-MED': 'NIES',
+    'HADCM3': 'UKMO',
+    'HADGEM1': 'UKMO',
+    'ECHAM4': 'INGV',
+    
+    # Models from CMOR test suite
+    'GICCM1': 'TEST',
 }
+for k in cmip3_models:
+    if k in model_institute_map:
+        raise Exception("Duplicate model %s" % k)
+    model_institute_map[k] = cmip3_models[k]
 
-#!TODO: Get full list.  This is based on CMIP3
 class InstituteTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_INSTITUTE
     file_i = None
     component = 'institute'
-    vocab = model_institution_map.values()
+    vocab = model_institute_map.values()
 
     def filename_to_drs(self, context):
         context.drs.institute = self._deduce_institute(context)
@@ -110,7 +85,7 @@ class InstituteTranslator(T.GenericComponentTranslator):
         if model is None:
             raise T.TranslationError('Institute translation requires model to be known')
 
-        return model_institution_map[model]
+        return model_institute_map[model]
 
     # Allow all institutes
     def _validate(self, s):
@@ -122,7 +97,7 @@ class ModelTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_MODEL
     file_i = T.CMIP5_DRS.FILE_MODEL
     component = 'model'
-    vocab = model_institution_map.keys()
+    vocab = model_institute_map.keys()
 
 model_t = ModelTranslator()
 

@@ -14,7 +14,7 @@ My interpretation of the format from reading the CMIP5 tables.
 
 import re
 from glob import glob
-
+import csv
 
 entry_ids = ['axis_entry', 'variable_entry']
 
@@ -256,3 +256,36 @@ class MIPTableStore(object):
     #                ret.append(table.name)
     #    
     #    return ret
+
+
+def read_model_table(table_csv):
+    """
+    Read Karl's CMIP5_models.xls file in CSV export format and 
+    return a map of institute to model name.
+
+    """
+    fh = open(table_csv)
+    table_reader = csv.reader(fh)
+
+    # Check first 2 lines look like the right file
+    header1 = table_reader.next()
+    header2 = table_reader.next()
+
+    assert "CMIP5 Modeling Groups" in header1[0]
+    assert 'Abbreviated name of center or group' in header2[1]
+    assert "modified model_id" in header2[4]
+
+    model_map = {}
+    for row in table_reader:
+        institute = row[1]
+        model = row[4]
+
+        # If institute contains a "/" take the first item
+        if '/' in institute:
+            institute = institute.split('/')[0]
+
+        if model in model_map:
+            raise "Duplicate model key %s" % model
+        model_map[model] = institute
+
+    return model_map

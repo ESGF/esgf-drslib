@@ -143,6 +143,27 @@ def write_eg(prefix, seq):
 
         write_eg_file(path)
 
+
+def write_listing(prefix, listing_file):
+    """
+    Create a drs-tree from a listing file
+    
+    """
+    for line in open(listing_file):
+        line = line.strip()
+        if not line or line[0] == '#':
+            continue
+        if line[0] == '/':
+            raise Exception("Absolute path in listing file!")
+
+        filepath = os.path.join(prefix, line)
+        if not os.path.exists(os.path.dirname(filepath)):
+            os.makedirs(os.path.dirname(filepath))
+            write_eg_file(filepath)
+        
+
+
+
 def write_eg1(prefix):
     write_eg(prefix, eg1())
 
@@ -163,3 +184,4 @@ def write_eg5_1(prefix):
     write_eg(prefix, eg5_1())
 def write_eg5_2(prefix):
     write_eg(prefix, eg5_2())
+
