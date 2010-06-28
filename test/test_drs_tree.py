@@ -10,6 +10,9 @@ import gen_drs
 from isenes.drslib.drs_tree import DRSTree, RealmTree
 from isenes.drslib.drs import cmorpath_to_drs, drs_to_cmorpath, DRS
 
+
+test_dir = os.path.dirname(__file__)
+
 class TestEg(TestCase):
     __test__ = False
 
@@ -232,6 +235,46 @@ class TestEg5(TestEg4):
         
     # Do test_4 from superclass
 
+
+class TestRealmListing(TestEg):
+
+    # Set the following in subclasses
+    #   listing_file 
+
+    def setUp(self):
+        super(TestRealmListing, self).setUp()
+
+        listing_path = os.path.join(test_dir, self.listing_file)
+        gen_drs.write_listing(self.tmpdir, listing_path)
+
+        self.dt = DRSTree(self.tmpdir)
+
+    def _discover(self, institute, model):
+        self.dt.discover(product='output', 
+                         institute=institute, 
+                         model=model)
+
+    def _do_version(self, rt):
+        assert rt.state == rt.STATE_INITIAL
+        rt.do_version()
+        assert rt.state == rt.STATE_VERSIONED
+        assert rt.versions.keys() == [1]
+
+class TestRealmListing1(TestRealmListing):
+    __test__ = True
+
+    listing_file = 'realm_1.ls'
+
+    def test_1(self):
+
+        self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
+        rt = self.dt.realm_trees[0]
+        self._do_version(rt)
+
+    def test_2(self):
+        self._discover('MPI-M', 'ECHAM6-MPIOM-LR')
+        rt = self.dt.realm_trees[0]
+        self._do_version(rt)
 
 
 def test_1():

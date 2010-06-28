@@ -57,6 +57,10 @@ cmip3_models = {
     
     # Models from CMOR test suite
     'GICCM1': 'TEST',
+
+    # Models in test listings contributed from MPI
+    'ECHAM6-MPIOM-HR': 'TEST',
+    'ECHAM6-MPIOM-LR': 'TEST',
 }
 for k in cmip3_models:
     if k in model_institute_map:
