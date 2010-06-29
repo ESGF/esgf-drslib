@@ -31,6 +31,7 @@ class DRSTree(object):
     def __init__(self, drs_root):
         self.drs_root = drs_root
         self.realm_trees = []
+        self.next_version = None
         
         
     def discover(self, product=None, institute=None, model=None, 
@@ -162,10 +163,24 @@ class RealmTree(object):
         Move incoming files into the next version
 
         """
-        log.info('Transfering %s to version %d' % (self.realm_dir, self._next_version))
+        log.info('Transfering %s to version %d' % (self.realm_dir, self.next_version))
         self._do_commands(self._todo_commands())
         self.deduce_state()
         self._do_latest()
+
+    def list_todo(self):
+        """
+        Return an iterable of command descriptions in the todo list.
+
+        """
+        for cmd, src, dest in self._todo_commands():
+            if cmd == self.CMD_MOVE:
+                yield "mv %s %s" % (src, dest)
+            elif cmd == self.CMD_LINK:
+                yield "ln -s %s %s" % (src, dest)
+            else:
+                raise Exception("Unrecognised command type")
+
 
     #-------------------------------------------------------------------
     
@@ -185,7 +200,7 @@ class RealmTree(object):
         files that need to be moved and linked to transfer to next version.
 
         """
-        v = self._next_version
+        v = self.next_version
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
@@ -258,7 +273,7 @@ class RealmTree(object):
         while True:
             vpath = os.path.join(self.realm_dir, 'v%d' % i)
             if not os.path.exists(vpath):
-                self._next_version = i
+                self.next_version = i
                 return v
 
             contents = []

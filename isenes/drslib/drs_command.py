@@ -58,10 +58,42 @@ DRS Tree at %s
 ------------------------------------------------------------------------------\
 """ % drs_tree.drs_root
     for rt in drs_tree.realm_trees:
-        print '%s  %s' % (rt.realm_dir, rt.state)
+        if rt.state == rt.STATE_INITIAL:
+            status_msg = rt.state
+        else:
+            status_msg = '%-15s %d' % (rt.state, rt.next_version-1)
+        print '%s  %s' % (rt.realm_dir, status_msg)
     
     print """\
-------------------------------------------------------------------------------\
+==============================================================================\
+"""
+
+def do_todo(drs_tree, opts, args):
+    for rt in drs_tree.realm_trees:
+
+        todos = rt.list_todo()
+        print """\
+==============================================================================
+Realm Tree %s todo for version %d
+------------------------------------------------------------------------------
+%s
+==============================================================================
+""" % (rt.realm_dir, rt.next_version, '\n'.join(todos))
+
+def do_upgrade(drs_tree, opts, args):
+    print """\
+==============================================================================\
+"""
+    for rt in drs_tree.realm_trees:
+        if rt.state == rt.STATE_VERSIONED:
+            print 'Realm Tree %s has no pending upgrades' % rt.realm_dir
+        else:
+            print ('Upgrading %s to version %d ...' % (rt.realm_dir, rt.next_version)),
+            rt.do_version()
+            print 'done'
+    
+    print """\
+==============================================================================\
 """
 
 
@@ -77,11 +109,19 @@ def main(argv=sys.argv):
     opts, args = op.parse_args(argv[2:])
     try:
         drs_tree = make_drs_tree(opts, args)
+
+        if command == 'list':
+            do_list(drs_tree, opts, args)
+        elif command == 'todo':
+            do_todo(drs_tree, opts, args)
+        elif command == 'upgrade':
+            do_upgrade(drs_tree, opts, args)
+        else:
+            op.error("Unrecognised command %s" % command)
+
     except Exception, e:
         op.error(e)
-
-    if command == 'list':
-        do_list(drs_tree, opts, args)
+    
 
 if __name__ == '__main__':
     main()
