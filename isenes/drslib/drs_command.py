@@ -13,7 +13,10 @@ from isenes.drslib import config
 usage = """usage: %prog [command] [options]
 
 command:
-  list            list realm-trees"""
+  list            list realm-trees
+  todo            show file operations pending for the next version
+  upgrade         make changes to the realm-tree to upgrade to the next version.
+"""
 
 def make_parser():
     op = OptionParser(usage=usage)
@@ -106,7 +109,12 @@ def main(argv=sys.argv):
     except IndexError:
         op.error("command not specified")
 
-    opts, args = op.parse_args(argv[2:])
+    #!FIXME: better global vs. per-command help
+    if command in ['-h', '--help']:
+        opts, args = op.parse_args(argv[1:2])
+    else:
+        opts, args = op.parse_args(argv[2:])
+        
     try:
         drs_tree = make_drs_tree(opts, args)
 
