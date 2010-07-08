@@ -160,6 +160,28 @@ class TestEg3(TestEg):
         assert latest[-2:] == 'v2'
 
 
+    def test_6(self):
+        # Test differencing 2 versions
+
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+
+        v1 = []
+        todo = []
+        for state, path1, path2 in self.rt.diff_version(1):
+            if state == self.rt.DIFF_V1_ONLY:
+                assert not 'rsus' in path1
+                v1.append(path1)
+            elif state == self.rt.DIFF_V2_ONLY:
+                assert 'rsus' in path2
+                todo.append(path2)
+
+        assert len(v1) == 10
+        assert len(todo) == 5
+
+
+
 #
 # Test Moving from one version to another, updating a variable
 #
@@ -204,6 +226,26 @@ class TestEg4(TestEg3):
     # Do test_4 from superclass
 
 
+    def test_6(self):
+        # Test differencing 2 versions
+
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+
+        v1 = []
+        todo = []
+        for state, path1, path2 in self.rt.diff_version(1):
+            if state == self.rt.DIFF_V1_ONLY:
+                v1.append(path1)
+            elif state == self.rt.DIFF_V2_ONLY:
+                todo.append(path2)
+
+        assert len(v1) == 3
+        assert len(todo) == 2
+
+
+
 class TestEg5(TestEg4):
     __test__ = True
 
@@ -234,6 +276,31 @@ class TestEg5(TestEg4):
     # Do test_3 from superclass
         
     # Do test_4 from superclass
+
+    def test_6(self):
+        # Test differencing 2 versions
+
+        self._cmor1()
+        self.rt.do_version()
+        self._cmor2()
+
+        v1 = []
+        todo = []
+        diff = []
+        same = []
+        for state, path1, path2 in self.rt.diff_version(1):
+            if state == self.rt.DIFF_V1_ONLY:
+                v1.append(path1)
+            elif state == self.rt.DIFF_V2_ONLY:
+                todo.append(path2)
+            elif state == self.rt.DIFF_SIZE:
+                diff.append(path1)
+            elif state == self.rt.DIFF_NONE:
+                same.append(path1)
+
+        #!TODO: not same?  This test needs reviewing.
+        assert len(v1) == 3
+        assert len(same) == 2
 
 
 class TestRealmListing(TestEg):

@@ -6,6 +6,10 @@ Classes modelling the DRS directory hierarchy.
 import os, shutil
 from glob import glob
 import re
+import stat
+
+import cdms2
+
 
 from isenes.drslib.cmip5 import make_translator
 from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
@@ -90,6 +94,12 @@ class RealmTree(object):
 
     CMD_MOVE = 0
     CMD_LINK = 1
+
+    DIFF_NONE = 0
+    DIFF_TRACKING_ID = 1
+    DIFF_SIZE = 2
+    DIFF_V1_ONLY = 4
+    DIFF_V2_ONLY = 8
 
     def __init__(self, drs_root, drs):
         """
@@ -180,6 +190,36 @@ class RealmTree(object):
                 yield "ln -s %s %s" % (src, dest)
             else:
                 raise Exception("Unrecognised command type")
+
+
+    def diff_version(self, v1, v2=None, by_tracking_id=False):
+        """
+        Deduce the difference between two versions or between a version
+        and the todo list.
+        """
+        
+        files1 = {}
+        for filepath, drs in self.versions[v1]:
+            files1[os.path.basename(filepath)] = filepath
+
+        if v2 is None:
+            fl = self._todo
+        else:
+            fl = self.versions[v2]
+
+        files2 = {}
+        for filepath, drs in fl:
+            files2[os.path.basename(filepath)] = filepath
+
+        for file in set(files1.keys() + files2.keys()):
+            if file in  files1 and file in files2:
+                yield (self._diff_file(files1[file], files2[file], 
+                                       by_tracking_id),
+                       files1[file], files2[file])
+            elif file in files1:
+                yield (self.DIFF_V1_ONLY, files1[file], None)
+            else:
+                yield (self.DIFF_V2_ONLY, None, files2[file])
 
 
     #-------------------------------------------------------------------
@@ -303,3 +343,28 @@ class RealmTree(object):
                     todo.append((filepath, drs))
 
 
+    def _diff_file(self, filepath1, filepath2, by_tracking_id=False):
+        diff_state = self.DIFF_NONE
+
+        # Check files are the same size
+        if _get_size(filepath1) != _get_size(filepath2):
+            diff_state |= self.DIFF_SIZE
+
+        # Check by tracking_id
+        if by_tracking_id:
+            if filepath1[-3:] == filepath2[-3:] == '.nc':
+                if _get_tracking_id(filepath1) != _get_tracking_id(filepath2):
+                    diff_state |= state.DIFF_TRACKING_ID
+
+        #!TODO: what about md5sum?  This would be slow, particularly as
+        #       esgpublish does it anyway.
+
+        return diff_state
+
+
+def _get_tracking_id(filename):
+    ds = cdms2.open(filename)
+    return ds.tracking_id
+
+def _get_size(filename):
+    return os.stat(filename)[stat.ST_SIZE]
