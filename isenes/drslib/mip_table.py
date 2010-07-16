@@ -6,7 +6,7 @@
 # the full license text.
 
 """
-Simple parser for MIP tables
+Simple parser for MIP tables.
 
 My interpretation of the format from reading the CMIP5 tables.
 
@@ -99,15 +99,18 @@ class MIPTable(object):
     """
     Hold information from a MIP table.  
 
-    Initially this is used to add MIP table names to DRS filenames.
-    Future extensions could read MIP tables and record extra information.
-    
-    @property name: The name of the MIP table as used in DRS filenames.
-    @property variables: A list of variables in this table.
-    @property experiments: A list of valid experiment ids for this table.
+    This information is used to enforce DRS vocabularies.
+
+    :property name: The name of the MIP table as used in DRS filenames.
+    :property variables: A list of variables in this table.
+    :property experiments: A list of valid experiment ids for this table.
 
     """
     def __init__(self, filename):
+        """
+        :param filename: Name of file containing the MIP table.
+
+        """
         fh = open(filename)
         
         self._vardict = {}
@@ -176,11 +179,15 @@ class MIPTableStore(object):
     """
     Holds a collection of mip tables.
 
-    @property tables: A mapping of table names to IMIPTable instances
+    :property tables: A mapping of table names to IMIPTable instances
 
     """
 
     def __init__(self, table_glob):
+        """
+        :param table_glob: A wildcard pattern for all MIP tables to load.
+
+        """
         self.tables = {}
 
         for filename in glob(table_glob):
@@ -190,7 +197,7 @@ class MIPTableStore(object):
         """
         Read filename as a MIP table and add it to the store.
         
-        @return: The added MIPTable instance.
+        :return: The added MIPTable instance.
 
         """
         t = MIPTable(filename)
@@ -262,6 +269,9 @@ def read_model_table(table_csv):
     """
     Read Karl's CMIP5_models.xls file in CSV export format and 
     return a map of institute to model name.
+
+    This function is invoked internally to load CMIP5_models.xls from inside
+    isenes.drslib.
 
     """
     fh = open(table_csv)

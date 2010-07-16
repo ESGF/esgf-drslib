@@ -10,12 +10,13 @@ Welcome to isenes.drslib's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    intro.rst
+   howto.rst
    modules.rst
    command.rst
-
+   cmip3.rst
 
 
 Indices and tables

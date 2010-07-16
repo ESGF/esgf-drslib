@@ -1,16 +1,42 @@
+
+================
+Module Reference
+================
+
 :mod:`isenes.drslib` -- Data Reference Syntax management library
 ================================================================
 
-.. module:: isnes.drslib
-   :platform: Unix
-   :synopsis: Manage DRS vocabularies and directory structure
-.. moduleauthor:: Stephen Pascoe <Stephen.Pascoe@stfc.ac.uk>
-
 .. automodule:: isenes.drslib
+
+:mod:`isenes.drslib.drs` -- DRS objects and utilities
+-----------------------------------------------------
 
 .. automodule:: isenes.drslib.drs
    :members:
 
-.. automodule:: isnes.drslib.drs_tree
+:mod:`isenes.drslib.translate` -- Translate DRS filepaths
+---------------------------------------------------------
+
+.. automodule:: isenes.drslib.translate
+   :members: Translator
+
+
+:mod:`isenes.drslib.cmip5` -- DRS objects and utilities
+-------------------------------------------------------
+
+.. automodule:: isenes.drslib.cmip5
+   :members:
+
+:mod:`isenes.drslib.mip_table` -- Loading CMOR MIP Tables
+---------------------------------------------------------
+
+.. automodule:: isenes.drslib.mip_table
+   :members:
+
+
+:mod:`isenes.drslib.drs_tree` -- Managing DRS directory structure versioning
+----------------------------------------------------------------------------
+
+.. automodule:: isenes.drslib.drs_tree
    :members:
 

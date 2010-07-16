@@ -95,3 +95,15 @@ def test_8():
     fh = open(os.path.join(os.path.dirname(__file__), 'cmor_test_ls'))
     for filename in fh:
         yield roundtrip_filename, filename.strip()
+
+def test_9():
+    # Regression test for bug in non-versioned path construction
+    
+    drs = get_drs1()
+
+    # Add the bits missing from the conversion
+    drs.product = 'output'
+    
+    path = translator_noversion.drs_to_path(drs)
+
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1'

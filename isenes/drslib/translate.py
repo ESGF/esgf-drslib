@@ -6,7 +6,9 @@
 # the full license text.
 
 """
-Generic implementations of IComponentTranslator
+A framework for translating DRS objects to and from filenames and paths.
+
+This module is very object-heavy and over engineered.  However, it does the job.
 
 """
 
@@ -24,12 +26,12 @@ class TranslationError(Exception):
 
 class TranslatorContext(object):
     """
-    Represents a DRS URL or path being translated
+    Represents a DRS URL or path being translated.
 
-    @ivar path_parts: A list of directories following the DRS prefix
-    @ivar file_parts: A list of '_'-separated parts of the filename
-    @ivar drs: The DRS of interest
-    @ivar table_store: The mip tables being used
+    :ivar path_parts: A list of directories following the DRS prefix
+    :ivar file_parts: A list of '_'-separated parts of the filename
+    :ivar drs: The DRS of interest
+    :ivar table_store: The mip tables being used.
 
     """
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
@@ -52,7 +54,8 @@ class TranslatorContext(object):
 
     def set_drs_component(self, drs_component, value):
         """
-        Set a DRS component checking that the value doesn't conflict with any current value.
+        Set a DRS component checking that the value doesn't conflict
+        with any current value.
 
         """
         v = getattr(self.drs, drs_component)
@@ -63,6 +66,8 @@ class TranslatorContext(object):
                 raise TranslationError('Conflicting value of DRS component %s' % drs_component)
 
     def path_to_string(self):
+        self._trim_parts()
+
         parts = self.path_parts
         
         return os.path.join(*parts)
@@ -107,8 +112,8 @@ class BaseComponentTranslator(object):
         """
         Translate the relevant component of the filename to a drs component.
 
-        @raises TranslationError: if the filename is invalid
-        @returns: context
+        :raises TranslationError: if the filename is invalid
+        :returns: context
 
         """
         raise NotImplementedError
@@ -117,8 +122,8 @@ class BaseComponentTranslator(object):
         """
         Translate the relevant component of the DRS path to a drs component.
 
-        @raises TranslationError: if the path is invalid
-        @returns: context
+        :raises TranslationError: if the path is invalid
+        :returns: context
 
         """
         raise NotImplementedError
@@ -128,7 +133,7 @@ class BaseComponentTranslator(object):
         """
         Sets context.path_parts and context.file_parts for this component.
 
-        @returns: context
+        :returns: context
 
         """
         raise NotImplementedError
@@ -299,7 +304,7 @@ class SubsetTranslator(BaseComponentTranslator):
     """
     Currently just temporal subsets
 
-    @cvar allow_missing_subset: A boolean value configuring whether to 
+    :cvar allow_missing_subset: A boolean value configuring whether to 
         complain if the subset is missing.
 
     """
@@ -349,12 +354,18 @@ class SubsetTranslator(BaseComponentTranslator):
 class Translator(object):
     """
 
-    @property prefix: The prefix for all DRS paths including the activity.
-        All paths are interpreted as relative to this prefix.
-        Generated paths have this prefix added.
-    @property translators: A list of translators called in order to handle translation
-    @property table_store: A IMIPTableStore instance containing all MIP tables being used.
-    @cvar ContextClass: The class of context to use.
+    :property prefix: The prefix for all DRS paths including the
+        activity.  All paths are interpreted as relative to this
+        prefix.  Generated paths have this prefix added.
+
+    :property translators: A list of translators called in order to
+        handle translation
+    
+    :property table_store: A
+        :class:`isenes.drslib.mip_table.MIPTableStore` instance
+        containing all MIP tables being used.
+    
+    :cvar ContextClass: The class of context to use.
 
     """
 
@@ -365,6 +376,13 @@ class Translator(object):
         self.table_store = table_store
 
     def filename_to_drs(self, filename, context=None):
+        """
+        Translate a filename into a :class:`isenes.drslib.drs.DRS` object.
+
+        Only those DRS components known from the filename will be set.
+
+        """
+
         if context is None:
             context = self.ContextClass(filename=filename, drs=self.init_drs(),
                                         table_store = self.table_store)
@@ -374,6 +392,12 @@ class Translator(object):
         return context.drs
 
     def path_to_drs(self, path, context=None):
+        """
+        Translate a directory path into a :class:`isenes.drslib.drs.DRS` object.
+        
+        Only those DRS components known from the path will be set.
+
+        """
         if context is None:
             context = self.ContextClass(path=self._split_prefix(path), drs=self.init_drs(),
                                         table_store = self.table_store)
@@ -383,6 +407,10 @@ class Translator(object):
         return context.drs
 
     def filepath_to_drs(self, filepath, context=None):
+        """
+        Translate a full filepath to a :class:`isenes.drslib.drs.DRS` object.
+
+        """
         filepath = self._split_prefix(filepath)
         path, filename = os.path.split(filepath)
         if context is None:
@@ -402,16 +430,28 @@ class Translator(object):
         return context
 
     def drs_to_filepath(self, drs):
+        """
+        Translate a :class:`isenes.drslib.drs.DRS` object into a full filepath.
+
+        """
         context = self.drs_to_context(drs)
 
         return os.path.join(self.prefix, context.to_string())
 
     def drs_to_path(self, drs):
+        """
+        Translate a :class:`isenes.drslib.drs.DRS` object into a directory path.
+
+        """
         context = self.drs_to_context(drs)
         
         return os.path.join(self.prefix, context.path_to_string())
 
     def drs_to_file(self, drs):
+        """
+        Translate a :class:`isenes.drslib.drs.DRS` object into a filename.
+
+        """
         context = self.drs_to_context(drs)
         
         return context.file_to_string()
@@ -428,6 +468,8 @@ class Translator(object):
     def init_drs(self):
         """
         Returns an empty DRS instance initialised for this translator.
+
+        This class must be overloaded in subclasses.
 
         """
         raise NotImplementedError

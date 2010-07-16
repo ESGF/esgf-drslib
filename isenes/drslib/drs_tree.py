@@ -1,9 +1,23 @@
 """
-Classes modelling the DRS directory hierarchy.
+Manage DRS directory structure versioning.
+
+This module provides an API for manipulating a DRS directory structure
+to facilitate keeping multiple versions of datasets on disk
+simultaniously.  The class :class:`DRSTree` provides a top-level
+interface to the DRS directory structure and a container for :class:`RealmTree` objects.
+
+:class:`RealmTree` objects expose the versions present in a
+realm-dataset and what files are unversioned.  Calling
+:meth:`RealmTree.do_version` will manipulate the directory structure
+to move unversioned files into a new version.
+
+Detailed diagnostics can be logged by setting handlers for the logger
+``isenes.drslib.drs_tree``.
+
 
 """
 
-import os, shutil
+import os, shutil, sys
 from glob import glob
 import re
 import stat
@@ -13,7 +27,7 @@ import cdms2
 
 from isenes.drslib.cmip5 import make_translator
 from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
-from isenes.drslib import config
+from isenes.drslib import config, mapfile
 
 import logging
 log = logging.getLogger(__name__)
@@ -33,6 +47,10 @@ class DRSTree(object):
     """
 
     def __init__(self, drs_root):
+        """
+        :param drs_root: The path to the DRS *activity* directory.
+
+        """
         self.drs_root = drs_root
         self.realm_trees = []
         self.next_version = None
@@ -44,10 +62,14 @@ class DRSTree(object):
         """
         Scan the directory structure for RealmTrees.
 
-        This implementation is a compromise between the need to
-        auto-discover RealmTrees and the fact that scanning the entire
-        DRSTree may be infeasible.  You must specify the are of the
-        DRS to scan up to the model level.
+        To prevent an exaustive scan of the directory structure some
+        components of the DRS must be specified as keyword arguments
+        or configured via *metaconfig*.  These components are
+        *product*, *institute* and *model* 
+
+        The components *experiment*, *frequency* and *realm* are
+        optional.  All components can be set to wildcard values.  This
+        allows an exaustive scan to be forced if desired.
 
         """
 
@@ -84,6 +106,14 @@ class RealmTree(object):
     """
     A directory tree at the Realm level.
 
+    :cvar STATE_INITIAL: Flag representing the initial unversioned state
+
+    :cvar STATE_VERSIONED: Flag representing the fully versioned state
+        with no unversioned files
+
+    :cvar STATE_VERSIONED_TRANS: Flag representing the partially versioned state
+        with unversioned files outstanding.
+
     """
     #!TODO: At some point we want to check incoming files to see if they are
     #       duplicates of already versioned files.
@@ -102,12 +132,6 @@ class RealmTree(object):
     DIFF_V2_ONLY = 8
 
     def __init__(self, drs_root, drs):
-        """
-        A part of the drs tree containing 1 realm.
-
-        This class works out what state the tree is in
-
-        """
 
         self.drs_root = drs_root
         self.drs = drs
@@ -182,6 +206,9 @@ class RealmTree(object):
         """
         Return an iterable of command descriptions in the todo list.
 
+        Each item in the iterable is a unix command-line string of the
+        form ``"mv ... ..."`` or ``"ln -s ... ..."``
+
         """
         for cmd, src, dest in self._todo_commands():
             if cmd == self.CMD_MOVE:
@@ -221,6 +248,12 @@ class RealmTree(object):
             else:
                 yield (self.DIFF_V2_ONLY, None, files2[file])
 
+
+    def version_to_mapfile(self, version, fh=sys.stdout):
+        if version not in self.versions:
+            raise Exception("Version %d not present in RealmTree %s" % (version, self.realm_dir))
+
+        mapfile.write_mapfile(self.versions[version], fh)
 
     #-------------------------------------------------------------------
     

@@ -6,7 +6,10 @@
 # the full license text.
 
 """
-A translator specific to CMIP5
+
+Translate CMIP5 DRS filenames and paths to and from DRS objects with
+consistency checking against CMIP5 MIP tables and between the filename
+and path portions of filepaths.
 
 """
 
@@ -59,8 +62,8 @@ cmip3_models = {
     'GICCM1': 'TEST',
 
     # Models in test listings contributed from MPI
-    'ECHAM6-MPIOM-HR': 'TEST',
-    'ECHAM6-MPIOM-LR': 'TEST',
+    'ECHAM6-MPIOM-HR': 'MPI-M',
+    'ECHAM6-MPIOM-LR': 'MPI-M',
 }
 for k in cmip3_models:
     if k in model_institute_map:
@@ -245,7 +248,6 @@ class ExtendedTranslator(T.BaseComponentTranslator):
 
 
 class CMIP5Translator(T.Translator):
-
     def init_drs(self, drs=None):
         if drs is None:
             drs = T.DRS()
@@ -257,6 +259,11 @@ class CMIP5Translator(T.Translator):
 
 
 def get_table_store():
+    """
+    Return a :class:`isenes.drslib.mip_table.MIPTableStore` object
+    containing the CMIP5 MIP tables available.
+
+    """
     from isenes.drslib.mip_table import MIPTableStore
 
     table_store = MIPTableStore(config.table_path+'/CMIP5_*')
@@ -264,6 +271,18 @@ def get_table_store():
     return table_store
 
 def make_translator(prefix, with_version=True):
+    """
+    Return a :class:`isenes.drslib.translator.Translator` object for
+    translating filepaths to and from ``DRS`` instances.
+
+    :param prefix: The path to the root of the DRS tree.  This should
+        point to the DRS ``activity`` directory.
+
+    :param with_version: If ``True`` the translator will include a
+        version directory in filesystem paths, otherwise it reflects
+        the output structure of CMOR.
+
+    """
     table_store = get_table_store()
 
     t = CMIP5Translator(prefix, table_store)

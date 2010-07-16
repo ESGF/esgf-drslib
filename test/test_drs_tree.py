@@ -1,8 +1,9 @@
 
 import tempfile
 import shutil
-import os
+import sys, os
 from glob import glob
+from StringIO import StringIO
 
 from unittest import TestCase
 
@@ -343,6 +344,29 @@ class TestRealmListing1(TestRealmListing):
         rt = self.dt.realm_trees[0]
         self._do_version(rt)
 
+class TestRealmMapfile(TestRealmListing):
+    __test__ = True
+
+    listing_file = 'realm_1.ls'
+
+    def test_1(self):
+        self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
+        rt = self.dt.realm_trees[0]
+        self._do_version(rt)
+
+        # Make a mapfile
+        fh = StringIO()
+        rt.version_to_mapfile(1, fh)
+        mapfile = fh.getvalue()
+
+
+        print mapfile
+        assert 'cmip5.output.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean' in mapfile
+        assert 'output/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/v1' in mapfile
+
+
+
+#----------------------------------------------------------------------------
 
 def test_1():
     drs = cmorpath_to_drs('/cmip5', '/cmip5/output')
