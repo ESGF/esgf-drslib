@@ -53,7 +53,6 @@ class DRSTree(object):
         """
         self.drs_root = drs_root
         self.realm_trees = []
-        self.next_version = None
         
         
     def discover(self, product=None, institute=None, model=None, 
@@ -114,6 +113,8 @@ class RealmTree(object):
     :cvar STATE_VERSIONED_TRANS: Flag representing the partially versioned state
         with unversioned files outstanding.
 
+    :param latest: Integer version number of latest version or 0
+
     """
     #!TODO: At some point we want to check incoming files to see if they are
     #       duplicates of already versioned files.
@@ -138,6 +139,7 @@ class RealmTree(object):
         self.state = None
         self._todo = []
         self.versions = {}
+        self.latest = 0
         self._vtrans = make_translator(drs_root)
         self._cmortrans = make_translator(drs_root, with_version=False)
 
@@ -197,7 +199,7 @@ class RealmTree(object):
         Move incoming files into the next version
 
         """
-        log.info('Transfering %s to version %d' % (self.realm_dir, self.next_version))
+        log.info('Transfering %s to version %d' % (self.realm_dir, self.latest+1))
         self._do_commands(self._todo_commands())
         self.deduce_state()
         self._do_latest()
@@ -217,6 +219,25 @@ class RealmTree(object):
                 yield "ln -s %s %s" % (src, dest)
             else:
                 raise Exception("Unrecognised command type")
+
+
+    def find_nc_files(self, version = "latest"):
+        """
+        Returns a list of netcdf files found under ``version`` directory.
+        Where ``version`` is an integer > 0 or "latest".
+        """
+
+        if version == "latest":
+            version = max(self.versions.keys())
+
+        if version not in self.versions:
+            raise Exception("When searching for NetCDF files you need to provide a `version` argument as an integer or thestring 'latest'.")
+
+        nc_paths = []
+        for filepath, drs in self.versions[version]:
+            nc_paths.append(os.path.basename(filepath))
+
+        return nc_paths
 
 
     def diff_version(self, v1, v2=None, by_tracking_id=False):
@@ -273,7 +294,7 @@ class RealmTree(object):
         files that need to be moved and linked to transfer to next version.
 
         """
-        v = self.next_version
+        v = self.latest + 1
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
@@ -342,23 +363,24 @@ class RealmTree(object):
 
     def _deduce_versions(self):
         i = 1
-        v = self.versions
+        self.versions = {}
         while True:
             vpath = os.path.join(self.realm_dir, 'v%d' % i)
             if not os.path.exists(vpath):
-                self.next_version = i
-                return v
+                return
+            else:
+                self.latest = i
 
-            contents = []
+            self.versions[i] = []
             for dirpath, dirnames, filenames in os.walk(vpath,
                                                         topdown=False):
                 for filename in filenames:
                     filepath = os.path.join(dirpath, filename)
                     drs = self._vtrans.filepath_to_drs(filepath)
-                    contents.append((filepath, drs))
-            v[i] = contents
-            
+                    self.versions[i].append((filepath, drs))
+
             i += 1
+            
             
     def _deduce_todo(self):
         #!WARNING: Only call after _deduce_versions()
@@ -387,7 +409,7 @@ class RealmTree(object):
         if by_tracking_id:
             if filepath1[-3:] == filepath2[-3:] == '.nc':
                 if _get_tracking_id(filepath1) != _get_tracking_id(filepath2):
-                    diff_state |= state.DIFF_TRACKING_ID
+                    diff_state |= self.DIFF_TRACKING_ID
 
         #!TODO: what about md5sum?  This would be slow, particularly as
         #       esgpublish does it anyway.

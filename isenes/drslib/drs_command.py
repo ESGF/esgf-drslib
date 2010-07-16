@@ -64,7 +64,7 @@ DRS Tree at %s
         if rt.state == rt.STATE_INITIAL:
             status_msg = rt.state
         else:
-            status_msg = '%-15s %d' % (rt.state, rt.next_version-1)
+            status_msg = '%-15s %d' % (rt.state, rt.latest)
         print '%s  %s' % (rt.realm_dir, status_msg)
     
     print """\
@@ -81,7 +81,7 @@ Realm Tree %s todo for version %d
 ------------------------------------------------------------------------------
 %s
 ==============================================================================
-""" % (rt.realm_dir, rt.next_version, '\n'.join(todos))
+""" % (rt.realm_dir, rt.latest+1, '\n'.join(todos))
 
 def do_upgrade(drs_tree, opts, args):
     print """\
@@ -91,7 +91,7 @@ def do_upgrade(drs_tree, opts, args):
         if rt.state == rt.STATE_VERSIONED:
             print 'Realm Tree %s has no pending upgrades' % rt.realm_dir
         else:
-            print ('Upgrading %s to version %d ...' % (rt.realm_dir, rt.next_version)),
+            print ('Upgrading %s to version %d ...' % (rt.realm_dir, rt.latest+1)),
             rt.do_version()
             print 'done'
     
