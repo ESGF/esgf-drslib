@@ -141,3 +141,12 @@ def drs_to_cmorpath(drs_root, drs):
         path.append(val)
 
     return os.path.join(*path)
+
+def drs_to_dataset_id(drs):
+    """
+    Return the esgpublish dataset_id for this drs object.
+
+    """
+    return '.'.join(drs.activity, drs.product, drs.institute, drs.model,
+                    drs.experiment, drs.frequency, drs.realm)
+                    
