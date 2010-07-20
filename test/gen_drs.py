@@ -5,12 +5,27 @@ Bulk Generate DRS objects for testing.
 
 import random
 from copy import copy
-from itertools import product, izip
 from datetime import datetime
 import os
 
 from isenes.drslib.drs import DRS
 from isenes.drslib import cmip5
+
+from itertools import izip
+
+# Python 2.5 compatibility
+try:
+    from itertools import product
+except ImportError:
+    def product(*args, **kwds):
+        # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
+        # product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
+        pools = map(tuple, args) * kwds.get('repeat', 1)
+        result = [[]]
+        for pool in pools:
+            result = [x+[y] for x in result for y in pool]
+        for prod in result:
+            yield tuple(prod)
 
 
 def random_drs(drs_template, drs_attr_values):
@@ -50,7 +65,6 @@ def iter_drs_template(drs_template, drs_attr_values):
     from drs_attr_values.
 
     """
-    #import pdb; pdb.set_trace()
     #!NOTE: Assuming the ordering is the same
     attrs = drs_attr_values.keys()
     pos_values = drs_attr_values.values()
