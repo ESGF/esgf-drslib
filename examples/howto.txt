@@ -1,0 +1,89 @@
+Parsing DRS filenames
+=====================
+
+The isenes.drslib.cmip5.make_translator function takes a path or URL prefix as it's only
+argument
+
+>>> from isenes.drslib import cmip5
+>>> cmip5_trans = cmip5.make_translator('http://example.com/cmip5')
+>>> cmip5_trans.prefix
+'http://example.com/cmip5'
+
+The DRS class is used to store DRS components.  For instance to
+extract DRS components from a filename do:
+
+>>> drs = cmip5_trans.filename_to_drs('tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+>>> drs.variable
+'tas'
+>>> drs.table
+'Amon'
+>>> drs.model
+'HadCM3'
+>>> drs.subset
+((1850, 1, None, None), (2005, 12, None, None), None)
+
+Some DRS components can be deduced from the filename by consulting the
+CMIP5 MIP tables or using internally configured tables.  These are
+automatically set during translation:
+
+>>> drs.institute
+'MOHC'
+>>> drs.realm
+'atmos'
+>>> drs.frequency
+'mon'
+
+Some DRS attributes cannot be deduced from the filename.  These must
+be set in the drs object before you can generate a full DRS path.  Use
+the DRS.is_complete() method to test if the DRS object is completely specified:
+
+>>> drs.is_complete()
+False
+>>> drs.version = 3
+>>> drs.product = 'output'
+>>> drs.is_complete()
+True
+
+Once complete you can generate the full DRS path or URL:
+
+>>> cmip5_trans.drs_to_filepath(drs)
+'http://example.com/cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/v3/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+
+
+Generating DRS paths and filenames
+===================================
+
+The DRS class can be used to constructed from scratch like:
+
+>>> from isenes.drslib.drs import DRS
+>>> drs2 = DRS(activity='cmip5', product='requested', model='HadCM3', 
+...            experiment='historicalNat', variable='tas', 
+...	       ensemble=(1, None, None), version=4,
+...            table='3hr', frequency='3hr')
+
+>>> cmip5_trans.drs_to_path(drs2)
+'http://example.com/cmip5/requested/MOHC/HadCM3/historicalNat/3hr/atmos/v4/tas/r1'
+
+Extra information is needed to create the filename
+
+>>> cmip5_trans.drs_to_file(drs2)
+'tas_3hr_HadCM3_historicalNat_r1.nc'
+>>> drs2.subset = ((2010, None, None, None), (2011, None, None, None), None)
+>>> cmip5_trans.drs_to_file(drs2)
+'tas_3hr_HadCM3_historicalNat_r1_2010-2011.nc'
+
+
+Converting CMIP3 paths to CMIP5 paths
+=====================================
+
+The isenes.drslib.cmip3 module implements a similar API to
+isenes.drslib.cmip5 thus allowing CMIP3 paths to be converted to DRS
+instances then converted into CMIP5 DRS format.
+
+>>> from isenes.drslib import cmip3
+>>> cmip3_trans = cmip3.make_translator('cmip3')
+>>> drs3 = cmip3_trans.filepath_to_drs('cmip3/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc')
+>>> drs3
+<DRS activity='cmip3', product='output', institute='GFDL', model='CM2', experiment='20c3m', frequency='day', realm='atmos', variable='rsus', table='A2', ensemble=(1, None, None), version=1, subset=None, extended='19610101-19651231'>
+>>> cmip5_trans.drs_to_filepath(drs3)
+'http://example.com/cmip5/output/GFDL/CM2/20c3m/day/atmos/v1/rsus/r1/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc'

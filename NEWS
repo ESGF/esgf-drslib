@@ -1,0 +1,19 @@
+
+Version 0.1.1
+=============
+
+First tagged release.
+
+This version should be usable for CMIP5 DRS validation and directory
+structure deduction.  Many details of the controlled vocabularies are
+still to be confirmed (see #!TODO sections in the code).
+
+CMIP3 -> CMIP5 translation is still in development but is close to working.
+
+The API is subject to change but will be stabilised at v0.2.
+
+Version 0.1.2
+=============
+
+This version is being used to translate the BADC CMIP3 archive into
+DRS structure.  See the translate_cmip3 script.

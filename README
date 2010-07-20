@@ -1,8 +1,8 @@
-#*****************************************************************
-#
-#   Description: Basic description of the project(s) and layout of the
-#   		project.
-#
-#*****************************************************************
+This is a Python library for processing the 5th Climate Model
+Intercomparison Project [CMIP5]_ Data Reference Syntax [DRS]_.
 
-README:
+See doc/intro.rst for further information or create the documentation
+as follows (requires sphinx):
+
+  $ cd doc
+  $ make html

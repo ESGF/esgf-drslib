@@ -1,0 +1,5 @@
+*.egg-info
+doc/html
+doc/doctrees
+dist
+tmp
