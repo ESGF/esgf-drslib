@@ -83,6 +83,15 @@ class DRS(object):
             kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
         return '<DRS %s>' % ', '.join(kws)
 
+    def to_dataset_id(self):
+        """
+        Return the esgpublish dataset_id for this drs object.
+        
+        """
+        return '.'.join((self.activity, self.product, self.institute, self.model,
+                         self.experiment, self.frequency, self.realm))
+                    
+
 
 
 #--------------------------------------------------------------------------
@@ -142,11 +151,3 @@ def drs_to_cmorpath(drs_root, drs):
 
     return os.path.join(*path)
 
-def drs_to_dataset_id(drs):
-    """
-    Return the esgpublish dataset_id for this drs object.
-
-    """
-    return '.'.join(drs.activity, drs.product, drs.institute, drs.model,
-                    drs.experiment, drs.frequency, drs.realm)
-                    
