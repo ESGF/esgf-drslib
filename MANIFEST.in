@@ -1,1 +1,1 @@
-recursive-include isenes/drslib/data *
+recursive-include drslib/data *
