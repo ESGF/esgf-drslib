@@ -1,10 +1,10 @@
 Parsing DRS filenames
 =====================
 
-The isenes.drslib.cmip5.make_translator function takes a path or URL prefix as it's only
+The drslib.cmip5.make_translator function takes a path or URL prefix as it's only
 argument
 
->>> from isenes.drslib import cmip5
+>>> from drslib import cmip5
 >>> cmip5_trans = cmip5.make_translator('http://example.com/cmip5')
 >>> cmip5_trans.prefix
 'http://example.com/cmip5'
@@ -55,7 +55,7 @@ Generating DRS paths and filenames
 
 The DRS class can be used to constructed from scratch like:
 
->>> from isenes.drslib.drs import DRS
+>>> from drslib.drs import DRS
 >>> drs2 = DRS(activity='cmip5', product='requested', model='HadCM3', 
 ...            experiment='historicalNat', variable='tas', 
 ...	       ensemble=(1, None, None), version=4,
@@ -76,11 +76,11 @@ Extra information is needed to create the filename
 Converting CMIP3 paths to CMIP5 paths
 =====================================
 
-The isenes.drslib.cmip3 module implements a similar API to
-isenes.drslib.cmip5 thus allowing CMIP3 paths to be converted to DRS
+The drslib.cmip3 module implements a similar API to
+drslib.cmip5 thus allowing CMIP3 paths to be converted to DRS
 instances then converted into CMIP5 DRS format.
 
->>> from isenes.drslib import cmip3
+>>> from drslib import cmip3
 >>> cmip3_trans = cmip3.make_translator('cmip3')
 >>> drs3 = cmip3_trans.filepath_to_drs('cmip3/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc')
 >>> drs3

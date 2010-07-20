@@ -8,8 +8,8 @@ from StringIO import StringIO
 from unittest import TestCase
 
 import gen_drs
-from isenes.drslib.drs_tree import DRSTree, RealmTree
-from isenes.drslib.drs import cmorpath_to_drs, drs_to_cmorpath, DRS
+from drslib.drs_tree import DRSTree, RealmTree
+from drslib.drs import cmorpath_to_drs, drs_to_cmorpath, DRS
 
 
 test_dir = os.path.dirname(__file__)

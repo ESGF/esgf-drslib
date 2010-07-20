@@ -6,7 +6,7 @@
 # the full license text.
 """
 
-Top level isenes.drslib documentation.
+Top level drslib documentation.
 
 TODO ...
 

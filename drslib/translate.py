@@ -17,8 +17,8 @@ import re, os
 import logging
 log = logging.getLogger(__name__)
 
-from isenes.drslib.drs import DRS
-from isenes.drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
+from drslib.drs import DRS
+from drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
 
 class TranslationError(Exception):
     pass

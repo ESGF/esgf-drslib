@@ -271,7 +271,7 @@ def read_model_table(table_csv):
     return a map of institute to model name.
 
     This function is invoked internally to load CMIP5_models.xls from inside
-    isenes.drslib.
+    drslib.
 
     """
     fh = open(table_csv)

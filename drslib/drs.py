@@ -12,7 +12,7 @@ and some utility functions for converting filesystem paths to and from
 DRS objects.
 
 More sophisticated conversions can be done with the
-:mod:`isenes.drslib.translate` and :mod:`isenes.drslib.cmip5` modules.
+:mod:`drslib.translate` and :mod:`drslib.cmip5` modules.
 
 '''
 
@@ -104,7 +104,7 @@ def cmorpath_to_drs(drs_root, path, activity=None):
     """
     Create a :class:`DRS` object from a filesystem path.
 
-    This function is more lightweight than using :mod:`isenes.drslib.translator`
+    This function is more lightweight than using :mod:`drslib.translator`
     but only works for the parts of the DRS explicitly represented in
     a path.
 

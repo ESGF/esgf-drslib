@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'isenes.drslib'
+project = u'drslib'
 copyright = u'2010, Stephen Pascoe'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -165,7 +165,7 @@ html_static_path = ['_static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'isenesdrslibdoc'
+htmlhelp_basename = 'drslibdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -179,7 +179,7 @@ htmlhelp_basename = 'isenesdrslibdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'isenesdrslib.tex', u'isenes.drslib Documentation',
+  ('index', 'drslib.tex', u'drslib Documentation',
    u'Stephen Pascoe', 'manual'),
 ]
 
@@ -212,6 +212,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'isenesdrslib', u'isenes.drslib Documentation',
+    ('index', 'drslib', u'drslib Documentation',
      [u'Stephen Pascoe'], 1)
 ]

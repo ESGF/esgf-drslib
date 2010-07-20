@@ -5,7 +5,7 @@ Some sanity checking code for the CMIP5 MIP tables.
 
 import sqlite3
 
-from isenes.drslib import cmip5
+from drslib import cmip5
 
 table_store = cmip5.get_table_store()
 

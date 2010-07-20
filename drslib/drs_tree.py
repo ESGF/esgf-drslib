@@ -25,9 +25,9 @@ import stat
 import cdms2
 
 
-from isenes.drslib.cmip5 import make_translator
-from isenes.drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
-from isenes.drslib import config, mapfile
+from drslib.cmip5 import make_translator
+from drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
+from drslib import config, mapfile
 
 import logging
 log = logging.getLogger(__name__)

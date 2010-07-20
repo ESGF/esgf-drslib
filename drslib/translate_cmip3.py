@@ -16,8 +16,8 @@ import sys, os, shutil, re
 import logging
 log = logging.getLogger(__name__)
 
-from isenes.drslib import cmip3, cmip5
-from isenes.drslib.translate import TranslationError
+from drslib import cmip3, cmip5
+from drslib.translate import TranslationError
 
 cmip3_translator = cmip3.make_translator('')
 cmip5_translator = cmip5.make_translator('')

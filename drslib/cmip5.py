@@ -13,9 +13,9 @@ and path portions of filepaths.
 
 """
 
-import isenes.drslib.translate as T
-from isenes.drslib import config
-from isenes.drslib.mip_table import read_model_table
+import drslib.translate as T
+from drslib import config
+from drslib.mip_table import read_model_table
 
 class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
@@ -260,11 +260,11 @@ class CMIP5Translator(T.Translator):
 
 def get_table_store():
     """
-    Return a :class:`isenes.drslib.mip_table.MIPTableStore` object
+    Return a :class:`drslib.mip_table.MIPTableStore` object
     containing the CMIP5 MIP tables available.
 
     """
-    from isenes.drslib.mip_table import MIPTableStore
+    from drslib.mip_table import MIPTableStore
 
     table_store = MIPTableStore(config.table_path+'/CMIP5_*')
 
@@ -272,7 +272,7 @@ def get_table_store():
 
 def make_translator(prefix, with_version=True):
     """
-    Return a :class:`isenes.drslib.translator.Translator` object for
+    Return a :class:`drslib.translator.Translator` object for
     translating filepaths to and from ``DRS`` instances.
 
     :param prefix: The path to the root of the DRS tree.  This should

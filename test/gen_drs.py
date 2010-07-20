@@ -8,8 +8,8 @@ from copy import copy
 from datetime import datetime
 import os
 
-from isenes.drslib.drs import DRS
-from isenes.drslib import cmip5
+from drslib.drs import DRS
+from drslib import cmip5
 
 from itertools import izip
 

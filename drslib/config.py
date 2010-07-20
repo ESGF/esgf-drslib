@@ -13,7 +13,7 @@ Central configuration module
 import os
 
 import metaconfig
-config = metaconfig.get_config('isenes.drslib')
+config = metaconfig.get_config('drslib')
 
 if 'MIP_TABLE_PATH' in os.environ:
     table_path = os.environ['MIP_TABLE_PATH']

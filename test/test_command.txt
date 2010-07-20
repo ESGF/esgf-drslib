@@ -18,7 +18,7 @@ Imports for this test.
 
 >>> import sys, os, shutil
 >>> sys.path.append(os.path.dirname(__file__))
->>> from isenes.drslib.drs_command import main
+>>> from drslib.drs_command import main
 >>> import gen_drs
 
 Create a directory and build a drs-tree in it

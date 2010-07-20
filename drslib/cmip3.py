@@ -21,9 +21,9 @@ import re
 import logging
 log = logging.getLogger(__name__)
 
-import isenes.drslib.translate as T
-from isenes.drslib.drs import DRS
-from isenes.drslib.config import CMIP5_DRS, CMIP3_DRS
+import drslib.translate as T
+from drslib.drs import DRS
+from drslib.config import CMIP5_DRS, CMIP3_DRS
 
 TranslationError = T.TranslationError
 

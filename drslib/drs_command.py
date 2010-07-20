@@ -7,8 +7,8 @@ import sys
 
 from optparse import OptionParser
 
-from isenes.drslib.drs_tree import DRSTree
-from isenes.drslib import config
+from drslib.drs_tree import DRSTree
+from drslib import config
 
 usage = """usage: %prog [command] [options]
 

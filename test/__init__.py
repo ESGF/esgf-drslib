@@ -12,7 +12,7 @@ Tests compatible with nosetests
 
 import os
 
-from isenes.drslib import cmip5
+from drslib import cmip5
 
 translator = cmip5.make_translator('cmip5')
 translator_noversion = cmip5.make_translator('cmip5', with_version=False)

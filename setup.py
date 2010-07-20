@@ -12,7 +12,7 @@ version = '0.1.9'
 drs_version = '0.24'
 cmor2_version = '2.0'
 
-setup(name='isenes.drslib',
+setup(name='drslib',
       version=version,
       description="A library for processing the CMIP5 Data Reference Syntax",
       long_description="""\
