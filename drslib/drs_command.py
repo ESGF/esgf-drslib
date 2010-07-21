@@ -16,6 +16,7 @@ command:
   list            list realm-trees
   todo            show file operations pending for the next version
   upgrade         make changes to the realm-tree to upgrade to the next version.
+  mapfile         make a mapfile of the selected realm-trees
 """
 
 def make_parser():
@@ -99,6 +100,31 @@ def do_upgrade(drs_tree, opts, args):
 ==============================================================================\
 """
 
+def do_mapfile(drs_tree, opts, args):
+    """
+    Generate a mapfile from the selection.  The selection must be for
+    only 1 realm-tree.
+
+    """
+
+    if len(drs_tree.realm_trees) > 1:
+        raise Exception("You must select 1 realm-tree to create a mapfile.  %d selected" %
+                        len(drs_tree.realm_trees))
+
+    rt = drs_tree.realm_trees[0]
+
+    #!TODO: better argument handling
+    if args:
+        version = int(args[0])
+    else:
+        version = rt.latest
+
+
+    if version not in rt.versions:
+        log.warning("RealmTree %s has no version %d, skipping" % (rt.realm_dir, version))
+    else:
+        #!TODO: Alternative to stdout?
+        rt.version_to_mapfile(version)
 
 def main(argv=sys.argv):
 
@@ -124,6 +150,8 @@ def main(argv=sys.argv):
             do_todo(drs_tree, opts, args)
         elif command == 'upgrade':
             do_upgrade(drs_tree, opts, args)
+        elif command == 'mapfile':
+            do_mapfile(drs_tree, opts, args)
         else:
             op.error("Unrecognised command %s" % command)
 
