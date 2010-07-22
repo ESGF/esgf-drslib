@@ -3,40 +3,40 @@
 Module Reference
 ================
 
-:mod:`isenes.drslib` -- Data Reference Syntax management library
+:mod:`drslib` -- Data Reference Syntax management library
 ================================================================
 
-.. automodule:: isenes.drslib
+.. automodule:: drslib
 
-:mod:`isenes.drslib.drs` -- DRS objects and utilities
+:mod:`drslib.drs` -- DRS objects and utilities
 -----------------------------------------------------
 
-.. automodule:: isenes.drslib.drs
+.. automodule:: drslib.drs
    :members:
 
-:mod:`isenes.drslib.translate` -- Translate DRS filepaths
+:mod:`drslib.translate` -- Translate DRS filepaths
 ---------------------------------------------------------
 
-.. automodule:: isenes.drslib.translate
+.. automodule:: drslib.translate
    :members: Translator
 
 
-:mod:`isenes.drslib.cmip5` -- DRS objects and utilities
+:mod:`drslib.cmip5` -- DRS objects and utilities
 -------------------------------------------------------
 
-.. automodule:: isenes.drslib.cmip5
+.. automodule:: drslib.cmip5
    :members:
 
-:mod:`isenes.drslib.mip_table` -- Loading CMOR MIP Tables
+:mod:`drslib.mip_table` -- Loading CMOR MIP Tables
 ---------------------------------------------------------
 
-.. automodule:: isenes.drslib.mip_table
+.. automodule:: drslib.mip_table
    :members:
 
 
-:mod:`isenes.drslib.drs_tree` -- Managing DRS directory structure versioning
+:mod:`drslib.drs_tree` -- Managing DRS directory structure versioning
 ----------------------------------------------------------------------------
 
-.. automodule:: isenes.drslib.drs_tree
+.. automodule:: drslib.drs_tree
    :members:
 

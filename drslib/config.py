@@ -6,7 +6,7 @@
 # the full license text.
 
 """
-Central configuration module
+
 
 """
 

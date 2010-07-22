@@ -1,5 +1,5 @@
 """
-Command-line access to isenes.drslib
+Command-line access to drslib
 
 """
 

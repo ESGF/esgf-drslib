@@ -353,20 +353,19 @@ class SubsetTranslator(BaseComponentTranslator):
 
 class Translator(object):
     """
+    An abstract class for translating between filepaths and
+    :class:`drslib.drs.DRS` objects.
+
+    Concrete subclasses are returned by factory functions such as
+    :mod:`drslib.cmip5.make_translator`.
 
     :property prefix: The prefix for all DRS paths including the
         activity.  All paths are interpreted as relative to this
         prefix.  Generated paths have this prefix added.
 
-    :property translators: A list of translators called in order to
-        handle translation
+    :property table_store: A :class:`drslib.mip_table.MIPTableStore`
+        object containing all MIP tables being used.
     
-    :property table_store: A
-        :class:`isenes.drslib.mip_table.MIPTableStore` instance
-        containing all MIP tables being used.
-    
-    :cvar ContextClass: The class of context to use.
-
     """
 
     ContextClass = TranslatorContext
@@ -377,7 +376,7 @@ class Translator(object):
 
     def filename_to_drs(self, filename, context=None):
         """
-        Translate a filename into a :class:`isenes.drslib.drs.DRS` object.
+        Translate a filename into a :class:`drslib.drs.DRS` object.
 
         Only those DRS components known from the filename will be set.
 
@@ -393,7 +392,8 @@ class Translator(object):
 
     def path_to_drs(self, path, context=None):
         """
-        Translate a directory path into a :class:`isenes.drslib.drs.DRS` object.
+        Translate a directory path into a :class:`drslib.drs.DRS`
+        object.
         
         Only those DRS components known from the path will be set.
 
@@ -408,7 +408,7 @@ class Translator(object):
 
     def filepath_to_drs(self, filepath, context=None):
         """
-        Translate a full filepath to a :class:`isenes.drslib.drs.DRS` object.
+        Translate a full filepath to a :class:`drslib.drs.DRS` object.
 
         """
         filepath = self._split_prefix(filepath)
@@ -431,7 +431,7 @@ class Translator(object):
 
     def drs_to_filepath(self, drs):
         """
-        Translate a :class:`isenes.drslib.drs.DRS` object into a full filepath.
+        Translate a :class:`drslib.drs.DRS` object into a full filepath.
 
         """
         context = self.drs_to_context(drs)
@@ -440,7 +440,7 @@ class Translator(object):
 
     def drs_to_path(self, drs):
         """
-        Translate a :class:`isenes.drslib.drs.DRS` object into a directory path.
+        Translate a :class:`drslib.drs.DRS` object into a directory path.
 
         """
         context = self.drs_to_context(drs)
@@ -449,7 +449,7 @@ class Translator(object):
 
     def drs_to_file(self, drs):
         """
-        Translate a :class:`isenes.drslib.drs.DRS` object into a filename.
+        Translate a :class:`drslib.drs.DRS` object into a filename.
 
         """
         context = self.drs_to_context(drs)

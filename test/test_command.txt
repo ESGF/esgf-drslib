@@ -28,12 +28,16 @@ Create a directory and build a drs-tree in it
 >>> os.mkdir(tmpdir)
 >>> gen_drs.write_eg2(tmpdir)
 
->>> cmd_args = "--root=%s --product=output --institute=TEST --model=HadCM3" % tmpdir
+Create a function to run the drs_tree command
+
+>>> def do_drs_tree(subcommand, args=''):
+... 	cmd = "drs_tree %s --root=%s --product=output --institute=TEST \
+...                        --model=HadCM3 %s" % (subcommand, tmpdir, args)    
+...     main(cmd.split())
  
 List the realm-trees
 
->>> cmd = "drs_tree list %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+>>> do_drs_tree('list') #doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -41,8 +45,9 @@ DRS Tree at ...
 .../output/TEST/HadCM3/1pctto4x/day/atmos  INITIAL
 ==============================================================================
 
->>> cmd = "drs_tree todo %s --realm=atmos" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
+Show what manipulations will be done for next version
+
+>>> do_drs_tree('todo', '--realm=atmos') # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
 ==============================================================================
 Realm Tree ... todo for version 1
 ------------------------------------------------------------------------------
@@ -53,14 +58,14 @@ ln -s .../output/TEST/HadCM3/1pctto4x/day/atmos/files/tas_r1i1p1_1/tas_day_HadCM
 
 Upgrade one Realm Tree
 
->>> cmd = "drs_tree upgrade %s --realm=atmos" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+>>> do_drs_tree('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
 ==============================================================================
 Upgrading .../output/TEST/HadCM3/1pctto4x/day/atmos to version 1 ... done
 ==============================================================================
 
->>> cmd = "drs_tree list %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+List the results
+
+>>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -68,15 +73,15 @@ DRS Tree at ...
 .../output/TEST/HadCM3/1pctto4x/day/atmos  VERSIONED       1
 ==============================================================================
 
->>> cmd = "drs_tree upgrade %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+Upgrade the other Realm Tree
+
+>>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
 Upgrading .../output/TEST/HadCM3/1pctto4x/day/ocean to version 1 ... done
 Realm Tree .../output/TEST/HadCM3/1pctto4x/day/atmos has no pending upgrades
 ==============================================================================
 
->>> cmd = "drs_tree list %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+>>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -84,11 +89,12 @@ DRS Tree at ...
 .../output/TEST/HadCM3/1pctto4x/day/atmos  VERSIONED       1
 ==============================================================================
 
+Simulate a new file ariving
+
 >>> cmd= "touch %s/output/TEST/HadCM3/1pctto4x/day/atmos/pr/r1i1p1/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc" % tmpdir
 >>> os.system(cmd)
 0
->>> cmd = "drs_tree list %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+>>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -96,15 +102,13 @@ DRS Tree at ...
 .../output/TEST/HadCM3/1pctto4x/day/atmos  VERSIONED_TRANS 1
 ==============================================================================
 
->>> cmd = "drs_tree upgrade %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+>>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
 Realm Tree .../output/TEST/HadCM3/1pctto4x/day/ocean has no pending upgrades
 Upgrading .../output/TEST/HadCM3/1pctto4x/day/atmos to version 2 ... done
 ==============================================================================
 
->>> cmd = "drs_tree list %s" % cmd_args
->>> main(cmd.split()) # doctest:+ELLIPSIS
+>>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ realm-dataset and what files are unversioned.  Calling
 to move unversioned files into a new version.
 
 Detailed diagnostics can be logged by setting handlers for the logger
-``isenes.drslib.drs_tree``.
+``drslib.drs_tree``.
 
 
 """

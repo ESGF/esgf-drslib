@@ -272,7 +272,7 @@ def get_table_store():
 
 def make_translator(prefix, with_version=True):
     """
-    Return a :class:`drslib.translator.Translator` object for
+    Return a :class:`drslib.translate.Translator` object for
     translating filepaths to and from ``DRS`` instances.
 
     :param prefix: The path to the root of the DRS tree.  This should
@@ -325,9 +325,3 @@ def make_translator(prefix, with_version=True):
 
 
 
-
-def deduce_variable_details(variable, realm=None, table=None, frequency=None):
-    """
-    If you know the variable and
-    
-    """

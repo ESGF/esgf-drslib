@@ -18,7 +18,7 @@ class TestEg(TestCase):
     __test__ = False
 
     def setUp(self):
-        self.tmpdir = tempfile.mkdtemp(prefix='isenes_drslib')
+        self.tmpdir = tempfile.mkdtemp(prefix='drslib')
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
