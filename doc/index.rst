@@ -7,7 +7,15 @@
 Welcome to drslib's documentation!
 ==================================
 
-Contents:
+Drslib is a Python library for processing the 5th Climate Model
+Intercomparison Project (CMIP5_) Data Reference Syntax (DRS_).  It has
+been developed by the `Centre for Environmental Data Archival
+<http://ceda.ac.uk>`_ as part of the ESG Federation.
+
+.. _CMIP5: http://cmip-pcmdi.llnl.gov/cmip5/
+.. _DRS: http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
+
+
 
 .. toctree::
    :maxdepth: 3

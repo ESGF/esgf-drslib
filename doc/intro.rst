@@ -2,9 +2,6 @@
 Introduction
 ============
 
-This is a Python library for processing the 5th Climate Model
-Intercomparison Project [CMIP5]_ Data Reference Syntax [DRS]_.
-
 Use Cases
 =========
 
@@ -18,10 +15,10 @@ The design of the library has been driven by 3 requirements:
 Installing
 ==========
 
-drslib requires setuptools_ for installation.  You can run
-easy_install directly on the tarball::
+drslib requires setuptools_ or pip_ for installation.  Download and
+install with::
 
-  $ easy_install drslib*.tar.gz
+  $ easy_install -f http://ndg.nerc.ac.uk/dist/ drslib
 
 Quick Start
 ===========
@@ -88,3 +85,4 @@ Run doctest scripts in the examples directory
 .. [DRS] http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose
 .. _setuptools: http://pypi.python.org/pypi/setuptools
+.. _pip: http://pypi.python.org/pypi/pip
