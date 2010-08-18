@@ -1,0 +1,132 @@
+{# Junja template based on the ESGF standard website template #}
+{% block doctype -%}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+{% endblock %}
+{% extends "basic/layout.html" %}
+
+{% set projects = (
+  ('node-manager', "http://esgf.org/esg-node"),
+  ('publisher', "http://esgf.org/esg-publisher"),
+  ('orp', "http://esgf.org/orp"),
+  ('script-gen', "http://esgf.org/script-gen"),
+  ('search', "http://esgf.org/search"),
+  ('drslib', "http://esgf.org/drslib"),
+  ('stager', "http://esgf.org/stager"),
+)
+%}
+
+{% macro projectbar() %}
+<div class="projects">  <!-- projects -->   
+  {%- for p, url in projects %}
+    {% if p == theme_esgf_project %}
+      <b>{{ p }}</b> &middot;
+    {% else %}
+      <a href="{{ url }}">{{ p }}</a> &middot;
+    {% endif %}
+  {% endfor -%}
+</div> <!-- projects -->    
+{% endmacro %}
+
+
+<html>
+  <head>
+    {% block htmltitle %}
+    <title>ESGF: esgf-drslib</title>
+    {% endblock %}
+    {% block extrahead %}
+    <!-- the syle sheet link  -->
+    <!-- favuorite icon - needs to have the http://full_path link  -->
+    <link rel="icon" type="image/png" href="http://esgf.org/images/esgf-favicon.png">
+    <!-- keywords for search  engines  -->
+    <meta name="keywords" content="earth systems grid, go-essp, esgf, distributed computing, distributed storage, climage science">
+    <meta name="description" content="A distributed database for structured data.">		
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'> 
+    {% endblock %}
+  </head>
+  
+  <!-- the page code starts here -->    
+  <body>
+    <div >  <!-- body -->    
+      {% block header %}
+      <!-- header starts here -->
+      <div id="header" style="overflow: hidden">
+        <!-- image floats tot the right -->
+        <div style='float: right; margin-right: 20px'> 
+	  <img src='{{ pathto("_static/images/logo.png", 1) }}' width="70" height="70" >	 
+        </div>
+        
+	<div style='float: left; margin-right: 20px; margin-left: -10px'>
+	  <img src='http://esgf.org/images/esgf-logo.png' width="70" height="70" >
+        </div>
+	
+	<div>  <!-- inside header -->   
+	  <div class="title">ESGF</div>
+	  <div class="subtitle">Earth System Grid Federation</div>
+          <!-- projects top navigation -->  
+	  {{ projectbar() }}
+	  
+        </div>  <!-- inside header -->
+      </div>  <!-- header -->
+      <!-- left side navigation bar starts here -->
+      {# Support overriding left sidebar with template inheritance #}
+      {% block lsidebar %}
+      <div class="lsidebar">  <!-- lsidebar -->
+        <ul>
+	  <li>   <a href="http://esgf.org/">esgf</a> </li>
+          <li>   <a href="design.html">design</a> </li>
+          <li>   <a href="">download</a> </li>
+          <li>   <a href="quickstart.html">quickstart</a>  </li>
+          <li>   <a href="developer.html">developer&nbsp;info</a> </li>
+          <li>   <a href="performance.html">performance</a> </li>
+          <li>   <a href="http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary">repo</a> </li>
+          <li>   <a href="docs-generated/javadocs/">code docs</a> </li>
+          <li>   <a href="docs-generated/dep-reports/esgf-esgf-drslib-default.html">dep-report</a> </li>
+          <li>   <a href="docs-generated/test-reports/">unit tests</a> </li>
+          <li>   <a href="docs-generated/coverage-reports/">coverage</a> </li>
+          <li>   <a href="ci.html">ci</a> </li>
+          <li>   <a href="faq.html">faq</a> </li>
+          <li>   <a href="mailing_list.html">mailing list</a> </li>
+          <li>   <a href="bugs.html">bugs</a>  </li>
+          <li>   <a href="wiki.html">wiki</a>   </li>		
+	  <li>   <a href="http://esgf.org/blog" target="_blank">blog</a> </li>
+        </ul>
+
+      </div>   <!-- lsidebar -->
+      {% endblock lsidebar %}
+      {% endblock %}
+      <!-- main text comes here -->
+
+      {%- block content %}
+      {%- block sidebar1 %} {{ sidebar() }} {% endblock %}
+      
+      <div class="document">
+	{%- block document %}
+	<div class='content'>
+	  {{ super() }}
+	</div> <!-- content -->
+	{%- endblock %}
+
+	{%- block sidebar2 %}{% endblock %}
+	<div class="clearer"></div>
+      </div>
+      {%- endblock %}
+
+      <br class="clearfloat" />
+      {% block footer %}
+      <!-- footer section here -->
+      <div id="footer"> 
+	<div >  
+	  <div class="projects"> 
+	    <a href="http://www-pcmdi.llnl.gov" target="_other">PCMDI</a> &middot;
+	    <a href="http://cmip-pcmdi.llnl.gov/cmip5/" target="_other">CMIP5</a> &middot; 
+	    <a href="http://www.llnl.gov" target="_other">LLNL</a> &middot;
+            <a href="https://www.llnl.gov/disclaimer.html" target="_other">Privacy &amp; Legal Notice</a> &middot;
+            <a  > LLNL-WEB-xxxxxx &nbsp;&nbsp;&nbsp; </a &middot;></div>
+	</div>
+      </div>    <!-- footer -->      
+      {% endblock %}
+    </div> <!-- body -->    
+  </body>
+</html>
+
+
