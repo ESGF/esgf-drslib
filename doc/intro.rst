@@ -12,10 +12,11 @@ The design of the library has been driven by 3 requirements:
 3. Convert the CMIP3 directory structure into a DRS-compliant form.
 4. Manage multiple versions of DRS realm-datasets on the filesystem.
 
-Installing
-==========
 
-drslib requires setuptools_ or pip_ for installation.  Download and
+Quick Start
+===========
+
+drslib is requires setuptools_ or pip_ for installation.  Download and
 install with::
 
   $ pip install drslib
@@ -24,9 +25,8 @@ OR::
 
   $ easy_install drslib
 
+If you want to download the distribution manually visit drslib's `PyPI page <http://pypi.python.org/pypi/drslib>`_.
 
-Quick Start
-===========
 
 See the ``examples`` directory and ``translate_cmip3.py``.
 
