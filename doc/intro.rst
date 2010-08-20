@@ -18,7 +18,12 @@ Installing
 drslib requires setuptools_ or pip_ for installation.  Download and
 install with::
 
-  $ easy_install -f http://ndg.nerc.ac.uk/dist/ drslib
+  $ pip install drslib
+
+OR::
+
+  $ easy_install drslib
+
 
 Quick Start
 ===========
