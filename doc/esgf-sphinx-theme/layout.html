@@ -15,18 +15,52 @@
 )
 %}
 
+{% set internal_links = (
+  ('esgf', "http://esgf.org/"),
+  ('design', ""),
+  ('download', ""),
+  ('quickstart', "intro.html#quick-start"),
+  ('developer&nbsp;info', ""),
+  ('performance', ""),
+  ('repo', "http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary"),
+  ('code docs', ""),
+  ('dep-report', ""),
+  ('unit tests', ""),
+  ('coverage', ""),
+  ('ci', ""),
+  ('faq', ""),
+  ('mailing list', ""),
+  ('bugs', ""),
+  ('wiki', ""),
+  ('blog', ""),
+)
+%}  
+
 {% macro projectbar() %}
 <div class="projects">  <!-- projects -->   
-  {%- for p, url in projects %}
-    {% if p == theme_esgf_project %}
+  {%- for p, url in projects -%}
+    {%- if p == theme_esgf_project -%}
       <b>{{ p }}</b> &middot;
-    {% else %}
+    {%- else -%}
       <a href="{{ url }}">{{ p }}</a> &middot;
-    {% endif %}
-  {% endfor -%}
+    {%- endif %}
+  {%- endfor -%}
 </div> <!-- projects -->    
 {% endmacro %}
 
+{% macro subprojectbar() %}
+<div class="lsidebar">  <!-- lsidebar -->
+  <ul>
+    {%- for p, url in internal_links -%}
+      {%- if url == "" -%}
+      <li class="missing">{{ p }}</li>
+      {%- else -%}      
+      <li><a href="{{ url }}">{{ p }}</a></li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+</div> <!-- lsidebar -->
+{% endmacro %}
 
 <html>
   <head>
@@ -70,28 +104,7 @@
       <!-- left side navigation bar starts here -->
       {# Support overriding left sidebar with template inheritance #}
       {% block lsidebar %}
-      <div class="lsidebar">  <!-- lsidebar -->
-        <ul>
-	  <li>   <a href="http://esgf.org/">esgf</a> </li>
-          <li>   <a href="design.html">design</a> </li>
-          <li>   <a href="">download</a> </li>
-          <li>   <a href="quickstart.html">quickstart</a>  </li>
-          <li>   <a href="developer.html">developer&nbsp;info</a> </li>
-          <li>   <a href="performance.html">performance</a> </li>
-          <li>   <a href="http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary">repo</a> </li>
-          <li>   <a href="docs-generated/javadocs/">code docs</a> </li>
-          <li>   <a href="docs-generated/dep-reports/esgf-esgf-drslib-default.html">dep-report</a> </li>
-          <li>   <a href="docs-generated/test-reports/">unit tests</a> </li>
-          <li>   <a href="docs-generated/coverage-reports/">coverage</a> </li>
-          <li>   <a href="ci.html">ci</a> </li>
-          <li>   <a href="faq.html">faq</a> </li>
-          <li>   <a href="mailing_list.html">mailing list</a> </li>
-          <li>   <a href="bugs.html">bugs</a>  </li>
-          <li>   <a href="wiki.html">wiki</a>   </li>		
-	  <li>   <a href="http://esgf.org/blog" target="_blank">blog</a> </li>
-        </ul>
-
-      </div>   <!-- lsidebar -->
+      {{ subprojectbar() }}
       {% endblock lsidebar %}
       {% endblock %}
       <!-- main text comes here -->

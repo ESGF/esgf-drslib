@@ -70,6 +70,10 @@ a {
 	text-decoration: underline;
 	color: #F33;
 }
+.lsidebar li.missing {
+        text-decoration: none;
+	color: #8b8888;
+}
 .content {
 	/*width: 700px;*/
 	clear: none;
