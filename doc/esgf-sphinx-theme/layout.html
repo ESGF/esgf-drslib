@@ -8,8 +8,9 @@
   ('node-manager', "http://esgf.org/esg-node-site/"),
   ('publisher', "http://esgf.org/esg-publisher-site/"),
   ('orp', "http://esgf.org/esg-orp-site"),
-  ('script-gen', "http://esgf.org/esg-script-gen-site"),
+  ('saml', "http://esgf.org/esg-saml-site"),
   ('search', "http://esgf.org/esg-search-site"),
+  ('script-gen', "http://esgf.org/esg-script-gen-site"),
   ('drslib', "http://esgf.org/esgf-drslib-site"),
   ('stager', "http://esgf.org/esgf-stager-site"),
 )
@@ -39,9 +40,9 @@
 {% macro projectbar() %}
 <div class="projects">  <!-- projects -->   
   {%- for p, url in projects -%}
-    {%- if p == theme_esgf_project -%}
+    {%- if p == theme_esgf_project %}
       <b>{{ p }}</b> &middot;
-    {%- else -%}
+    {%- else %}
       <a href="{{ url }}">{{ p }}</a> &middot;
     {%- endif %}
   {%- endfor -%}
@@ -52,11 +53,11 @@
 <div class="lsidebar">  <!-- lsidebar -->
   <ul>
     {%- for p, url in internal_links -%}
-      {%- if url == "" -%}
+      {%- if url == "" %}
       <li class="missing">{{ p }}</li>
-      {%- else -%}      
+      {%- else %}      
       <li><a href="{{ url }}">{{ p }}</a></li>
-      {%- endif -%}
+      {%- endif %}
     {%- endfor -%}
   </ul>
 </div> <!-- lsidebar -->
