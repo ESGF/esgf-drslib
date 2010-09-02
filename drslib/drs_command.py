@@ -10,6 +10,9 @@ from optparse import OptionParser
 from drslib.drs_tree import DRSTree
 from drslib import config
 
+import logging
+log = logging.getLogger(__name__)
+
 usage = """usage: %prog [command] [options]
 
 command:
@@ -18,6 +21,7 @@ command:
   upgrade         make changes to the realm-tree to upgrade to the next version.
   mapfile         make a mapfile of the selected realm-trees
 """
+
 
 def make_parser():
     op = OptionParser(usage=usage)
@@ -111,6 +115,9 @@ def do_mapfile(drs_tree, opts, args):
         raise Exception("You must select 1 realm-tree to create a mapfile.  %d selected" %
                         len(drs_tree.realm_trees))
 
+    if len(drs_tree.realm_trees) == 0:
+        raise Exception("No realm trees selected")
+
     rt = drs_tree.realm_trees[0]
 
     #!TODO: better argument handling
@@ -156,6 +163,7 @@ def main(argv=sys.argv):
             op.error("Unrecognised command %s" % command)
 
     except Exception, e:
+        log.exception(e)
         op.error(e)
     
 

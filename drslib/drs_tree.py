@@ -54,6 +54,9 @@ class DRSTree(object):
         self.drs_root = drs_root
         self.realm_trees = []
         
+        if not os.path.isdir(drs_root):
+            raise Exception('DRS root "%s" is not a directory' % self.drs_root)
+
         
     def discover(self, product=None, institute=None, model=None, 
                  experiment=None,
