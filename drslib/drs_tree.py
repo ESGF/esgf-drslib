@@ -22,10 +22,9 @@ from glob import glob
 import re
 import stat
 
-import cdms2
-
 
 from drslib.cmip5 import make_translator
+from drslib.translate import TranslationError
 from drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
 from drslib import config, mapfile
 
@@ -53,14 +52,14 @@ class DRSTree(object):
         """
         self.drs_root = drs_root
         self.realm_trees = []
-        
+        self._vtrans = make_translator(drs_root)
+        self._incoming = None
+
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
-        
     def discover(self, product=None, institute=None, model=None, 
-                 experiment=None,
-                 frequency=None, realm=None):
+                 experiment=None, frequency=None, realm=None, ensemble=None):
         """
         Scan the directory structure for RealmTrees.
 
@@ -74,6 +73,8 @@ class DRSTree(object):
         allows an exaustive scan to be forced if desired.
 
         """
+
+        #!TODO: Add ensemble to components
 
         drs = DRS(product=product, institute=institute, model=model,
                   experiment=experiment, frequency=frequency, realm=realm)
@@ -102,7 +103,73 @@ class DRSTree(object):
         for rt_path in realm_trees:
             drs = cmorpath_to_drs(self.drs_root, rt_path)
             log.info('Discovered realm-tree at %s' % rt_path)
-            self.realm_trees.append(RealmTree(self.drs_root, drs))
+            self.realm_trees.append(RealmTree(drs, self))
+
+        
+    def discover_incoming(self, incoming_glob, **components):
+        """
+        Scan the filesystem for incoming DRS files.
+
+        :incoming_glob: A filesystem wildcard which should resolve to 
+            directories to recursively scan for files.
+
+
+        """
+
+        drs_list = []
+        paths = glob(incoming_glob)
+        for path in paths:
+            for dirpath, dirnames, filenames in os.walk(path):
+                for filename in filenames:
+                    log.debug('Processing %s' % filename)
+                    try:
+                        drs = self._vtrans.filename_to_drs(filename)
+                    except TranslationError:
+                        # File doesn't match
+                        log.debug('File %s is not a DRS file' % filename)
+                        continue
+
+                    for k, v in components.items():
+                        # If component is present in drs act as a filter
+                        drs_v = getattr(drs, k, None)
+                        if drs_v is not None:
+                            if drs_v != v: 
+                                break
+                        # Otherwise set as default
+                        else:
+                            setattr(drs, k, v)
+                    else:
+                        # Only if break not called
+                        log.info('Discovered %s as %s' % (filename, drs))
+                        drs_list.append((os.path.join(dirpath, filename), drs))
+
+        self._incoming = DRSList(drs_list)
+
+class DRSList(list):
+    """
+    A list of tuples (filepath, DRS) objects offering a simple query interface.
+
+    """
+
+    def select(self, **kw):
+        """Select all DRS objects with given component values.
+        
+        For each key in ``kw`` if the value is a list select all
+        DRS objects with values in that list, otherwise select
+        all objects with that value.
+
+        """
+        items = self
+        for k, v in kw.items():
+            if type(v) == list:
+                items = [x for x in items if getattr(x[1], k, None) in v]
+            else:
+                items = [x for x in items if getattr(x[1], k, None) == v]
+
+        return DRSList(items)
+
+        
+
 
 class RealmTree(object):
     """
@@ -135,18 +202,18 @@ class RealmTree(object):
     DIFF_V1_ONLY = 4
     DIFF_V2_ONLY = 8
 
-    def __init__(self, drs_root, drs):
+    def __init__(self, drs, drs_tree):
 
-        self.drs_root = drs_root
+        self.drs_tree = drs_tree
         self.drs = drs
         self.state = None
         self._todo = []
         self.versions = {}
         self.latest = 0
-        self._vtrans = make_translator(drs_root)
-        self._cmortrans = make_translator(drs_root, with_version=False)
+        self._vtrans = make_translator(drs_tree.drs_root)
+        self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
 
-        self.realm_dir = os.path.join(self.drs_root,
+        self.realm_dir = os.path.join(self.drs_tree.drs_root,
                                       self.drs.product,
                                       self.drs.institute,
                                       self.drs.model,
@@ -158,26 +225,6 @@ class RealmTree(object):
 
         self.deduce_state()
         self._setup_versioning()
-
-    @classmethod
-    def from_path(Class, path):
-        """
-        Construct a RealmTree from a realm-level filesystem path.
-
-        """
-        p = os.path.normpath(os.path.abspath(path))
-        p, realm = os.path.split(p)
-        p, frequency = os.path.split(p)
-        p, experiment = os.path.split(p)
-        p, model = os.path.split(p)
-        p, institute = os.path.split(p)
-        p, product = os.path.split(p)
-        drs_root = p
-
-        drs = DRS(realm=realm, frequency=frequency, experiment=experiment,
-                  model=model, institute=institute, product=product)
-
-        return Class(drs_root, drs)
 
     def deduce_state(self):
         """
@@ -379,27 +426,35 @@ class RealmTree(object):
                                                         topdown=False):
                 for filename in filenames:
                     filepath = os.path.join(dirpath, filename)
-                    drs = self._vtrans.filepath_to_drs(filepath)
+                    drs = self.drs_tree._vtrans.filepath_to_drs(filepath)
                     self.versions[i].append((filepath, drs))
 
             i += 1
             
             
     def _deduce_todo(self):
-        #!WARNING: Only call after _deduce_versions()
-        todo = self._todo = []
-        
-        for dir in os.listdir(self.realm_dir):
-            pat = r'%s|%s|v\d+' % (VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR)
-            if re.match(pat, dir):
-                continue
+        """
+        Filter the drs_tree's incoming list to find new files in this
+        RealmTree.
 
-            path = os.path.join(self.realm_dir, dir)
-            for dirpath, dirnames, filenames in os.walk(path, topdown=False):
-                for filepath in (os.path.join(dirpath, f) for f in filenames):
-                    drs = self._cmortrans.filepath_to_drs(filepath)
-                    todo.append((filepath, drs))
+        """
 
+        FILTER_COMPONENTS = ['institution', 'model', 'experiment',
+                             'frequency', 'realm', 'ensemble']
+
+        # Gather DRS components from the template drs instance to filter
+        filter = {}
+        for comp in FILTER_COMPONENTS:
+            val = getattr(self.drs, comp, None)
+            if val is not None:
+                filter[comp] = val
+
+        # Filter the incoming list
+        self._todo = self.drs_tree._incoming.select(**filter)
+
+        log.info('Deduced %d incoming DRS files for RealmTree %s' % 
+                 (len(self._todo), self.drs))
+                
 
     def _diff_file(self, filepath1, filepath2, by_tracking_id=False):
         diff_state = self.DIFF_NONE
@@ -421,6 +476,7 @@ class RealmTree(object):
 
 
 def _get_tracking_id(filename):
+    import cdms2
     ds = cdms2.open(filename)
     return ds.tracking_id
 

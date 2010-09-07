@@ -18,7 +18,7 @@ class TestEg(TestCase):
     __test__ = False
 
     def setUp(self):
-        self.tmpdir = tempfile.mkdtemp(prefix='drslib')
+        self.tmpdir = tempfile.mkdtemp(prefix='drslib-')
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -32,8 +32,13 @@ class TestEg1(TestEg):
         gen_drs.write_eg1(self.tmpdir)
 
     def test_1(self):
-        
-        rt = RealmTree.from_path('%s/output/TEST/HadCM3/1pctto4x/day/atmos' % self.tmpdir)
+        dt = DRSTree(self.tmpdir)
+        dt.discover_incoming(os.path.join(self.tmpdir, 'incoming'))
+        dt.discover(product='output', institute='TEST', model='HadCM3', 
+                    experiment='1pctto4x', realm='atmos')
+        assert len(dt.realm_trees) == 1
+        rt = dt.realm_trees[0]
+
         assert rt.versions == {}
         assert len(rt._todo) == 45
         assert rt._todo[0][1].variable == 'rsus'
@@ -41,6 +46,7 @@ class TestEg1(TestEg):
     
     def test_2(self):
         dt = DRSTree(self.tmpdir)
+        dt.discover_incoming(os.path.join(self.tmpdir, 'incoming'))
         dt.discover(product='output', institute='TEST', model='HadCM3')
 
         assert len(dt.realm_trees) == 1
@@ -48,6 +54,7 @@ class TestEg1(TestEg):
 
     def test_3(self):
         dt = DRSTree(self.tmpdir)
+        dt.discover_incoming(os.path.join(self.tmpdir, 'incoming'))
         dt.discover(product='output', institute='TEST', model='HadCM3')
         
         rt = dt.realm_trees[0]

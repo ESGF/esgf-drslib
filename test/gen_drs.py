@@ -144,9 +144,12 @@ def write_eg_file(filepath):
 def write_eg(prefix, seq):
     """
     Create a test directory tree under prefix.
+    Files are created in <prefix>/incoming in CMOR's
+    output directory structure
 
     """
-    trans = cmip5.make_translator(prefix, with_version=False)
+    incoming = os.path.join(prefix, prefix)
+    trans = cmip5.make_translator(incoming, with_version=False)
     for drs in seq:
         path = trans.drs_to_filepath(drs)
         if not os.path.exists(os.path.dirname(path)):

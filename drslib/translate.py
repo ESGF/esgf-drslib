@@ -152,7 +152,10 @@ class GenericComponentTranslator(BaseComponentTranslator):
 
     def filename_to_drs(self, context):
         if self.file_i is not None:
-            s = self._validate(context.file_parts[self.file_i])
+            try:
+                s = self._validate(context.file_parts[self.file_i])
+            except IndexError:
+                raise TranslationError("Filename contains too few components")
             context.set_drs_component(self.component, s)
 
 
