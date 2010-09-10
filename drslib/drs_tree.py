@@ -43,6 +43,11 @@ class DRSTree(object):
     """
     Manage a Data Reference Syntax directory structure.
 
+    A DRSTree represents the root of a DRS hierarchy.  Also associated
+    with DRSTree objects is a incoming directory pattern that is
+    searched for files matching the DRS structure.  Any file within
+    the incoming tree will be considered for new versions of RealmTrees.
+
     """
 
     def __init__(self, drs_root):
@@ -51,7 +56,7 @@ class DRSTree(object):
 
         """
         self.drs_root = drs_root
-        self.realm_trees = []
+        self.realm_trees = {}
         self._vtrans = make_translator(drs_root)
         self._incoming = None
 
@@ -76,9 +81,6 @@ class DRSTree(object):
 
         #!TODO: Add ensemble to components
 
-        drs = DRS(product=product, institute=institute, model=model,
-                  experiment=experiment, frequency=frequency, realm=realm)
-
         # Grab options from the config
         if not product:
             product = config.drs_defaults.get('product')
@@ -89,6 +91,9 @@ class DRSTree(object):
 
         if product is None or institute is None or model is None:
             raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
+
+        drs = DRS(product=product, institute=institute, model=model,
+                  experiment=experiment, frequency=frequency, realm=realm)
 
         # If these options are not specified they default to wildcards
         if not frequency:
@@ -102,17 +107,20 @@ class DRSTree(object):
         realm_trees = glob(rt_glob)
         for rt_path in realm_trees:
             drs = cmorpath_to_drs(self.drs_root, rt_path)
+            drs_id = drs.to_dataset_id()
+            if drs_id in self.realm_trees:
+                raise Exception("Duplicate RealmTree %s" % drs_id)
+
             log.info('Discovered realm-tree at %s' % rt_path)
-            self.realm_trees.append(RealmTree(drs, self))
+            self.realm_trees[drs_id] = RealmTree(drs, self)
 
         
     def discover_incoming(self, incoming_glob, **components):
         """
         Scan the filesystem for incoming DRS files.
 
-        :incoming_glob: A filesystem wildcard which should resolve to 
+        :incoming_dir: A filesystem wildcard which should resolve to 
             directories to recursively scan for files.
-
 
         """
 
@@ -144,6 +152,24 @@ class DRSTree(object):
                         drs_list.append((os.path.join(dirpath, filename), drs))
 
         self._incoming = DRSList(drs_list)
+
+        # Instantiate a RealmTree for each unique Realm-level dataset
+        for path, drs in self._incoming:
+            drs_id = drs.to_dataset_id()
+            if drs_id not in self.realm_trees:
+                self.realm_trees[drs_id] = RealmTree(drs, self)
+            
+    def remove_incoming(self, path):
+        # Remove path from incoming
+        #!TODO: This isn't efficient.  Refactoring of _incoming or _todo required.
+        for npath, drs in self._incoming:
+            if path == npath:
+                self._incoming.remove((npath, drs))
+                break
+        else:
+            # not found
+            raise Exception("File %s not found in incoming" % src)
+
 
 class DRSList(list):
     """
@@ -221,7 +247,8 @@ class RealmTree(object):
                                       self.drs.frequency,
                                       self.drs.realm)
         if not os.path.exists(self.realm_dir):
-            raise RuntimeError('Realm directory %s does not exist' % self.realm_dir)
+            log.info("New RealmTree being created at %s" % self.realm_dir)
+            os.makedirs(self.realm_dir)
 
         self.deduce_state()
         self._setup_versioning()
@@ -392,6 +419,9 @@ class RealmTree(object):
         log.info('Moving %s %s' % (src, dest))
         shutil.move(src, dest)
 
+        # Remove src from incoming
+        self.drs_tree.remove_incoming(src)
+
     def _do_link(self, src, dest):
         dir = os.path.dirname(dest)
         if not os.path.exists(dir):
@@ -440,7 +470,10 @@ class RealmTree(object):
         """
 
         FILTER_COMPONENTS = ['institution', 'model', 'experiment',
-                             'frequency', 'realm', 'ensemble']
+                             'frequency', 'realm',
+                             #!TODO: reinstate when ensemble added to realm_trees
+                             #'ensemble',
+                             ]
 
         # Gather DRS components from the template drs instance to filter
         filter = {}

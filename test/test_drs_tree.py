@@ -19,6 +19,7 @@ class TestEg(TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='drslib-')
+        self.incoming = os.path.join(self.tmpdir, 'incoming')
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -33,11 +34,13 @@ class TestEg1(TestEg):
 
     def test_1(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover_incoming(os.path.join(self.tmpdir, 'incoming'))
-        dt.discover(product='output', institute='TEST', model='HadCM3', 
+        dt.discover(product='output', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
+        dt.discover_incoming(self.incoming, product='output')
         assert len(dt.realm_trees) == 1
-        rt = dt.realm_trees[0]
+        k = dt.realm_trees.keys()[0]
+        assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos'
+        rt = dt.realm_trees[k]
 
         assert rt.versions == {}
         assert len(rt._todo) == 45
@@ -46,18 +49,19 @@ class TestEg1(TestEg):
     
     def test_2(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover_incoming(os.path.join(self.tmpdir, 'incoming'))
-        dt.discover(product='output', institute='TEST', model='HadCM3')
+        dt.discover(product='output', institute='MOHC', model='HadCM3')
+        dt.discover_incoming(self.incoming, product='output')
 
         assert len(dt.realm_trees) == 1
-        assert dt.realm_trees[0].drs.realm == 'atmos'
+        rt = dt.realm_trees.values()[0]
+        assert rt.drs.realm == 'atmos'
 
     def test_3(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover_incoming(os.path.join(self.tmpdir, 'incoming'))
-        dt.discover(product='output', institute='TEST', model='HadCM3')
+        dt.discover(product='output', institute='MOHC', model='HadCM3')
+        dt.discover_incoming(self.incoming, product='output')
         
-        rt = dt.realm_trees[0]
+        rt = dt.realm_trees.values()[0]
         assert rt.state == rt.STATE_INITIAL
 
         rt.do_version()
@@ -75,10 +79,11 @@ class TestEg2(TestEg):
 
     def test_1(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='TEST', model='HadCM3')
+        dt.discover(product='output', institute='MOHC', model='HadCM3')
+        dt.discover_incoming(self.incoming, product='output')
 
         assert len(dt.realm_trees) == 2
-        assert set([x.drs.realm for x in dt.realm_trees]) == set(['atmos', 'ocean'])
+        assert set([x.drs.realm for x in dt.realm_trees.values()]) == set(['atmos', 'ocean'])
 
 #!TODO: latest
 
@@ -90,13 +95,15 @@ class TestEg3(TestEg):
 
     def _cmor1(self):
         gen_drs.write_eg3_1(self.tmpdir)
-        dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='TEST', model='HadCM3')
+        self.dt = DRSTree(self.tmpdir)
+        self.dt.discover(product='output', institute='MOHC', model='HadCM3')
+        self.dt.discover_incoming(self.incoming, product='output')
 
-        (self.rt, ) = dt.realm_trees
+        (self.rt, ) = self.dt.realm_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg3_2(self.tmpdir)
+        self.dt.discover_incoming(self.incoming, product='output')
         self.rt.deduce_state()
 
         
@@ -109,11 +116,21 @@ class TestEg3(TestEg):
         return [os.readlink(lnk) for lnk in links if os.path.islink(lnk)]
 
 
+    def test_01(self):
+        self._cmor1()
+        assert len(self.rt.drs_tree._incoming) > 0
+
+        self.rt.do_version()
+        assert len(self.rt.drs_tree._incoming) == 0
+
     def test_1(self):
         self._cmor1()
         self.rt.do_version()
+
         self._cmor2()
         self.rt.do_version()
+
+        assert len(self.rt.drs_tree._incoming) == 0
 
         assert self._exists('files')
         assert self._exists('files/rsus_r1i1p1_2')
@@ -198,13 +215,15 @@ class TestEg4(TestEg3):
 
     def _cmor1(self):
         gen_drs.write_eg4_1(self.tmpdir)
-        dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='TEST', model='HadCM3')
+        self.dt = DRSTree(self.tmpdir)
+        self.dt.discover(product='output', institute='MOHC', model='HadCM3')
+        self.dt.discover_incoming(self.incoming, product='output')
 
-        (self.rt, ) = dt.realm_trees
+        (self.rt, ) = self.dt.realm_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg4_2(self.tmpdir)
+        self.dt.discover_incoming(self.incoming, product='output')
         self.rt.deduce_state()
 
     def test_1(self):
@@ -259,13 +278,15 @@ class TestEg5(TestEg4):
 
     def _cmor1(self):
         gen_drs.write_eg5_1(self.tmpdir)
-        dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='TEST', model='HadCM3')
+        self.dt = DRSTree(self.tmpdir)
+        self.dt.discover(product='output', institute='TEST', model='HadCM3')
+        self.dt.discover_incoming(self.incoming, product='output')
 
-        (self.rt, ) = dt.realm_trees
+        (self.rt, ) = self.dt.realm_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg5_2(self.tmpdir)
+        self.dt.discover_incoming(self.incoming, product='output')
         self.rt.deduce_state()
 
     # Do test1 from superclass
@@ -328,6 +349,8 @@ class TestRealmListing(TestEg):
         self.dt.discover(product='output', 
                          institute=institute, 
                          model=model)
+        self.dt.discover_incoming(self.incoming, product='output', institute=institute,
+                                  model=model)
 
     def _do_version(self, rt):
         assert rt.state == rt.STATE_INITIAL
@@ -343,12 +366,12 @@ class TestRealmListing1(TestRealmListing):
     def test_1(self):
 
         self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
-        rt = self.dt.realm_trees[0]
+        rt = self.dt.realm_trees.values()[0]
         self._do_version(rt)
 
     def test_2(self):
         self._discover('MPI-M', 'ECHAM6-MPIOM-LR')
-        rt = self.dt.realm_trees[0]
+        rt = self.dt.realm_trees.values()[0]
         self._do_version(rt)
 
 class TestRealmMapfile(TestRealmListing):
@@ -358,7 +381,7 @@ class TestRealmMapfile(TestRealmListing):
 
     def test_1(self):
         self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
-        rt = self.dt.realm_trees[0]
+        rt = self.dt.realm_trees.values()[0]
         self._do_version(rt)
 
         # Make a mapfile

@@ -95,7 +95,7 @@ def subset_range(date1, date2, clim, n):
 
 
 def make_eg(**iter_template):
-    template = DRS(activity='cmip5', product='output', institute='TEST',
+    template = DRS(activity='cmip5', product='output', institute='MOHC',
                    model='HadCM3', experiment='1pctto4x', 
                    frequency='day', realm='atmos', table='day',
                    )
@@ -115,7 +115,11 @@ def make_subset(y1=2000, y2=2010, n=5):
 def eg1():
     return make_eg(variable=['tas', 'pr', 'rsus'], ensemble=emember_range(3))
 def eg2():
-    return make_eg(variable=['tas', 'pr', 'rsus'], realm=['atmos', 'ocean'])
+    for r in make_eg(variable=['tas'], realm=['atmos']):
+        yield r
+    for r in make_eg(variable=['thetao'], table=['Omon'], realm=['ocean']):
+        yield r
+
 
 # New variable added to realm
 def eg3_1():
@@ -148,7 +152,7 @@ def write_eg(prefix, seq):
     output directory structure
 
     """
-    incoming = os.path.join(prefix, prefix)
+    incoming = os.path.join(prefix, 'incoming')
     trans = cmip5.make_translator(incoming, with_version=False)
     for drs in seq:
         path = trans.drs_to_filepath(drs)
@@ -166,6 +170,7 @@ def write_listing(prefix, listing_file):
     Create a drs-tree from a listing file
     
     """
+    incoming = os.path.join(prefix, 'incoming')
     for line in open(listing_file):
         line = line.strip()
         if not line or line[0] == '#':
@@ -173,7 +178,7 @@ def write_listing(prefix, listing_file):
         if line[0] == '/':
             raise Exception("Absolute path in listing file!")
 
-        filepath = os.path.join(prefix, line)
+        filepath = os.path.join(incoming, line)
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
             write_eg_file(filepath)
