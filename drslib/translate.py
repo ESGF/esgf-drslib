@@ -36,7 +36,7 @@ class TranslatorContext(object):
     """
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
         if path is None:
-            self.path_parts = [None] * 9
+            self.path_parts = [None] * 12
         else:
             self.path_parts = path.split('/')
 
@@ -234,6 +234,19 @@ class VersionedVarTranslator(CMORVarTranslator):
     file_var_i = CMIP5_DRS.FILE_VARIABLE
     file_table_i = CMIP5_DRS.FILE_TABLE
     path_var_i = CMIP5_DRS.PATH_VARIABLE
+    path_table_i = CMIP5_DRS.PATH_TABLE
+
+    def path_to_drs(self, context):
+        super(VersionedVarTranslator, self).path_to_drs(context)
+
+        tablename = context.path_parts[self.path_table_i]
+
+        context.set_drs_component('table', tablename)
+
+    def drs_to_filepath(self, context):
+        super(VersionedVarTranslator, self).drs_to_filepath(context)
+
+        context.path_parts[self.path_table_i] = context.drs.table
 
 class EnsembleTranslator(BaseComponentTranslator):
     file_i = CMIP5_CMOR_DRS.FILE_ENSEMBLE

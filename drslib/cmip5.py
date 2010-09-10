@@ -29,7 +29,7 @@ class ProductTranslator(T.GenericComponentTranslator):
 # CCSR, CNRM, CSIRO, GFDL, INM, IPSL, LASG, MOHC, MPI-M, MRI, NCAR, NCC, NIMR
 
 
-
+#!TODO: make this configurable with metaconfig
 model_institute_map = read_model_table(config.model_table)        
 cmip3_models = {
     'BCC-CM1': 'CMA',

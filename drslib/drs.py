@@ -89,7 +89,8 @@ class DRS(object):
         
         """
         return '.'.join((self.activity, self.product, self.institute, self.model,
-                         self.experiment, self.frequency, self.realm))
+                         self.experiment, self.frequency, self.realm,
+                         self.table, 'r%di%dp%d' % self.ensemble))
                     
 
 

@@ -64,7 +64,8 @@ class DRSTree(object):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
     def discover(self, product=None, institute=None, model=None, 
-                 experiment=None, frequency=None, realm=None, ensemble=None):
+                 experiment=None, frequency=None, realm=None, 
+                 table=None, ensemble=None):
         """
         Scan the directory structure for RealmTrees.
 
@@ -79,8 +80,6 @@ class DRSTree(object):
 
         """
 
-        #!TODO: Add ensemble to components
-
         # Grab options from the config
         if not product:
             product = config.drs_defaults.get('product')
@@ -93,7 +92,8 @@ class DRSTree(object):
             raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
 
         drs = DRS(product=product, institute=institute, model=model,
-                  experiment=experiment, frequency=frequency, realm=realm)
+                  experiment=experiment, frequency=frequency, realm=realm,
+                  table=table, ensemble=ensemble)
 
         # If these options are not specified they default to wildcards
         if not frequency:
@@ -102,7 +102,11 @@ class DRSTree(object):
             drs.realm = '*'
         if not experiment:
             drs.experiment = '*'
-
+        if not table:
+            drs.table = '*'
+        if not ensemble:
+            drs.ensemble = '*'
+            
         rt_glob = drs_to_cmorpath(self.drs_root, drs)
         realm_trees = glob(rt_glob)
         for rt_path in realm_trees:
@@ -196,7 +200,7 @@ class DRSList(list):
 
         
 
-
+#!TODO: Not at realm level any more.  Call it PublicationTree?
 class RealmTree(object):
     """
     A directory tree at the Realm level.
@@ -239,13 +243,16 @@ class RealmTree(object):
         self._vtrans = make_translator(drs_tree.drs_root)
         self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
 
+        ensemble = 'r%di%dp%d' % self.drs.ensemble
         self.realm_dir = os.path.join(self.drs_tree.drs_root,
                                       self.drs.product,
                                       self.drs.institute,
                                       self.drs.model,
                                       self.drs.experiment,
                                       self.drs.frequency,
-                                      self.drs.realm)
+                                      self.drs.realm,
+                                      self.drs.table,
+                                      ensemble)
         if not os.path.exists(self.realm_dir):
             log.info("New RealmTree being created at %s" % self.realm_dir)
             os.makedirs(self.realm_dir)
@@ -471,8 +478,7 @@ class RealmTree(object):
 
         FILTER_COMPONENTS = ['institution', 'model', 'experiment',
                              'frequency', 'realm',
-                             #!TODO: reinstate when ensemble added to realm_trees
-                             #'ensemble',
+                             'ensemble',
                              ]
 
         # Gather DRS components from the template drs instance to filter

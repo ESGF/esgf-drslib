@@ -37,13 +37,13 @@ class TestEg1(TestEg):
         dt.discover(product='output', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
         dt.discover_incoming(self.incoming, product='output')
-        assert len(dt.realm_trees) == 1
+        assert len(dt.realm_trees) == 3
         k = dt.realm_trees.keys()[0]
-        assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos'
+        assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r2i1p1'
         rt = dt.realm_trees[k]
 
         assert rt.versions == {}
-        assert len(rt._todo) == 45
+        assert len(rt._todo) == 15
         assert rt._todo[0][1].variable == 'rsus'
         assert rt.state == rt.STATE_INITIAL
     
@@ -52,7 +52,7 @@ class TestEg1(TestEg):
         dt.discover(product='output', institute='MOHC', model='HadCM3')
         dt.discover_incoming(self.incoming, product='output')
 
-        assert len(dt.realm_trees) == 1
+        assert len(dt.realm_trees) == 3
         rt = dt.realm_trees.values()[0]
         assert rt.drs.realm == 'atmos'
 
@@ -391,8 +391,8 @@ class TestRealmMapfile(TestRealmListing):
 
 
         print mapfile
-        assert 'cmip5.output.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean' in mapfile
-        assert 'output/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/v1' in mapfile
+        assert 'cmip5.output.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean.Omon.r1i1p1' in mapfile
+        assert 'output/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v1' in mapfile
 
 
 

@@ -63,6 +63,31 @@ class CMIP5_DRS:
     PATH_EXPERIMENT = 3
     PATH_FREQUENCY = 4
     PATH_REALM = 5
+    PATH_TABLE = 6
+    PATH_ENSEMBLE = 7
+    PATH_VERSION = 8
+    PATH_VARIABLE = 9
+    
+    FILE_VARIABLE = 0
+    FILE_TABLE = 1
+    FILE_MODEL = 2
+    FILE_EXPERIMENT = 3
+    FILE_ENSEMBLE = 4
+    FILE_SUBSET = 5
+    FILE_EXTENDED = 6
+
+
+#
+# CMIP5 component to file/path position mappings for DRS <= v0.27
+#
+
+class CMIP5_DRS_OLD:
+    PATH_PRODUCT = 0
+    PATH_INSTITUTE = 1
+    PATH_MODEL = 2
+    PATH_EXPERIMENT = 3
+    PATH_FREQUENCY = 4
+    PATH_REALM = 5
     PATH_VERSION = 6
     PATH_VARIABLE = 7
     PATH_ENSEMBLE = 8
