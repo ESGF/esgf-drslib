@@ -63,9 +63,7 @@ class DRSTree(object):
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
-    def discover(self, product=None, institute=None, model=None, 
-                 experiment=None, frequency=None, realm=None, 
-                 table=None, ensemble=None):
+    def discover(self, incoming_glob, **components):
         """
         Scan the directory structure for PublisherTrees.
 
@@ -78,33 +76,34 @@ class DRSTree(object):
         optional.  All components can be set to wildcard values.  This
         allows an exaustive scan to be forced if desired.
 
+        :incoming_glob: A filesystem wildcard which should resolve to 
+            directories to recursively scan for files.
+
         """
 
         # Grab options from the config
-        if not product:
-            product = config.drs_defaults.get('product')
-        if not institute:
-            institute = config.drs_defaults.get('institute')
-        if not model:
-            model = config.drs_defaults.get('model')
-
+        product = components.setdefault('product',
+                                        config.drs_defaults.get('product'))
+        institute = components.setdefault('institute',
+                                          config.drs_defaults.get('institute'))
+        model = components.setdefault('model',
+                                      config.drs_defaults.get('model'))
+        
         if product is None or institute is None or model is None:
             raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
 
-        drs = DRS(product=product, institute=institute, model=model,
-                  experiment=experiment, frequency=frequency, realm=realm,
-                  table=table, ensemble=ensemble)
+        drs = DRS(**components)
 
         # If these options are not specified they default to wildcards
-        if not frequency:
+        if not drs.frequency:
             drs.frequency = '*'
-        if not realm:
+        if not drs.realm:
             drs.realm = '*'
-        if not experiment:
+        if not drs.experiment:
             drs.experiment = '*'
-        if not table:
+        if not drs.table:
             drs.table = '*'
-        if not ensemble:
+        if not drs.ensemble:
             drs.ensemble = '*'
             
         rt_glob = drs_to_cmorpath(self.drs_root, drs)
@@ -118,12 +117,15 @@ class DRSTree(object):
             log.info('Discovered realm-tree at %s' % rt_path)
             self.realm_trees[drs_id] = PublisherTree(drs, self)
 
+        # Scan for incoming DRS files
+        self.discover_incoming(incoming_glob, **components)
+
         
     def discover_incoming(self, incoming_glob, **components):
         """
         Scan the filesystem for incoming DRS files.
 
-        :incoming_dir: A filesystem wildcard which should resolve to 
+        :incoming_glob: A filesystem wildcard which should resolve to 
             directories to recursively scan for files.
 
         """

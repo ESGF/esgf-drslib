@@ -34,9 +34,8 @@ class TestEg1(TestEg):
 
     def test_1(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='MOHC', model='HadCM3', 
+        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
-        dt.discover_incoming(self.incoming, product='output')
         assert len(dt.realm_trees) == 3
         k = dt.realm_trees.keys()[0]
         assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r2i1p1'
@@ -49,8 +48,7 @@ class TestEg1(TestEg):
     
     def test_2(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='MOHC', model='HadCM3')
-        dt.discover_incoming(self.incoming, product='output')
+        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
 
         assert len(dt.realm_trees) == 3
         rt = dt.realm_trees.values()[0]
@@ -58,8 +56,7 @@ class TestEg1(TestEg):
 
     def test_3(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='MOHC', model='HadCM3')
-        dt.discover_incoming(self.incoming, product='output')
+        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
         
         rt = dt.realm_trees.values()[0]
         assert rt.state == rt.STATE_INITIAL
@@ -79,8 +76,7 @@ class TestEg2(TestEg):
 
     def test_1(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(product='output', institute='MOHC', model='HadCM3')
-        dt.discover_incoming(self.incoming, product='output')
+        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
 
         assert len(dt.realm_trees) == 2
         assert set([x.drs.realm for x in dt.realm_trees.values()]) == set(['atmos', 'ocean'])
@@ -96,8 +92,7 @@ class TestEg3(TestEg):
     def _cmor1(self):
         gen_drs.write_eg3_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
-        self.dt.discover(product='output', institute='MOHC', model='HadCM3')
-        self.dt.discover_incoming(self.incoming, product='output')
+        self.dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
 
         (self.rt, ) = self.dt.realm_trees.values()
 
@@ -216,8 +211,7 @@ class TestEg4(TestEg3):
     def _cmor1(self):
         gen_drs.write_eg4_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
-        self.dt.discover(product='output', institute='MOHC', model='HadCM3')
-        self.dt.discover_incoming(self.incoming, product='output')
+        self.dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
 
         (self.rt, ) = self.dt.realm_trees.values()
 
@@ -279,8 +273,7 @@ class TestEg5(TestEg4):
     def _cmor1(self):
         gen_drs.write_eg5_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
-        self.dt.discover(product='output', institute='TEST', model='HadCM3')
-        self.dt.discover_incoming(self.incoming, product='output')
+        self.dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
 
         (self.rt, ) = self.dt.realm_trees.values()
 
@@ -346,11 +339,9 @@ class TestListing(TestEg):
         self.dt = DRSTree(self.tmpdir)
 
     def _discover(self, institute, model):
-        self.dt.discover(product='output', 
+        self.dt.discover(self.incoming, product='output', 
                          institute=institute, 
                          model=model)
-        self.dt.discover_incoming(self.incoming, product='output', institute=institute,
-                                  model=model)
 
     def _do_version(self, rt):
         assert rt.state == rt.STATE_INITIAL
