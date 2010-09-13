@@ -82,7 +82,7 @@ def do_todo(drs_tree, opts, args):
         todos = rt.list_todo()
         print """\
 ==============================================================================
-Realm Tree %s todo for version %d
+Publisher Tree %s todo for version %d
 ------------------------------------------------------------------------------
 %s
 ==============================================================================
@@ -94,7 +94,7 @@ def do_upgrade(drs_tree, opts, args):
 """
     for rt in drs_tree.realm_trees:
         if rt.state == rt.STATE_VERSIONED:
-            print 'Realm Tree %s has no pending upgrades' % rt.realm_dir
+            print 'Publisher Tree %s has no pending upgrades' % rt.realm_dir
         else:
             print ('Upgrading %s to version %d ...' % (rt.realm_dir, rt.latest+1)),
             rt.do_version()
@@ -128,7 +128,7 @@ def do_mapfile(drs_tree, opts, args):
 
 
     if version not in rt.versions:
-        log.warning("RealmTree %s has no version %d, skipping" % (rt.realm_dir, version))
+        log.warning("PublisherTree %s has no version %d, skipping" % (rt.realm_dir, version))
     else:
         #!TODO: Alternative to stdout?
         rt.version_to_mapfile(version)

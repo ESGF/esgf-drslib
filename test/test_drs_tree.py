@@ -8,7 +8,7 @@ from StringIO import StringIO
 from unittest import TestCase
 
 import gen_drs
-from drslib.drs_tree import DRSTree, RealmTree
+from drslib.drs_tree import DRSTree
 from drslib.drs import cmorpath_to_drs, drs_to_cmorpath, DRS
 
 
@@ -332,13 +332,13 @@ class TestEg5(TestEg4):
         assert len(same) == 2
 
 
-class TestRealmListing(TestEg):
+class TestListing(TestEg):
 
     # Set the following in subclasses
     #   listing_file 
 
     def setUp(self):
-        super(TestRealmListing, self).setUp()
+        super(TestListing, self).setUp()
 
         listing_path = os.path.join(test_dir, self.listing_file)
         gen_drs.write_listing(self.tmpdir, listing_path)
@@ -358,7 +358,7 @@ class TestRealmListing(TestEg):
         assert rt.state == rt.STATE_VERSIONED
         assert rt.versions.keys() == [1]
 
-class TestRealmListing1(TestRealmListing):
+class TestListing1(TestListing):
     __test__ = True
 
     listing_file = 'realm_1.ls'
@@ -374,7 +374,7 @@ class TestRealmListing1(TestRealmListing):
         rt = self.dt.realm_trees.values()[0]
         self._do_version(rt)
 
-class TestRealmMapfile(TestRealmListing):
+class TestMapfile(TestListing):
     __test__ = True
 
     listing_file = 'realm_1.ls'

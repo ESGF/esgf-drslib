@@ -49,14 +49,14 @@ Show what manipulations will be done for next version
 
 >>> do_drs_tree('todo', '--realm=atmos') # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
 ==============================================================================
-Realm Tree ... todo for version 1
+Publisher Tree ... todo for version 1
 ------------------------------------------------------------------------------
 mv .../output/TEST/HadCM3/1pctto4x/day/atmos/rsus/r1i1p1/rsus_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../output/TEST/HadCM3/1pctto4x/day/atmos/files/rsus_r1i1p1_1/rsus_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
 ...
 ln -s .../output/TEST/HadCM3/1pctto4x/day/atmos/files/tas_r1i1p1_1/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output/TEST/HadCM3/1pctto4x/day/atmos/v1/tas/r1i1p1/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
 ==============================================================================
 
-Upgrade one Realm Tree
+Upgrade one PublisherTree
 
 >>> do_drs_tree('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
 ==============================================================================
@@ -73,12 +73,12 @@ DRS Tree at ...
 .../output/TEST/HadCM3/1pctto4x/day/atmos  VERSIONED       1
 ==============================================================================
 
-Upgrade the other Realm Tree
+Upgrade the other PublisherTree
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
 Upgrading .../output/TEST/HadCM3/1pctto4x/day/ocean to version 1 ... done
-Realm Tree .../output/TEST/HadCM3/1pctto4x/day/atmos has no pending upgrades
+Publisher Tree .../output/TEST/HadCM3/1pctto4x/day/atmos has no pending upgrades
 ==============================================================================
 
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
@@ -104,7 +104,7 @@ DRS Tree at ...
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
-Realm Tree .../output/TEST/HadCM3/1pctto4x/day/ocean has no pending upgrades
+Publisher Tree .../output/TEST/HadCM3/1pctto4x/day/ocean has no pending upgrades
 Upgrading .../output/TEST/HadCM3/1pctto4x/day/atmos to version 2 ... done
 ==============================================================================
 

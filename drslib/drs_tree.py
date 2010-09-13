@@ -4,11 +4,11 @@ Manage DRS directory structure versioning.
 This module provides an API for manipulating a DRS directory structure
 to facilitate keeping multiple versions of datasets on disk
 simultaniously.  The class :class:`DRSTree` provides a top-level
-interface to the DRS directory structure and a container for :class:`RealmTree` objects.
+interface to the DRS directory structure and a container for :class:`PublisherTree` objects.
 
-:class:`RealmTree` objects expose the versions present in a
+:class:`PublisherTree` objects expose the versions present in a
 realm-dataset and what files are unversioned.  Calling
-:meth:`RealmTree.do_version` will manipulate the directory structure
+:meth:`PublisherTree.do_version` will manipulate the directory structure
 to move unversioned files into a new version.
 
 Detailed diagnostics can be logged by setting handlers for the logger
@@ -46,7 +46,7 @@ class DRSTree(object):
     A DRSTree represents the root of a DRS hierarchy.  Also associated
     with DRSTree objects is a incoming directory pattern that is
     searched for files matching the DRS structure.  Any file within
-    the incoming tree will be considered for new versions of RealmTrees.
+    the incoming tree will be considered for new versions of PublisherTrees.
 
     """
 
@@ -67,7 +67,7 @@ class DRSTree(object):
                  experiment=None, frequency=None, realm=None, 
                  table=None, ensemble=None):
         """
-        Scan the directory structure for RealmTrees.
+        Scan the directory structure for PublisherTrees.
 
         To prevent an exaustive scan of the directory structure some
         components of the DRS must be specified as keyword arguments
@@ -113,10 +113,10 @@ class DRSTree(object):
             drs = cmorpath_to_drs(self.drs_root, rt_path)
             drs_id = drs.to_dataset_id()
             if drs_id in self.realm_trees:
-                raise Exception("Duplicate RealmTree %s" % drs_id)
+                raise Exception("Duplicate PublisherTree %s" % drs_id)
 
             log.info('Discovered realm-tree at %s' % rt_path)
-            self.realm_trees[drs_id] = RealmTree(drs, self)
+            self.realm_trees[drs_id] = PublisherTree(drs, self)
 
         
     def discover_incoming(self, incoming_glob, **components):
@@ -157,11 +157,11 @@ class DRSTree(object):
 
         self._incoming = DRSList(drs_list)
 
-        # Instantiate a RealmTree for each unique Realm-level dataset
+        # Instantiate a PublisherTree for each unique publication-level dataset
         for path, drs in self._incoming:
             drs_id = drs.to_dataset_id()
             if drs_id not in self.realm_trees:
-                self.realm_trees[drs_id] = RealmTree(drs, self)
+                self.realm_trees[drs_id] = PublisherTree(drs, self)
             
     def remove_incoming(self, path):
         # Remove path from incoming
@@ -201,9 +201,9 @@ class DRSList(list):
         
 
 #!TODO: Not at realm level any more.  Call it PublicationTree?
-class RealmTree(object):
+class PublisherTree(object):
     """
-    A directory tree at the Realm level.
+    A directory tree at the publication level.
 
     :cvar STATE_INITIAL: Flag representing the initial unversioned state
 
@@ -254,7 +254,7 @@ class RealmTree(object):
                                       self.drs.table,
                                       ensemble)
         if not os.path.exists(self.realm_dir):
-            log.info("New RealmTree being created at %s" % self.realm_dir)
+            log.info("New PublisherTree being created at %s" % self.realm_dir)
             os.makedirs(self.realm_dir)
 
         self.deduce_state()
@@ -356,7 +356,7 @@ class RealmTree(object):
 
     def version_to_mapfile(self, version, fh=sys.stdout):
         if version not in self.versions:
-            raise Exception("Version %d not present in RealmTree %s" % (version, self.realm_dir))
+            raise Exception("Version %d not present in PublisherTree %s" % (version, self.realm_dir))
 
         mapfile.write_mapfile(self.versions[version], fh)
 
@@ -472,7 +472,7 @@ class RealmTree(object):
     def _deduce_todo(self):
         """
         Filter the drs_tree's incoming list to find new files in this
-        RealmTree.
+        PublisherTree.
 
         """
 
@@ -491,7 +491,7 @@ class RealmTree(object):
         # Filter the incoming list
         self._todo = self.drs_tree._incoming.select(**filter)
 
-        log.info('Deduced %d incoming DRS files for RealmTree %s' % 
+        log.info('Deduced %d incoming DRS files for PublisherTree %s' % 
                  (len(self._todo), self.drs))
                 
 
