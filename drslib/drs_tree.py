@@ -143,7 +143,7 @@ class DRSTree(object):
 
                     for k, v in components.items():
                         # If component is present in drs act as a filter
-                        drs_v = getattr(drs, k, None)
+                        drs_v = drs.get(k, None)
                         if drs_v is not None:
                             if drs_v != v: 
                                 break
@@ -192,15 +192,14 @@ class DRSList(list):
         items = self
         for k, v in kw.items():
             if type(v) == list:
-                items = [x for x in items if getattr(x[1], k, None) in v]
+                items = [x for x in items if x[1].get(k, None) in v]
             else:
-                items = [x for x in items if getattr(x[1], k, None) == v]
+                items = [x for x in items if x[1].get(k, None) == v]
 
         return DRSList(items)
 
         
 
-#!TODO: Not at realm level any more.  Call it PublicationTree?
 class PublisherTree(object):
     """
     A directory tree at the publication level.
@@ -484,7 +483,7 @@ class PublisherTree(object):
         # Gather DRS components from the template drs instance to filter
         filter = {}
         for comp in FILTER_COMPONENTS:
-            val = getattr(self.drs, comp, None)
+            val = self.drs.get(comp, None)
             if val is not None:
                 filter[comp] = val
 

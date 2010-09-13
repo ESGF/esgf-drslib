@@ -19,12 +19,14 @@ More sophisticated conversions can be done with the
 import os
 import itertools
 
-class DRS(object):
+class DRS(dict):
     """
-    Represents a DRS entry.  This class maintains consistency between the
-    path and filename portion of the DRS.
+    Represents a DRS entry.  DRS objects are dictionaries where DRS
+    components are also exposed as attributes.  Therefore you can get/set
+    DRS components using dictionary or attribute notation.
 
-    Each component of the DRS is reflected in an attribute of the DRS object.
+    In combination with the translator machinary, this class maintains
+    consistency between the path and filename portion of the DRS.
 
     :ivar activity: string
     :ivar product: string
@@ -62,6 +64,19 @@ class DRS(object):
         for attr in self._drs_attrs:
             setattr(self, attr, kwargs.get(attr))
 
+    def __getattr__(self, attr):
+        if attr in self._drs_attrs:
+            return self[attr]
+        else:
+            raise AttributeError('%s object has no attribute %s' % 
+                                 (repr(type(self).__name__), repr(attr)))
+
+    def __setattr__(self, attr, value):
+        if attr in self._drs_attrs:
+            self[attr] = value
+        else:
+            raise AttributeError('%s is not a DRS component' % repr(attr))
+
     def is_complete(self):
         """Returns boolean to indicate if all components are specified.
         
@@ -72,7 +87,7 @@ class DRS(object):
         for attr in self._drs_attrs:
             if attr is 'extended':
                 continue
-            if getattr(self, attr) is None:
+            if self.get(attr, None) is None:
                 return False
 
         return True
@@ -80,7 +95,7 @@ class DRS(object):
     def __repr__(self):
         kws = []
         for attr in self._drs_attrs:
-            kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
+            kws.append('%s=%s' % (attr, repr(self[attr])))
         return '<DRS %s>' % ', '.join(kws)
 
     def to_dataset_id(self):
@@ -145,7 +160,7 @@ def drs_to_cmorpath(drs_root, drs):
              'frequency', 'realm', 'variable'] 
     path = [drs_root]
     for attr in attrs:
-        val = getattr(drs, attr)
+        val = drs[attr]
         if val is None:
             break
         path.append(val)

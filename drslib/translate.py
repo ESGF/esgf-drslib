@@ -58,7 +58,7 @@ class TranslatorContext(object):
         with any current value.
 
         """
-        v = getattr(self.drs, drs_component)
+        v = self.drs[drs_component]
         if v is None:
             setattr(self.drs, drs_component, value)
         else:
@@ -165,7 +165,7 @@ class GenericComponentTranslator(BaseComponentTranslator):
             context.set_drs_component(self.component, s)
 
     def drs_to_filepath(self, context):
-        s = self._validate(getattr(context.drs, self.component))
+        s = self._validate(context.drs[self.component])
         
         if self.path_i is not None:
             context.path_parts[self.path_i] = s
