@@ -37,6 +37,7 @@ Syntax [DRS]_.  MIP table support is based on CMOR-%(cmor2_version)s.
       install_requires=[
         'metaconfig',
       ],
+      tests_require=['NoseXUnit'],
       entry_points= {
         'console_scripts': ['translate_cmip3 = drslib.translate_cmip3:main',
                             'drs_tree = drslib.drs_command:main'],
