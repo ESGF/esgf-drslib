@@ -25,7 +25,7 @@ import stat
 
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
-from drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
+from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
 
 import logging
@@ -88,28 +88,27 @@ class DRSTree(object):
                                           config.drs_defaults.get('institute'))
         model = components.setdefault('model',
                                       config.drs_defaults.get('model'))
+
+        #!FIXME: activity detection is confused and a hack
+        # Activity can come from config or the drs_root
+        activity = components.setdefault('activity',
+                                         config.drs_defaults.get('activity'))
+        if activity is None:
+            components['activity'] = os.path.basename(self.drs_root)
+            log.info("Inferring activity=%s from drs_root" % components['activity'])
         
         if product is None or institute is None or model is None:
             raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
 
-        drs = DRS(**components)
+        drs_t = DRS(**components)
 
-        # If these options are not specified they default to wildcards
-        if not drs.frequency:
-            drs.frequency = '*'
-        if not drs.realm:
-            drs.realm = '*'
-        if not drs.experiment:
-            drs.experiment = '*'
-        if not drs.table:
-            drs.table = '*'
-        if not drs.ensemble:
-            drs.ensemble = '*'
-            
-        rt_glob = drs_to_cmorpath(self.drs_root, drs)
+        # NOTE: None components are converted to wildcards
+        rt_glob = drs_to_path(self.drs_root, drs_t)
         realm_trees = glob(rt_glob)
         for rt_path in realm_trees:
-            drs = cmorpath_to_drs(self.drs_root, rt_path)
+            drs = path_to_drs(self.drs_root, rt_path)
+            #!FIXME: see FIXME above
+            drs.activity = drs_t.activity
             drs_id = drs.to_dataset_id()
             if drs_id in self.realm_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)
@@ -143,14 +142,20 @@ class DRSTree(object):
                         log.debug('File %s is not a DRS file' % filename)
                         continue
 
+                    log.debug('File %s => %s' % (repr(filename), drs))
                     for k, v in components.items():
+                        if v is None:
+                            continue
                         # If component is present in drs act as a filter
                         drs_v = drs.get(k, None)
                         if drs_v is not None:
-                            if drs_v != v: 
+                            if drs_v != v:
+                                log.debug('%s Filtered out.  %s != %s' %
+                                          (drs, repr(drs_v), repr(v)))
                                 break
-                        # Otherwise set as default
                         else:
+                            # Otherwise set as default
+                            log.debug('Set %s=%s' % (k, repr(v)))
                             setattr(drs, k, v)
                     else:
                         # Only if break not called

@@ -75,7 +75,7 @@ def do_list(drs_tree, opts, args):
 DRS Tree at %s
 ------------------------------------------------------------------------------\
 """ % drs_tree.drs_root
-    for rt in drs_tree.realm_trees:
+    for rt in drs_tree.realm_trees.values():
         if rt.state == rt.STATE_INITIAL:
             status_msg = rt.state
         else:
@@ -87,7 +87,7 @@ DRS Tree at %s
 """
 
 def do_todo(drs_tree, opts, args):
-    for rt in drs_tree.realm_trees:
+    for rt in drs_tree.realm_trees.values():
 
         todos = rt.list_todo()
         print """\
@@ -102,7 +102,7 @@ def do_upgrade(drs_tree, opts, args):
     print """\
 ==============================================================================\
 """
-    for rt in drs_tree.realm_trees:
+    for rt in drs_tree.realm_trees.values():
         if rt.state == rt.STATE_VERSIONED:
             print 'Publisher Tree %s has no pending upgrades' % rt.realm_dir
         else:

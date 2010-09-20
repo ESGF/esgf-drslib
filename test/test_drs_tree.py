@@ -406,14 +406,14 @@ def test_3():
 
     path = drs_to_cmorpath('/cmip5', drs)
 
-    assert path == '/cmip5/output/TEST'
+    assert path == '/cmip5/output/TEST/*/*/*/*/*/*'
 
 def test_4():
-    drs = DRS(product='output', institute='TEST')
+    drs = DRS(product='output', institute='TEST', ensemble=(1,2,3))
 
     path = drs_to_cmorpath('/cmip5/', drs)
 
-    assert path == '/cmip5/output/TEST'
+    assert path == '/cmip5/output/TEST/*/*/*/*/*/r1i2p3'
 
 def test_5():
     drs = DRS(product='output', institute='TEST', model='HadCM3',
@@ -421,4 +421,4 @@ def test_5():
 
     path = drs_to_cmorpath('/cmip5', drs)
 
-    assert path == '/cmip5/output/TEST/HadCM3'
+    assert path == '/cmip5/output/TEST/HadCM3/*/day/*/*/*'

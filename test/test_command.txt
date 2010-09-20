@@ -23,21 +23,22 @@ Import modules required to for this test.
 >>> from drslib.drs_command import main
 >>> import gen_drs
 
-Create a directory and build a drs-tree in it called './drs_tree_example'
+Create a directory and build a drs-tree in it called './drs_tree_example/cmip5'
 
 >>> tmpdir = './drs_tree_example'
+>>> drs_root = os.path.join(tmpdir, 'cmip5')
 >>> incoming = os.path.join(tmpdir, 'incoming')
 >>> if os.path.exists(tmpdir): shutil.rmtree(tmpdir)
 >>> os.mkdir(tmpdir)
->>> os.mkdir(incoming)
->>> gen_drs.write_eg2(incoming)
+>>> os.mkdir(drs_root)
+>>> gen_drs.write_eg2(tmpdir)
 
 Create a function to run the drs_tree command.
 
 >>> def do_drs_tree(subcommand, args=''):
 ... 	cmd = "drs_tree %s --root=%s --incoming=%s --product=output \
 ...                        --institute=MOHC \
-...                        --model=HadCM3 %s" % (subcommand, tmpdir, args)    
+...                        --model=HadCM3 %s" % (subcommand, drs_root, incoming, args)    
 ...     main(cmd.split())
  
 List the realm-trees
@@ -46,8 +47,8 @@ List the realm-trees
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-.../output/MOHC/HadCM3/1pctto4x/day/ocean  INITIAL
-.../output/MOHC/HadCM3/1pctto4x/day/atmos  INITIAL
+.../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1  INITIAL
+.../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1  INITIAL
 ==============================================================================
 
 Show what manipulations will be done for next version
@@ -65,7 +66,7 @@ Upgrade one PublisherTree
 
 >>> do_drs_tree('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
 ==============================================================================
-Upgrading .../output/MOHC/HadCM3/1pctto4x/day/atmos to version 1 ... done
+Upgrading .../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1 to version 1 ... done
 ==============================================================================
 
 List the results
@@ -74,51 +75,51 @@ List the results
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-.../output/MOHC/HadCM3/1pctto4x/day/ocean  INITIAL
-.../output/MOHC/HadCM3/1pctto4x/day/atmos  VERSIONED       1
+.../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1  INITIAL
+.../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1  VERSIONED       1
 ==============================================================================
 
 Upgrade the other PublisherTree
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
-Upgrading .../output/MOHC/HadCM3/1pctto4x/day/ocean to version 1 ... done
-Realm Tree .../output/MOHC/HadCM3/1pctto4x/day/atmos has no pending upgrades
+Upgrading .../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1 to version 1 ... done
+Realm Tree .../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1 has no pending upgrades
 ==============================================================================
 
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-.../output/MOHC/HadCM3/1pctto4x/day/ocean  VERSIONED       1
-.../output/MOHC/HadCM3/1pctto4x/day/atmos  VERSIONED       1
+.../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1  VERSIONED       1
+.../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1  VERSIONED       1
 ==============================================================================
 
 Simulate a new file ariving
 
->>> cmd= "touch %s/output/MOHC/HadCM3/1pctto4x/day/atmos/pr/r1i1p1/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc" % tmpdir
+>>> cmd= "touch %s/output/MOHC/HadCM3/1pctto4x/day/atmos/day/pr/r1i1p1/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc" % drs_root
 >>> os.system(cmd)
 0
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-.../output/MOHC/HadCM3/1pctto4x/day/ocean  VERSIONED       1
-.../output/MOHC/HadCM3/1pctto4x/day/atmos  VERSIONED_TRANS 1
+.../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon  VERSIONED       1
+.../output/MOHC/HadCM3/1pctto4x/day/atmos/day  VERSIONED_TRANS 1
 ==============================================================================
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
-Realm Tree .../output/MOHC/HadCM3/1pctto4x/day/ocean has no pending upgrades
-Upgrading .../output/MOHC/HadCM3/1pctto4x/day/atmos to version 2 ... done
+Realm Tree .../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon has no pending upgrades
+Upgrading .../output/MOHC/HadCM3/1pctto4x/day/atmos/day to version 2 ... done
 ==============================================================================
 
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-.../output/MOHC/HadCM3/1pctto4x/day/ocean  VERSIONED       1
-.../output/MOHC/HadCM3/1pctto4x/day/atmos  VERSIONED       2
+.../output/MOHC/HadCM3/1pctto4x/mon/ocean/Omon  VERSIONED       1
+.../output/MOHC/HadCM3/1pctto4x/day/atmos/day  VERSIONED       2
 ==============================================================================
 
 

@@ -18,6 +18,10 @@ More sophisticated conversions can be done with the
 
 import os
 import itertools
+import re
+
+import logging
+log = logging.getLogger(__name__)
 
 class DRS(dict):
     """
@@ -106,7 +110,6 @@ class DRS(dict):
         return '.'.join((self.activity, self.product, self.institute, self.model,
                          self.experiment, self.frequency, self.realm,
                          self.table, 'r%di%dp%d' % self.ensemble))
-                    
 
 
 
@@ -116,7 +119,7 @@ class DRS(dict):
 # or parse the filename
 #
 
-def cmorpath_to_drs(drs_root, path, activity=None):
+def path_to_drs(drs_root, path, activity=None):
     """
     Create a :class:`DRS` object from a filesystem path.
 
@@ -137,16 +140,24 @@ def cmorpath_to_drs(drs_root, path, activity=None):
 
     p = relpath.split('/')
     attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'variable'] 
+             'frequency', 'realm', 'table', 'variable', 'ensemble'] 
     drs = DRS(activity=activity)
     for val, attr in itertools.izip(p, attrs):
-        setattr(drs, attr, val)
+        if attr == 'ensemble':
+            mo = re.match(r'r(\d+)i(\d+)p(\d+)', val)
+            drs[attr] = tuple(int(x) for x in mo.groups())
+        else:
+            drs[attr] = val
+
+    log.debug('%s => %s' % (repr(path), drs))
 
     return drs
-        
-def drs_to_cmorpath(drs_root, drs):
+    
+    
+def drs_to_path(drs_root, drs):
     """
-    Returns a directory path from a :class:`DRS` object.
+    Returns a directory path from a :class:`DRS` object.  Any DRS component
+    that is set to None will result in a wildcard '*' element in the path.
 
     This function does not take into account of MIP tables of filenames.
     
@@ -157,13 +168,22 @@ def drs_to_cmorpath(drs_root, drs):
 
     """
     attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'variable'] 
+             'frequency', 'realm', 'table', 'variable', 'ensemble'] 
     path = [drs_root]
     for attr in attrs:
-        val = drs[attr]
+        if drs[attr] is None:
+            val = '*'
+        else:
+            val = drs[attr]
         if val is None:
             break
         path.append(val)
 
-    return os.path.join(*path)
+    if drs.ensemble is None:
+        path.append('*')
+    else:
+        path.append('r%di%dp%d' % drs.ensemble)
 
+    path = os.path.join(*path)
+    log.debug('%s => %s' % (drs, repr(path)))
+    return path
