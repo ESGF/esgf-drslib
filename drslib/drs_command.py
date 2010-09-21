@@ -75,6 +75,7 @@ def do_list(drs_tree, opts, args):
 DRS Tree at %s
 ------------------------------------------------------------------------------\
 """ % drs_tree.drs_root
+    
     for rt in drs_tree.realm_trees.values():
         if rt.state == rt.STATE_INITIAL:
             status_msg = rt.state

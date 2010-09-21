@@ -140,7 +140,7 @@ def path_to_drs(drs_root, path, activity=None):
 
     p = relpath.split('/')
     attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'table', 'variable', 'ensemble'] 
+             'frequency', 'realm', 'table', 'ensemble'] 
     drs = DRS(activity=activity)
     for val, attr in itertools.izip(p, attrs):
         if attr == 'ensemble':
@@ -168,21 +168,23 @@ def drs_to_path(drs_root, drs):
 
     """
     attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'table', 'variable', 'ensemble'] 
+             'frequency', 'realm', 'table', 'ensemble'] 
     path = [drs_root]
     for attr in attrs:
         if drs[attr] is None:
             val = '*'
         else:
-            val = drs[attr]
+            if attr == 'ensemble':
+                val = 'r%di%dp%d' % drs.ensemble
+            else:
+                val = drs[attr]
         if val is None:
             break
         path.append(val)
 
-    if drs.ensemble is None:
-        path.append('*')
-    else:
-        path.append('r%di%dp%d' % drs.ensemble)
+
+    #!DEBUG
+    assert len(path) == len(attrs)+1
 
     path = os.path.join(*path)
     log.debug('%s => %s' % (drs, repr(path)))

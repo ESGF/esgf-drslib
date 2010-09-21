@@ -100,6 +100,10 @@ class DRSTree(object):
         if product is None or institute is None or model is None:
             raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
 
+
+        # Scan for incoming DRS files
+        self.discover_incoming(incoming_glob, **components)
+
         drs_t = DRS(**components)
 
         # NOTE: None components are converted to wildcards
@@ -116,8 +120,11 @@ class DRSTree(object):
             log.info('Discovered realm-tree at %s' % rt_path)
             self.realm_trees[drs_id] = PublisherTree(drs, self)
 
-        # Scan for incoming DRS files
-        self.discover_incoming(incoming_glob, **components)
+        # Instantiate a PublisherTree for each unique publication-level dataset
+        for path, drs in self._incoming:
+            drs_id = drs.to_dataset_id()
+            if drs_id not in self.realm_trees:
+                self.realm_trees[drs_id] = PublisherTree(drs, self)
 
         
     def discover_incoming(self, incoming_glob, **components):
@@ -164,11 +171,6 @@ class DRSTree(object):
 
         self._incoming = DRSList(drs_list)
 
-        # Instantiate a PublisherTree for each unique publication-level dataset
-        for path, drs in self._incoming:
-            drs_id = drs.to_dataset_id()
-            if drs_id not in self.realm_trees:
-                self.realm_trees[drs_id] = PublisherTree(drs, self)
             
     def remove_incoming(self, path):
         # Remove path from incoming
@@ -388,16 +390,16 @@ class PublisherTree(object):
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
-            ensemble = 'r%di%dp%d' % drs.ensemble
-            fdir = '%s_%s_%d' % (drs.variable, ensemble, v)
-            newpath = os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
-                                   fdir, filename)
-
+            fdir = '%s_%d' % (drs.variable, v)
+            newpath = os.path.abspath(os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
+                                                   fdir, filename))
+            
             yield self.CMD_MOVE, filepath, newpath
 
-            linkpath = os.path.join(self.realm_dir, 'v%d' % v,
-                                    drs.variable, ensemble, 
-                                    filename)
+            #!TODO: could automatically deduce relative path.  Also see linkpath below
+            linkpath = os.path.abspath(os.path.join(self.realm_dir, 'v%d' % v,
+                                                    drs.variable,
+                                                    filename))
             yield self.CMD_LINK, newpath, linkpath
             done.add(filename)
 
@@ -408,12 +410,11 @@ class PublisherTree(object):
             for filepath, drs in self.versions[v-1]:
                 filename = os.path.basename(filepath)
                 if filename not in done:
-                    ensemble = 'r%di%dp%d' % drs.ensemble
-                    fdir = '%s_%s_%d' % (drs.variable, ensemble, v-1)
-                    linkpath = os.path.join(self.realm_dir, 'v%d' % v,
-                                            drs.variable, ensemble, filename)
-                    pfilepath = os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
-                                             fdir, filename)
+                    fdir = '%s_%d' % (drs.variable, v-1)
+                    linkpath = os.path.abspath(os.path.join(self.realm_dir, 'v%d' % v,
+                                                            drs.variable, filename))
+                    pfilepath = os.path.abspath(os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
+                                                             fdir, filename))
                     yield self.CMD_LINK, pfilepath, linkpath
 
     def _do_commands(self, commands):
@@ -483,7 +484,7 @@ class PublisherTree(object):
         """
 
         FILTER_COMPONENTS = ['institution', 'model', 'experiment',
-                             'frequency', 'realm',
+                             'frequency', 'realm', 'table',
                              'ensemble',
                              ]
 
@@ -495,7 +496,10 @@ class PublisherTree(object):
                 filter[comp] = val
 
         # Filter the incoming list
-        self._todo = self.drs_tree._incoming.select(**filter)
+        if self.drs_tree._incoming:
+            self._todo = self.drs_tree._incoming.select(**filter)
+        else:
+            self._todo = []
 
         log.info('Deduced %d incoming DRS files for PublisherTree %s' % 
                  (len(self._todo), self.drs))
