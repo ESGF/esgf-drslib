@@ -7,7 +7,7 @@ simultaniously.  The class :class:`DRSTree` provides a top-level
 interface to the DRS directory structure and a container for :class:`PublisherTree` objects.
 
 :class:`PublisherTree` objects expose the versions present in a
-realm-dataset and what files are unversioned.  Calling
+publication-level dataset and what files are unversioned.  Calling
 :meth:`PublisherTree.do_version` will manipulate the directory structure
 to move unversioned files into a new version.
 
@@ -56,7 +56,7 @@ class DRSTree(object):
 
         """
         self.drs_root = drs_root
-        self.realm_trees = {}
+        self.pub_trees = {}
         self._vtrans = make_translator(drs_root)
         self._incoming = None
 
@@ -108,23 +108,23 @@ class DRSTree(object):
 
         # NOTE: None components are converted to wildcards
         rt_glob = drs_to_path(self.drs_root, drs_t)
-        realm_trees = glob(rt_glob)
-        for rt_path in realm_trees:
+        pub_trees = glob(rt_glob)
+        for rt_path in pub_trees:
             drs = path_to_drs(self.drs_root, rt_path)
             #!FIXME: see FIXME above
             drs.activity = drs_t.activity
             drs_id = drs.to_dataset_id()
-            if drs_id in self.realm_trees:
+            if drs_id in self.pub_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)
 
             log.info('Discovered realm-tree at %s' % rt_path)
-            self.realm_trees[drs_id] = PublisherTree(drs, self)
+            self.pub_trees[drs_id] = PublisherTree(drs, self)
 
         # Instantiate a PublisherTree for each unique publication-level dataset
         for path, drs in self._incoming:
             drs_id = drs.to_dataset_id()
-            if drs_id not in self.realm_trees:
-                self.realm_trees[drs_id] = PublisherTree(drs, self)
+            if drs_id not in self.pub_trees:
+                self.pub_trees[drs_id] = PublisherTree(drs, self)
 
         
     def discover_incoming(self, incoming_glob, **components):

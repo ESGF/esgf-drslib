@@ -76,7 +76,7 @@ DRS Tree at %s
 ------------------------------------------------------------------------------\
 """ % drs_tree.drs_root
     
-    for rt in drs_tree.realm_trees.values():
+    for rt in drs_tree.pub_trees.values():
         if rt.state == rt.STATE_INITIAL:
             status_msg = rt.state
         else:
@@ -88,7 +88,7 @@ DRS Tree at %s
 """
 
 def do_todo(drs_tree, opts, args):
-    for rt in drs_tree.realm_trees.values():
+    for rt in drs_tree.pub_trees.values():
 
         todos = rt.list_todo()
         print """\
@@ -103,7 +103,7 @@ def do_upgrade(drs_tree, opts, args):
     print """\
 ==============================================================================\
 """
-    for rt in drs_tree.realm_trees.values():
+    for rt in drs_tree.pub_trees.values():
         if rt.state == rt.STATE_VERSIONED:
             print 'Publisher Tree %s has no pending upgrades' % rt.realm_dir
         else:
@@ -122,14 +122,14 @@ def do_mapfile(drs_tree, opts, args):
 
     """
 
-    if len(drs_tree.realm_trees) > 1:
+    if len(drs_tree.pub_trees) > 1:
         raise Exception("You must select 1 realm-tree to create a mapfile.  %d selected" %
-                        len(drs_tree.realm_trees))
+                        len(drs_tree.pub_trees))
 
-    if len(drs_tree.realm_trees) == 0:
+    if len(drs_tree.pub_trees) == 0:
         raise Exception("No realm trees selected")
 
-    rt = drs_tree.realm_trees[0]
+    rt = drs_tree.pub_trees[0]
 
     #!TODO: better argument handling
     if args:

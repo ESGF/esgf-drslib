@@ -9,7 +9,7 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import cmorpath_to_drs, drs_to_cmorpath, DRS
+from drslib.drs import path_to_drs, drs_to_path, DRS
 
 
 test_dir = os.path.dirname(__file__)
@@ -34,31 +34,35 @@ class TestEg1(TestEg):
 
     def test_1(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3', 
+        dt.discover(self.incoming, activity='cmip5',
+                    product='output', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
-        assert len(dt.realm_trees) == 3
-        k = dt.realm_trees.keys()[0]
+        assert len(dt.pub_trees) == 3
+        k = dt.pub_trees.keys()[0]
         assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r2i1p1'
-        rt = dt.realm_trees[k]
+        rt = dt.pub_trees[k]
 
         assert rt.versions == {}
         assert len(rt._todo) == 15
-        assert rt._todo[0][1].variable == 'rsus'
+        vars = set(x[1].variable for x in rt._todo)
+        assert vars == set(('pr', 'rsus', 'tas'))
         assert rt.state == rt.STATE_INITIAL
     
     def test_2(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
+        dt.discover(self.incoming, activity='cmip5',
+                    product='output', institute='MOHC', model='HadCM3')
 
-        assert len(dt.realm_trees) == 3
-        rt = dt.realm_trees.values()[0]
+        assert len(dt.pub_trees) == 3
+        rt = dt.pub_trees.values()[0]
         assert rt.drs.realm == 'atmos'
 
     def test_3(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
+        dt.discover(self.incoming, activity='cmip5',
+                    product='output', institute='MOHC', model='HadCM3')
         
-        rt = dt.realm_trees.values()[0]
+        rt = dt.pub_trees.values()[0]
         assert rt.state == rt.STATE_INITIAL
 
         rt.do_version()
@@ -76,10 +80,11 @@ class TestEg2(TestEg):
 
     def test_1(self):
         dt = DRSTree(self.tmpdir)
-        dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
+        dt.discover(self.incoming, activity='cmip5',
+                    product='output', institute='MOHC', model='HadCM3')
 
-        assert len(dt.realm_trees) == 2
-        assert set([x.drs.realm for x in dt.realm_trees.values()]) == set(['atmos', 'ocean'])
+        assert len(dt.pub_trees) == 2
+        assert set([x.drs.realm for x in dt.pub_trees.values()]) == set(['atmos', 'ocean'])
 
 #!TODO: latest
 
@@ -92,13 +97,15 @@ class TestEg3(TestEg):
     def _cmor1(self):
         gen_drs.write_eg3_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
-        self.dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output', institute='MOHC', model='HadCM3')
 
-        (self.rt, ) = self.dt.realm_trees.values()
+        (self.rt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg3_2(self.tmpdir)
-        self.dt.discover_incoming(self.incoming, product='output')
+        self.dt.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output')
         self.rt.deduce_state()
 
         
@@ -128,8 +135,8 @@ class TestEg3(TestEg):
         assert len(self.rt.drs_tree._incoming) == 0
 
         assert self._exists('files')
-        assert self._exists('files/rsus_r1i1p1_2')
-        assert not self._exists('files/rsus_r1i1p1_1')
+        assert self._exists('files/rsus_2')
+        assert not self._exists('files/rsus_1')
 
         assert self._exists('v1/tas')
         assert self._exists('v1/pr')
@@ -142,7 +149,7 @@ class TestEg3(TestEg):
         self._cmor2()
         self.rt.do_version()
 
-        assert self._exists('v2/pr/r1i1p1/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc')
+        assert self._exists('v2/pr/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc')
 
     def test_3(self):
         self._cmor1()
@@ -211,13 +218,15 @@ class TestEg4(TestEg3):
     def _cmor1(self):
         gen_drs.write_eg4_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
-        self.dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output', institute='MOHC', model='HadCM3')
 
-        (self.rt, ) = self.dt.realm_trees.values()
+        (self.rt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg4_2(self.tmpdir)
-        self.dt.discover_incoming(self.incoming, product='output')
+        self.dt.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output')
         self.rt.deduce_state()
 
     def test_1(self):
@@ -227,7 +236,7 @@ class TestEg4(TestEg3):
         self.rt.do_version()
 
         assert self._exists('files')
-        assert self._exists('files/tas_r1i1p1_2')
+        assert self._exists('files/tas_2')
         assert self._exists('v1/tas')
 
 
@@ -237,10 +246,10 @@ class TestEg4(TestEg3):
         self._cmor2()
         self.rt.do_version()
 
-        assert len(self._listdir('files/tas_r1i1p1_1')) == 3
-        assert len(self._listdir('files/tas_r1i1p1_2')) == 2
-        assert len(self._listdir('v1/tas/r1i1p1')) == 3
-        assert len(self._listdir('v2/tas/r1i1p1')) == 5
+        assert len(self._listdir('files/tas_1')) == 3
+        assert len(self._listdir('files/tas_2')) == 2
+        assert len(self._listdir('v1/tas')) == 3
+        assert len(self._listdir('v2/tas')) == 5
 
     # Do test_3 from superclass
         
@@ -273,13 +282,15 @@ class TestEg5(TestEg4):
     def _cmor1(self):
         gen_drs.write_eg5_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
-        self.dt.discover(self.incoming, product='output', institute='MOHC', model='HadCM3')
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output', institute='MOHC', model='HadCM3')
 
-        (self.rt, ) = self.dt.realm_trees.values()
+        (self.rt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg5_2(self.tmpdir)
-        self.dt.discover_incoming(self.incoming, product='output')
+        self.dt.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output')
         self.rt.deduce_state()
 
     # Do test1 from superclass
@@ -290,10 +301,10 @@ class TestEg5(TestEg4):
         self._cmor2()
         self.rt.do_version()
 
-        assert len(self._listdir('files/tas_r1i1p1_1')) == 5
-        assert len(self._listdir('files/tas_r1i1p1_2')) == 2
-        assert len(self._listdir('v1/tas/r1i1p1')) == 5
-        assert len(self._listdir('v2/tas/r1i1p1')) == 5
+        assert len(self._listdir('files/tas_1')) == 5
+        assert len(self._listdir('files/tas_2')) == 2
+        assert len(self._listdir('v1/tas')) == 5
+        assert len(self._listdir('v2/tas')) == 5
 
     # Do test_3 from superclass
         
@@ -339,7 +350,8 @@ class TestListing(TestEg):
         self.dt = DRSTree(self.tmpdir)
 
     def _discover(self, institute, model):
-        self.dt.discover(self.incoming, product='output', 
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output', 
                          institute=institute, 
                          model=model)
 
@@ -357,12 +369,12 @@ class TestListing1(TestListing):
     def test_1(self):
 
         self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
-        rt = self.dt.realm_trees.values()[0]
+        rt = self.dt.pub_trees.values()[0]
         self._do_version(rt)
 
     def test_2(self):
         self._discover('MPI-M', 'ECHAM6-MPIOM-LR')
-        rt = self.dt.realm_trees.values()[0]
+        rt = self.dt.pub_trees.values()[0]
         self._do_version(rt)
 
 class TestMapfile(TestListing):
@@ -372,7 +384,7 @@ class TestMapfile(TestListing):
 
     def test_1(self):
         self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
-        rt = self.dt.realm_trees.values()[0]
+        rt = self.dt.pub_trees.values()[0]
         self._do_version(rt)
 
         # Make a mapfile
@@ -390,28 +402,29 @@ class TestMapfile(TestListing):
 #----------------------------------------------------------------------------
 
 def test_1():
-    drs = cmorpath_to_drs('/cmip5', '/cmip5/output')
+    drs = path_to_drs('/cmip5', '/cmip5/output')
     assert drs.product == 'output'
     assert drs.institute == None
 
 def test_2():
-    drs = cmorpath_to_drs('/cmip5/', '/cmip5/output/TEST/HadCM3/1pctto4x/day/atmos/foo')
+    drs = path_to_drs('/cmip5/', '/cmip5/output/TEST/HadCM3/1pctto4x/day/atmos/day/r1i1p2/foo')
                       
     assert drs.institute == 'TEST'
     assert drs.experiment == '1pctto4x'
-    assert drs.variable == 'foo'
+    assert drs.table == 'day'
+    assert drs.ensemble == (1,1,2)
 
 def test_3():
     drs = DRS(product='output', institute='TEST')
 
-    path = drs_to_cmorpath('/cmip5', drs)
+    path = drs_to_path('/cmip5', drs)
 
     assert path == '/cmip5/output/TEST/*/*/*/*/*/*'
 
 def test_4():
     drs = DRS(product='output', institute='TEST', ensemble=(1,2,3))
 
-    path = drs_to_cmorpath('/cmip5/', drs)
+    path = drs_to_path('/cmip5/', drs)
 
     assert path == '/cmip5/output/TEST/*/*/*/*/*/r1i2p3'
 
@@ -419,6 +432,6 @@ def test_5():
     drs = DRS(product='output', institute='TEST', model='HadCM3',
               frequency='day')
 
-    path = drs_to_cmorpath('/cmip5', drs)
+    path = drs_to_path('/cmip5', drs)
 
     assert path == '/cmip5/output/TEST/HadCM3/*/day/*/*/*'
