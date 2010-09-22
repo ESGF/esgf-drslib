@@ -102,14 +102,19 @@ class DRS(dict):
             kws.append('%s=%s' % (attr, repr(self[attr])))
         return '<DRS %s>' % ', '.join(kws)
 
-    def to_dataset_id(self):
+    def to_dataset_id(self, with_version=False):
         """
         Return the esgpublish dataset_id for this drs object.
         
+        If version is not None and with_version=True the version is included.
+
         """
-        return '.'.join((self.activity, self.product, self.institute, self.model,
-                         self.experiment, self.frequency, self.realm,
-                         self.table, 'r%di%dp%d' % self.ensemble))
+        parts = [self.activity, self.product, self.institute, self.model,
+                 self.experiment, self.frequency, self.realm,
+                 self.table, 'r%di%dp%d' % self.ensemble]
+        if self.version and with_version:
+            pars.append(self.version)
+        return '.'.join(parts)
 
 
 
@@ -189,3 +194,4 @@ def drs_to_path(drs_root, drs):
     path = os.path.join(*path)
     log.debug('%s => %s' % (drs, repr(path)))
     return path
+

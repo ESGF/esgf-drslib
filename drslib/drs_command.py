@@ -30,7 +30,7 @@ def make_parser():
                   help='Root directory of the DRS tree')
     op.add_option('-I', '--incoming', action='store',
                   help='Incoming directory for DRS files')
-    for attr in ['product', 'institute', 'model', 'experiment', 
+    for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
         op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
                       help='Set DRS attribute %s for realm-tree discovery'%attr)
@@ -56,7 +56,7 @@ def make_drs_tree(opts, args):
 
     dt = DRSTree(drs_root)
     kwargs = {}
-    for attr in ['product', 'institute', 'model', 'experiment', 
+    for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
         try:
             val = getattr(opts, attr)
@@ -81,7 +81,7 @@ DRS Tree at %s
             status_msg = pt.state
         else:
             status_msg = '%-15s %d' % (pt.state, pt.latest)
-        print '%s  %s' % (pt.pub_dir, status_msg)
+        print '%s  %s' % (pt.drs.to_dataset_id(with_version=True), status_msg)
     
     print """\
 ==============================================================================\
@@ -97,7 +97,7 @@ Publisher Tree %s todo for version %d
 ------------------------------------------------------------------------------
 %s
 ==============================================================================
-""" % (pt.pub_dir, pt.latest+1, '\n'.join(todos))
+""" % (pt.drs.to_dataset_id(), pt.latest+1, '\n'.join(todos))
 
 def do_upgrade(drs_tree, opts, args):
     print """\
@@ -105,9 +105,9 @@ def do_upgrade(drs_tree, opts, args):
 """
     for pt in drs_tree.pub_trees.values():
         if pt.state == pt.STATE_VERSIONED:
-            print 'Publisher Tree %s has no pending upgrades' % pt.pub_dir
+            print 'Publisher Tree %s has no pending upgrades' % pt.drs.to_dataset_id()
         else:
-            print ('Upgrading %s to version %d ...' % (pt.pub_dir, pt.latest+1)),
+            print ('Upgrading %s to version %d ...' % (pt.drs.to_dataset_id(), pt.latest+1)),
             pt.do_version()
             print 'done'
     
@@ -139,7 +139,7 @@ def do_mapfile(drs_tree, opts, args):
 
 
     if version not in pt.versions:
-        log.warning("PublisherTree %s has no version %d, skipping" % (pt.pub_dir, version))
+        log.warning("PublisherTree %s has no version %d, skipping" % (pt.drs.to_dataset_id(), version))
     else:
         #!TODO: Alternative to stdout?
         pt.version_to_mapfile(version)
