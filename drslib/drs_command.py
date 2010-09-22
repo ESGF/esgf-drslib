@@ -76,12 +76,15 @@ DRS Tree at %s
 ------------------------------------------------------------------------------\
 """ % drs_tree.drs_root
     
+    to_update = 0
     for pt in drs_tree.pub_trees.values():
-        if pt.state == pt.STATE_INITIAL:
-            status_msg = pt.state
+        if pt.state == pt.STATE_VERSIONED:
+            state_msg = '-'
         else:
-            status_msg = '%-15s %d' % (pt.state, pt.latest)
-        print '%s  %s' % (pt.drs.to_dataset_id(with_version=True), status_msg)
+            state_msg = '*'
+            to_update += 1
+        #!TODO: print update summary
+        print '%-70s  %s' % (pt.version_drs().to_dataset_id(with_version=True), state_msg)
     
     print """\
 ==============================================================================\

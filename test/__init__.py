@@ -13,6 +13,7 @@ Tests compatible with nosetests
 import os
 
 from drslib import cmip5
+from drslib.drs import DRS
 
 translator = cmip5.make_translator('cmip5')
 translator_noversion = cmip5.make_translator('cmip5', with_version=False)
@@ -108,3 +109,12 @@ def test_9():
 
     assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1'
 
+def test_9():
+    # Check instantiating DRS objects from other DRS objects
+
+    drs = get_drs1()
+    assert drs.version == None
+
+    drs2 = DRS(drs, version=12)
+    assert drs2.version == 12
+    assert drs.model == drs2.model

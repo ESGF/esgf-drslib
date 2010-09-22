@@ -53,7 +53,7 @@ class DRS(dict):
     _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
                  'realm', 'variable', 'table', 'ensemble', 'version', 'subset', 'extended']
 
-    def __init__(self, **kwargs):
+    def __init__(self, *argv, **kwargs):
         """
         Instantiate a DRS object with a set of DRS component values.
 
@@ -61,12 +61,23 @@ class DRS(dict):
         ...             experiment='1pctto4x', variable='tas')
         <DRS activity="cmip5" product="output" model="HadGEM1" ...>
 
+        :param argv: If not () should be a DRS object to instantiate from
         :param kwargs: DRS component values.
 
         """
 
+        # Initialise all components as None
         for attr in self._drs_attrs:
-            setattr(self, attr, kwargs.get(attr))
+            self[attr] = None
+
+        # Check only DRS components are used
+        for kw in kwargs:
+            if kw not in self._drs_attrs:
+                raise KeywordError("Keyword %s is not a DRS component" % repr(kw))
+
+        # Use dict flexible instantiation
+        super(DRS, self).__init__(*argv, **kwargs)
+
 
     def __getattr__(self, attr):
         if attr in self._drs_attrs:
@@ -113,7 +124,7 @@ class DRS(dict):
                  self.experiment, self.frequency, self.realm,
                  self.table, 'r%di%dp%d' % self.ensemble]
         if self.version and with_version:
-            pars.append(self.version)
+            parts.append('v%d' % self.version)
         return '.'.join(parts)
 
 

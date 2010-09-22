@@ -372,6 +372,25 @@ class PublisherTree(object):
 
         mapfile.write_mapfile(self.versions[version], fh)
 
+    def version_drs(self, version=None):
+        """
+        Return a DRS object representing the PublisherTree at the given version number.
+        If the version doesn't exist an exception is raised.
+
+        """
+
+        if version is None:
+            version = self.latest
+        
+        # If unversioned just return the bare DRS
+        if version == 0:
+            return self.drs
+
+        if version not in self.versions:
+            raise Exception("Version %d not present in PublsherTree %s" % (version, self.pub_dir))
+
+        return DRS(self.drs, version=version)
+
     #-------------------------------------------------------------------
     
     def _do_latest(self):

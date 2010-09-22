@@ -47,8 +47,8 @@ List the realm-trees
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1  INITIAL
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1  INITIAL
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                 *
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1                  *
 ==============================================================================
 
 Show what manipulations will be done for next version
@@ -75,8 +75,8 @@ List the results
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1  VERSIONED       1
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1  INITIAL
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v1               -
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                 *
 ==============================================================================
 
 Upgrade the other PublisherTree
@@ -91,8 +91,8 @@ Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 1 .
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1  VERSIONED       1
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1  VERSIONED       1
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v1               -
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v1              -
 ==============================================================================
 
 Simulate a new file ariving
@@ -104,8 +104,8 @@ Simulate a new file ariving
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1  VERSIONED_TRANS 1
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1  VERSIONED       1
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v1               *
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v1              -
 ==============================================================================
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
@@ -118,8 +118,8 @@ Publisher Tree cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pe
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1  VERSIONED       2
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1  VERSIONED       1
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v2               -
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v1              -
 ==============================================================================
 
 
