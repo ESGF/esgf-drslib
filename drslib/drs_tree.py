@@ -63,7 +63,7 @@ class DRSTree(object):
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
-    def discover(self, incoming_glob, **components):
+    def discover(self, incoming_glob=None, **components):
         """
         Scan the directory structure for PublisherTrees.
 
@@ -77,7 +77,8 @@ class DRSTree(object):
         allows an exaustive scan to be forced if desired.
 
         :incoming_glob: A filesystem wildcard which should resolve to 
-            directories to recursively scan for files.
+            directories to recursively scan for files.  If None no incoming
+            files are detected
 
         """
 
@@ -102,7 +103,10 @@ class DRSTree(object):
 
 
         # Scan for incoming DRS files
-        self.discover_incoming(incoming_glob, **components)
+        if incoming_glob:
+            self.discover_incoming(incoming_glob, **components)
+        else:
+            self._incoming = []
 
         drs_t = DRS(**components)
 

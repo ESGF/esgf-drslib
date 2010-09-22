@@ -52,7 +52,7 @@ def make_drs_tree(opts, args):
         try:
             incoming = config.drs_defaults['incoming']
         except KeyError:
-            raise Exception('incoming directory not defined')
+            incoming = None
 
     dt = DRSTree(drs_root)
     kwargs = {}
@@ -129,7 +129,7 @@ def do_mapfile(drs_tree, opts, args):
     if len(drs_tree.pub_trees) == 0:
         raise Exception("No realm trees selected")
 
-    pt = drs_tree.pub_trees[0]
+    pt = drs_tree.pub_trees.values()[0]
 
     #!TODO: better argument handling
     if args:
