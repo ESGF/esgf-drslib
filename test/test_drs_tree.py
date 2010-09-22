@@ -40,13 +40,13 @@ class TestEg1(TestEg):
         assert len(dt.pub_trees) == 3
         k = dt.pub_trees.keys()[0]
         assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r2i1p1'
-        rt = dt.pub_trees[k]
+        pt = dt.pub_trees[k]
 
-        assert rt.versions == {}
-        assert len(rt._todo) == 15
-        vars = set(x[1].variable for x in rt._todo)
+        assert pt.versions == {}
+        assert len(pt._todo) == 15
+        vars = set(x[1].variable for x in pt._todo)
         assert vars == set(('pr', 'rsus', 'tas'))
-        assert rt.state == rt.STATE_INITIAL
+        assert pt.state == pt.STATE_INITIAL
     
     def test_2(self):
         dt = DRSTree(self.tmpdir)
@@ -54,21 +54,21 @@ class TestEg1(TestEg):
                     product='output', institute='MOHC', model='HadCM3')
 
         assert len(dt.pub_trees) == 3
-        rt = dt.pub_trees.values()[0]
-        assert rt.drs.realm == 'atmos'
+        pt = dt.pub_trees.values()[0]
+        assert pt.drs.realm == 'atmos'
 
     def test_3(self):
         dt = DRSTree(self.tmpdir)
         dt.discover(self.incoming, activity='cmip5',
                     product='output', institute='MOHC', model='HadCM3')
         
-        rt = dt.pub_trees.values()[0]
-        assert rt.state == rt.STATE_INITIAL
+        pt = dt.pub_trees.values()[0]
+        assert pt.state == pt.STATE_INITIAL
 
-        rt.do_version()
-        assert rt.state == rt.STATE_VERSIONED
-        assert len(rt.versions.keys()) == 1
-        assert 1 in rt.versions.keys()
+        pt.do_version()
+        assert pt.state == pt.STATE_VERSIONED
+        assert len(pt.versions.keys()) == 1
+        assert 1 in pt.versions.keys()
 
 class TestEg2(TestEg):
     __test__ = True
@@ -100,39 +100,39 @@ class TestEg3(TestEg):
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output', institute='MOHC', model='HadCM3')
 
-        (self.rt, ) = self.dt.pub_trees.values()
+        (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg3_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output')
-        self.rt.deduce_state()
+        self.pt.deduce_state()
 
         
     def _exists(self, x):
-        return os.path.exists(os.path.join(self.rt.realm_dir, x))
+        return os.path.exists(os.path.join(self.pt.pub_dir, x))
     def _listdir(self, x):
-        return os.listdir(os.path.join(self.rt.realm_dir, x))
+        return os.listdir(os.path.join(self.pt.pub_dir, x))
     def _listlinks(self, x):
-        links = glob('%s/*' % os.path.join(self.rt.realm_dir, x))
+        links = glob('%s/*' % os.path.join(self.pt.pub_dir, x))
         return [os.readlink(lnk) for lnk in links if os.path.islink(lnk)]
 
 
     def test_01(self):
         self._cmor1()
-        assert len(self.rt.drs_tree._incoming) > 0
+        assert len(self.pt.drs_tree._incoming) > 0
 
-        self.rt.do_version()
-        assert len(self.rt.drs_tree._incoming) == 0
+        self.pt.do_version()
+        assert len(self.pt.drs_tree._incoming) == 0
 
     def test_1(self):
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
 
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
-        assert len(self.rt.drs_tree._incoming) == 0
+        assert len(self.pt.drs_tree._incoming) == 0
 
         assert self._exists('files')
         assert self._exists('files/rsus_2')
@@ -145,29 +145,29 @@ class TestEg3(TestEg):
 
     def test_2(self):
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
         assert self._exists('v2/pr/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc')
 
     def test_3(self):
         self._cmor1()
-        assert self.rt.state == self.rt.STATE_INITIAL
-        self.rt.do_version()
-        assert self.rt.state == self.rt.STATE_VERSIONED
+        assert self.pt.state == self.pt.STATE_INITIAL
+        self.pt.do_version()
+        assert self.pt.state == self.pt.STATE_VERSIONED
         self._cmor2()
-        assert self.rt.state == self.rt.STATE_VERSIONED_TRANS
-        self.rt.do_version()
-        assert self.rt.state == self.rt.STATE_VERSIONED
+        assert self.pt.state == self.pt.STATE_VERSIONED_TRANS
+        self.pt.do_version()
+        assert self.pt.state == self.pt.STATE_VERSIONED
     
 
     def test_4(self):
         # Check all links are to the "files" branch
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
         links = self._listlinks('v2/tas/r1i1p1')
         for link in links:
@@ -175,15 +175,15 @@ class TestEg3(TestEg):
 
     def test_5(self):
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
 
-        latest = os.readlink(os.path.join(self.rt.realm_dir, 'latest'))
+        latest = os.readlink(os.path.join(self.pt.pub_dir, 'latest'))
         assert latest[-2:] == 'v1'
 
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
-        latest = os.readlink(os.path.join(self.rt.realm_dir, 'latest'))
+        latest = os.readlink(os.path.join(self.pt.pub_dir, 'latest'))
         assert latest[-2:] == 'v2'
 
 
@@ -191,16 +191,16 @@ class TestEg3(TestEg):
         # Test differencing 2 versions
 
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
 
         v1 = []
         todo = []
-        for state, path1, path2 in self.rt.diff_version(1):
-            if state == self.rt.DIFF_V1_ONLY:
+        for state, path1, path2 in self.pt.diff_version(1):
+            if state == self.pt.DIFF_V1_ONLY:
                 assert not 'rsus' in path1
                 v1.append(path1)
-            elif state == self.rt.DIFF_V2_ONLY:
+            elif state == self.pt.DIFF_V2_ONLY:
                 assert 'rsus' in path2
                 todo.append(path2)
 
@@ -221,19 +221,19 @@ class TestEg4(TestEg3):
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output', institute='MOHC', model='HadCM3')
 
-        (self.rt, ) = self.dt.pub_trees.values()
+        (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg4_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output')
-        self.rt.deduce_state()
+        self.pt.deduce_state()
 
     def test_1(self):
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
         assert self._exists('files')
         assert self._exists('files/tas_2')
@@ -242,9 +242,9 @@ class TestEg4(TestEg3):
 
     def test_2(self):
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
         assert len(self._listdir('files/tas_1')) == 3
         assert len(self._listdir('files/tas_2')) == 2
@@ -260,15 +260,15 @@ class TestEg4(TestEg3):
         # Test differencing 2 versions
 
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
 
         v1 = []
         todo = []
-        for state, path1, path2 in self.rt.diff_version(1):
-            if state == self.rt.DIFF_V1_ONLY:
+        for state, path1, path2 in self.pt.diff_version(1):
+            if state == self.pt.DIFF_V1_ONLY:
                 v1.append(path1)
-            elif state == self.rt.DIFF_V2_ONLY:
+            elif state == self.pt.DIFF_V2_ONLY:
                 todo.append(path2)
 
         assert len(v1) == 3
@@ -285,21 +285,21 @@ class TestEg5(TestEg4):
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output', institute='MOHC', model='HadCM3')
 
-        (self.rt, ) = self.dt.pub_trees.values()
+        (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg5_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output')
-        self.rt.deduce_state()
+        self.pt.deduce_state()
 
     # Do test1 from superclass
 
     def test_2(self):
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
-        self.rt.do_version()
+        self.pt.do_version()
 
         assert len(self._listdir('files/tas_1')) == 5
         assert len(self._listdir('files/tas_2')) == 2
@@ -314,21 +314,21 @@ class TestEg5(TestEg4):
         # Test differencing 2 versions
 
         self._cmor1()
-        self.rt.do_version()
+        self.pt.do_version()
         self._cmor2()
 
         v1 = []
         todo = []
         diff = []
         same = []
-        for state, path1, path2 in self.rt.diff_version(1):
-            if state == self.rt.DIFF_V1_ONLY:
+        for state, path1, path2 in self.pt.diff_version(1):
+            if state == self.pt.DIFF_V1_ONLY:
                 v1.append(path1)
-            elif state == self.rt.DIFF_V2_ONLY:
+            elif state == self.pt.DIFF_V2_ONLY:
                 todo.append(path2)
-            elif state == self.rt.DIFF_SIZE:
+            elif state == self.pt.DIFF_SIZE:
                 diff.append(path1)
-            elif state == self.rt.DIFF_NONE:
+            elif state == self.pt.DIFF_NONE:
                 same.append(path1)
 
         #!TODO: not same?  This test needs reviewing.
@@ -355,11 +355,11 @@ class TestListing(TestEg):
                          institute=institute, 
                          model=model)
 
-    def _do_version(self, rt):
-        assert rt.state == rt.STATE_INITIAL
-        rt.do_version()
-        assert rt.state == rt.STATE_VERSIONED
-        assert rt.versions.keys() == [1]
+    def _do_version(self, pt):
+        assert pt.state == pt.STATE_INITIAL
+        pt.do_version()
+        assert pt.state == pt.STATE_VERSIONED
+        assert pt.versions.keys() == [1]
 
 class TestListing1(TestListing):
     __test__ = True
@@ -369,13 +369,13 @@ class TestListing1(TestListing):
     def test_1(self):
 
         self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
-        rt = self.dt.pub_trees.values()[0]
-        self._do_version(rt)
+        pt = self.dt.pub_trees.values()[0]
+        self._do_version(pt)
 
     def test_2(self):
         self._discover('MPI-M', 'ECHAM6-MPIOM-LR')
-        rt = self.dt.pub_trees.values()[0]
-        self._do_version(rt)
+        pt = self.dt.pub_trees.values()[0]
+        self._do_version(pt)
 
 class TestMapfile(TestListing):
     __test__ = True
@@ -384,12 +384,12 @@ class TestMapfile(TestListing):
 
     def test_1(self):
         self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
-        rt = self.dt.pub_trees.values()[0]
-        self._do_version(rt)
+        pt = self.dt.pub_trees.values()[0]
+        self._do_version(pt)
 
         # Make a mapfile
         fh = StringIO()
-        rt.version_to_mapfile(1, fh)
+        pt.version_to_mapfile(1, fh)
         mapfile = fh.getvalue()
 
 

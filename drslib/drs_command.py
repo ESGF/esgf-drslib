@@ -76,39 +76,39 @@ DRS Tree at %s
 ------------------------------------------------------------------------------\
 """ % drs_tree.drs_root
     
-    for rt in drs_tree.pub_trees.values():
-        if rt.state == rt.STATE_INITIAL:
-            status_msg = rt.state
+    for pt in drs_tree.pub_trees.values():
+        if pt.state == pt.STATE_INITIAL:
+            status_msg = pt.state
         else:
-            status_msg = '%-15s %d' % (rt.state, rt.latest)
-        print '%s  %s' % (rt.realm_dir, status_msg)
+            status_msg = '%-15s %d' % (pt.state, pt.latest)
+        print '%s  %s' % (pt.pub_dir, status_msg)
     
     print """\
 ==============================================================================\
 """
 
 def do_todo(drs_tree, opts, args):
-    for rt in drs_tree.pub_trees.values():
+    for pt in drs_tree.pub_trees.values():
 
-        todos = rt.list_todo()
+        todos = pt.list_todo()
         print """\
 ==============================================================================
 Publisher Tree %s todo for version %d
 ------------------------------------------------------------------------------
 %s
 ==============================================================================
-""" % (rt.realm_dir, rt.latest+1, '\n'.join(todos))
+""" % (pt.pub_dir, pt.latest+1, '\n'.join(todos))
 
 def do_upgrade(drs_tree, opts, args):
     print """\
 ==============================================================================\
 """
-    for rt in drs_tree.pub_trees.values():
-        if rt.state == rt.STATE_VERSIONED:
-            print 'Publisher Tree %s has no pending upgrades' % rt.realm_dir
+    for pt in drs_tree.pub_trees.values():
+        if pt.state == pt.STATE_VERSIONED:
+            print 'Publisher Tree %s has no pending upgrades' % pt.pub_dir
         else:
-            print ('Upgrading %s to version %d ...' % (rt.realm_dir, rt.latest+1)),
-            rt.do_version()
+            print ('Upgrading %s to version %d ...' % (pt.pub_dir, pt.latest+1)),
+            pt.do_version()
             print 'done'
     
     print """\
@@ -129,20 +129,20 @@ def do_mapfile(drs_tree, opts, args):
     if len(drs_tree.pub_trees) == 0:
         raise Exception("No realm trees selected")
 
-    rt = drs_tree.pub_trees[0]
+    pt = drs_tree.pub_trees[0]
 
     #!TODO: better argument handling
     if args:
         version = int(args[0])
     else:
-        version = rt.latest
+        version = pt.latest
 
 
-    if version not in rt.versions:
-        log.warning("PublisherTree %s has no version %d, skipping" % (rt.realm_dir, version))
+    if version not in pt.versions:
+        log.warning("PublisherTree %s has no version %d, skipping" % (pt.pub_dir, version))
     else:
         #!TODO: Alternative to stdout?
-        rt.version_to_mapfile(version)
+        pt.version_to_mapfile(version)
 
 def main(argv=sys.argv):
 

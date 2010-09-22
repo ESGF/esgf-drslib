@@ -107,17 +107,17 @@ class DRSTree(object):
         drs_t = DRS(**components)
 
         # NOTE: None components are converted to wildcards
-        rt_glob = drs_to_path(self.drs_root, drs_t)
-        pub_trees = glob(rt_glob)
-        for rt_path in pub_trees:
-            drs = path_to_drs(self.drs_root, rt_path)
+        pt_glob = drs_to_path(self.drs_root, drs_t)
+        pub_trees = glob(pt_glob)
+        for pt_path in pub_trees:
+            drs = path_to_drs(self.drs_root, pt_path)
             #!FIXME: see FIXME above
             drs.activity = drs_t.activity
             drs_id = drs.to_dataset_id()
             if drs_id in self.pub_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)
 
-            log.info('Discovered realm-tree at %s' % rt_path)
+            log.info('Discovered realm-tree at %s' % pt_path)
             self.pub_trees[drs_id] = PublisherTree(drs, self)
 
         # Instantiate a PublisherTree for each unique publication-level dataset
@@ -252,7 +252,7 @@ class PublisherTree(object):
         self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
 
         ensemble = 'r%di%dp%d' % self.drs.ensemble
-        self.realm_dir = os.path.join(self.drs_tree.drs_root,
+        self.pub_dir = os.path.join(self.drs_tree.drs_root,
                                       self.drs.product,
                                       self.drs.institute,
                                       self.drs.model,
@@ -261,9 +261,9 @@ class PublisherTree(object):
                                       self.drs.realm,
                                       self.drs.table,
                                       ensemble)
-        if not os.path.exists(self.realm_dir):
-            log.info("New PublisherTree being created at %s" % self.realm_dir)
-            os.makedirs(self.realm_dir)
+        if not os.path.exists(self.pub_dir):
+            log.info("New PublisherTree being created at %s" % self.pub_dir)
+            os.makedirs(self.pub_dir)
 
         self.deduce_state()
         self._setup_versioning()
@@ -291,7 +291,7 @@ class PublisherTree(object):
         Move incoming files into the next version
 
         """
-        log.info('Transfering %s to version %d' % (self.realm_dir, self.latest+1))
+        log.info('Transfering %s to version %d' % (self.pub_dir, self.latest+1))
         self._do_commands(self._todo_commands())
         self.deduce_state()
         self._do_latest()
@@ -364,7 +364,7 @@ class PublisherTree(object):
 
     def version_to_mapfile(self, version, fh=sys.stdout):
         if version not in self.versions:
-            raise Exception("Version %d not present in PublisherTree %s" % (version, self.realm_dir))
+            raise Exception("Version %d not present in PublisherTree %s" % (version, self.pub_dir))
 
         mapfile.write_mapfile(self.versions[version], fh)
 
@@ -374,7 +374,7 @@ class PublisherTree(object):
         version = max(self.versions.keys())
         latest_dir = 'v%d' % version
         log.info('Setting latest to %s' % latest_dir)
-        latest_lnk = os.path.join(self.realm_dir, VERSIONING_LATEST_DIR)
+        latest_lnk = os.path.join(self.pub_dir, VERSIONING_LATEST_DIR)
 
         if os.path.exists(latest_lnk):
             os.remove(latest_lnk)
@@ -391,13 +391,13 @@ class PublisherTree(object):
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
             fdir = '%s_%d' % (drs.variable, v)
-            newpath = os.path.abspath(os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
+            newpath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                    fdir, filename))
             
             yield self.CMD_MOVE, filepath, newpath
 
             #!TODO: could automatically deduce relative path.  Also see linkpath below
-            linkpath = os.path.abspath(os.path.join(self.realm_dir, 'v%d' % v,
+            linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % v,
                                                     drs.variable,
                                                     filename))
             yield self.CMD_LINK, newpath, linkpath
@@ -411,9 +411,9 @@ class PublisherTree(object):
                 filename = os.path.basename(filepath)
                 if filename not in done:
                     fdir = '%s_%d' % (drs.variable, v-1)
-                    linkpath = os.path.abspath(os.path.join(self.realm_dir, 'v%d' % v,
+                    linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % v,
                                                             drs.variable, filename))
-                    pfilepath = os.path.abspath(os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
+                    pfilepath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                              fdir, filename))
                     yield self.CMD_LINK, pfilepath, linkpath
 
@@ -449,9 +449,9 @@ class PublisherTree(object):
         Do initial configuration of directory tree to support versioning.
 
         """
-        path = os.path.join(self.realm_dir, VERSIONING_FILES_DIR)
+        path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
-            log.info('Initialising %s for versioning.' % self.realm_dir)
+            log.info('Initialising %s for versioning.' % self.pub_dir)
             os.mkdir(path)
 
 
@@ -459,7 +459,7 @@ class PublisherTree(object):
         i = 1
         self.versions = {}
         while True:
-            vpath = os.path.join(self.realm_dir, 'v%d' % i)
+            vpath = os.path.join(self.pub_dir, 'v%d' % i)
             if not os.path.exists(vpath):
                 return
             else:
