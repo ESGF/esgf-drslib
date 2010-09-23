@@ -175,6 +175,9 @@ class GenericComponentTranslator(BaseComponentTranslator):
     #----
 
     def _validate(self, s):
+        if self.vocab is None:
+            return s
+
         if s not in self.vocab:
             raise TranslationError('Component value %s not in vocabulary of component %s' % (s, self.component))
 

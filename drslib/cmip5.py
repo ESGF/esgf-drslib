@@ -21,7 +21,7 @@ class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
     component = 'product'
-    vocab = ['output', 'requested']
+    vocab = None
 
 
 #!TODO: Get official list.  This is based on Karl's spreadsheet and some educated guesses
