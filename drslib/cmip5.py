@@ -204,7 +204,6 @@ class RealmTranslator(T.GenericComponentTranslator):
 
         return super(RealmTranslator, self)._validate(s)
 
-
     def filename_to_drs(self, context):
         context.drs.realm = self._deduce_realm(context)
 
@@ -225,7 +224,7 @@ class RealmTranslator(T.GenericComponentTranslator):
         if (table is None) or (variable is None):
             raise T.TranslationError('Realm translation requires table and variable to be known')
 
-        return context.table_store.get_variable_attr(table, variable, 'modeling_realm')
+        return self._validate(context.table_store.get_variable_attr(table, variable, 'modeling_realm'))
 
 
 

@@ -118,3 +118,10 @@ def test_9():
     drs2 = DRS(drs, version=12)
     assert drs2.version == 12
     assert drs.model == drs2.model
+
+def test_10():
+    # Regression test for files in multiple realms
+
+    drs = translator_noversion.filename_to_drs('snw_LImon_HadGEM2-ES_rcp45_r1i1p1_201512-204011.nc')
+
+    assert drs.realm == 'landIce'
