@@ -42,6 +42,9 @@ def make_parser():
     op.add_option('-v', '--version', action='store',
                   help='Force version upgrades to this version')
 
+    op.add_option('-P', '--profile', action='store',
+                  help='Profile the script exectuion')
+
     return op
 
 def make_drs_tree(opts, args):
@@ -171,21 +174,7 @@ def do_mapfile(drs_tree, opts, args):
         #!TODO: Alternative to stdout?
         pt.version_to_mapfile(version)
 
-def main(argv=sys.argv):
-
-    op = make_parser()
-
-    try:
-        command = argv[1]
-    except IndexError:
-        op.error("command not specified")
-
-    #!FIXME: better global vs. per-command help
-    if command in ['-h', '--help']:
-        opts, args = op.parse_args(argv[1:2])
-    else:
-        opts, args = op.parse_args(argv[2:])
-        
+def run(op, command, opts, args):
     try:
         drs_tree = make_drs_tree(opts, args)
 
@@ -203,7 +192,27 @@ def main(argv=sys.argv):
     except Exception, e:
         log.exception(e)
         op.error(e)
+
+def main(argv=sys.argv):
+
+    op = make_parser()
+
+    try:
+        command = argv[1]
+    except IndexError:
+        op.error("command not specified")
+
+    #!FIXME: better global vs. per-command help
+    if command in ['-h', '--help']:
+        opts, args = op.parse_args(argv[1:2])
+    else:
+        opts, args = op.parse_args(argv[2:])
     
+    if opts.profile:
+        import cProfile
+        cProfile.runctx('run(op, command, opts, args)', globals(), locals(), opts.profile)
+    else:
+        return run(op, command, opts, args)
 
 if __name__ == '__main__':
     main()

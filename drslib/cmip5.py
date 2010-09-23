@@ -256,18 +256,20 @@ class CMIP5Translator(T.Translator):
 
         return drs
 
-
+_table_store = None
 def get_table_store():
     """
     Return a :class:`drslib.mip_table.MIPTableStore` object
     containing the CMIP5 MIP tables available.
 
     """
+    global _table_store
     from drslib.mip_table import MIPTableStore
 
-    table_store = MIPTableStore(config.table_path+'/CMIP5_*')
+    if _table_store is None:
+        _table_store = MIPTableStore(config.table_path+'/CMIP5_*')
 
-    return table_store
+    return _table_store
 
 def make_translator(prefix, with_version=True):
     """
