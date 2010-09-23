@@ -90,17 +90,11 @@ class DRSTree(object):
         model = components.setdefault('model',
                                       config.drs_defaults.get('model'))
 
-        #!FIXME: activity detection is confused and a hack
-        # Activity can come from config or the drs_root
         activity = components.setdefault('activity',
                                          config.drs_defaults.get('activity'))
-        if activity is None:
-            components['activity'] = os.path.basename(self.drs_root)
-            log.info("Inferring activity=%s from drs_root" % components['activity'])
+        if product is None or activity is None:
+            raise Exception("You must specifiy an activity and product")
         
-        if product is None or institute is None or model is None:
-            raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
-
 
         # Scan for incoming DRS files
         if incoming_glob:
@@ -115,7 +109,7 @@ class DRSTree(object):
         pub_trees = glob(pt_glob)
         for pt_path in pub_trees:
             drs = path_to_drs(self.drs_root, pt_path)
-            #!FIXME: see FIXME above
+            #!FIXME: Set inside path_to_drs?
             drs.activity = drs_t.activity
             drs_id = drs.to_dataset_id()
             if drs_id in self.pub_trees:

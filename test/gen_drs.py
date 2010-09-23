@@ -178,6 +178,8 @@ def write_listing(prefix, listing_file):
         if line[0] == '/':
             raise Exception("Absolute path in listing file!")
 
+        path = os.path.normpath(line)
+
         filepath = os.path.join(incoming, line)
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
