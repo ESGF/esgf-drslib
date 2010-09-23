@@ -35,6 +35,9 @@ def make_parser():
         op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
                       help='Set DRS attribute %s for realm-tree discovery'%attr)
 
+    op.add_option('-v', '--version', action='store',
+                  help='Force version upgrades to this version')
+
     return op
 
 def make_drs_tree(opts, args):
@@ -91,18 +94,27 @@ DRS Tree at %s
 """
 
 def do_todo(drs_tree, opts, args):
-    for pt in drs_tree.pub_trees.values():
+    if opts.version:
+        next_version = int(opts.version)
+    else:
+        next_version = pt._next_version()
 
-        todos = pt.list_todo()
+    for pt in drs_tree.pub_trees.values():
+        todos = pt.list_todo(next_version)
         print """\
 ==============================================================================
 Publisher Tree %s todo for version %d
 ------------------------------------------------------------------------------
 %s
 ==============================================================================
-""" % (pt.drs.to_dataset_id(), pt.latest+1, '\n'.join(todos))
+""" % (pt.drs.to_dataset_id(), next_version, '\n'.join(todos))
 
 def do_upgrade(drs_tree, opts, args):
+    if opts.version:
+        next_version = int(opts.version)
+    else:
+        next_version = None
+
     print """\
 ==============================================================================\
 """
@@ -110,8 +122,8 @@ def do_upgrade(drs_tree, opts, args):
         if pt.state == pt.STATE_VERSIONED:
             print 'Publisher Tree %s has no pending upgrades' % pt.drs.to_dataset_id()
         else:
-            print ('Upgrading %s to version %d ...' % (pt.drs.to_dataset_id(), pt.latest+1)),
-            pt.do_version()
+            print ('Upgrading %s to version %d ...' % (pt.drs.to_dataset_id(), next_version)),
+            pt.do_version(next_version)
             print 'done'
     
     print """\

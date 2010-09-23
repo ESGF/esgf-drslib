@@ -299,7 +299,7 @@ class PublisherTree(object):
         self.deduce_state()
         self._do_latest()
 
-    def list_todo(self):
+    def list_todo(self, next_version=None):
         """
         Return an iterable of command descriptions in the todo list.
 
@@ -307,7 +307,11 @@ class PublisherTree(object):
         form ``"mv ... ..."`` or ``"ln -s ... ..."``
 
         """
-        for cmd, src, dest in self._todo_commands():
+
+        if next_version is None:
+            next_version = self._next_version()
+
+        for cmd, src, dest in self._todo_commands(next_version):
             if cmd == self.CMD_MOVE:
                 yield "mv %s %s" % (src, dest)
             elif cmd == self.CMD_LINK:

@@ -37,7 +37,7 @@ Create a function to run the drs_tree command.
 
 >>> def do_drs_tree(subcommand, args=''):
 ... 	cmd = "drs_tree %s --root=%s --activity=cmip5 --incoming=%s --product=output \
-...                        --institute=MOHC \
+...                        --institute=MOHC --version=20100101 \
 ...                        --model=HadCM3 %s" % (subcommand, drs_root, incoming, args)    
 ...     main(cmd.split())
  
@@ -55,18 +55,18 @@ Show what manipulations will be done for next version
 
 >>> do_drs_tree('todo', '--realm=atmos') # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
 ==============================================================================
-Publisher Tree ... todo for version 1
+Publisher Tree ... todo for version 20100101
 ------------------------------------------------------------------------------
-mv .../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../r1i1p1/files/tas_1/tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
+mv .../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
 ...
-ln -s .../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/files/tas_1/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v1/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
+ln -s .../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
 ==============================================================================
 
 Upgrade one PublisherTree
 
 >>> do_drs_tree('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
 ==============================================================================
-Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 1 ... done
+Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100101 ... done
 ==============================================================================
 
 List the results
@@ -75,7 +75,7 @@ List the results
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v1               -
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101        -
 cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                 *
 ==============================================================================
 
@@ -84,33 +84,33 @@ Upgrade the other PublisherTree
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
 Publisher Tree cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 has no pending upgrades
-Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 1 ... done
+Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done
 ==============================================================================
 
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v1               -
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v1              -
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101        -
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101       -
 ==============================================================================
 
 Simulate a new file ariving
 
->>> cmd= "cp %s/output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v1/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2004010104-2005123119.nc %s" % (drs_root, incoming)
+>>> cmd= "cp %s/output/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2004010104-2005123119.nc %s" % (drs_root, incoming)
 >>> os.system(cmd)
 0
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v1               *
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v1              -
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101        *
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101       -
 ==============================================================================
 
->>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
+>>> do_drs_tree('upgrade', '--version=20100102') # doctest:+ELLIPSIS
 ==============================================================================
-Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 2 ... done
+Upgrading cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100102 ... done
 Publisher Tree cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pending upgrades
 ==============================================================================
 
@@ -118,8 +118,8 @@ Publisher Tree cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pe
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v2               -
-cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v1              -
+cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102        -
+cmip5.output.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101       -
 ==============================================================================
 
 
