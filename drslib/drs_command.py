@@ -106,12 +106,12 @@ DRS Tree at %s
 """
 
 def do_todo(drs_tree, opts, args):
-    if opts.version:
-        next_version = int(opts.version)
-    else:
-        next_version = pt._next_version()
-
     for pt in drs_tree.pub_trees.values():
+        if opts.version:
+            next_version = int(opts.version)
+        else:
+            next_version = pt._next_version()
+
         todos = pt.list_todo(next_version)
         print """\
 ==============================================================================
@@ -122,15 +122,15 @@ Publisher Tree %s todo for version %d
 """ % (pt.drs.to_dataset_id(), next_version, '\n'.join(todos))
 
 def do_upgrade(drs_tree, opts, args):
-    if opts.version:
-        next_version = int(opts.version)
-    else:
-        next_version = None
-
     print """\
 ==============================================================================\
 """
     for pt in drs_tree.pub_trees.values():
+        if opts.version:
+            next_version = int(opts.version)
+        else:
+            next_version = pt._next_version()
+
         if pt.state == pt.STATE_VERSIONED:
             print 'Publisher Tree %s has no pending upgrades' % pt.drs.to_dataset_id()
         else:
