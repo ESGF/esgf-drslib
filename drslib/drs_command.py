@@ -9,17 +9,21 @@ from optparse import OptionParser
 
 from drslib.drs_tree import DRSTree
 from drslib import config
+from drslib.drs import DRS
 
 import logging
 log = logging.getLogger(__name__)
 
-usage = """usage: %prog [command] [options]
+usage = """usage: %prog [command] [options] [drs-pattern]
 
 command:
   list            list realm-trees
   todo            show file operations pending for the next version
   upgrade         make changes to the realm-tree to upgrade to the next version.
   mapfile         make a mapfile of the selected realm-trees
+
+drs-pattern:
+  A dataset identifier in '.'-separated notation using '%' for wildcards
 """
 
 
@@ -57,6 +61,7 @@ def make_drs_tree(opts, args):
         except KeyError:
             incoming = None
 
+
     dt = DRSTree(drs_root)
     kwargs = {}
     for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
@@ -67,7 +72,14 @@ def make_drs_tree(opts, args):
             val = config.drs_defaults.get(attr)
         kwargs[attr] = val
 
-    dt.discover(incoming, **kwargs)
+    # Get the template DRS from args
+    if args:
+        dataset_id = args.pop(0)
+        drs = DRS.from_dataset_id(dataset_id, **kwargs)
+    else:
+        drs = DRS(**kwargs)
+
+    dt.discover(incoming, **drs)
     
     return dt
     

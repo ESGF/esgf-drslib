@@ -127,6 +127,37 @@ class DRS(dict):
             parts.append('v%d' % self.version)
         return '.'.join(parts)
 
+    @classmethod
+    def from_dataset_id(klass, dataset_id, **components):
+        """
+        Return a DRS object fro a ESG Publisher dataset_id.
+
+        If the dataset_id contains less than 10 components all trailing
+        components are set to None.  Any component of value '%' is set to None
+
+        E.g.
+        >>> drs = DRS.from_dataset_id('cmip5.output.MOHC.%.rpc45')
+        >>> drs.institute, drs.model, drs.experiment, drs.realm
+        ('MOHC', None, 'rpc45', None)
+
+        """
+        parts = dataset_id.split('.')
+        for attr, val in itertools.izip(klass._drs_attrs, parts):
+            if val is '%':
+                continue
+            if attr is 'ensemble':
+                r, i, p = re.match(r'r(\d+)i(\d+)p(\d+)', val).groups()
+                components[attr] = (int(r), int(i), int(p))
+            elif attr is 'version':
+                v = re.match(r'v(\d+)', val).group(1)
+                components[attr] = int(v)
+                # Don't process after version
+                break
+            else:
+                components[attr] = val
+                   
+        return klass(**components)
+            
 
 
 #--------------------------------------------------------------------------

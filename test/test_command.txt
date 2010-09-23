@@ -36,9 +36,8 @@ Create a directory and build a drs-tree in it called './drs_tree_example/cmip5'
 Create a function to run the drs_tree command.
 
 >>> def do_drs_tree(subcommand, args=''):
-... 	cmd = "drs_tree %s --root=%s --activity=cmip5 --incoming=%s --product=output \
-...                        --institute=MOHC --version=20100101 \
-...                        --model=HadCM3 %s" % (subcommand, drs_root, incoming, args)    
+... 	cmd = "drs_tree %s --root=%s --incoming=%s --version=20100101 \
+...                     cmip5.output.MOHC.HadCM3 %s" % (subcommand, drs_root, incoming, args)
 ...     main(cmd.split())
  
 List the realm-trees
