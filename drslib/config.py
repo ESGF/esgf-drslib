@@ -36,6 +36,15 @@ except:
                                'CMIP5_models.csv')
 
 #
+# Allow backward compatibility with the original version system
+# Original behaviour is default
+#
+try:
+    version_by_date = config.getboolean('versioning', 'version_by_date')
+except:
+    version_by_date = False
+
+#
 # CMIP3 component to file/path position mapping
 #
 

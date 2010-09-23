@@ -21,6 +21,7 @@ import os, shutil, sys
 from glob import glob
 import re
 import stat
+import datetime
 
 
 from drslib.cmip5 import make_translator
@@ -403,7 +404,7 @@ class PublisherTree(object):
         files that need to be moved and linked to transfer to next version.
 
         """
-        v = self.latest + 1
+        v = self._next_version()
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
@@ -471,8 +472,32 @@ class PublisherTree(object):
             log.info('Initialising %s for versioning.' % self.pub_dir)
             os.mkdir(path)
 
+    def _next_version(self):
+        if config.version_by_date:
+            today = datetime.date.today()
+            return int(today.strftime('%Y%M%d'))
+        else:
+            return self.latest+1
 
     def _deduce_versions(self):
+        if config.version_by_date:
+            return self._deduce_date_versions()
+        else:
+            return self._deduce_old_versions()
+            
+    def _deduce_date_versions(self):
+        self.latest = 0
+        # Detect version paths and sort by date
+        for basename in os.listdir(self.pub_dir):
+            if basename[0] != 'v':
+                continue
+            i = int(basename[1:])
+            self.latest = max(i, self.latest)
+            vpath = os.path.join(self.pub_dir, basename)
+            self.versions[i] = self._make_version_list(vpath)
+
+
+    def _deduce_old_versions(self):
         i = 1
         self.versions = {}
         while True:
@@ -482,17 +507,20 @@ class PublisherTree(object):
             else:
                 self.latest = i
 
-            self.versions[i] = []
-            for dirpath, dirnames, filenames in os.walk(vpath,
-                                                        topdown=False):
-                for filename in filenames:
-                    filepath = os.path.join(dirpath, filename)
-                    drs = self.drs_tree._vtrans.filepath_to_drs(filepath)
-                    self.versions[i].append((filepath, drs))
-
+            self.versions[i] = self._make_version_list(vpath)
             i += 1
             
-            
+        
+    def _make_version_list(self, vpath):
+        vlist = []
+        for dirpath, dirnames, filenames in os.walk(vpath,
+                                                    topdown=False):
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                drs = self.drs_tree._vtrans.filepath_to_drs(filepath)
+                vlist.append((filepath, drs))
+        return vlist
+
     def _deduce_todo(self):
         """
         Filter the drs_tree's incoming list to find new files in this
