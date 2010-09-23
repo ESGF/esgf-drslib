@@ -42,7 +42,7 @@ except:
 try:
     version_by_date = config.getboolean('versioning', 'version_by_date')
 except:
-    version_by_date = False
+    version_by_date = True
 
 #
 # CMIP3 component to file/path position mapping

@@ -285,13 +285,17 @@ class PublisherTree(object):
             self.state = self.STATE_VERSIONED
 
 
-    def do_version(self):
+    def do_version(self, next_version=None):
         """
         Move incoming files into the next version
 
         """
-        log.info('Transfering %s to version %d' % (self.pub_dir, self.latest+1))
-        self._do_commands(self._todo_commands())
+
+        if next_version is None:
+            next_version = self._next_version()
+
+        log.info('Transfering %s to version %d' % (self.pub_dir, next_version))
+        self._do_commands(self._todo_commands(next_version))
         self.deduce_state()
         self._do_latest()
 
@@ -398,24 +402,26 @@ class PublisherTree(object):
             os.remove(latest_lnk)
         os.symlink(latest_dir, latest_lnk)
 
-    def _todo_commands(self):
+    def _todo_commands(self, next_version=None):
         """
         Yield a sequence of tuples (CMD, SRS, DEST) indicating the
         files that need to be moved and linked to transfer to next version.
 
         """
-        v = self._next_version()
+        if next_version is None:
+            next_version = self._next_version()
+        
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
-            fdir = '%s_%d' % (drs.variable, v)
+            fdir = '%s_%d' % (drs.variable, next_version)
             newpath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                    fdir, filename))
             
             yield self.CMD_MOVE, filepath, newpath
 
             #!TODO: could automatically deduce relative path.  Also see linkpath below
-            linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % v,
+            linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
                                                     drs.variable,
                                                     filename))
             yield self.CMD_LINK, newpath, linkpath
@@ -424,12 +430,12 @@ class PublisherTree(object):
         #!TODO: Handle deleted files!
 
         # Now scan through previous version to find files to update
-        if v > 1:
-            for filepath, drs in self.versions[v-1]:
+        if self.latest != 0:
+            for filepath, drs in self.versions[self.latest]:
                 filename = os.path.basename(filepath)
                 if filename not in done:
-                    fdir = '%s_%d' % (drs.variable, v-1)
-                    linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % v,
+                    fdir = '%s_%d' % (drs.variable, self.latest)
+                    linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
                                                             drs.variable, filename))
                     pfilepath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                              fdir, filename))
@@ -448,7 +454,10 @@ class PublisherTree(object):
         if not os.path.exists(dir):
             log.info('Creating %s' % dir)
             os.makedirs(dir)
-        log.info('Moving %s %s' % (src, dest))
+        if os.path.exists(dest):
+            log.warn('Overwriting existing file: Moving %s %s' % (src, dest))
+        else:
+            log.info('Moving %s %s' % (src, dest))
         shutil.move(src, dest)
 
         # Remove src from incoming
@@ -459,6 +468,9 @@ class PublisherTree(object):
         if not os.path.exists(dir):
             log.info('Creating %s' % dir)
             os.makedirs(dir)
+        if os.path.exists(dest):
+            log.warning('Moving symlink %s' % dest)
+            os.remove(dest)
         log.info('Linking %s %s' % (src, dest))
         os.symlink(src, dest)
 
@@ -475,7 +487,7 @@ class PublisherTree(object):
     def _next_version(self):
         if config.version_by_date:
             today = datetime.date.today()
-            return int(today.strftime('%Y%M%d'))
+            return int(today.strftime('%Y%m%d'))
         else:
             return self.latest+1
 

@@ -4,6 +4,7 @@ import shutil
 import sys, os
 from glob import glob
 from StringIO import StringIO
+import datetime
 
 from unittest import TestCase
 
@@ -16,6 +17,8 @@ test_dir = os.path.dirname(__file__)
 
 class TestEg(TestCase):
     __test__ = False
+
+    today = int(datetime.date.today().strftime('%Y%m%d'))
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='drslib-')
@@ -68,7 +71,8 @@ class TestEg1(TestEg):
         pt.do_version()
         assert pt.state == pt.STATE_VERSIONED
         assert len(pt.versions.keys()) == 1
-        assert 1 in pt.versions.keys()
+
+        assert self.today in pt.versions.keys()
 
 class TestEg2(TestEg):
     __test__ = True
@@ -127,29 +131,29 @@ class TestEg3(TestEg):
 
     def test_1(self):
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
 
         self._cmor2()
-        self.pt.do_version()
+        self.pt.do_version(20100102)
 
         assert len(self.pt.drs_tree._incoming) == 0
 
         assert self._exists('files')
-        assert self._exists('files/rsus_2')
-        assert not self._exists('files/rsus_1')
+        assert self._exists('files/rsus_20100102')
+        assert not self._exists('files/rsus_20100101')
 
-        assert self._exists('v1/tas')
-        assert self._exists('v1/pr')
-        assert not self._exists('v1/rsus')
-        assert self._exists('v2/rsus')
+        assert self._exists('v20100101/tas')
+        assert self._exists('v20100101/pr')
+        assert not self._exists('v20100101/rsus')
+        assert self._exists('v20100102/rsus')
 
     def test_2(self):
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
-        self.pt.do_version()
+        self.pt.do_version(20100102)
 
-        assert self._exists('v2/pr/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc')
+        assert self._exists('v20100102/pr/pr_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc')
 
     def test_3(self):
         self._cmor1()
@@ -175,28 +179,28 @@ class TestEg3(TestEg):
 
     def test_5(self):
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
 
         latest = os.readlink(os.path.join(self.pt.pub_dir, 'latest'))
-        assert latest[-2:] == 'v1'
+        assert latest == 'v20100101'
 
         self._cmor2()
-        self.pt.do_version()
+        self.pt.do_version(20100102)
 
         latest = os.readlink(os.path.join(self.pt.pub_dir, 'latest'))
-        assert latest[-2:] == 'v2'
+        assert latest == 'v20100102'
 
 
     def test_6(self):
         # Test differencing 2 versions
 
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
 
         v1 = []
         todo = []
-        for state, path1, path2 in self.pt.diff_version(1):
+        for state, path1, path2 in self.pt.diff_version(20100101):
             if state == self.pt.DIFF_V1_ONLY:
                 assert not 'rsus' in path1
                 v1.append(path1)
@@ -231,25 +235,25 @@ class TestEg4(TestEg3):
 
     def test_1(self):
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
-        self.pt.do_version()
+        self.pt.do_version(20100102)
 
         assert self._exists('files')
-        assert self._exists('files/tas_2')
-        assert self._exists('v1/tas')
+        assert self._exists('files/tas_20100102')
+        assert self._exists('v20100102/tas')
 
 
     def test_2(self):
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
-        self.pt.do_version()
+        self.pt.do_version(20100102)
 
-        assert len(self._listdir('files/tas_1')) == 3
-        assert len(self._listdir('files/tas_2')) == 2
-        assert len(self._listdir('v1/tas')) == 3
-        assert len(self._listdir('v2/tas')) == 5
+        assert len(self._listdir('files/tas_20100101')) == 3
+        assert len(self._listdir('files/tas_20100102')) == 2
+        assert len(self._listdir('v20100101/tas')) == 3
+        assert len(self._listdir('v20100102/tas')) == 5
 
     # Do test_3 from superclass
         
@@ -260,12 +264,12 @@ class TestEg4(TestEg3):
         # Test differencing 2 versions
 
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
 
         v1 = []
         todo = []
-        for state, path1, path2 in self.pt.diff_version(1):
+        for state, path1, path2 in self.pt.diff_version(20100101):
             if state == self.pt.DIFF_V1_ONLY:
                 v1.append(path1)
             elif state == self.pt.DIFF_V2_ONLY:
@@ -273,7 +277,6 @@ class TestEg4(TestEg3):
 
         assert len(v1) == 3
         assert len(todo) == 2
-
 
 
 class TestEg5(TestEg4):
@@ -297,14 +300,14 @@ class TestEg5(TestEg4):
 
     def test_2(self):
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
-        self.pt.do_version()
+        self.pt.do_version(20100102)
 
-        assert len(self._listdir('files/tas_1')) == 5
-        assert len(self._listdir('files/tas_2')) == 2
-        assert len(self._listdir('v1/tas')) == 5
-        assert len(self._listdir('v2/tas')) == 5
+        assert len(self._listdir('files/tas_20100101')) == 5
+        assert len(self._listdir('files/tas_20100102')) == 2
+        assert len(self._listdir('v20100101/tas')) == 5
+        assert len(self._listdir('v20100102/tas')) == 5
 
     # Do test_3 from superclass
         
@@ -314,14 +317,14 @@ class TestEg5(TestEg4):
         # Test differencing 2 versions
 
         self._cmor1()
-        self.pt.do_version()
+        self.pt.do_version(20100101)
         self._cmor2()
 
         v1 = []
         todo = []
         diff = []
         same = []
-        for state, path1, path2 in self.pt.diff_version(1):
+        for state, path1, path2 in self.pt.diff_version(20100101):
             if state == self.pt.DIFF_V1_ONLY:
                 v1.append(path1)
             elif state == self.pt.DIFF_V2_ONLY:
@@ -334,6 +337,7 @@ class TestEg5(TestEg4):
         #!TODO: not same?  This test needs reviewing.
         assert len(v1) == 3
         assert len(same) == 2
+
 
 
 class TestListing(TestEg):
@@ -359,7 +363,7 @@ class TestListing(TestEg):
         assert pt.state == pt.STATE_INITIAL
         pt.do_version()
         assert pt.state == pt.STATE_VERSIONED
-        assert pt.versions.keys() == [1]
+        assert pt.versions.keys() == [self.today]
 
 class TestListing1(TestListing):
     __test__ = True
@@ -389,13 +393,13 @@ class TestMapfile(TestListing):
 
         # Make a mapfile
         fh = StringIO()
-        pt.version_to_mapfile(1, fh)
+        pt.version_to_mapfile(self.today, fh)
         mapfile = fh.getvalue()
 
 
         print mapfile
         assert 'cmip5.output.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean.Omon.r1i1p1' in mapfile
-        assert 'output/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v1' in mapfile
+        assert 'output/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v%s'%self.today in mapfile
 
 
 
