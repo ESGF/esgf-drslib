@@ -112,7 +112,7 @@ DRS Tree at %s
 """ % self.drs_root
 
     def print_sep(self):
-        print """
+        print """\
 ------------------------------------------------------------------------------\
 """
 
@@ -185,7 +185,7 @@ class MapfileCommand(Command):
 
         """
 
-        if len(self.drs_tree.pub_trees) > 1:
+        if len(self.drs_tree.pub_trees) != 1:
             raise Exception("You must select 1 dataset to create a mapfile.  %d selected" %
                             len(self.drs_tree.pub_trees))
 
@@ -207,16 +207,23 @@ class MapfileCommand(Command):
             pt.version_to_mapfile(version)
 
 class HistoryCommand(Command):
-    def do_history():
+    def do(self):
         """
         List all versions of a selected dataset.
 
         """
-        raise NotImplementedError
-        #if len(drs_tree.pub_trees) > 1:
-        #    raise Exception("You must select 1 dataset to list history.  %d selected" %
-        #                    len(drs_tree.pub_trees))
-
+        if len(self.drs_tree.pub_trees) != 1:
+            raise Exception("You must select 1 dataset to list history.  %d selected" % len(self.drs_tree.pub_trees))
+        pt = self.drs_tree.pub_trees.values()[0]
+        
+        self.print_header()
+        print "History of %s" % pt.drs.to_dataset_id()
+        self.print_sep()
+        for version in sorted(pt.versions, reverse=True):
+            vdrs = DRS(pt.drs, version=version)
+            print vdrs.to_dataset_id(with_version=True)
+        self.print_footer()
+            
 
 def run(op, command, opts, args):
     try:

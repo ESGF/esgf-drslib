@@ -39,7 +39,7 @@ Syntax [DRS]_.  MIP table support is based on CMOR-%(cmor2_version)s.
       ],
       entry_points= {
         'console_scripts': ['translate_cmip3 = drslib.translate_cmip3:main',
-                            'drs_tree = drslib.drs_command:main'],
+                            'drs_tool = drslib.drs_command:main'],
         },
       test_suite='nose.collector',
       )

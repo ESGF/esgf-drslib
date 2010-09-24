@@ -23,26 +23,25 @@ Import modules required to for this test.
 >>> from drslib.drs_command import main
 >>> import gen_drs
 
-Create a directory and build a drs-tree in it called './drs_tree_example/cmip5'
+Create a directory and build a drs-tree in it called './drs_tool_example/cmip5'
 
->>> tmpdir = './drs_tree_example'
->>> drs_root = os.path.join(tmpdir, 'cmip5')
+>>> tmpdir = './drs_tool_example'
+>>> drs_root = tmpdir
 >>> incoming = os.path.join(tmpdir, 'output')
 >>> if os.path.exists(tmpdir): shutil.rmtree(tmpdir)
 >>> os.mkdir(tmpdir)
->>> os.mkdir(drs_root)
 >>> gen_drs.write_eg2(tmpdir)
 
-Create a function to run the drs_tree command.
+Create a function to run the drs_tool command.
 
->>> def do_drs_tree(subcommand, args=''):
-... 	cmd = "drs_tree %s --root=%s --incoming=%s --version=20100101 \
+>>> def do_drs_tool(subcommand, args=''):
+... 	cmd = "drs_tool %s --root=%s --incoming=%s --version=20100101 \
 ...                     cmip5.output1.MOHC.HadCM3 %s" % (subcommand, drs_root, incoming, args)
 ...     main(cmd.split())
  
 List the realm-trees
 
->>> do_drs_tree('list') #doctest:+ELLIPSIS
+>>> do_drs_tool('list') #doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -52,7 +51,7 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                *
 
 Show what manipulations will be done for next version
 
->>> do_drs_tree('todo', '--realm=atmos') # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
+>>> do_drs_tool('todo', '--realm=atmos') # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -65,7 +64,7 @@ ln -s .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/files/tas_20100101/t
 
 Upgrade one PublisherTree
 
->>> do_drs_tree('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
+>>> do_drs_tool('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -74,7 +73,7 @@ Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 201
 
 List the results
 
->>> do_drs_tree('list') # doctest:+ELLIPSIS
+>>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -84,7 +83,7 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                *
 
 Upgrade the other PublisherTree
 
->>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
+>>> do_drs_tool('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -92,7 +91,7 @@ Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 has no pe
 Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done
 ==============================================================================
 
->>> do_drs_tree('list') # doctest:+ELLIPSIS
+>>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -105,7 +104,7 @@ Simulate a new file ariving
 >>> cmd= "cp %s/output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2004010104-2005123119.nc %s" % (drs_root, incoming)
 >>> os.system(cmd)
 0
->>> do_drs_tree('list') # doctest:+ELLIPSIS
+>>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -113,7 +112,7 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       *
 cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 ==============================================================================
 
->>> do_drs_tree('upgrade', '--version=20100102') # doctest:+ELLIPSIS
+>>> do_drs_tool('upgrade', '--version=20100102') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -121,7 +120,7 @@ Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 201
 Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pending upgrades
 ==============================================================================
 
->>> do_drs_tree('list') # doctest:+ELLIPSIS
+>>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
@@ -129,4 +128,11 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       -
 cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 ==============================================================================
 
+>>> do_drs_tool('history', '--realm=atmos') # doctest:+ELLIPSIS
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101
+==============================================================================
 
