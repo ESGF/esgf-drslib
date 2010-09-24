@@ -54,6 +54,8 @@ Show what manipulations will be done for next version
 
 >>> do_drs_tree('todo', '--realm=atmos') # doctest:+ELLIPSIS +NORMALIZE_WHITESPACE
 ==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
 Publisher Tree ... todo for version 20100101
 ------------------------------------------------------------------------------
 mv .../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
@@ -65,6 +67,8 @@ Upgrade one PublisherTree
 
 >>> do_drs_tree('upgrade', '--realm=atmos') # doctest:+ELLIPSIS
 ==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
 Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100101 ... done
 ==============================================================================
 
@@ -82,6 +86,8 @@ Upgrade the other PublisherTree
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
 Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 has no pending upgrades
 Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done
 ==============================================================================
@@ -109,6 +115,8 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 
 >>> do_drs_tree('upgrade', '--version=20100102') # doctest:+ELLIPSIS
 ==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
 Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100102 ... done
 Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pending upgrades
 ==============================================================================
