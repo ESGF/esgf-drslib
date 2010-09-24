@@ -260,12 +260,7 @@ class PublisherTree(object):
                                       self.drs.realm,
                                       self.drs.table,
                                       ensemble)
-        if not os.path.exists(self.pub_dir):
-            log.info("New PublisherTree being created at %s" % self.pub_dir)
-            os.makedirs(self.pub_dir)
-
         self.deduce_state()
-        self._setup_versioning()
 
     def deduce_state(self):
         """
@@ -290,6 +285,8 @@ class PublisherTree(object):
         Move incoming files into the next version
 
         """
+
+        self._setup_versioning()
 
         if next_version is None:
             next_version = self._next_version()
@@ -483,6 +480,10 @@ class PublisherTree(object):
         Do initial configuration of directory tree to support versioning.
 
         """
+        if not os.path.exists(self.pub_dir):
+            log.info("New PublisherTree being created at %s" % self.pub_dir)
+            os.makedirs(self.pub_dir)
+
         path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
             log.info('Initialising %s for versioning.' % self.pub_dir)
@@ -503,6 +504,9 @@ class PublisherTree(object):
             
     def _deduce_date_versions(self):
         self.latest = 0
+        # Bail out if pub_dir doesn't exist yet.
+        if not os.path.exists(self.pub_dir):
+            return
         # Detect version paths and sort by date
         for basename in os.listdir(self.pub_dir):
             if basename[0] != 'v':
