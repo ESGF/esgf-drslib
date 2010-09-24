@@ -45,6 +45,13 @@ except:
     version_by_date = True
 
 #
+# drs_tree command defaults
+#
+
+# Default subdirectory of drs-root to scan for incoming files
+DEFAULT_INCOMING = 'output'
+
+#
 # CMIP3 component to file/path position mapping
 #
 

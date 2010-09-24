@@ -9,7 +9,7 @@ from datetime import datetime
 import os
 
 from drslib.drs import DRS
-from drslib import cmip5
+from drslib import cmip5, config
 
 from itertools import izip
 
@@ -95,7 +95,7 @@ def subset_range(date1, date2, clim, n):
 
 
 def make_eg(**iter_template):
-    template = DRS(activity='cmip5', product='output', institute='MOHC',
+    template = DRS(activity='cmip5', product='output1', institute='MOHC',
                    model='HadCM3', experiment='1pctto4x', 
                    frequency='day', realm='atmos', table='day',
                    )
@@ -148,11 +148,11 @@ def write_eg_file(filepath):
 def write_eg(prefix, seq):
     """
     Create a test directory tree under prefix.
-    Files are created in <prefix>/incoming in CMOR's
+    Files are created in <prefix>/<incoming> in CMOR's
     output directory structure
 
     """
-    incoming = os.path.join(prefix, 'incoming')
+    incoming = os.path.join(prefix, config.DEFAULT_INCOMING)
     trans = cmip5.make_translator(incoming, with_version=False)
     for drs in seq:
         path = trans.drs_to_filepath(drs)
@@ -170,7 +170,7 @@ def write_listing(prefix, listing_file):
     Create a drs-tree from a listing file
     
     """
-    incoming = os.path.join(prefix, 'incoming')
+    incoming = os.path.join(prefix, config.DEFAULT_INCOMING)
     for line in open(listing_file):
         line = line.strip()
         if not line or line[0] == '#':

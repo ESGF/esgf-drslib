@@ -11,7 +11,7 @@ from unittest import TestCase
 import gen_drs
 from drslib.drs_tree import DRSTree
 from drslib.drs import path_to_drs, drs_to_path, DRS
-
+from drslib import config
 
 test_dir = os.path.dirname(__file__)
 
@@ -22,7 +22,7 @@ class TestEg(TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='drslib-')
-        self.incoming = os.path.join(self.tmpdir, 'incoming')
+        self.incoming = os.path.join(self.tmpdir, config.DEFAULT_INCOMING)
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -38,11 +38,11 @@ class TestEg1(TestEg):
     def test_1(self):
         dt = DRSTree(self.tmpdir)
         dt.discover(self.incoming, activity='cmip5',
-                    product='output', institute='MOHC', model='HadCM3', 
+                    product='output1', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
         assert len(dt.pub_trees) == 3
         k = dt.pub_trees.keys()[0]
-        assert k == 'cmip5.output.MOHC.HadCM3.1pctto4x.day.atmos.day.r2i1p1'
+        assert k == 'cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r3i1p1'
         pt = dt.pub_trees[k]
 
         assert pt.versions == {}
@@ -54,7 +54,7 @@ class TestEg1(TestEg):
     def test_2(self):
         dt = DRSTree(self.tmpdir)
         dt.discover(self.incoming, activity='cmip5',
-                    product='output', institute='MOHC', model='HadCM3')
+                    product='output1', institute='MOHC', model='HadCM3')
 
         assert len(dt.pub_trees) == 3
         pt = dt.pub_trees.values()[0]
@@ -63,7 +63,7 @@ class TestEg1(TestEg):
     def test_3(self):
         dt = DRSTree(self.tmpdir)
         dt.discover(self.incoming, activity='cmip5',
-                    product='output', institute='MOHC', model='HadCM3')
+                    product='output1', institute='MOHC', model='HadCM3')
         
         pt = dt.pub_trees.values()[0]
         assert pt.state == pt.STATE_INITIAL
@@ -85,7 +85,7 @@ class TestEg2(TestEg):
     def test_1(self):
         dt = DRSTree(self.tmpdir)
         dt.discover(self.incoming, activity='cmip5',
-                    product='output', institute='MOHC', model='HadCM3')
+                    product='output1', institute='MOHC', model='HadCM3')
 
         assert len(dt.pub_trees) == 2
         assert set([x.drs.realm for x in dt.pub_trees.values()]) == set(['atmos', 'ocean'])
@@ -102,14 +102,14 @@ class TestEg3(TestEg):
         gen_drs.write_eg3_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
         self.dt.discover(self.incoming, activity='cmip5',
-                         product='output', institute='MOHC', model='HadCM3')
+                         product='output1', institute='MOHC', model='HadCM3')
 
         (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg3_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
-                                  product='output')
+                                  product='output1')
         self.pt.deduce_state()
 
         
@@ -223,14 +223,14 @@ class TestEg4(TestEg3):
         gen_drs.write_eg4_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
         self.dt.discover(self.incoming, activity='cmip5',
-                         product='output', institute='MOHC', model='HadCM3')
+                         product='output1', institute='MOHC', model='HadCM3')
 
         (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg4_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
-                                  product='output')
+                                  product='output1')
         self.pt.deduce_state()
 
     def test_1(self):
@@ -286,14 +286,14 @@ class TestEg5(TestEg4):
         gen_drs.write_eg5_1(self.tmpdir)
         self.dt = DRSTree(self.tmpdir)
         self.dt.discover(self.incoming, activity='cmip5',
-                         product='output', institute='MOHC', model='HadCM3')
+                         product='output1', institute='MOHC', model='HadCM3')
 
         (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
         gen_drs.write_eg5_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
-                                  product='output')
+                                  product='output1')
         self.pt.deduce_state()
 
     # Do test1 from superclass
@@ -355,7 +355,7 @@ class TestListing(TestEg):
 
     def _discover(self, institute, model):
         self.dt.discover(self.incoming, activity='cmip5',
-                         product='output', 
+                         product='output1', 
                          institute=institute, 
                          model=model)
 
@@ -398,20 +398,20 @@ class TestMapfile(TestListing):
 
 
         print mapfile
-        assert 'cmip5.output.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean.Omon.r1i1p1' in mapfile
-        assert 'output/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v%s'%self.today in mapfile
+        assert 'cmip5.output1.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean.Omon.r1i1p1' in mapfile
+        assert 'output1/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v%s'%self.today in mapfile
 
 
 
 #----------------------------------------------------------------------------
 
 def test_1():
-    drs = path_to_drs('/cmip5', '/cmip5/output')
-    assert drs.product == 'output'
+    drs = path_to_drs('/cmip5', '/cmip5/output1')
+    assert drs.product == 'output1'
     assert drs.institute == None
 
 def test_2():
-    drs = path_to_drs('/cmip5/', '/cmip5/output/TEST/HadCM3/1pctto4x/day/atmos/day/r1i1p2/foo')
+    drs = path_to_drs('/cmip5/', '/cmip5/output1/TEST/HadCM3/1pctto4x/day/atmos/day/r1i1p2/foo')
                       
     assert drs.institute == 'TEST'
     assert drs.experiment == '1pctto4x'
@@ -419,23 +419,23 @@ def test_2():
     assert drs.ensemble == (1,1,2)
 
 def test_3():
-    drs = DRS(product='output', institute='TEST')
+    drs = DRS(product='output1', institute='TEST')
 
     path = drs_to_path('/cmip5', drs)
 
-    assert path == '/cmip5/output/TEST/*/*/*/*/*/*'
+    assert path == '/cmip5/output1/TEST/*/*/*/*/*/*'
 
 def test_4():
-    drs = DRS(product='output', institute='TEST', ensemble=(1,2,3))
+    drs = DRS(product='output1', institute='TEST', ensemble=(1,2,3))
 
     path = drs_to_path('/cmip5/', drs)
 
-    assert path == '/cmip5/output/TEST/*/*/*/*/*/r1i2p3'
+    assert path == '/cmip5/output1/TEST/*/*/*/*/*/r1i2p3'
 
 def test_5():
-    drs = DRS(product='output', institute='TEST', model='HadCM3',
+    drs = DRS(product='output1', institute='TEST', model='HadCM3',
               frequency='day')
 
     path = drs_to_path('/cmip5', drs)
 
-    assert path == '/cmip5/output/TEST/HadCM3/*/day/*/*/*'
+    assert path == '/cmip5/output1/TEST/HadCM3/*/day/*/*/*'

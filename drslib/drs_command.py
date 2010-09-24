@@ -33,7 +33,7 @@ def make_parser():
     op.add_option('-R', '--root', action='store',
                   help='Root directory of the DRS tree')
     op.add_option('-I', '--incoming', action='store',
-                  help='Incoming directory for DRS files')
+                  help='Incoming directory for DRS files.  Defaults to <root>/%s' % config.DEFAULT_INCOMING)
     for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
         op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
@@ -62,7 +62,7 @@ def make_drs_tree(opts, args):
         try:
             incoming = config.drs_defaults['incoming']
         except KeyError:
-            incoming = None
+            incoming = os.path.join(drs_root, config.DEFAULT_INCOMING)
 
 
     dt = DRSTree(drs_root)
