@@ -1,0 +1,13 @@
+
+To get set up, run install.sh -- this will create a subdirectory for python shelves and parse the spreadsheets in xls/.
+
+To test:
+
+python test_p_cmip5.py > test1
+diff test1 test_output.txt
+
+This should report no differences.
+
+To go further: see interface examples in test_p_cmip5.py.
+
+
