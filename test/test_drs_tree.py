@@ -41,7 +41,7 @@ class TestEg1(TestEg):
                     product='output1', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
         assert len(dt.pub_trees) == 3
-        k = dt.pub_trees.keys()[0]
+        k = sorted(dt.pub_trees.keys())[2]
         assert k == 'cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r3i1p1'
         pt = dt.pub_trees[k]
 

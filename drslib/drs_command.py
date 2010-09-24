@@ -95,7 +95,8 @@ DRS Tree at %s
 """ % drs_tree.drs_root
     
     to_update = 0
-    for pt in drs_tree.pub_trees.values():
+    for k in sorted(drs_tree.pub_trees):
+        pt = drs_tree.pub_trees[k]
         if pt.state == pt.STATE_VERSIONED:
             state_msg = '-'
         else:
@@ -109,7 +110,8 @@ DRS Tree at %s
 """
 
 def do_todo(drs_tree, opts, args):
-    for pt in drs_tree.pub_trees.values():
+    for k in sorted(drs_tree.pub_trees):
+        pt = drs_tree.pub_trees[k]
         if opts.version:
             next_version = int(opts.version)
         else:
@@ -128,7 +130,8 @@ def do_upgrade(drs_tree, opts, args):
     print """\
 ==============================================================================\
 """
-    for pt in drs_tree.pub_trees.values():
+    for k in sorted(drs_tree.pub_trees):
+        pt = drs_tree.pub_trees[k]
         if opts.version:
             next_version = int(opts.version)
         else:

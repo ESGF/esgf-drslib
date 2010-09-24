@@ -46,8 +46,8 @@ List the realm-trees
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                *
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1                 *
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                *
 ==============================================================================
 
 Show what manipulations will be done for next version
@@ -74,24 +74,24 @@ List the results
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                *
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       -
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                *
 ==============================================================================
 
 Upgrade the other PublisherTree
 
 >>> do_drs_tree('upgrade') # doctest:+ELLIPSIS
 ==============================================================================
-Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done
 Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 has no pending upgrades
+Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done
 ==============================================================================
 
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       -
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 ==============================================================================
 
 Simulate a new file ariving
@@ -103,22 +103,22 @@ Simulate a new file ariving
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       *
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 ==============================================================================
 
 >>> do_drs_tree('upgrade', '--version=20100102') # doctest:+ELLIPSIS
 ==============================================================================
-Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pending upgrades
 Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100102 ... done
+Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pending upgrades
 ==============================================================================
 
 >>> do_drs_tree('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       -
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      -
 ==============================================================================
 
 
