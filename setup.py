@@ -43,4 +43,7 @@ Syntax [DRS]_.
                             'drs_tool = drslib.drs_command:main'],
         },
       test_suite='nose.collector',
+      tests_require=[
+        'NoseXUnit',
+        ]
       )
