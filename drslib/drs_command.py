@@ -3,7 +3,7 @@ Command-line access to drslib
 
 """
 
-import sys
+import sys, os
 
 from optparse import OptionParser
 
@@ -17,10 +17,10 @@ log = logging.getLogger(__name__)
 usage = """usage: %prog [command] [options] [drs-pattern]
 
 command:
-  list            list realm-trees
+  list            list publication-level datasets
   todo            show file operations pending for the next version
-  upgrade         make changes to the realm-tree to upgrade to the next version.
-  mapfile         make a mapfile of the selected realm-trees
+  upgrade         make changes to the selected datasets to upgrade to the next version.
+  mapfile         make a mapfile of the selected dataset
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -37,13 +37,18 @@ def make_parser():
     for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
         op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
-                      help='Set DRS attribute %s for realm-tree discovery'%attr)
+                      help='Set DRS attribute %s for dataset discovery'%attr)
 
     op.add_option('-v', '--version', action='store',
                   help='Force version upgrades to this version')
 
     op.add_option('-P', '--profile', action='store',
-                  help='Profile the script exectuion')
+                  metavar='FILE',
+                  help='Profile the script exectuion into FILE')
+
+    op.add_option('--detect-product', action='store_true',
+                  help='Automatically detect the DRS product of incoming data')
+
 
     return op
 
@@ -81,6 +86,10 @@ def make_drs_tree(opts, args):
         drs = DRS.from_dataset_id(dataset_id, **kwargs)
     else:
         drs = DRS(**kwargs)
+
+    # Product detection to be enabled later
+    if opts.detect_product:
+        raise NotImplementedError("Product detection is not yet implemented")
 
     dt.discover(incoming, **drs)
     
