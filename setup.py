@@ -44,6 +44,6 @@ Syntax [DRS]_.
         },
       test_suite='nose.collector',
       tests_require=[
-        'NoseXUnit',
+        #'NoseXUnit',
         ]
       )
