@@ -38,13 +38,10 @@ Syntax [DRS]_.
         # For cmip5_product_identifier
         'xlrd',
       ],
-      tests_require=['NoseXUnit'],
+      #tests_require=['NoseXUnit'],
       entry_points= {
         'console_scripts': ['translate_cmip3 = drslib.translate_cmip3:main',
                             'drs_tool = drslib.drs_command:main'],
         },
       test_suite='nose.collector',
-      tests_require=[
-        #'NoseXUnit',
-        ]
       )
