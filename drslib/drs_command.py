@@ -3,24 +3,30 @@ Command-line access to drslib
 
 """
 
-import sys
+import sys, os, re
 
 from optparse import OptionParser
 
 from drslib.drs_tree import DRSTree
 from drslib import config
+from drslib.drs import DRS
 
 import logging
 log = logging.getLogger(__name__)
 
-usage = """usage: %prog [command] [options]
+usage = """usage: %prog [command] [options] [drs-pattern]
 
 command:
-  list            list realm-trees
+  list            list publication-level datasets
   todo            show file operations pending for the next version
-  upgrade         make changes to the realm-tree to upgrade to the next version.
-  mapfile         make a mapfile of the selected realm-trees
+  upgrade         make changes to the selected datasets to upgrade to the next version.
+  mapfile         make a mapfile of the selected dataset
+  history         list all versions of the selected dataset
+
+drs-pattern:
+  A dataset identifier in '.'-separated notation using '%' for wildcards
 """
+
 
 
 def make_parser():
@@ -28,110 +34,215 @@ def make_parser():
 
     op.add_option('-R', '--root', action='store',
                   help='Root directory of the DRS tree')
-    for attr in ['product', 'institute', 'model', 'experiment', 
+    op.add_option('-I', '--incoming', action='store',
+                  help='Incoming directory for DRS files.  Defaults to <root>/%s' % config.DEFAULT_INCOMING)
+    for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
         op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
-                      help='Set DRS attribute %s for realm-tree discovery'%attr)
+                      help='Set DRS attribute %s for dataset discovery'%attr)
+
+    op.add_option('-v', '--version', action='store',
+                  help='Force version upgrades to this version')
+
+    op.add_option('-P', '--profile', action='store',
+                  metavar='FILE',
+                  help='Profile the script exectuion into FILE')
+
+    op.add_option('--detect-product', action='store_true',
+                  help='Automatically detect the DRS product of incoming data')
+
 
     return op
 
-def make_drs_tree(opts, args):
-    if opts.root:
-        drs_root = opts.root
-    else:
-        try:
-            drs_root = config.drs_defaults['root']
-        except KeyError:
-            raise Exception('drs-root not defined')
+class Command(object):
+    def __init__(self, opts, args):
+        self.opts = opts
+        self.args = args
 
-    dt = DRSTree(drs_root)
-    kwargs = {}
-    for attr in ['product', 'institute', 'model', 'experiment', 
-                 'frequency', 'realm']:
-        try:
-            val = getattr(opts, attr)
-        except AttributeError:
-            val = config.drs_defaults.get(attr)
-        kwargs[attr] = val
+        self.make_drs_tree()
 
-    dt.discover(**kwargs)
+    def make_drs_tree(self):
+        if self.opts.root:
+            self.drs_root = self.opts.root
+        else:
+            try:
+                self.drs_root = config.drs_defaults['root']
+            except KeyError:
+                raise Exception('drs-root not defined')
+
+        if self.opts.incoming:
+            incoming = self.opts.incoming
+        else:
+            try:
+                incoming = config.drs_defaults['incoming']
+            except KeyError:
+                incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
+
+
+        self.drs_tree = DRSTree(self.drs_root)
+        kwargs = {}
+        for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
+                     'frequency', 'realm', 'ensemble']:
+            try:
+                val = getattr(self.opts, attr)
+            except AttributeError:
+                val = config.drs_defaults.get(attr)
+
+            kwargs[attr] = val
+
+        # Get the template DRS from args
+        if self.args:
+            dataset_id = self.args.pop(0)
+            drs = DRS.from_dataset_id(dataset_id, **kwargs)
+        else:
+            drs = DRS(**kwargs)
+
+        # Product detection to be enabled later
+        if self.opts.detect_product:
+            raise NotImplementedError("Product detection is not yet implemented")
+        self.drs_tree.discover(incoming, **drs)
+
+    def do(self):
+        raise NotImplementedError("Unimplemented command")
     
-    return dt
-    
 
-def do_list(drs_tree, opts, args):
-    print """\
+    def print_header(self):
+        print """\
 ==============================================================================
 DRS Tree at %s
 ------------------------------------------------------------------------------\
-""" % drs_tree.drs_root
-    for rt in drs_tree.realm_trees:
-        if rt.state == rt.STATE_INITIAL:
-            status_msg = rt.state
-        else:
-            status_msg = '%-15s %d' % (rt.state, rt.latest)
-        print '%s  %s' % (rt.realm_dir, status_msg)
-    
-    print """\
-==============================================================================\
-"""
+""" % self.drs_root
 
-def do_todo(drs_tree, opts, args):
-    for rt in drs_tree.realm_trees:
-
-        todos = rt.list_todo()
+    def print_sep(self):
         print """\
-==============================================================================
-Realm Tree %s todo for version %d
-------------------------------------------------------------------------------
-%s
-==============================================================================
-""" % (rt.realm_dir, rt.latest+1, '\n'.join(todos))
+------------------------------------------------------------------------------\
+"""
 
-def do_upgrade(drs_tree, opts, args):
-    print """\
+    def print_footer(self):
+        print """\
 ==============================================================================\
 """
-    for rt in drs_tree.realm_trees:
-        if rt.state == rt.STATE_VERSIONED:
-            print 'Realm Tree %s has no pending upgrades' % rt.realm_dir
-        else:
-            print ('Upgrading %s to version %d ...' % (rt.realm_dir, rt.latest+1)),
-            rt.do_version()
-            print 'done'
+
+
+
+class ListCommand(Command):
+    def do(self):
+        self.print_header()
+
+        to_update = 0
+        for k in sorted(self.drs_tree.pub_trees):
+            pt = self.drs_tree.pub_trees[k]
+            if pt.state == pt.STATE_VERSIONED:
+                state_msg = '-'
+            else:
+                state_msg = '*'
+                to_update += 1
+            #!TODO: print update summary
+            print '%-70s  %s' % (pt.version_drs().to_dataset_id(with_version=True), state_msg)
     
-    print """\
-==============================================================================\
-"""
+        self.print_footer()
 
-def do_mapfile(drs_tree, opts, args):
-    """
-    Generate a mapfile from the selection.  The selection must be for
-    only 1 realm-tree.
+class TodoCommand(Command):
+    def do(self):
+        self.print_header()
+        for k in sorted(self.drs_tree.pub_trees):
+            pt = self.drs_tree.pub_trees[k]
+            if self.opts.version:
+                next_version = int(self.opts.version)
+            else:
+                next_version = pt._next_version()
 
-    """
+            todos = pt.list_todo(next_version)
+            print "Publisher Tree %s todo for version %d" % (pt.drs.to_dataset_id(),
+                                                             next_version)
+            self.print_sep()
+            print '\n'.join(todos)
+        self.print_footer()
 
-    if len(drs_tree.realm_trees) > 1:
-        raise Exception("You must select 1 realm-tree to create a mapfile.  %d selected" %
-                        len(drs_tree.realm_trees))
+class UpgradeCommand(Command):
+    def do(self):
+        self.print_header()
 
-    if len(drs_tree.realm_trees) == 0:
-        raise Exception("No realm trees selected")
+        for k in sorted(self.drs_tree.pub_trees):
+            pt = self.drs_tree.pub_trees[k]
+            if self.opts.version:
+                next_version = int(self.opts.version)
+            else:
+                next_version = pt._next_version()
 
-    rt = drs_tree.realm_trees[0]
+            if pt.state == pt.STATE_VERSIONED:
+                print 'Publisher Tree %s has no pending upgrades' % pt.drs.to_dataset_id()
+            else:
+                print ('Upgrading %s to version %d ...' % (pt.drs.to_dataset_id(), next_version)),
+                pt.do_version(next_version)
+                print 'done'
 
-    #!TODO: better argument handling
-    if args:
-        version = int(args[0])
+        self.print_footer()
+
+class MapfileCommand(Command):
+    def do(self):
+        """
+        Generate a mapfile from the selection.  The selection must be for
+        only 1 realm-tree.
+
+        """
+
+        if len(self.drs_tree.pub_trees) != 1:
+            raise Exception("You must select 1 dataset to create a mapfile.  %d selected" %
+                            len(self.drs_tree.pub_trees))
+
+        if len(self.drs_tree.pub_trees) == 0:
+            raise Exception("No datasets selected")
+
+        pt = self.drs_tree.pub_trees.values()[0]
+
+        #!TODO: better argument handling
+        if self.args:
+            version = int(self.args[0])
+        else:
+            version = pt.latest
+
+        if version not in pt.versions:
+            log.warning("PublisherTree %s has no version %d, skipping" % (pt.drs.to_dataset_id(), version))
+        else:
+            #!TODO: Alternative to stdout?
+            pt.version_to_mapfile(version)
+
+class HistoryCommand(Command):
+    def do(self):
+        """
+        List all versions of a selected dataset.
+
+        """
+        if len(self.drs_tree.pub_trees) != 1:
+            raise Exception("You must select 1 dataset to list history.  %d selected" % len(self.drs_tree.pub_trees))
+        pt = self.drs_tree.pub_trees.values()[0]
+        
+        self.print_header()
+        print "History of %s" % pt.drs.to_dataset_id()
+        self.print_sep()
+        for version in sorted(pt.versions, reverse=True):
+            vdrs = DRS(pt.drs, version=version)
+            print vdrs.to_dataset_id(with_version=True)
+        self.print_footer()
+            
+
+def run(op, command, opts, args):
+    if command == 'list':
+        c = ListCommand(opts, args)
+    elif command == 'todo':
+        c = TodoCommand(opts, args)
+    elif command == 'upgrade':
+        c = UpgradeCommand(opts, args)
+    elif command == 'mapfile':
+        c = MapfileCommand(opts, args)
+    elif command == 'history':
+        c = HistoryCommand(opts, args)
     else:
-        version = rt.latest
+        op.error("Unrecognised command %s" % command)
 
+    c.do()
 
-    if version not in rt.versions:
-        log.warning("RealmTree %s has no version %d, skipping" % (rt.realm_dir, version))
-    else:
-        #!TODO: Alternative to stdout?
-        rt.version_to_mapfile(version)
 
 def main(argv=sys.argv):
 
@@ -147,25 +258,12 @@ def main(argv=sys.argv):
         opts, args = op.parse_args(argv[1:2])
     else:
         opts, args = op.parse_args(argv[2:])
-        
-    try:
-        drs_tree = make_drs_tree(opts, args)
-
-        if command == 'list':
-            do_list(drs_tree, opts, args)
-        elif command == 'todo':
-            do_todo(drs_tree, opts, args)
-        elif command == 'upgrade':
-            do_upgrade(drs_tree, opts, args)
-        elif command == 'mapfile':
-            do_mapfile(drs_tree, opts, args)
-        else:
-            op.error("Unrecognised command %s" % command)
-
-    except Exception, e:
-        log.exception(e)
-        op.error(e)
     
+    if opts.profile:
+        import cProfile
+        cProfile.runctx('run(op, command, opts, args)', globals(), locals(), opts.profile)
+    else:
+        return run(op, command, opts, args)
 
 if __name__ == '__main__':
     main()

@@ -36,7 +36,7 @@ class TranslatorContext(object):
     """
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
         if path is None:
-            self.path_parts = [None] * 9
+            self.path_parts = [None] * 12
         else:
             self.path_parts = path.split('/')
 
@@ -58,7 +58,7 @@ class TranslatorContext(object):
         with any current value.
 
         """
-        v = getattr(self.drs, drs_component)
+        v = self.drs[drs_component]
         if v is None:
             setattr(self.drs, drs_component, value)
         else:
@@ -152,7 +152,10 @@ class GenericComponentTranslator(BaseComponentTranslator):
 
     def filename_to_drs(self, context):
         if self.file_i is not None:
-            s = self._validate(context.file_parts[self.file_i])
+            try:
+                s = self._validate(context.file_parts[self.file_i])
+            except IndexError:
+                raise TranslationError("Filename contains too few components")
             context.set_drs_component(self.component, s)
 
 
@@ -162,7 +165,7 @@ class GenericComponentTranslator(BaseComponentTranslator):
             context.set_drs_component(self.component, s)
 
     def drs_to_filepath(self, context):
-        s = self._validate(getattr(context.drs, self.component))
+        s = self._validate(context.drs[self.component])
         
         if self.path_i is not None:
             context.path_parts[self.path_i] = s
@@ -172,6 +175,9 @@ class GenericComponentTranslator(BaseComponentTranslator):
     #----
 
     def _validate(self, s):
+        if self.vocab is None:
+            return s
+
         if s not in self.vocab:
             raise TranslationError('Component value %s not in vocabulary of component %s' % (s, self.component))
 
@@ -231,6 +237,19 @@ class VersionedVarTranslator(CMORVarTranslator):
     file_var_i = CMIP5_DRS.FILE_VARIABLE
     file_table_i = CMIP5_DRS.FILE_TABLE
     path_var_i = CMIP5_DRS.PATH_VARIABLE
+    path_table_i = CMIP5_DRS.PATH_TABLE
+
+    def path_to_drs(self, context):
+        super(VersionedVarTranslator, self).path_to_drs(context)
+
+        tablename = context.path_parts[self.path_table_i]
+
+        context.set_drs_component('table', tablename)
+
+    def drs_to_filepath(self, context):
+        super(VersionedVarTranslator, self).drs_to_filepath(context)
+
+        context.path_parts[self.path_table_i] = context.drs.table
 
 class EnsembleTranslator(BaseComponentTranslator):
     file_i = CMIP5_CMOR_DRS.FILE_ENSEMBLE

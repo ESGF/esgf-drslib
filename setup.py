@@ -8,9 +8,8 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.1.9'
-drs_version = '0.24'
-cmor2_version = '2.0'
+version = '0.2.0'
+drs_version = '0.28'
 
 setup(name='drslib',
       version=version,
@@ -19,7 +18,7 @@ setup(name='drslib',
 
 This library supports the generation of paths and filenames
 corresponding to version %(drs_version)s of the CMIP Data Reference
-Syntax [DRS]_.  MIP table support is based on CMOR-%(cmor2_version)s.
+Syntax [DRS]_.
 
 .. [DRS] http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
 
@@ -36,11 +35,16 @@ Syntax [DRS]_.  MIP table support is based on CMOR-%(cmor2_version)s.
       zip_safe=False,
       install_requires=[
         'metaconfig',
+        # For cmip5_product_identifier
+        'xlrd',
       ],
       tests_require=['NoseXUnit'],
       entry_points= {
         'console_scripts': ['translate_cmip3 = drslib.translate_cmip3:main',
-                            'drs_tree = drslib.drs_command:main'],
+                            'drs_tool = drslib.drs_command:main'],
         },
       test_suite='nose.collector',
+      tests_require=[
+        #'NoseXUnit',
+        ]
       )

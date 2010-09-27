@@ -36,6 +36,22 @@ except:
                                'CMIP5_models.csv')
 
 #
+# Allow backward compatibility with the original version system
+# Original behaviour is default
+#
+try:
+    version_by_date = config.getboolean('versioning', 'version_by_date')
+except:
+    version_by_date = True
+
+#
+# drs_tree command defaults
+#
+
+# Default subdirectory of drs-root to scan for incoming files
+DEFAULT_INCOMING = 'output'
+
+#
 # CMIP3 component to file/path position mapping
 #
 
@@ -57,6 +73,31 @@ class CMIP3_DRS:
 #
 
 class CMIP5_DRS:
+    PATH_PRODUCT = 0
+    PATH_INSTITUTE = 1
+    PATH_MODEL = 2
+    PATH_EXPERIMENT = 3
+    PATH_FREQUENCY = 4
+    PATH_REALM = 5
+    PATH_TABLE = 6
+    PATH_ENSEMBLE = 7
+    PATH_VERSION = 8
+    PATH_VARIABLE = 9
+    
+    FILE_VARIABLE = 0
+    FILE_TABLE = 1
+    FILE_MODEL = 2
+    FILE_EXPERIMENT = 3
+    FILE_ENSEMBLE = 4
+    FILE_SUBSET = 5
+    FILE_EXTENDED = 6
+
+
+#
+# CMIP5 component to file/path position mappings for DRS <= v0.27
+#
+
+class CMIP5_DRS_OLD:
     PATH_PRODUCT = 0
     PATH_INSTITUTE = 1
     PATH_MODEL = 2

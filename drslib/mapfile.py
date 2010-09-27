@@ -22,7 +22,9 @@ def drs_to_id(drs):
                      drs.model,
                      drs.experiment,
                      drs.frequency,
-                     drs.realm])
+                     drs.realm,
+                     drs.table,
+                     'r%di%dp%d' % drs.ensemble])
 
 #!TODO: add callout to get parameters like checksum.
 def write_mapfile(stream, fh=sys.stdout):

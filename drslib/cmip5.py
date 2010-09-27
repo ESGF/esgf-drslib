@@ -21,7 +21,7 @@ class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
     component = 'product'
-    vocab = ['output', 'requested', 'additional']
+    vocab = None
 
 
 #!TODO: Get official list.  This is based on Karl's spreadsheet and some educated guesses
@@ -29,7 +29,7 @@ class ProductTranslator(T.GenericComponentTranslator):
 # CCSR, CNRM, CSIRO, GFDL, INM, IPSL, LASG, MOHC, MPI-M, MRI, NCAR, NCC, NIMR
 
 
-
+#!TODO: make this configurable with metaconfig
 model_institute_map = read_model_table(config.model_table)        
 cmip3_models = {
     'BCC-CM1': 'CMA',
@@ -204,7 +204,6 @@ class RealmTranslator(T.GenericComponentTranslator):
 
         return super(RealmTranslator, self)._validate(s)
 
-
     def filename_to_drs(self, context):
         context.drs.realm = self._deduce_realm(context)
 
@@ -225,7 +224,7 @@ class RealmTranslator(T.GenericComponentTranslator):
         if (table is None) or (variable is None):
             raise T.TranslationError('Realm translation requires table and variable to be known')
 
-        return context.table_store.get_variable_attr(table, variable, 'modeling_realm')
+        return self._validate(context.table_store.get_variable_attr(table, variable, 'modeling_realm'))
 
 
 
@@ -257,18 +256,20 @@ class CMIP5Translator(T.Translator):
 
         return drs
 
-
+_table_store = None
 def get_table_store():
     """
     Return a :class:`drslib.mip_table.MIPTableStore` object
     containing the CMIP5 MIP tables available.
 
     """
+    global _table_store
     from drslib.mip_table import MIPTableStore
 
-    table_store = MIPTableStore(config.table_path+'/CMIP5_*')
+    if _table_store is None:
+        _table_store = MIPTableStore(config.table_path+'/CMIP5_*')
 
-    return table_store
+    return _table_store
 
 def make_translator(prefix, with_version=True):
     """

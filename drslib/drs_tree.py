@@ -4,11 +4,11 @@ Manage DRS directory structure versioning.
 This module provides an API for manipulating a DRS directory structure
 to facilitate keeping multiple versions of datasets on disk
 simultaniously.  The class :class:`DRSTree` provides a top-level
-interface to the DRS directory structure and a container for :class:`RealmTree` objects.
+interface to the DRS directory structure and a container for :class:`PublisherTree` objects.
 
-:class:`RealmTree` objects expose the versions present in a
-realm-dataset and what files are unversioned.  Calling
-:meth:`RealmTree.do_version` will manipulate the directory structure
+:class:`PublisherTree` objects expose the versions present in a
+publication-level dataset and what files are unversioned.  Calling
+:meth:`PublisherTree.do_version` will manipulate the directory structure
 to move unversioned files into a new version.
 
 Detailed diagnostics can be logged by setting handlers for the logger
@@ -21,12 +21,12 @@ import os, shutil, sys
 from glob import glob
 import re
 import stat
-
-import cdms2
+import datetime
 
 
 from drslib.cmip5 import make_translator
-from drslib.drs import DRS, cmorpath_to_drs, drs_to_cmorpath
+from drslib.translate import TranslationError
+from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
 
 import logging
@@ -44,6 +44,11 @@ class DRSTree(object):
     """
     Manage a Data Reference Syntax directory structure.
 
+    A DRSTree represents the root of a DRS hierarchy.  Also associated
+    with DRSTree objects is a incoming directory pattern that is
+    searched for files matching the DRS structure.  Any file within
+    the incoming tree will be considered for new versions of PublisherTrees.
+
     """
 
     def __init__(self, drs_root):
@@ -52,17 +57,16 @@ class DRSTree(object):
 
         """
         self.drs_root = drs_root
-        self.realm_trees = []
-        
+        self.pub_trees = {}
+        self._vtrans = make_translator(drs_root)
+        self._incoming = None
+
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
-        
-    def discover(self, product=None, institute=None, model=None, 
-                 experiment=None,
-                 frequency=None, realm=None):
+    def discover(self, incoming_glob=None, **components):
         """
-        Scan the directory structure for RealmTrees.
+        Scan the directory structure for PublisherTrees.
 
         To prevent an exaustive scan of the directory structure some
         components of the DRS must be specified as keyword arguments
@@ -73,40 +77,140 @@ class DRSTree(object):
         optional.  All components can be set to wildcard values.  This
         allows an exaustive scan to be forced if desired.
 
+        :incoming_glob: A filesystem wildcard which should resolve to 
+            directories to recursively scan for files.  If None no incoming
+            files are detected
+
         """
 
-        drs = DRS(product=product, institute=institute, model=model,
-                  experiment=experiment, frequency=frequency, realm=realm)
-
         # Grab options from the config
-        if not product:
-            product = config.drs_defaults.get('product')
-        if not institute:
-            institute = config.drs_defaults.get('institute')
-        if not model:
-            model = config.drs_defaults.get('model')
+        product = components.setdefault('product',
+                                        config.drs_defaults.get('product'))
+        institute = components.setdefault('institute',
+                                          config.drs_defaults.get('institute'))
+        model = components.setdefault('model',
+                                      config.drs_defaults.get('model'))
 
-        if product is None or institute is None or model is None:
-            raise Exception("Insufficiently specified DRS.  You must define product, institute and model.")
+        activity = components.setdefault('activity',
+                                         config.drs_defaults.get('activity'))
+        if product is None or activity is None:
+            raise Exception("You must specifiy an activity and product")
+        
 
-        # If these options are not specified they default to wildcards
-        if not frequency:
-            drs.frequency = '*'
-        if not realm:
-            drs.realm = '*'
-        if not experiment:
-            drs.experiment = '*'
+        # Scan for incoming DRS files
+        if incoming_glob:
+            self.discover_incoming(incoming_glob, **components)
+        else:
+            self._incoming = []
 
-        rt_glob = drs_to_cmorpath(self.drs_root, drs)
-        realm_trees = glob(rt_glob)
-        for rt_path in realm_trees:
-            drs = cmorpath_to_drs(self.drs_root, rt_path)
-            log.info('Discovered realm-tree at %s' % rt_path)
-            self.realm_trees.append(RealmTree(self.drs_root, drs))
+        drs_t = DRS(**components)
 
-class RealmTree(object):
+        # NOTE: None components are converted to wildcards
+        pt_glob = drs_to_path(self.drs_root, drs_t)
+        pub_trees = glob(pt_glob)
+        for pt_path in pub_trees:
+            drs = path_to_drs(self.drs_root, pt_path)
+            #!FIXME: Set inside path_to_drs?
+            drs.activity = drs_t.activity
+            drs_id = drs.to_dataset_id()
+            if drs_id in self.pub_trees:
+                raise Exception("Duplicate PublisherTree %s" % drs_id)
+
+            log.info('Discovered realm-tree at %s' % pt_path)
+            self.pub_trees[drs_id] = PublisherTree(drs, self)
+
+        # Instantiate a PublisherTree for each unique publication-level dataset
+        for path, drs in self._incoming:
+            drs_id = drs.to_dataset_id()
+            if drs_id not in self.pub_trees:
+                self.pub_trees[drs_id] = PublisherTree(drs, self)
+
+        
+    def discover_incoming(self, incoming_glob, **components):
+        """
+        Scan the filesystem for incoming DRS files.
+
+        :incoming_glob: A filesystem wildcard which should resolve to 
+            directories to recursively scan for files.
+
+        """
+
+        drs_list = []
+        paths = glob(incoming_glob)
+        for path in paths:
+            for dirpath, dirnames, filenames in os.walk(path):
+                for filename in filenames:
+                    log.debug('Processing %s' % filename)
+                    try:
+                        drs = self._vtrans.filename_to_drs(filename)
+                    except TranslationError:
+                        # File doesn't match
+                        log.debug('File %s is not a DRS file' % filename)
+                        continue
+
+                    log.debug('File %s => %s' % (repr(filename), drs))
+                    for k, v in components.items():
+                        if v is None:
+                            continue
+                        # If component is present in drs act as a filter
+                        drs_v = drs.get(k, None)
+                        if drs_v is not None:
+                            if drs_v != v:
+                                log.debug('%s Filtered out.  %s != %s' %
+                                          (drs, repr(drs_v), repr(v)))
+                                break
+                        else:
+                            # Otherwise set as default
+                            log.debug('Set %s=%s' % (k, repr(v)))
+                            setattr(drs, k, v)
+                    else:
+                        # Only if break not called
+                        log.info('Discovered %s as %s' % (filename, drs))
+                        drs_list.append((os.path.join(dirpath, filename), drs))
+
+        self._incoming = DRSList(drs_list)
+
+            
+    def remove_incoming(self, path):
+        # Remove path from incoming
+        #!TODO: This isn't efficient.  Refactoring of _incoming or _todo required.
+        for npath, drs in self._incoming:
+            if path == npath:
+                self._incoming.remove((npath, drs))
+                break
+        else:
+            # not found
+            raise Exception("File %s not found in incoming" % src)
+
+
+class DRSList(list):
     """
-    A directory tree at the Realm level.
+    A list of tuples (filepath, DRS) objects offering a simple query interface.
+
+    """
+
+    def select(self, **kw):
+        """Select all DRS objects with given component values.
+        
+        For each key in ``kw`` if the value is a list select all
+        DRS objects with values in that list, otherwise select
+        all objects with that value.
+
+        """
+        items = self
+        for k, v in kw.items():
+            if type(v) == list:
+                items = [x for x in items if x[1].get(k, None) in v]
+            else:
+                items = [x for x in items if x[1].get(k, None) == v]
+
+        return DRSList(items)
+
+        
+
+class PublisherTree(object):
+    """
+    A directory tree at the publication level.
 
     :cvar STATE_INITIAL: Flag representing the initial unversioned state
 
@@ -135,49 +239,28 @@ class RealmTree(object):
     DIFF_V1_ONLY = 4
     DIFF_V2_ONLY = 8
 
-    def __init__(self, drs_root, drs):
+    def __init__(self, drs, drs_tree):
 
-        self.drs_root = drs_root
+        self.drs_tree = drs_tree
         self.drs = drs
         self.state = None
         self._todo = []
         self.versions = {}
         self.latest = 0
-        self._vtrans = make_translator(drs_root)
-        self._cmortrans = make_translator(drs_root, with_version=False)
+        self._vtrans = make_translator(drs_tree.drs_root)
+        self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
 
-        self.realm_dir = os.path.join(self.drs_root,
+        ensemble = 'r%di%dp%d' % self.drs.ensemble
+        self.pub_dir = os.path.join(self.drs_tree.drs_root,
                                       self.drs.product,
                                       self.drs.institute,
                                       self.drs.model,
                                       self.drs.experiment,
                                       self.drs.frequency,
-                                      self.drs.realm)
-        if not os.path.exists(self.realm_dir):
-            raise RuntimeError('Realm directory %s does not exist' % self.realm_dir)
-
+                                      self.drs.realm,
+                                      self.drs.table,
+                                      ensemble)
         self.deduce_state()
-        self._setup_versioning()
-
-    @classmethod
-    def from_path(Class, path):
-        """
-        Construct a RealmTree from a realm-level filesystem path.
-
-        """
-        p = os.path.normpath(os.path.abspath(path))
-        p, realm = os.path.split(p)
-        p, frequency = os.path.split(p)
-        p, experiment = os.path.split(p)
-        p, model = os.path.split(p)
-        p, institute = os.path.split(p)
-        p, product = os.path.split(p)
-        drs_root = p
-
-        drs = DRS(realm=realm, frequency=frequency, experiment=experiment,
-                  model=model, institute=institute, product=product)
-
-        return Class(drs_root, drs)
 
     def deduce_state(self):
         """
@@ -197,17 +280,23 @@ class RealmTree(object):
             self.state = self.STATE_VERSIONED
 
 
-    def do_version(self):
+    def do_version(self, next_version=None):
         """
         Move incoming files into the next version
 
         """
-        log.info('Transfering %s to version %d' % (self.realm_dir, self.latest+1))
-        self._do_commands(self._todo_commands())
+
+        self._setup_versioning()
+
+        if next_version is None:
+            next_version = self._next_version()
+
+        log.info('Transfering %s to version %d' % (self.pub_dir, next_version))
+        self._do_commands(self._todo_commands(next_version))
         self.deduce_state()
         self._do_latest()
 
-    def list_todo(self):
+    def list_todo(self, next_version=None):
         """
         Return an iterable of command descriptions in the todo list.
 
@@ -215,7 +304,11 @@ class RealmTree(object):
         form ``"mv ... ..."`` or ``"ln -s ... ..."``
 
         """
-        for cmd, src, dest in self._todo_commands():
+
+        if next_version is None:
+            next_version = self._next_version()
+
+        for cmd, src, dest in self._todo_commands(next_version):
             if cmd == self.CMD_MOVE:
                 yield "mv %s %s" % (src, dest)
             elif cmd == self.CMD_LINK:
@@ -275,9 +368,28 @@ class RealmTree(object):
 
     def version_to_mapfile(self, version, fh=sys.stdout):
         if version not in self.versions:
-            raise Exception("Version %d not present in RealmTree %s" % (version, self.realm_dir))
+            raise Exception("Version %d not present in PublisherTree %s" % (version, self.pub_dir))
 
         mapfile.write_mapfile(self.versions[version], fh)
+
+    def version_drs(self, version=None):
+        """
+        Return a DRS object representing the PublisherTree at the given version number.
+        If the version doesn't exist an exception is raised.
+
+        """
+
+        if version is None:
+            version = self.latest
+        
+        # If unversioned just return the bare DRS
+        if version == 0:
+            return self.drs
+
+        if version not in self.versions:
+            raise Exception("Version %d not present in PublsherTree %s" % (version, self.pub_dir))
+
+        return DRS(self.drs, version=version)
 
     #-------------------------------------------------------------------
     
@@ -285,48 +397,49 @@ class RealmTree(object):
         version = max(self.versions.keys())
         latest_dir = 'v%d' % version
         log.info('Setting latest to %s' % latest_dir)
-        latest_lnk = os.path.join(self.realm_dir, VERSIONING_LATEST_DIR)
+        latest_lnk = os.path.join(self.pub_dir, VERSIONING_LATEST_DIR)
 
         if os.path.exists(latest_lnk):
             os.remove(latest_lnk)
         os.symlink(latest_dir, latest_lnk)
 
-    def _todo_commands(self):
+    def _todo_commands(self, next_version=None):
         """
         Yield a sequence of tuples (CMD, SRS, DEST) indicating the
         files that need to be moved and linked to transfer to next version.
 
         """
-        v = self.latest + 1
+        if next_version is None:
+            next_version = self._next_version()
+        
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
-            ensemble = 'r%di%dp%d' % drs.ensemble
-            fdir = '%s_%s_%d' % (drs.variable, ensemble, v)
-            newpath = os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
-                                   fdir, filename)
-
+            fdir = '%s_%d' % (drs.variable, next_version)
+            newpath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
+                                                   fdir, filename))
+            
             yield self.CMD_MOVE, filepath, newpath
 
-            linkpath = os.path.join(self.realm_dir, 'v%d' % v,
-                                    drs.variable, ensemble, 
-                                    filename)
+            #!TODO: could automatically deduce relative path.  Also see linkpath below
+            linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
+                                                    drs.variable,
+                                                    filename))
             yield self.CMD_LINK, newpath, linkpath
             done.add(filename)
 
         #!TODO: Handle deleted files!
 
         # Now scan through previous version to find files to update
-        if v > 1:
-            for filepath, drs in self.versions[v-1]:
+        if self.latest != 0:
+            for filepath, drs in self.versions[self.latest]:
                 filename = os.path.basename(filepath)
                 if filename not in done:
-                    ensemble = 'r%di%dp%d' % drs.ensemble
-                    fdir = '%s_%s_%d' % (drs.variable, ensemble, v-1)
-                    linkpath = os.path.join(self.realm_dir, 'v%d' % v,
-                                            drs.variable, ensemble, filename)
-                    pfilepath = os.path.join(self.realm_dir, VERSIONING_FILES_DIR,
-                                             fdir, filename)
+                    fdir = '%s_%d' % (drs.variable, self.latest)
+                    linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
+                                                            drs.variable, filename))
+                    pfilepath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
+                                                             fdir, filename))
                     yield self.CMD_LINK, pfilepath, linkpath
 
     def _do_commands(self, commands):
@@ -342,14 +455,23 @@ class RealmTree(object):
         if not os.path.exists(dir):
             log.info('Creating %s' % dir)
             os.makedirs(dir)
-        log.info('Moving %s %s' % (src, dest))
+        if os.path.exists(dest):
+            log.warn('Overwriting existing file: Moving %s %s' % (src, dest))
+        else:
+            log.info('Moving %s %s' % (src, dest))
         shutil.move(src, dest)
+
+        # Remove src from incoming
+        self.drs_tree.remove_incoming(src)
 
     def _do_link(self, src, dest):
         dir = os.path.dirname(dest)
         if not os.path.exists(dir):
             log.info('Creating %s' % dir)
             os.makedirs(dir)
+        if os.path.exists(dest):
+            log.warning('Moving symlink %s' % dest)
+            os.remove(dest)
         log.info('Linking %s %s' % (src, dest))
         os.symlink(src, dest)
 
@@ -358,48 +480,95 @@ class RealmTree(object):
         Do initial configuration of directory tree to support versioning.
 
         """
-        path = os.path.join(self.realm_dir, VERSIONING_FILES_DIR)
+        if not os.path.exists(self.pub_dir):
+            log.info("New PublisherTree being created at %s" % self.pub_dir)
+            os.makedirs(self.pub_dir)
+
+        path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
-            log.info('Initialising %s for versioning.' % self.realm_dir)
+            log.info('Initialising %s for versioning.' % self.pub_dir)
             os.mkdir(path)
 
+    def _next_version(self):
+        if config.version_by_date:
+            today = datetime.date.today()
+            return int(today.strftime('%Y%m%d'))
+        else:
+            return self.latest+1
 
     def _deduce_versions(self):
+        if config.version_by_date:
+            return self._deduce_date_versions()
+        else:
+            return self._deduce_old_versions()
+            
+    def _deduce_date_versions(self):
+        self.latest = 0
+        # Bail out if pub_dir doesn't exist yet.
+        if not os.path.exists(self.pub_dir):
+            return
+        # Detect version paths and sort by date
+        for basename in os.listdir(self.pub_dir):
+            if basename[0] != 'v':
+                continue
+            i = int(basename[1:])
+            self.latest = max(i, self.latest)
+            vpath = os.path.join(self.pub_dir, basename)
+            self.versions[i] = self._make_version_list(vpath)
+
+
+    def _deduce_old_versions(self):
         i = 1
         self.versions = {}
         while True:
-            vpath = os.path.join(self.realm_dir, 'v%d' % i)
+            vpath = os.path.join(self.pub_dir, 'v%d' % i)
             if not os.path.exists(vpath):
                 return
             else:
                 self.latest = i
 
-            self.versions[i] = []
-            for dirpath, dirnames, filenames in os.walk(vpath,
-                                                        topdown=False):
-                for filename in filenames:
-                    filepath = os.path.join(dirpath, filename)
-                    drs = self._vtrans.filepath_to_drs(filepath)
-                    self.versions[i].append((filepath, drs))
-
+            self.versions[i] = self._make_version_list(vpath)
             i += 1
             
-            
-    def _deduce_todo(self):
-        #!WARNING: Only call after _deduce_versions()
-        todo = self._todo = []
         
-        for dir in os.listdir(self.realm_dir):
-            pat = r'%s|%s|v\d+' % (VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR)
-            if re.match(pat, dir):
-                continue
+    def _make_version_list(self, vpath):
+        vlist = []
+        for dirpath, dirnames, filenames in os.walk(vpath,
+                                                    topdown=False):
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                drs = self.drs_tree._vtrans.filepath_to_drs(filepath)
+                vlist.append((filepath, drs))
+        return vlist
 
-            path = os.path.join(self.realm_dir, dir)
-            for dirpath, dirnames, filenames in os.walk(path, topdown=False):
-                for filepath in (os.path.join(dirpath, f) for f in filenames):
-                    drs = self._cmortrans.filepath_to_drs(filepath)
-                    todo.append((filepath, drs))
+    def _deduce_todo(self):
+        """
+        Filter the drs_tree's incoming list to find new files in this
+        PublisherTree.
 
+        """
+
+        FILTER_COMPONENTS = ['institution', 'model', 'experiment',
+                             'frequency', 'realm', 'table',
+                             'ensemble',
+                             ]
+
+        # Gather DRS components from the template drs instance to filter
+        filter = {}
+        for comp in FILTER_COMPONENTS:
+            val = self.drs.get(comp, None)
+            if val is not None:
+                filter[comp] = val
+
+        # Filter the incoming list
+        if self.drs_tree._incoming:
+            self._todo = self.drs_tree._incoming.select(**filter)
+        else:
+            self._todo = []
+
+        log.info('Deduced %d incoming DRS files for PublisherTree %s' % 
+                 (len(self._todo), self.drs))
+                
 
     def _diff_file(self, filepath1, filepath2, by_tracking_id=False):
         diff_state = self.DIFF_NONE
@@ -421,6 +590,7 @@ class RealmTree(object):
 
 
 def _get_tracking_id(filename):
+    import cdms2
     ds = cdms2.open(filename)
     return ds.tracking_id
 

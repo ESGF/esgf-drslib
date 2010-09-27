@@ -1,0 +1,4 @@
+
+The configuration file (sample in ini/ukmo_sample.ini) needs to contain information about each model. This information is used for a small number of cases and the format is not yet stable. 
+
+The current default is to use relative paths for the shelves which contain information about the requested subset. This should probably be altered to use abolsute paths relative to a directory specified on installation.

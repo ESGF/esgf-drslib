@@ -18,13 +18,19 @@ More sophisticated conversions can be done with the
 
 import os
 import itertools
+import re
 
-class DRS(object):
+import logging
+log = logging.getLogger(__name__)
+
+class DRS(dict):
     """
-    Represents a DRS entry.  This class maintains consistency between the
-    path and filename portion of the DRS.
+    Represents a DRS entry.  DRS objects are dictionaries where DRS
+    components are also exposed as attributes.  Therefore you can get/set
+    DRS components using dictionary or attribute notation.
 
-    Each component of the DRS is reflected in an attribute of the DRS object.
+    In combination with the translator machinary, this class maintains
+    consistency between the path and filename portion of the DRS.
 
     :ivar activity: string
     :ivar product: string
@@ -45,9 +51,9 @@ class DRS(object):
     """
 
     _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-                 'realm', 'variable', 'table', 'ensemble', 'version', 'subset', 'extended']
+                 'realm', 'table', 'ensemble', 'variable', 'version', 'subset', 'extended']
 
-    def __init__(self, **kwargs):
+    def __init__(self, *argv, **kwargs):
         """
         Instantiate a DRS object with a set of DRS component values.
 
@@ -55,12 +61,36 @@ class DRS(object):
         ...             experiment='1pctto4x', variable='tas')
         <DRS activity="cmip5" product="output" model="HadGEM1" ...>
 
+        :param argv: If not () should be a DRS object to instantiate from
         :param kwargs: DRS component values.
 
         """
 
+        # Initialise all components as None
         for attr in self._drs_attrs:
-            setattr(self, attr, kwargs.get(attr))
+            self[attr] = None
+
+        # Check only DRS components are used
+        for kw in kwargs:
+            if kw not in self._drs_attrs:
+                raise KeywordError("Keyword %s is not a DRS component" % repr(kw))
+
+        # Use dict flexible instantiation
+        super(DRS, self).__init__(*argv, **kwargs)
+
+
+    def __getattr__(self, attr):
+        if attr in self._drs_attrs:
+            return self[attr]
+        else:
+            raise AttributeError('%s object has no attribute %s' % 
+                                 (repr(type(self).__name__), repr(attr)))
+
+    def __setattr__(self, attr, value):
+        if attr in self._drs_attrs:
+            self[attr] = value
+        else:
+            raise AttributeError('%s is not a DRS component' % repr(attr))
 
     def is_complete(self):
         """Returns boolean to indicate if all components are specified.
@@ -72,7 +102,7 @@ class DRS(object):
         for attr in self._drs_attrs:
             if attr is 'extended':
                 continue
-            if getattr(self, attr) is None:
+            if self.get(attr, None) is None:
                 return False
 
         return True
@@ -80,18 +110,55 @@ class DRS(object):
     def __repr__(self):
         kws = []
         for attr in self._drs_attrs:
-            kws.append('%s=%s' % (attr, repr(getattr(self, attr))))
+            kws.append('%s=%s' % (attr, repr(self[attr])))
         return '<DRS %s>' % ', '.join(kws)
 
-    def to_dataset_id(self):
+    def to_dataset_id(self, with_version=False):
         """
         Return the esgpublish dataset_id for this drs object.
         
-        """
-        return '.'.join((self.activity, self.product, self.institute, self.model,
-                         self.experiment, self.frequency, self.realm))
-                    
+        If version is not None and with_version=True the version is included.
 
+        """
+        parts = [self.activity, self.product, self.institute, self.model,
+                 self.experiment, self.frequency, self.realm,
+                 self.table, 'r%di%dp%d' % self.ensemble]
+        if self.version and with_version:
+            parts.append('v%d' % self.version)
+        return '.'.join(parts)
+
+    @classmethod
+    def from_dataset_id(klass, dataset_id, **components):
+        """
+        Return a DRS object fro a ESG Publisher dataset_id.
+
+        If the dataset_id contains less than 10 components all trailing
+        components are set to None.  Any component of value '%' is set to None
+
+        E.g.
+        >>> drs = DRS.from_dataset_id('cmip5.output.MOHC.%.rpc45')
+        >>> drs.institute, drs.model, drs.experiment, drs.realm
+        ('MOHC', None, 'rpc45', None)
+
+        """
+
+        parts = dataset_id.split('.')
+        for attr, val in itertools.izip(klass._drs_attrs, parts):
+            if val is '%':
+                continue
+            if attr is 'ensemble':
+                r, i, p = re.match(r'r(\d+)i(\d+)p(\d+)', val).groups()
+                components[attr] = (int(r), int(i), int(p))
+            elif attr is 'version':
+                v = re.match(r'v(\d+)', val).group(1)
+                components[attr] = int(v)
+                # Don't process after version
+                break
+            else:
+                components[attr] = val
+                   
+        return klass(**components)
+            
 
 
 #--------------------------------------------------------------------------
@@ -100,7 +167,7 @@ class DRS(object):
 # or parse the filename
 #
 
-def cmorpath_to_drs(drs_root, path, activity=None):
+def path_to_drs(drs_root, path, activity=None):
     """
     Create a :class:`DRS` object from a filesystem path.
 
@@ -121,16 +188,24 @@ def cmorpath_to_drs(drs_root, path, activity=None):
 
     p = relpath.split('/')
     attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'variable'] 
+             'frequency', 'realm', 'table', 'ensemble'] 
     drs = DRS(activity=activity)
     for val, attr in itertools.izip(p, attrs):
-        setattr(drs, attr, val)
+        if attr == 'ensemble':
+            mo = re.match(r'r(\d+)i(\d+)p(\d+)', val)
+            drs[attr] = tuple(int(x) for x in mo.groups())
+        else:
+            drs[attr] = val
+
+    log.debug('%s => %s' % (repr(path), drs))
 
     return drs
-        
-def drs_to_cmorpath(drs_root, drs):
+    
+    
+def drs_to_path(drs_root, drs):
     """
-    Returns a directory path from a :class:`DRS` object.
+    Returns a directory path from a :class:`DRS` object.  Any DRS component
+    that is set to None will result in a wildcard '*' element in the path.
 
     This function does not take into account of MIP tables of filenames.
     
@@ -141,13 +216,25 @@ def drs_to_cmorpath(drs_root, drs):
 
     """
     attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'variable'] 
+             'frequency', 'realm', 'table', 'ensemble'] 
     path = [drs_root]
     for attr in attrs:
-        val = getattr(drs, attr)
+        if drs[attr] is None:
+            val = '*'
+        else:
+            if attr == 'ensemble':
+                val = 'r%di%dp%d' % drs.ensemble
+            else:
+                val = drs[attr]
         if val is None:
             break
         path.append(val)
 
-    return os.path.join(*path)
+
+    #!DEBUG
+    assert len(path) == len(attrs)+1
+
+    path = os.path.join(*path)
+    log.debug('%s => %s' % (drs, repr(path)))
+    return path
 

@@ -13,6 +13,7 @@ Tests compatible with nosetests
 import os
 
 from drslib import cmip5
+from drslib.drs import DRS
 
 translator = cmip5.make_translator('cmip5')
 translator_noversion = cmip5.make_translator('cmip5', with_version=False)
@@ -42,7 +43,7 @@ def test_2():
     
     path = translator.drs_to_filepath(drs)
 
-    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/v2/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/Amon/r1/v2/tas/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
 
 
 
@@ -69,7 +70,7 @@ def test_4():
 
 def test_5():
     # Regression test for a bug
-    print translator.path_to_drs('cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/v3/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+    print translator.path_to_drs('cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/Amon/r1/v3/tas/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
 
 def test_6():
     # Bug reported by Ag
@@ -107,3 +108,20 @@ def test_9():
     path = translator_noversion.drs_to_path(drs)
 
     assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1'
+
+def test_9():
+    # Check instantiating DRS objects from other DRS objects
+
+    drs = get_drs1()
+    assert drs.version == None
+
+    drs2 = DRS(drs, version=12)
+    assert drs2.version == 12
+    assert drs.model == drs2.model
+
+def test_10():
+    # Regression test for files in multiple realms
+
+    drs = translator_noversion.filename_to_drs('snw_LImon_HadGEM2-ES_rcp45_r1i1p1_201512-204011.nc')
+
+    assert drs.realm == 'landIce'
