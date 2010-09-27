@@ -1,1 +1,3 @@
 recursive-include drslib/data *
+recursive-include test *.py *.txt *.ls
+recursive-include examples *.txt *.py
