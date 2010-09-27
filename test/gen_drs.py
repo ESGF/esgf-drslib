@@ -6,7 +6,7 @@ Bulk Generate DRS objects for testing.
 import random
 from copy import copy
 from datetime import datetime
-import os
+import os, sys
 
 from drslib.drs import DRS
 from drslib import cmip5, config
@@ -95,7 +95,7 @@ def subset_range(date1, date2, clim, n):
 
 
 def make_eg(**iter_template):
-    template = DRS(activity='cmip5', product='output1', institute='MOHC',
+    template = DRS(activity='cmip5', product='output', institute='MOHC',
                    model='HadCM3', experiment='1pctto4x', 
                    frequency='day', realm='atmos', table='day',
                    )
@@ -148,12 +148,11 @@ def write_eg_file(filepath):
 def write_eg(prefix, seq):
     """
     Create a test directory tree under prefix.
-    Files are created in <prefix>/<incoming> in CMOR's
+    Files are created in <prefix>/output in CMOR's
     output directory structure
 
     """
-    incoming = os.path.join(prefix, config.DEFAULT_INCOMING)
-    trans = cmip5.make_translator(incoming, with_version=False)
+    trans = cmip5.make_translator(prefix, with_version=False)
     for drs in seq:
         path = trans.drs_to_filepath(drs)
         if not os.path.exists(os.path.dirname(path)):
@@ -170,7 +169,6 @@ def write_listing(prefix, listing_file):
     Create a drs-tree from a listing file
     
     """
-    incoming = os.path.join(prefix, config.DEFAULT_INCOMING)
     for line in open(listing_file):
         line = line.strip()
         if not line or line[0] == '#':
@@ -180,7 +178,7 @@ def write_listing(prefix, listing_file):
 
         path = os.path.normpath(line)
 
-        filepath = os.path.join(incoming, line)
+        filepath = os.path.join(prefix, line)
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
             write_eg_file(filepath)
@@ -209,3 +207,15 @@ def write_eg5_1(prefix):
 def write_eg5_2(prefix):
     write_eg(prefix, eg5_2())
 
+
+
+def main(argv=sys.argv):
+    listing_file, outdir = sys.argv[1:]
+
+    if os.path.exists(outdir):
+        raise IOException("Directory %s already exists" % repr(outdir))
+    
+    write_listing(outdir, listing_file)
+
+if __name__ == '__main__':
+    main()
