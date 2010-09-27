@@ -51,7 +51,7 @@ class DRS(dict):
     """
 
     _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-                 'realm', 'variable', 'table', 'ensemble', 'version', 'subset', 'extended']
+                 'realm', 'table', 'ensemble', 'variable', 'version', 'subset', 'extended']
 
     def __init__(self, *argv, **kwargs):
         """
@@ -141,6 +141,7 @@ class DRS(dict):
         ('MOHC', None, 'rpc45', None)
 
         """
+
         parts = dataset_id.split('.')
         for attr, val in itertools.izip(klass._drs_attrs, parts):
             if val is '%':

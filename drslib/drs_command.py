@@ -3,7 +3,7 @@ Command-line access to drslib
 
 """
 
-import sys, os
+import sys, os, re
 
 from optparse import OptionParser
 
@@ -82,11 +82,12 @@ class Command(object):
         self.drs_tree = DRSTree(self.drs_root)
         kwargs = {}
         for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
-                     'frequency', 'realm']:
+                     'frequency', 'realm', 'ensemble']:
             try:
                 val = getattr(self.opts, attr)
             except AttributeError:
                 val = config.drs_defaults.get(attr)
+
             kwargs[attr] = val
 
         # Get the template DRS from args
