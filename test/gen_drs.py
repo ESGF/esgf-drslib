@@ -181,7 +181,7 @@ def write_listing(prefix, listing_file):
         filepath = os.path.join(prefix, line)
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
-            write_eg_file(filepath)
+        write_eg_file(filepath)
         
 
 
@@ -213,7 +213,7 @@ def main(argv=sys.argv):
     listing_file, outdir = sys.argv[1:]
 
     if os.path.exists(outdir):
-        raise IOException("Directory %s already exists" % repr(outdir))
+        raise IOError("Directory %s already exists" % repr(outdir))
     
     write_listing(outdir, listing_file)
 

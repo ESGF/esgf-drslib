@@ -28,6 +28,7 @@ drs-pattern:
 """
 
 
+
 def make_parser():
     op = OptionParser(usage=usage)
 
@@ -226,25 +227,21 @@ class HistoryCommand(Command):
             
 
 def run(op, command, opts, args):
-    try:
-        if command == 'list':
-            c = ListCommand(opts, args)
-        elif command == 'todo':
-            c = TodoCommand(opts, args)
-        elif command == 'upgrade':
-            c = UpgradeCommand(opts, args)
-        elif command == 'mapfile':
-            c = MapfileCommand(opts, args)
-        elif command == 'history':
-            c = HistoryCommand(opts, args)
-        else:
-            op.error("Unrecognised command %s" % command)
+    if command == 'list':
+        c = ListCommand(opts, args)
+    elif command == 'todo':
+        c = TodoCommand(opts, args)
+    elif command == 'upgrade':
+        c = UpgradeCommand(opts, args)
+    elif command == 'mapfile':
+        c = MapfileCommand(opts, args)
+    elif command == 'history':
+        c = HistoryCommand(opts, args)
+    else:
+        op.error("Unrecognised command %s" % command)
 
-        c.do()
+    c.do()
 
-    except Exception, e:
-        log.exception(e)
-        op.error(e)
 
 def main(argv=sys.argv):
 
