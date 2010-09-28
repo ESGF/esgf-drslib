@@ -418,6 +418,10 @@ class PublisherTree(object):
         files that need to be moved and linked to transfer to next version.
 
         """
+        
+        if not self._todo:
+            return
+
         if next_version is None:
             next_version = self._next_version()
         

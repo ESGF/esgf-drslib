@@ -150,17 +150,29 @@ class ListCommand(Command):
 class TodoCommand(Command):
     def do(self):
         self.print_header()
+        first = True
         for k in sorted(self.drs_tree.pub_trees):
             pt = self.drs_tree.pub_trees[k]
+
+            if pt.count_todo() == 0:
+                if not first: 
+                    self.print_sep()
+                print 'Nothing todo for %s' % pt.drs.to_dataset_id()
+                first = False
+                continue
+
             if self.opts.version:
                 next_version = int(self.opts.version)
             else:
                 next_version = pt._next_version()
 
             todos = pt.list_todo(next_version)
+            if not first:
+                self.print_sep()
             print "Publisher Tree %s todo for version %d" % (pt.drs.to_dataset_id(),
                                                              next_version)
-            self.print_sep()
+            first = False
+            print
             print '\n'.join(todos)
         self.print_footer()
 

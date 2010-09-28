@@ -58,7 +58,7 @@ Show what manipulations will be done for next version
 DRS Tree at ...
 ------------------------------------------------------------------------------
 Publisher Tree ... todo for version 20100101
-------------------------------------------------------------------------------
+<BLANKLINE>
 mv .../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
 ...
 ln -s .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
@@ -118,6 +118,17 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      0
 1 datasets awaiting upgrade
 ==============================================================================
 
+>>> do_drs_tool('todo') # doctest:+ELLIPSIS
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+Publisher Tree ... todo for version 20100101
+<BLANKLINE>
+mv ...
+------------------------------------------------------------------------------
+Nothing todo for ...
+==============================================================================
+
 >>> do_drs_tool('upgrade', '--version=20100102') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
@@ -148,5 +159,4 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101
 ./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2005123119-2008010109.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
 ./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2008010109-2010010100.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
 ./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
-
 
