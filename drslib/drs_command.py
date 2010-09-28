@@ -22,6 +22,7 @@ command:
   upgrade         make changes to the selected datasets to upgrade to the next version.
   mapfile         make a mapfile of the selected dataset
   history         list all versions of the selected dataset
+  init            Initialise CMIP5 data for product detection
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -48,9 +49,11 @@ def make_parser():
                   metavar='FILE',
                   help='Profile the script exectuion into FILE')
 
-    op.add_option('--detect-product', action='store_true',
+    # p_cmip5 options
+    op.add_option('--detect-product', action='store_true', 
                   help='Automatically detect the DRS product of incoming data')
-
+    op.add_option('--shelve-dir', action='store',
+                  help='Location of the p_cmip5 data directory')
 
     return op
 
@@ -59,7 +62,16 @@ class Command(object):
         self.opts = opts
         self.args = args
 
+        self._config_p_cmip5()
         self.make_drs_tree()
+
+    def _config_p_cmip5(self):
+        self.shelve_dir = self.opts.shelve_dir
+        if self.shelve_dir is None:
+            self.shelve_dir = config.config.get('p_cmip5', 'shelve-dir')
+
+        if self.shelve_dir is None:
+            raise Exception("Shelve directory not specified.  Please use --shelve-dir or set shelve_dir via metaconfig")
 
     def make_drs_tree(self):
         if self.opts.root:
@@ -227,6 +239,17 @@ class HistoryCommand(Command):
         self.print_footer()
             
 
+class InitCommand(Command):
+    def make_drs_tree(self):
+        """No need to initialise the drs tree for this command.
+        """
+        pass
+
+    def do(self):
+        from drslib.p_cmip5.init import init
+        import pdb; pdb.set_trace()
+        init(self.shelve_dir)
+
 def run(op, command, opts, args):
     if command == 'list':
         c = ListCommand(opts, args)
@@ -238,6 +261,8 @@ def run(op, command, opts, args):
         c = MapfileCommand(opts, args)
     elif command == 'history':
         c = HistoryCommand(opts, args)
+    elif command == 'init':
+        c = InitCommand(opts, args)
     else:
         op.error("Unrecognised command %s" % command)
 

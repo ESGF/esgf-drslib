@@ -6,36 +6,44 @@ initialise the drslib.p_cmip5 module.
 import os, sys
 import xlrd, string, shelve
 
-from drslib.config import config
-
 import logging
 log = logging.getLogger(__name__)
 
 
 STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
 TEMPLATE_XLS = 'CMIP5_archive_size_template.xls'
+TEMPLATE_SHELVE = 'template'
+STDO_SHELVE = 'standard_output'
+STDO_MIP_SHELVE = 'standard_output_mip'
 
+usage = """usage: %prog [shelve-dir]
 
-def init(stdo_xls, template_xls, mip_xls, shelve_dir=None):
+shelve-dir: Destination of data files of CMIP5 standard output and archive size.
+"""
+
+def init(shelve_dir):
     """
-    Create the shelve files needed to run p_cmip5 and generate a template
-    model config file.
+    Create the shelve files needed to run p_cmip5.
 
     """
 
-    if shelve_dir is None:
-        shelve_dir = config.get('p_cmip5', 'shelve-dir')
-    
-    ri = request_importer(template=template_xls, cmip5_stdo=stdo_xls)
-    ri.import_template()
-    ri.import_standard_output()
+    xls_dir = os.path.join(os.path.dirname(__file__), 'xls')
+    stdo_xls = os.path.join(xls_dir, STANDARD_OUTPUT_XLS)
+    template_xls = os.path.join(xls_dir, TEMPLATE_XLS)
+
+    if not os.path.exists(shelve_dir):
+        os.makedirs(shelve_dir)
+
     mi = mip_importer(stdo_xls)
+    ri = request_importer(template=template_xls, cmip5_stdo=stdo_xls)
+    ri.import_template(os.path.join(shelve_dir, TEMPLATE_SHELVE))
+    ri.import_standard_output(os.path.join(shelve_dir, STDO_SHELVE))
+    #!TODO: Extra argument x1_sh not supported yet.  What's it for?
+    mi.imprt(os.path.join(shelve_dir, STDO_MIP_SHELVE))
+    
 
-def main(argv=sys.argv):
-    raise NotImplementedError
-
-#!TODO: Check this comment with Martin    
-## see also scan_standard_output.py -- to get mip tables
+#---------------------------------------------------------------------------
+# Martin's code below this point with a few non-functional changes
 
 def helper_year( val ):
   if type( val ) == type( 1. ):
@@ -137,7 +145,7 @@ class request_importer:
     book = xlrd.open_workbook( self.template )
     sheet = book.sheet_by_name('template')
     this_row = sheet.row(41)
-    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000]:
+    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010]:
       key = 'decadal%4.4i' % y
       sh[key] = (41, '1.1',str(this_row[0].value), str(this_row[1].value))
 
@@ -151,6 +159,8 @@ class request_importer:
     for r in rl1:
       this_row = sheet.row(r)
       key = string.strip( str(this_row[10].value ) )
+      while key in sh.keys():
+          key += '+'
       sh[key] = (r,str(this_row[2].value), str(this_row[0].value), str(this_row[1].value))
     sh.close()
 
@@ -238,7 +248,8 @@ class request_importer:
           if str( this_row[3+kseg*2].value ) != '':
             y0 = helper_year( this_row[3+kseg*2].value )
             y9 = helper_year( this_row[4+kseg*2].value )
-            this_ee[kseg].append( (y0,y9) )
+            if y0 != None:
+                this_ee[kseg].append( (y0,y9) )
         ee[expt_nn] = this_ee
    
     log.info('putting cfmip in shelve')
@@ -353,11 +364,3 @@ class mip_importer:
       sh.close()
     sh_mip.close()
 
-
-
-if __name__ == "__main__":
-   import sys
-   if len(sys.argv) > 1:
-     if sys.argv[1] == 'init':
-       a()
-       mi.imprt()
