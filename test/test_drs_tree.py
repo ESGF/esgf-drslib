@@ -128,6 +128,8 @@ class TestEg3(TestEg):
 
         self.pt.do_version()
         assert len(self.pt.drs_tree._incoming) == 0
+        assert self.pt.count_todo() == 0
+        assert len(list(self.pt.list_todo())) == 0
 
     def test_1(self):
         self._cmor1()
