@@ -133,15 +133,18 @@ class ListCommand(Command):
     def do(self):
         self.print_header()
 
-        to_update = 0
+        to_upgrade = 0
         for k in sorted(self.drs_tree.pub_trees):
             pt = self.drs_tree.pub_trees[k]
             state_msg = str(pt.count_todo())
             if pt.state != pt.STATE_VERSIONED:
-                to_update += 1
+                to_upgrade += 1
             #!TODO: print update summary
             print '%-70s  %s' % (pt.version_drs().to_dataset_id(with_version=True), state_msg)
     
+        if to_upgrade:
+            self.print_sep()
+            print '%d datasets awaiting upgrade' % to_upgrade
         self.print_footer()
 
 class TodoCommand(Command):

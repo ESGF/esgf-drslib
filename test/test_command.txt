@@ -47,6 +47,8 @@ DRS Tree at ...
 ------------------------------------------------------------------------------
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1                 5
 cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                5
+------------------------------------------------------------------------------
+2 datasets awaiting upgrade
 ==============================================================================
 
 Show what manipulations will be done for next version
@@ -79,6 +81,8 @@ DRS Tree at ...
 ------------------------------------------------------------------------------
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       0
 cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                5
+------------------------------------------------------------------------------
+1 datasets awaiting upgrade
 ==============================================================================
 
 Upgrade the other PublisherTree
@@ -110,6 +114,8 @@ DRS Tree at ...
 ------------------------------------------------------------------------------
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       1
 cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      0
+------------------------------------------------------------------------------
+1 datasets awaiting upgrade
 ==============================================================================
 
 >>> do_drs_tool('upgrade', '--version=20100102') # doctest:+ELLIPSIS
