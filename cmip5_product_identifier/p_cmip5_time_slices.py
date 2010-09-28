@@ -7,18 +7,9 @@ class request_time_slice:
 
   def in_requested_time(self,start,end):
     self.is_in_requested_time = False
-    tlist = self.parent.stdo[self.parent.request_col]
-    if self.parent.rei[0]-2 in tlist.keys():
-##
-## deal with special case for rcps -- extended version has different spec
-##
-      if self.parent.expt in ['rcp45','rcp25','rcp86'] and start < 2101:
-        tli = self.parent.rei[0]-6
-      else:
-        tli = self.parent.rei[0]-2
-      ssp = tlist[tli]
+    ssp = self.parent.request_spec
 
-      if ssp[0] in ['list','listrel']:
+    if ssp[0] in ['list','listrel']:
         if ssp[0] == 'listrel':
           offset = self.get_offset()
           if self.offset_status == -1:
@@ -41,27 +32,21 @@ class request_time_slice:
         self.is_in_requested_time = False
         return True
 
-      elif ssp[0] == 'corres':
+    elif ssp[0] == 'corres':
       ##  offset = self.get_offset()
         ##if self.offset_status == -1:
         print 'not ready for this yet [corres] -- need start time info', tli, self.parent.request_col
         return False
-    else:
-      print 'rei not found:: ',self.parent.rei
-      return False
 
     return True
 
   def load_config(self):
-    if self.parent.config_exists:
-      if not self.parent.config_loaded:
+    assert self.parent.config_exists, 'load_config: need a valid configuration file at this point'
+    if not self.parent.config_loaded:
         import ConfigParser
         self.cp = ConfigParser.SafeConfigParser()
         self.cp.read( self.parent.config )
         self.parent.config_loaded = True
-    else:
-## need to improve this bit
-      raise 'need a valid configuration file at this point'
 
   def get_offset(self):
     self.load_config()

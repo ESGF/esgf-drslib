@@ -10,16 +10,18 @@ def a():
   ri.import_template()
   ri.import_standard_output()
 
-
-## see also scan_standard_output.py -- to get mip tables
-
 def helper_year( val ):
   if type( val ) == type( 1. ):
     return int(val)
-  elif type(val) == type( 'x' ):
+  elif type(val) in [type( 'x' ),type( u'x' )]:
+    if string.strip( val ) == '':
+      return None
     if val[-1] == '*':
       val = val[:-1]
     return int(val)
+  else:
+    print val
+    assert False, 'bad place to be'
 
 class workflow:
   def __init__(self,name='fred',states=[]):
