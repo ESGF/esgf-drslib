@@ -14,7 +14,9 @@ from drslib.drs import DRS
 import logging
 log = logging.getLogger(__name__)
 
-usage = """usage: %prog [command] [options] [drs-pattern]
+usage = """\
+usage: %prog [command] [options] [drs-pattern]
+       %prog --help
 
 command:
   list            list publication-level datasets
@@ -26,6 +28,8 @@ command:
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
+
+Run %prog --help for full list of options.
 """
 
 
