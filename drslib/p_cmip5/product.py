@@ -1,5 +1,9 @@
-#!/usr/bin/python
 
+import shelve, os
+import glob, string
+
+import logging
+log = logging.getLogger(__name__)
 
 class ddsort:
   def __init__(self,ee,k):
@@ -9,7 +13,6 @@ class ddsort:
   def cmp(self,x,y):
     return cmp( self.ee[x][self.k], self.ee[y][self.k] )
 
-import shelve, os
 
 class cmip5_product:
 
@@ -29,7 +32,6 @@ class cmip5_product:
     self.have_slicer = False
 
   def scan_atomic_dataset(self,dir):
-    import glob, string
     if dir[-1] != '/':
       dir += '/'
     fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + '*.nc' ) )
@@ -68,8 +70,8 @@ class cmip5_product:
         base = string.join( bits[0:5], '_' )
       elif string.join(bits[0:5],'_') != base:
           self.status = 'error: inconsistent files in %s' % dir
-          print base
-          print string.join(bits[0:5],'_')
+          log.info(base)
+          log.info(string.join(bits[0:5],'_'))
           return False
 
     self.drs = (var, mip, model, expt, ens)
@@ -232,7 +234,7 @@ class cmip5_product:
               self.reason = 'Table %s, expt %s, less than 30 years submitted' % (table,expt)
               self.product = 'output1'
               return True
-            print '[x2] ',self.ads_time_period[1] - self.ads_time_period[0]
+            log.info('[x2] %s' % (self.ads_time_period[1] - self.ads_time_period[0])
 
          if not self.in_requested_time(  startyear, endyear):
               self.status = 'Could not identify requested time'
@@ -249,8 +251,8 @@ class cmip5_product:
                    self.product = 'output1'
                    return True
                 else:
-                  print 'atomic dataset range: ',self.ads_time_period
-                  print 'request: ',self.tsl.requested_time_start,self.tsl.requested_time_end
+                  log.info('atomic dataset range: %s' % self.ads_time_period)
+                  log.info('request: %s' % self.tsl.requested_time_start,self.tsl.requested_time_end)
 
              reason = '[x1] Table %s, rei %s, period not requested' % (table, self.rei)
              res = 'output2'

@@ -1,4 +1,7 @@
 
+import logging
+log = logging.getLogger(__name__)
+
 class request_time_slice:
 
   def __init__(self,parent):
@@ -22,7 +25,7 @@ class request_time_slice:
         if ssp[0] == 'listrel':
           offset = self.get_offset()
           if self.offset_status == -1:
-            print 'failed to get offset [listrel]'
+            log.warning('failed to get offset [listrel]')
             return False
         else:
           offset = 0
@@ -44,10 +47,10 @@ class request_time_slice:
       elif ssp[0] == 'corres':
       ##  offset = self.get_offset()
         ##if self.offset_status == -1:
-        print 'not ready for this yet [corres] -- need start time info', tli, self.parent.request_col
+        log.warning('not ready for this yet [corres] -- need start time info', tli, self.parent.request_col)
         return False
     else:
-      print 'rei not found:: ',self.parent.rei
+      log.warning('rei not found:: %s' % self.parent.rei)
       return False
 
     return True
