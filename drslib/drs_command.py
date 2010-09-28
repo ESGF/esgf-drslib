@@ -176,8 +176,9 @@ class UpgradeCommand(Command):
                 print 'Publisher Tree %s has no pending upgrades' % pt.drs.to_dataset_id()
             else:
                 print ('Upgrading %s to version %d ...' % (pt.drs.to_dataset_id(), next_version)),
+                to_process = pt.count_todo()
                 pt.do_version(next_version)
-                print 'done'
+                print 'done %d' % to_process
 
         self.print_footer()
 

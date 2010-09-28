@@ -68,7 +68,7 @@ Upgrade one PublisherTree
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100101 ... done
+Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100101 ... done 5
 ==============================================================================
 
 List the results
@@ -88,7 +88,7 @@ Upgrade the other PublisherTree
 DRS Tree at ...
 ------------------------------------------------------------------------------
 Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 has no pending upgrades
-Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done
+Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20100101 ... done 5
 ==============================================================================
 
 >>> do_drs_tool('list') # doctest:+ELLIPSIS
@@ -116,7 +116,7 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      0
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100102 ... done
+Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 to version 20100102 ... done 1
 Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no pending upgrades
 ==============================================================================
 
