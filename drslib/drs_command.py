@@ -247,8 +247,9 @@ class InitCommand(Command):
 
     def do(self):
         from drslib.p_cmip5.init import init
-        import pdb; pdb.set_trace()
         init(self.shelve_dir)
+
+        print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
 
 def run(op, command, opts, args):
     if command == 'list':
