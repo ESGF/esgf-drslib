@@ -136,10 +136,8 @@ class ListCommand(Command):
         to_update = 0
         for k in sorted(self.drs_tree.pub_trees):
             pt = self.drs_tree.pub_trees[k]
-            if pt.state == pt.STATE_VERSIONED:
-                state_msg = '-'
-            else:
-                state_msg = '*'
+            state_msg = str(pt.count_todo())
+            if pt.state != pt.STATE_VERSIONED:
                 to_update += 1
             #!TODO: print update summary
             print '%-70s  %s' % (pt.version_drs().to_dataset_id(with_version=True), state_msg)
