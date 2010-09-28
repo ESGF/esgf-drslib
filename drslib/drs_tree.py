@@ -316,6 +316,12 @@ class PublisherTree(object):
             else:
                 raise Exception("Unrecognised command type")
 
+    def count_todo(self):
+        """
+        Return the number of files to be processed on next upgrade.
+
+        """
+        return len(self._todo)
 
     def find_nc_files(self, version = "latest"):
         """
