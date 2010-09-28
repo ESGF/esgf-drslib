@@ -138,8 +138,8 @@ class cmip5_product:
 
   def in_requested_time(self,start,end):
     if not self.have_slicer:
-      import p_cmip5_time_slices
-      self.tsl = p_cmip5_time_slices.request_time_slice(self)
+      import time_slices
+      self.tsl = time_slices.request_time_slice(self)
       self.have_slicer = True
     return self.tsl.in_requested_time( start, end )
         
@@ -234,7 +234,7 @@ class cmip5_product:
               self.reason = 'Table %s, expt %s, less than 30 years submitted' % (table,expt)
               self.product = 'output1'
               return True
-            log.info('[x2] %s' % (self.ads_time_period[1] - self.ads_time_period[0])
+            log.info('[x2] %s' % (self.ads_time_period[1] - self.ads_time_period[0]))
 
          if not self.in_requested_time(  startyear, endyear):
               self.status = 'Could not identify requested time'
@@ -251,7 +251,7 @@ class cmip5_product:
                    self.product = 'output1'
                    return True
                 else:
-                  log.info('atomic dataset range: %s' % self.ads_time_period)
+                  log.info('atomic dataset range: %s' % (self.ads_time_period, ))
                   log.info('request: %s' % self.tsl.requested_time_start,self.tsl.requested_time_end)
 
              reason = '[x1] Table %s, rei %s, period not requested' % (table, self.rei)

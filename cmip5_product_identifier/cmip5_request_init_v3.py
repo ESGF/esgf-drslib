@@ -1,56 +1,17 @@
-"""
-initialise the drslib.p_cmip5 module.
+#!/usr/bin/python
 
-"""
+import xlrd, string, shelve, os
 
-import os, sys
-import xlrd, string, shelve
+standard_output = 'xls/standard_output_17Sep2010_mod.xls'
+template = 'xls/CMIP5_archive_size_template.xls'
 
-import logging
-log = logging.getLogger(__name__)
+def a():
+  ri = request_importer( template=template, cmip5_stdo=standard_output )
+  ri.import_template()
+  ri.import_standard_output()
 
 
-STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
-TEMPLATE_XLS = 'CMIP5_archive_size_template.xls'
-TEMPLATE_SHELVE = 'template'
-STDO_SHELVE = 'standard_output'
-STDO_MIP_SHELVE = 'standard_output_mip'
-
-usage = """usage: %prog [shelve-dir]
-
-shelve-dir: Destination of data files of CMIP5 standard output and archive size.
-"""
-
-def init(shelve_dir):
-    """
-    Create the shelve files needed to run p_cmip5.
-
-    """
-
-    xls_dir = os.path.join(os.path.dirname(__file__), 'xls')
-    stdo_xls = os.path.join(xls_dir, STANDARD_OUTPUT_XLS)
-    template_xls = os.path.join(xls_dir, TEMPLATE_XLS)
-
-    if not os.path.exists(shelve_dir):
-        os.makedirs(shelve_dir)
-
-    # Locations of shelve files
-    template = os.path.join(shelve_dir, TEMPLATE_SHELVE)
-    stdo = os.path.join(shelve_dir, STDO_SHELVE)
-    stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
-
-    mi = mip_importer(stdo_xls)
-    ri = request_importer(template=template_xls, cmip5_stdo=stdo_xls)
-    ri.import_template(template)
-    ri.import_standard_output(stdo)
-    #!TODO: Extra argument x1_sh not supported yet.  What's it for?
-    mi.imprt(stdo_mip)
-    
-    # Return locations for use in testsuite
-    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
-
-#---------------------------------------------------------------------------
-# Martin's code below this point with a few non-functional changes
+## see also scan_standard_output.py -- to get mip tables
 
 def helper_year( val ):
   if type( val ) == type( 1. ):
@@ -102,8 +63,8 @@ class workflow:
     if self.allowed( next ):
       self.status = next
     else:
-      log.info('%s %s' % (self.status, next))
-      raise Exception('failed to set')
+      print self.status, next
+      raise 'failed to set'
 
   def reset(self):
     self.status = None
@@ -129,20 +90,20 @@ class workflow:
       if next in self.statuses[self.status][1]:
          return False
 
-    log.info('%s %s' % (self.status, next))
-    log.info(self.statuses[self.status])
-    raise Exception('cant determine whether allowed')
+    print self.status, next
+    print self.statuses[self.status]
+    raise 'cant determine whether allowed'
  
 
 class request_importer:
 
   def __init__(self, template='CMIP5_template.xls', cmip5_stdo='xls' ):
     if not os.path.isfile(template):
-      log.info('need a valid template file')
-      raise Exception('bad arg')
+      print 'need a valid template file'
+      raise 'bad arg'
     if not os.path.isfile(cmip5_stdo):
-      log.info('need a valid standard output file')
-      raise Exception('bad arg')
+      print 'need a valid standard output file'
+      raise 'bad arg'
 
     self.template = template
     self.cmip5_stdo = cmip5_stdo
@@ -152,7 +113,7 @@ class request_importer:
     book = xlrd.open_workbook( self.template )
     sheet = book.sheet_by_name('template')
     this_row = sheet.row(41)
-    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010]:
+    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000,2001,2002,2003,2004,2006,2007,2008,2009,2010]:
       key = 'decadal%4.4i' % y
       sh[key] = (41, '1.1',str(this_row[0].value), str(this_row[1].value))
 
@@ -167,7 +128,7 @@ class request_importer:
       this_row = sheet.row(r)
       key = string.strip( str(this_row[10].value ) )
       while key in sh.keys():
-          key += '+'
+        key += '+'
       sh[key] = (r,str(this_row[2].value), str(this_row[0].value), str(this_row[1].value))
     sh.close()
 
@@ -210,15 +171,15 @@ class request_importer:
              if string.find( item, 'eq') != -1:
                this_type = 'listrel'
                item = string.replace( item, 'eq', '' )
-               log.info('listrel:: row %s [%s], col %s' % ( oo.row(r)[0].value, r, colh[kkk] ))
-               log.info(item)
+               print 'listrel:: row %s [%s], col %s' % ( oo.row(r)[0].value, r, colh[kkk] )
+               print item
              else:
                this_type = 'list'
              bits = string.split( item, ',' )
 
              if string.find( item, 'corresp') != -1 or string.find( item, 'last') != -1:
                ee[r] =  ('corres',)
-               log.info('corres:: row %s, col %s' % ( oo.row(r)[0].value, colh[kkk] ))
+               print 'corres:: row %s, col %s' % ( oo.row(r)[0].value, colh[kkk] )
              else:
                ll = [this_type]
                for b in bits:
@@ -230,7 +191,7 @@ class request_importer:
                    st,en = map( int, string.split(b,'-') )
                    ll.append( ('slice',st,en) )
                  else:
-                   log.info(bits,b)
+                   print bits,b
                    ll.append( ('year',int(b)) )
                ee[r] = ll
    
@@ -256,10 +217,10 @@ class request_importer:
             y0 = helper_year( this_row[3+kseg*2].value )
             y9 = helper_year( this_row[4+kseg*2].value )
             if y0 != None:
-                this_ee[kseg].append( (y0,y9) )
+              this_ee[kseg].append( (y0,y9) )
         ee[expt_nn] = this_ee
    
-    log.info('putting cfmip in shelve')
+    print 'putting cfmip in shelve'
     sh['cfmip'] = ee
          
 
@@ -278,7 +239,7 @@ class mip_importer:
   def imprt(self,mip='sh/standard_output_mip',x1_sh=None):
     book = xlrd.open_workbook( self.input_xls )
 
-    log.info(book.sheet_names())
+    print book.sheet_names()
 
     wf = workflow(states=['wait','items','title'])
     wf.add( 'wait', allowed=['title'], disallowed=['wait','items'] )
@@ -313,13 +274,13 @@ class mip_importer:
         if wf.status == 'items':
           if string.strip( str( v ) ) == '':
             wf.set( 'wait' )
-            log.info(kk)
+            print kk
           else:
             kk+=1
     
         if type(v) == type(u'x'):
           if string.find( v, 'CMOR Table') != -1:
-            log.info(v)
+            print v
             kt+=1
             kk = 0
             wf.set( 'title' )
@@ -340,22 +301,22 @@ class mip_importer:
                wf.set( 'items' )
                kp +=1
              else:
-               raise Exception('dodgy transition')
+               raise 'dodgy transition'
           elif v == 0.:
-            log.info('%s %s' % (wf.status, i))
-            log.info(kkkk)
-            log.info(this.row(kkkk-1))
-            log.info(this.row(kkkk))
-            log.info(this.row(kkkk+1))
-            log.info(this.col(0))
-            raise Exception('dodgy status')
+            print wf.status, i
+            print kkkk
+            print this.row(kkkk-1)
+            print this.row(kkkk)
+            print this.row(kkkk+1)
+            print this.col(0)
+            raise 'dodgy status'
           elif wf.status in ('items','wait'):
             qrows.append( map( lambda x: x.value, this.row(kkkk) ) )
             qrows_mip.append( map( lambda x: x.value, this.row(kkkk) ) )
 
       if kp != kt:
-            log.info('mismatch in heading count %s %s' % (kp,kt))
-            log.info(this.col(0))
+            print 'mismatch in heading count', kp,kt
+            print this.col(0)
     
       if title != None and len(qrows) != 0:
          if x1:
@@ -363,11 +324,20 @@ class mip_importer:
          ktt+=1
          qrows = []
       if len(qrows) != 0:
-         raise Exception('bad len')
+         raise 'bad len'
       sh_mip[str(sn)] = qrows_mip[:]
 
-    log.info(len(qrows))
+    print len(qrows)
     if x1:
       sh.close()
     sh_mip.close()
 
+
+mi = mip_importer(standard_output)
+
+if __name__ == "__main__":
+   import sys
+   if len(sys.argv) > 1:
+     if sys.argv[1] == 'init':
+       a()
+       mi.imprt()
