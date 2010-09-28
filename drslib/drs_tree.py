@@ -366,7 +366,10 @@ class PublisherTree(object):
                 yield (self.DIFF_V2_ONLY, None, files2[file])
 
 
-    def version_to_mapfile(self, version, fh=sys.stdout):
+    def version_to_mapfile(self, version, fh=None):
+        if fh is None:
+            fh = sys.stdout
+
         if version not in self.versions:
             raise Exception("Version %d not present in PublisherTree %s" % (version, self.pub_dir))
 

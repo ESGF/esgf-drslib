@@ -5,7 +5,7 @@ Generate mapfiles from streams of DRS objects
 
 #!TODO: check againsts similar code in datanode_admin and merge
 
-import sys
+import sys, stat, os
 
 
 def drs_to_id(drs):
@@ -27,13 +27,15 @@ def drs_to_id(drs):
                      'r%di%dp%d' % drs.ensemble])
 
 #!TODO: add callout to get parameters like checksum.
-def write_mapfile(stream, fh=sys.stdout):
+def write_mapfile(stream, fh):
     """
     Write an esgpublish mapfile from a stream of tuples (filepath, drs).
 
     """
 
     for path, drs in stream:
-        #!TODO: check field order
-        print >>fh, ' | '.join([path, drs_to_id(drs)])
+        size = os.stat(path)[stat.ST_SIZE]
+
+        #!TODO: add modification type
+        print >>fh, ' | '.join([path, drs_to_id(drs), str(size)])
         

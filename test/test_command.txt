@@ -136,3 +136,11 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101
 ==============================================================================
 
+>>> do_drs_tool('mapfile', '--realm=atmos') # doctest:+ELLIPSIS
+./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
+./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2004010104-2005123119.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
+./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2005123119-2008010109.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
+./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2008010109-2010010100.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
+./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc | cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | 61
+
+
