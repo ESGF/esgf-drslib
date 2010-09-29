@@ -82,13 +82,15 @@ class Command(object):
             except KeyError:
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
-
         self.drs_tree = DRSTree(self.drs_root)
         kwargs = {}
         for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                      'frequency', 'realm', 'ensemble']:
             try:
                 val = getattr(self.opts, attr)
+                # val may be there but None
+                if val is None:
+                    raise AttributeError
             except AttributeError:
                 val = config.drs_defaults.get(attr)
 
