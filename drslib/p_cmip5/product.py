@@ -284,8 +284,8 @@ class cmip5_product:
 
   def get_slicer(self):
     if not self.have_slicer:
-      import p_cmip5_time_slices
-      self.tsl = p_cmip5_time_slices.request_time_slice(self)
+      import time_slices
+      self.tsl = time_slices.request_time_slice(self)
       self.have_slicer = True
 
   def in_requested_time(self,start,end):
