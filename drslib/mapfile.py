@@ -36,7 +36,7 @@ def write_mapfile(stream, fh):
     for path, drs in stream:
         file_stat = os.stat(path)
         size = file_stat[stat.ST_SIZE]
-        mtime = file_stat[stat.ST_SIZE]
+        mtime = file_stat[stat.ST_MTIME]
 
         print >>fh, ' | '.join([drs_to_id(drs), path, str(size), "mod_time=%f"%float(mtime)])
         
