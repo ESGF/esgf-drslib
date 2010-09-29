@@ -5,7 +5,7 @@ Generate mapfiles from streams of DRS objects
 
 #!TODO: check againsts similar code in datanode_admin and merge
 
-import stat, os
+import sys, stat, os
 
 
 def drs_to_id(drs):
