@@ -81,8 +81,8 @@ pointing to a separate logging configuration file:
 .. code-block:: ini
 
   [metaconfig]
-  configs = drs
-  logging = .../logging.conf
+  configs = drslib
+  logging = ~/logging.conf
 
 The format of ``logging.conf`` should conform to the Python logging
 `configuration file format`__.  For instance to log warnings to STDERR
@@ -90,28 +90,32 @@ you could use the following configuration:
 
 .. code-block:: ini
 
-  [loggers]
-  keys=drslib
-
-  [handlers]
-  keys=hand01
-
-  [formatters]
-  keys=form01
-
-  [logger_drslib]
-  qualname=drslib
-  level=WARN
-  handlers=hand01
-
-  [handler_hand01]
-  class=StreamHandler
-  args=(sys.stderr, )
-  formatter=form01
-
-  [formatter_form01]
-  format=%(asctime)s [%(levelname)s] %(name)s: %(message)s
-  datefmt=
+    [loggers]
+    keys=root,drslib
+    
+    [handlers]
+    keys=hand01
+    
+    [formatters]
+    keys=form01
+    
+    [logger_drslib]
+    qualname=drslib
+    level=WARN
+    handlers=hand01
+    
+    [logger_root]
+    level=NOTSET
+    handlers=hand01
+    
+    [handler_hand01]
+    class=StreamHandler
+    args=(sys.stderr, )
+    formatter=form01
+    
+    [formatter_form01]
+    format=%(asctime)s [%(levelname)s] %(name)s: %(message)s
+    datefmt=
 
 __ http://docs.python.org/library/logging.html#configuration-file-format
 

@@ -5,7 +5,7 @@ Generate mapfiles from streams of DRS objects
 
 #!TODO: check againsts similar code in datanode_admin and merge
 
-import sys, stat, os
+import stat, os
 
 
 def drs_to_id(drs):
@@ -34,8 +34,10 @@ def write_mapfile(stream, fh):
     """
 
     for path, drs in stream:
-        size = os.stat(path)[stat.ST_SIZE]
+        file_stat = os.stat(path)
+        size = file_stat[stat.ST_SIZE]
+        mtime = file_stat[stat.ST_SIZE]
 
         #!TODO: add modification type
-        print >>fh, ' | '.join([path, drs_to_id(drs), str(size)])
+        print >>fh, ' | '.join([drs_to_id(drs), path, str(size), "mod_time=%f"%float(mtime)])
         

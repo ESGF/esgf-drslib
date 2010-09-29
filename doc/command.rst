@@ -20,7 +20,8 @@ DRS root
   The root of the published DRS directory tree.  This is synonimous
   with the directory representing the DRS activity component.
 
-incoming directory The directory scanned for data files to be added to
+Incoming directory
+  The directory scanned for data files to be added to
   the DRS directory tree.  This directory is scanned recursively to
   find NetCDF files in the DRS filename encoding.  It defaults to
   ``<drs-root>/output`` for compatibility with the output structure of
@@ -46,7 +47,8 @@ command:
   history         list all versions of the selected dataset
 
 drs-pattern:
-  A dataset identifier in '.'-separated notation using '%' for wildcards
+  A dataset identifier in '.'-separated notation using '%' for wildcards for matching 
+  any component (e.g. cmip5.%.MPI-M wil match any product)
 
 
 Options:
