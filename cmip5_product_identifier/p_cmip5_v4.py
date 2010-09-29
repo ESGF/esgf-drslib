@@ -215,7 +215,6 @@ class cmip5_product:
               return False
 
     elif table in ['6hrPlev','3hr']:
-       import pdb; pdb.set_trace()
        if self.find_rei(expt):
          self.request_col = {'3hr':'R', '6hrPlev':'Q'}[table]
          self.get_request_spec()
