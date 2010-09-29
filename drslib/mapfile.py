@@ -38,6 +38,5 @@ def write_mapfile(stream, fh):
         size = file_stat[stat.ST_SIZE]
         mtime = file_stat[stat.ST_SIZE]
 
-        #!TODO: add modification type
         print >>fh, ' | '.join([drs_to_id(drs), path, str(size), "mod_time=%f"%float(mtime)])
         
