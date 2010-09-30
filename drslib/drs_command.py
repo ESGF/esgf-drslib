@@ -6,6 +6,7 @@ Command-line access to drslib
 import sys, os, re
 
 from optparse import OptionParser
+from ConfigParser import NoSectionError
 
 from drslib.drs_tree import DRSTree
 from drslib import config
@@ -66,16 +67,15 @@ class Command(object):
         self.opts = opts
         self.args = args
 
-        self._config_p_cmip5()
         self.make_drs_tree()
 
     def _config_p_cmip5(self):
         self.shelve_dir = self.opts.shelve_dir
         if self.shelve_dir is None:
-            self.shelve_dir = config.config.get('p_cmip5', 'shelve-dir')
-
-        if self.shelve_dir is None:
-            raise Exception("Shelve directory not specified.  Please use --shelve-dir or set shelve_dir via metaconfig")
+            try:
+                self.shelve_dir = config.config.get('p_cmip5', 'shelve-dir')
+            except NoSectionError:
+                raise Exception("Shelve directory not specified.  Please use --shelve-dir or set shelve_dir via metaconfig")
 
     def make_drs_tree(self):
         if self.opts.root:
@@ -266,6 +266,8 @@ class InitCommand(Command):
         pass
 
     def do(self):
+        self._config_p_cmip5()
+
         from drslib.p_cmip5.init import init
         init(self.shelve_dir)
 
