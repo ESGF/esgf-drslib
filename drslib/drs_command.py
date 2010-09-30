@@ -55,6 +55,8 @@ def make_parser():
     op.add_option('--detect-product', action='store_true',
                   help='Automatically detect the DRS product of incoming data')
 
+    op.add_option('-M', '--move-cmd', action='store',
+                  help='Set the command used to move files into the DRS structure')
 
     return op
 
@@ -83,6 +85,11 @@ class Command(object):
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
         self.drs_tree = DRSTree(self.drs_root)
+
+        if self.opts.move_cmd:
+            self.drs_tree.set_move_cmd(self.opts.move_cmd)
+
+
         kwargs = {}
         for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                      'frequency', 'realm', 'ensemble']:

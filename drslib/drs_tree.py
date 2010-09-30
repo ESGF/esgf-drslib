@@ -60,6 +60,7 @@ class DRSTree(object):
         self.pub_trees = {}
         self._vtrans = make_translator(drs_root)
         self._incoming = None
+        self._move_cmd = config.move_cmd
 
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
@@ -182,6 +183,8 @@ class DRSTree(object):
             # not found
             raise Exception("File %s not found in incoming" % src)
 
+    def set_move_cmd(self, cmd):
+        self._move_cmd = cmd
 
 class DRSList(list):
     """
@@ -310,7 +313,7 @@ class PublisherTree(object):
 
         for cmd, src, dest in self._todo_commands(next_version):
             if cmd == self.CMD_MOVE:
-                yield "mv %s %s" % (src, dest)
+                yield "%s %s %s" % (self.drs_tree._move_cmd, src, dest)
             elif cmd == self.CMD_LINK:
                 yield "ln -s %s %s" % (src, dest)
             else:
