@@ -21,6 +21,23 @@ usage = """usage: %prog [shelve-dir]
 shelve-dir: Destination of data files of CMIP5 standard output and archive size.
 """
 
+def _find_shelves(shelve_dir):
+    """
+    Return the location of CMIP5 shelve files as a dictionary.
+
+    """
+    # Locations of shelve files
+    template = os.path.join(shelve_dir, TEMPLATE_SHELVE)
+    stdo = os.path.join(shelve_dir, STDO_SHELVE)
+    stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
+
+    assert os.path.exists(template)
+    assert os.path.exists(stdo)
+    assert os.path.exists(stdo_mip)
+
+    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
+
+
 def init(shelve_dir):
     """
     Create the shelve files needed to run p_cmip5.
@@ -46,8 +63,6 @@ def init(shelve_dir):
     #!TODO: Extra argument x1_sh not supported yet.  What's it for?
     mi.imprt(stdo_mip)
     
-    # Return locations for use in testsuite
-    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
 
 #---------------------------------------------------------------------------
 # Martin's code below this point with a few non-functional changes

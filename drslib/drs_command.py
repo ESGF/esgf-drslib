@@ -12,6 +12,8 @@ from drslib.drs_tree import DRSTree
 from drslib import config
 from drslib.drs import DRS
 
+from drslib import p_cmip5
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -59,6 +61,8 @@ def make_parser():
                   help='Automatically detect the DRS product of incoming data')
     op.add_option('--shelve-dir', action='store',
                   help='Location of the p_cmip5 data directory')
+    op.add_option('--p-cmip5-config', action='store',
+                  help='Location of model-specific configuration file for p_cmip5')
 
     return op
 
@@ -70,12 +74,39 @@ class Command(object):
         self.make_drs_tree()
 
     def _config_p_cmip5(self):
+        """
+        Ensure self.shelve_dir is set.  This is required for InitCommand
+        and any command that uses p_cmip5.
+
+        """
         self.shelve_dir = self.opts.shelve_dir
         if self.shelve_dir is None:
             try:
                 self.shelve_dir = config.config.get('p_cmip5', 'shelve-dir')
             except NoSectionError:
                 raise Exception("Shelve directory not specified.  Please use --shelve-dir or set shelve_dir via metaconfig")
+
+    def _setup_p_cmip5(self):
+        """
+        Instantiate the p_cmip5.cmip5_product object ready for deducing
+        the product component.
+
+        """
+        
+        shelves = p_cmip5.init._find_shelves(self.shelve_dir)
+        self.p_cmip5_config = self.opts.p_cmip5_config
+        if self.p_cmip5_config is None:
+            try:
+                self.p_cmip5_config = config.config.get('p_cmip5', 'config')
+            except NoSectionError:
+                raise Exception("p_cmip5 configuration file not specified.  Please use --p-cmip5-config or set via metaconfig")
+
+        self.drs_tree.set_p_cmip5(p_cmip5.product.cmip5_product(
+            mip_table_shelve=shelves['stdo_mip'],
+            template=shelves['template'],
+            stdo=shelves['stdo'],
+            config=self.p_cmip5_config))
+
 
     def make_drs_tree(self):
         if self.opts.root:

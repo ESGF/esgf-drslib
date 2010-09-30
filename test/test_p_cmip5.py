@@ -29,7 +29,8 @@ def setup_module():
     config2 = os.path.join(test_dir, 'sample_2.ini')
 
     # Shelves are regenerated each time.  This could be optimised.
-    shelves = init.init(shelve_dir)
+    init.init(shelve_dir)
+    shelves = init._find_shelves(shelve_dir)
 
     # Create the dummy data
     z = zipfile.ZipFile(os.path.join(test_dir, 'dummy_archive.zip'))
@@ -148,3 +149,25 @@ def test_gen8():
     yield check_product, ( 'clisccp', 'cfMon', 'amip'), dict(startyear=2000, endyear=2000, path='tmp/a_2010_2020' ), 'output1'
     yield check_product, ( 'clisccp', 'cfMon', 'piControl'), dict(startyear=2000, endyear=2000, path='tmp/a_2010_2020' ), 'output1'
     yield check_product, ( 'clisccp', 'cfMon', 'abrupt4xco2'), dict(startyear=2000, endyear=2000, path='tmp/a_2010_2020' ), 'output1'
+
+
+def test_drs_tree():
+    """
+    Test drs_tree interface to p_cmip5.
+    """
+    from drslib import drs_tree
+
+    # Point drs_root at /tmp since we won't be making any upgrades.
+    dt = drs_tree.DRSTree('/tmp')
+    dt.set_p_cmip5(pc1)
+    dt.discover(os.path.join(tmpdir, 'tmp/tas'), activity='cmip5', institute='UKMO')
+
+    #!TODO: More robust test here.
+    datasets = set(dt.pub_trees.keys())
+    assert datasets == set("""
+cmip5.output2.UKMO.HADCM3.piControl.3hr.atmos.3hr.r1i1p1
+cmip5.output2.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1
+cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r1i1p1
+cmip5.output1.UKMO.HADCM3.piControl.day.atmos.day.r3i1p1
+cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1
+""".strip().split())

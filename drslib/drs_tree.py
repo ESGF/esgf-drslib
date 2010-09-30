@@ -28,6 +28,7 @@ from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
+from drslib.p_cmip5 import ProductDetectionException
 
 import logging
 log = logging.getLogger(__name__)
@@ -60,6 +61,7 @@ class DRSTree(object):
         self.pub_trees = {}
         self._vtrans = make_translator(drs_root)
         self._incoming = None
+        self._p_cmip5 = None
 
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
@@ -93,7 +95,7 @@ class DRSTree(object):
 
         activity = components.setdefault('activity',
                                          config.drs_defaults.get('activity'))
-        if product is None or activity is None:
+        if (product is None and self._p_cmip5 is None) or activity is None:
             raise Exception("You must specifiy an activity and product")
         
 
@@ -156,7 +158,7 @@ class DRSTree(object):
                         drs_v = drs.get(k, None)
                         if drs_v is not None:
                             if drs_v != v:
-                                log.debug('%s Filtered out.  %s != %s' %
+                                log.debug('FILTERED OUT: %s.  %s != %s' %
                                           (drs, repr(drs_v), repr(v)))
                                 break
                         else:
@@ -165,6 +167,11 @@ class DRSTree(object):
                             setattr(drs, k, v)
                     else:
                         # Only if break not called
+                        
+                        # Detect product if enabled
+                        if self._p_cmip5:
+                            self._detect_product(dirpath, drs)
+
                         log.info('Discovered %s as %s' % (filename, drs))
                         drs_list.append((os.path.join(dirpath, filename), drs))
 
@@ -182,6 +189,47 @@ class DRSTree(object):
             # not found
             raise Exception("File %s not found in incoming" % src)
 
+    def set_p_cmip5(self, p_cmip5):
+        """
+        Set the :class:`p_cmip5.product.cmip5_product` instance used to deduce
+        the DRS product component.
+
+        """
+        self._p_cmip5 = p_cmip5
+
+    def _detect_product(self, path, drs):
+        """
+        Use the p_cmip5 module to deduce the product of this DRS object.
+        p_cmip5 must be configured by calling :meth:`DRSTree.set_p_cmip5`.
+
+        """
+        log.debug('Detecting product for %s' % drs)
+
+        pci = self._p_cmip5
+        startyear = drs.subset[0][0]
+
+        fail = False
+        if startyear == None:
+            if pci.find_product_ads( drs.variable, drs.table, drs.experiment, drs.model, path):
+                log.debug(' '.join(drs.variable,',',drs.table,',',drs.experiment,path,':: ',pci.product, pci.reason))
+                if pci.product == 'split':
+                    if len( pci.output1_files ) == 0:
+                        raise ProductDetectionException('NO FILES FOUND')
+                    else:
+                        #!TODO: Need to implement split!
+                        log.warning('    --> output1: %s .... %s' % (pci.output1_files[0],pci.output1_files[-1]))
+            else:
+                raise ProductDetectionException(' '.join(('FAILED:: ',pci.status,':: ',drs.variable,',',drs.table,',',drs.experiment)))
+        else:
+            if pci.find_product( drs.variable, drs.table, drs.experiment, drs.model,path,startyear=startyear):
+                log.debug(' '.join((drs.variable,',',drs.table,',',drs.experiment,path,str(startyear),':: ',pci.product, pci.reason )))
+            else:
+                raise ProductDetectionException(' '.join(('FAILED:: ',pci.status,':: ',drs.variable,',',drs.table,',',drs.experiment)))
+        if pci.warning != '':
+            log.warn(pci.warning)
+
+        drs.product = pci.product
+        log.info('Product deduced as %s' % drs.product)
 
 class DRSList(list):
     """
