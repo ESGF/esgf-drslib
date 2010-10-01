@@ -64,6 +64,9 @@ def make_parser():
     op.add_option('--p-cmip5-config', action='store',
                   help='Location of model-specific configuration file for p_cmip5')
 
+    op.add_option('-M', '--move-cmd', action='store',
+                  help='Set the command used to move files into the DRS structure')
+
     return op
 
 class Command(object):
@@ -126,6 +129,11 @@ class Command(object):
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
         self.drs_tree = DRSTree(self.drs_root)
+
+        if self.opts.move_cmd:
+            self.drs_tree.set_move_cmd(self.opts.move_cmd)
+
+
         kwargs = {}
         for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                      'frequency', 'realm', 'ensemble']:

@@ -50,6 +50,13 @@ except:
 
 # Default subdirectory of drs-root to scan for incoming files
 DEFAULT_INCOMING = 'output'
+DEFAULT_MOVE_CMD = 'mv'
+try:
+    move_cmd = config.get('DEFAULT', 'move-cmd')
+except:
+    move_cmd = DEFAULT_MOVE_CMD
+
+
 
 #
 # CMIP3 component to file/path position mapping
