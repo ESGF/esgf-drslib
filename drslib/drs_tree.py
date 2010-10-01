@@ -471,11 +471,16 @@ class PublisherTree(object):
         if not os.path.exists(dir):
             log.info('Creating %s' % dir)
             os.makedirs(dir)
+
+        cmd = '%s %s %s' % (self.drs_tree._move_cmd, src, dest)
         if os.path.exists(dest):
-            log.warn('Overwriting existing file: Moving %s %s' % (src, dest))
+            log.warn('Overwriting existing file: %s' % cmd)
         else:
-            log.info('Moving %s %s' % (src, dest))
-        shutil.move(src, dest)
+            log.info(cmd)
+        #!TODO: Trap output!
+        status = os.system(cmd)
+        if status != 0:
+            log.warn('System call failed: %d' % status)
 
         # Remove src from incoming
         self.drs_tree.remove_incoming(src)
