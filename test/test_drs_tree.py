@@ -383,6 +383,35 @@ class TestListing1(TestListing):
         pt = self.dt.pub_trees.values()[0]
         self._do_version(pt)
 
+class TestCopyUpgrade(TestListing):
+    """Test overriding the move command.
+    """
+
+    __test__ = True
+
+    listing_file = 'realm_1.ls'
+
+    def test_1(self):
+        self._discover('MPI-M', 'ECHAM6-MPIOM-HR')
+        self.dt.set_move_cmd('cp')
+        
+        pt = self.dt.pub_trees.values()[0]
+        filename = self.dt._incoming[0][0]
+        
+        # Filename should remain after copy
+        assert os.path.exists(filename)
+        self._do_version(pt)
+        assert os.path.exists(filename)
+        
+        # Check the filename did end up in the version
+        for f, drs in pt.versions.values()[0]:
+            if os.path.basename(f) == os.path.basename(filename):
+                assert os.path.exists(f)
+                break
+        else:
+            # No matching versioned file found
+            assert False
+
 class TestMapfile(TestListing):
     __test__ = True
 
