@@ -62,6 +62,7 @@ class DRSTree(object):
         self._vtrans = make_translator(drs_root)
         self._incoming = None
         self._p_cmip5 = None
+
         self._move_cmd = config.move_cmd
 
         if not os.path.isdir(drs_root):
