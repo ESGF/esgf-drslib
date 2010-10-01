@@ -203,33 +203,27 @@ class DRSTree(object):
         p_cmip5 must be configured by calling :meth:`DRSTree.set_p_cmip5`.
 
         """
-        log.debug('Detecting product for %s' % drs)
+        log.info('Deducing product for %s' % drs)
 
         pci = self._p_cmip5
         startyear = drs.subset[0][0]
+        endyear = drs.subset[1][0]
 
-        fail = False
-        if startyear == None:
-            if pci.find_product_ads( drs.variable, drs.table, drs.experiment, drs.model, path):
-                log.debug(' '.join(drs.variable,',',drs.table,',',drs.experiment,path,':: ',pci.product, pci.reason))
-                if pci.product == 'split':
-                    if len( pci.output1_files ) == 0:
-                        raise ProductDetectionException('NO FILES FOUND')
-                    else:
-                        #!TODO: Need to implement split!
-                        log.warning('    --> output1: %s .... %s' % (pci.output1_files[0],pci.output1_files[-1]))
-            else:
-                raise ProductDetectionException(' '.join(('FAILED:: ',pci.status,':: ',drs.variable,',',drs.table,',',drs.experiment)))
+        status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,
+                                  path, startyear=startyear, endyear=endyear)
+        if status:
+            log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                         path, startyear, endyear,
+                                                         pci.product, pci.reason ))
+            
         else:
-            if pci.find_product( drs.variable, drs.table, drs.experiment, drs.model,path,startyear=startyear):
-                log.debug(' '.join((drs.variable,',',drs.table,',',drs.experiment,path,str(startyear),':: ',pci.product, pci.reason )))
-            else:
-                raise ProductDetectionException(' '.join(('FAILED:: ',pci.status,':: ',drs.variable,',',drs.table,',',drs.experiment)))
+            raise ProductDetectionException('FAILED:: %s:: %s, %s, %s' % (pci.status, drs.variable,
+                                                                          drs.table,drs.experiment))
         if pci.warning != '':
             log.warn(pci.warning)
-
+            
         drs.product = pci.product
-        log.info('Product deduced as %s' % drs.product)
+        log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
 
 class DRSList(list):
     """
