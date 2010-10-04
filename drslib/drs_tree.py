@@ -211,16 +211,13 @@ class DRSTree(object):
         startyear = drs.subset[0][0]
         endyear = drs.subset[1][0]
 
+        #!NOTE: failures are now raised as exceptions pci.ScopeException
         status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,
                                   path, startyear=startyear, endyear=endyear)
-        if status:
-            log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
-                                                         path, startyear, endyear,
-                                                         pci.product, pci.reason ))
-            
-        else:
-            raise ProductDetectionException('FAILED:: %s, %s, %s' % (drs.variable,
-                                                                     drs.table,drs.experiment))
+        assert status
+        log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                     path, startyear, endyear,
+                                                     pci.product, pci.reason ))
             
         drs.product = pci.product
         log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
