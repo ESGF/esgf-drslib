@@ -149,7 +149,7 @@ class DRSTree(object):
                         drs = self._vtrans.filename_to_drs(filename)
                     except TranslationError:
                         # File doesn't match
-                        log.debug('File %s is not a DRS file' % filename)
+                        log.warn('File %s is not a DRS file' % filename)
                         continue
 
                     log.debug('File %s => %s' % (repr(filename), drs))
@@ -160,7 +160,7 @@ class DRSTree(object):
                         drs_v = drs.get(k, None)
                         if drs_v is not None:
                             if drs_v != v:
-                                log.debug('FILTERED OUT: %s.  %s != %s' %
+                                log.warn('FILTERED OUT: %s.  %s != %s' %
                                           (drs, repr(drs_v), repr(v)))
                                 break
                         else:
