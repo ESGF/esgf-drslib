@@ -250,7 +250,7 @@ class request_importer:
                    st,en = map( int, string.split(b,'-') )
                    ll.append( ('slice',st,en) )
                  else:
-                   log.info(bits,b)
+                   log.info('%s %s' % (bits,b))
                    ll.append( ('year',int(b)) )
                ee[r] = ll
    

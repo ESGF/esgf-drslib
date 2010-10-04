@@ -38,7 +38,7 @@ class request_time_slice:
     elif ssp[0] == 'corres':
       ##  offset = self.get_offset()
         ##if self.offset_status == -1:
-        log.warning('not ready for this yet [corres] -- need start time info', tli, self.parent.request_col)
+        log.warning('not ready for this yet [corres] -- need start time info %s %s ' % (tli, self.parent.request_col))
         return False
 
     return True
