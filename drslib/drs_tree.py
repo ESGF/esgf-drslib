@@ -221,8 +221,6 @@ class DRSTree(object):
         else:
             raise ProductDetectionException('FAILED:: %s:: %s, %s, %s' % (pci.status, drs.variable,
                                                                           drs.table,drs.experiment))
-        if pci.warning != '':
-            log.warn(pci.warning)
             
         drs.product = pci.product
         log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
