@@ -6,7 +6,7 @@ Command-line access to drslib
 import sys, os, re
 
 from optparse import OptionParser
-from ConfigParser import NoSectionError
+from ConfigParser import NoSectionError, NoOptionError
 
 from drslib.drs_tree import DRSTree
 from drslib import config
@@ -97,11 +97,12 @@ class Command(object):
         """
         
         shelves = p_cmip5.init._find_shelves(self.shelve_dir)
+    
         self.p_cmip5_config = self.opts.p_cmip5_config
         if self.p_cmip5_config is None:
             try:
                 self.p_cmip5_config = config.config.get('p_cmip5', 'config')
-            except NoSectionError:
+            except (NoSectionError, NoOptionError):
                 raise Exception("p_cmip5 configuration file not specified.  Please use --p-cmip5-config or set via metaconfig")
 
         self.drs_tree.set_p_cmip5(p_cmip5.product.cmip5_product(
@@ -154,9 +155,11 @@ class Command(object):
         else:
             drs = DRS(**kwargs)
 
-        # Product detection to be enabled later
+        # Product detection
         if self.opts.detect_product:
-            raise NotImplementedError("Product detection is not yet implemented")
+            self._config_p_cmip5()
+            self._setup_p_cmip5()
+
         self.drs_tree.discover(incoming, **drs)
 
     def do(self):
