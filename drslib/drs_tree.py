@@ -174,7 +174,7 @@ class DRSTree(object):
                         if self._p_cmip5:
                             self._detect_product(dirpath, drs)
 
-                        log.info('Discovered %s as %s' % (filename, drs))
+                        log.debug('Discovered %s as %s' % (filename, drs))
                         drs_list.append((os.path.join(dirpath, filename), drs))
 
         self._incoming = DRSList(drs_list)
