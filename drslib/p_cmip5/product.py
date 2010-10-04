@@ -17,6 +17,7 @@ version_date = '20101001'
 import logging
 log = logging.getLogger(__name__)
 
+import re
 
 class ProductScope(Exception):
   def __init__(self,value):
@@ -170,19 +171,24 @@ class cmip5_product:
         has_time = True
         assert bits[5][0] != '-', 'Negative date -- not supported as this version: %s' % bits[5]
         assert string.find( bits[5], '--' ) == -1, 'Negative date -- not supported as this version: %s, %s' % bits[5]
-        tbits = string.split( bits[5], '-' )
-        if len(tbits) == 3:
-          if tbits[2] != 'clim':
-            return self.not_ok( 'bad temporal subset: %s in %s' % (f,dir), 'ERR010' )
 
-        assert len( tbits[0] ) in [4,6] or ( len(tbits[0])==6 and tbits[0][-2:] in ['01','02','03','04','05','06','07','08','09','10','11','12'] ), \
-            'Date not of form yyyy[mm[dd]]: not supported: %s' % tbits[0]
-        startyear = int(tbits[0][0:4])
+        #
+        # Time parsing re-implemented by spascoe
+        #
+        tbits = string.split( bits[5], '-' )
+        year_re = re.compile(r'(\d\d\d\d)(\d\d)?(\d\d)?(\d\d)?(\d\d)?')
+        mo = year_re.match(tbits[0])
+        assert mo, 'Start Date not of form yyyy[mm[dd[hh[mm]]]]: not supported: %s' % tbits[0]
+        startyear = int(mo.group(1))
         if len(tbits) > 1:
-          endyear = int(tbits[1][0:4])
+          mo = year_re.match(tbits[1])
+          assert mo, 'End Date not of form yyyy[mm[dd[hh[mm]]]]: not supported: %s' % tbits[1]
+          endyear = int(mo.group(1))
         else:
           endyear = startyear
+
         start_years.append( startyear )
+
       else:
           return self.not_ok( 'filename does not match DRS: %s in %s' % (f,dir), 'ERR011' )
 
