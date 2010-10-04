@@ -110,8 +110,33 @@ class DRS(dict):
     def __repr__(self):
         kws = []
         for attr in self._drs_attrs:
-            kws.append('%s=%s' % (attr, repr(self[attr])))
-        return '<DRS %s>' % ', '.join(kws)
+            if self[attr] is None:
+                val = '%'
+            elif attr is 'ensemble':
+                val = 'r%di%dp%d' % self.ensemble
+            elif attr is 'version':
+                val = 'v%d' % self.version
+            elif attr is 'subset':
+                N1, N2, clim = self.subset
+                if None in N1:
+                    val = '%'
+                    continue
+                N1_str = '%04d%02d%02d%02d' % N1
+                N2_str = '%04d%02d%02d%02d' % N2
+                if clim:
+                    val = '%s-%s-clim' % (N1_str, N2_str)
+                else:
+                    val = '%s-%s' % (N1_str, N2_str)
+            else:
+                val = self[attr]
+
+            kws.append(val)
+
+        # Remove trailing '%' from components
+        while kws[-1] == '%':
+            kws.pop(-1)
+
+        return '<DRS %s>' % '.'.join(kws)
 
     def to_dataset_id(self, with_version=False):
         """
