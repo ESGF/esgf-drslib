@@ -9,9 +9,11 @@
 ##   2. additional capability to scan previously published data
 ##   3. option to raise a ProductScopeexception instead of providing "False" return when arguments are inconsistent with selection tables
 ##   4. cmip5_product.rc has a return code on exit -- each return code coming from a unique line of code.
+##
+## 20101004 [0.8]: fixed bug which failed on all tables among the special cases.
 ##   
-version = 0.7
-version_date = '20101001'
+version = 0.8
+version_date = '20101004'
 
 
 import logging
@@ -101,11 +103,11 @@ class cmip5_product:
     self.rc = rc
     return True
 
-  def not_ok(self, status,rc):
+  def not_ok(self, status,rc,no_except=False):
     self.reason = status
     self.rc = rc
     self.product = 'Failed'
-    if self.not_ok_excpt:
+    if self.not_ok_excpt and not no_except:
       raise self.ScopeException( '%s:: %s' % (rc,status) )
     return False
 
@@ -445,8 +447,9 @@ class cmip5_product:
 
     if not self.check_var():
       return self.ok( 'output2', 'variable not requested', 'OK002' )
-    if verbose and table == 'cfMon':
-      log.info( 'find_product_step_one:: %s,  %s' % (var, self.table_segment ) )
+
+    if table not in ['Oyr','Omon','aero','day','6hrPlev','3hr','cfMon']:
+       return self.ok( 'output1', 'Table is all in output1', 'OK013' )
 
     if table == 'Oyr': 
        if self.priority() == 3:
@@ -486,7 +489,7 @@ class cmip5_product:
          if self.request_spec[0] in ['none','all']:
              return self.ok( 'output1', 'Request covers %s of this atomic dataset' % self.request_spec[0], 'OK008.2' )
          
-    return self.not_ok( 'Need temporal information', 'ERR004' )
+    return self.not_ok( 'Need temporal information', 'ERR004', no_except=True )
     
 
   def find_product_slice(self):
