@@ -6,10 +6,13 @@ Command-line access to drslib
 import sys, os, re
 
 from optparse import OptionParser
+from ConfigParser import NoSectionError, NoOptionError
 
 from drslib.drs_tree import DRSTree
 from drslib import config
 from drslib.drs import DRS
+
+from drslib import p_cmip5
 
 import logging
 log = logging.getLogger(__name__)
@@ -24,6 +27,7 @@ command:
   upgrade         make changes to the selected datasets to upgrade to the next version.
   mapfile         make a mapfile of the selected dataset
   history         list all versions of the selected dataset
+  init            Initialise CMIP5 data for product detection
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -52,8 +56,13 @@ def make_parser():
                   metavar='FILE',
                   help='Profile the script exectuion into FILE')
 
-    op.add_option('--detect-product', action='store_true',
+    # p_cmip5 options
+    op.add_option('--detect-product', action='store_true', 
                   help='Automatically detect the DRS product of incoming data')
+    op.add_option('--shelve-dir', action='store',
+                  help='Location of the p_cmip5 data directory')
+    op.add_option('--p-cmip5-config', action='store',
+                  help='Location of model-specific configuration file for p_cmip5')
 
     op.add_option('-M', '--move-cmd', action='store',
                   help='Set the command used to move files into the DRS structure')
@@ -66,6 +75,42 @@ class Command(object):
         self.args = args
 
         self.make_drs_tree()
+
+    def _config_p_cmip5(self):
+        """
+        Ensure self.shelve_dir is set.  This is required for InitCommand
+        and any command that uses p_cmip5.
+
+        """
+        self.shelve_dir = self.opts.shelve_dir
+        if self.shelve_dir is None:
+            try:
+                self.shelve_dir = config.config.get('p_cmip5', 'shelve-dir')
+            except NoSectionError:
+                raise Exception("Shelve directory not specified.  Please use --shelve-dir or set shelve_dir via metaconfig")
+
+    def _setup_p_cmip5(self):
+        """
+        Instantiate the p_cmip5.cmip5_product object ready for deducing
+        the product component.
+
+        """
+        
+        shelves = p_cmip5.init._find_shelves(self.shelve_dir)
+    
+        self.p_cmip5_config = self.opts.p_cmip5_config
+        if self.p_cmip5_config is None:
+            try:
+                self.p_cmip5_config = config.config.get('p_cmip5', 'config')
+            except (NoSectionError, NoOptionError):
+                raise Exception("p_cmip5 configuration file not specified.  Please use --p-cmip5-config or set via metaconfig")
+
+        self.drs_tree.set_p_cmip5(p_cmip5.product.cmip5_product(
+            mip_table_shelve=shelves['stdo_mip'],
+            template=shelves['template'],
+            stdo=shelves['stdo'],
+            config=self.p_cmip5_config))
+
 
     def make_drs_tree(self):
         if self.opts.root:
@@ -110,9 +155,11 @@ class Command(object):
         else:
             drs = DRS(**kwargs)
 
-        # Product detection to be enabled later
+        # Product detection
         if self.opts.detect_product:
-            raise NotImplementedError("Product detection is not yet implemented")
+            self._config_p_cmip5()
+            self._setup_p_cmip5()
+
         self.drs_tree.discover(incoming, **drs)
 
     def do(self):
@@ -254,6 +301,20 @@ class HistoryCommand(Command):
         self.print_footer()
             
 
+class InitCommand(Command):
+    def make_drs_tree(self):
+        """No need to initialise the drs tree for this command.
+        """
+        pass
+
+    def do(self):
+        self._config_p_cmip5()
+
+        from drslib.p_cmip5.init import init
+        init(self.shelve_dir)
+
+        print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
+
 def run(op, command, opts, args):
     if command == 'list':
         c = ListCommand(opts, args)
@@ -265,6 +326,8 @@ def run(op, command, opts, args):
         c = MapfileCommand(opts, args)
     elif command == 'history':
         c = HistoryCommand(opts, args)
+    elif command == 'init':
+        c = InitCommand(opts, args)
     else:
         op.error("Unrecognised command %s" % command)
 

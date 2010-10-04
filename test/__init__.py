@@ -19,7 +19,7 @@ translator = cmip5.make_translator('cmip5')
 translator_noversion = cmip5.make_translator('cmip5', with_version=False)
 
 def get_drs1():
-    return translator.filename_to_drs('tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+    return translator.filename_to_drs('tas_Amon_HadCM3_historicalNat_r1i1p1_185001-200512.nc')
 
 def test_1():
     """
@@ -43,7 +43,7 @@ def test_2():
     
     path = translator.drs_to_filepath(drs)
 
-    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/Amon/r1/v2/tas/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/Amon/r1i1p1/v2/tas/tas_Amon_HadCM3_historicalNat_r1i1p1_185001-200512.nc'
 
 
 
@@ -59,7 +59,7 @@ def roundtrip_filename(filename):
     assert os.path.basename(path) == filename
 
 def test_3():
-    roundtrip_filename('tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+    roundtrip_filename('tas_Amon_HadCM3_historicalNat_r1i1p1_185001-200512.nc')
 
 
 def test_4():
@@ -70,11 +70,11 @@ def test_4():
 
 def test_5():
     # Regression test for a bug
-    print translator.path_to_drs('cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/Amon/r1/v3/tas/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc')
+    print translator.path_to_drs('cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/Amon/r1i1p1/v3/tas/tas_Amon_HadCM3_historicalNat_r1i1p1_185001-200512.nc')
 
 def test_6():
     # Bug reported by Ag
-    print translator.filename_to_drs('cct_Amon_HadGEM2-ES_piControl_r1.nc')
+    print translator.filename_to_drs('cct_Amon_HadGEM2-ES_piControl_r1i1p1.nc')
 
 
 def test_7():
@@ -87,7 +87,7 @@ def test_7():
     
     path = translator_noversion.drs_to_filepath(drs)
 
-    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1/tas_Amon_HadCM3_historicalNat_r1_185001-200512.nc'
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1i1p1/tas_Amon_HadCM3_historicalNat_r1i1p1_185001-200512.nc'
 
 def test_8():
     # Test files created from the cmor test suite (2010-06-25)
@@ -107,7 +107,7 @@ def test_9():
     
     path = translator_noversion.drs_to_path(drs)
 
-    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1'
+    assert path=='cmip5/output/MOHC/HadCM3/historicalNat/mon/atmos/tas/r1i1p1'
 
 def test_9():
     # Check instantiating DRS objects from other DRS objects

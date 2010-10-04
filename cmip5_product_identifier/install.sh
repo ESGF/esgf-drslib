@@ -5,7 +5,7 @@ mkdir sh
 echo create subdirectory for log files
 mkdir logs
 echo parse spreadsheets
-python cmip5_request_init_v2.py init > logs/installation_log.txt
+python cmip5_request_init_v3.py init > logs/installation_log.txt
 echo unzipping dummy archive
 unzip dummy_archive.zip
 

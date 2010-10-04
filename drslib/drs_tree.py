@@ -28,6 +28,7 @@ from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
+from drslib.p_cmip5 import ProductDetectionException
 
 import logging
 log = logging.getLogger(__name__)
@@ -60,6 +61,8 @@ class DRSTree(object):
         self.pub_trees = {}
         self._vtrans = make_translator(drs_root)
         self._incoming = None
+        self._p_cmip5 = None
+
         self._move_cmd = config.move_cmd
 
         if not os.path.isdir(drs_root):
@@ -94,7 +97,7 @@ class DRSTree(object):
 
         activity = components.setdefault('activity',
                                          config.drs_defaults.get('activity'))
-        if product is None or activity is None:
+        if (product is None and self._p_cmip5 is None) or activity is None:
             raise Exception("You must specifiy an activity and product")
         
 
@@ -146,7 +149,7 @@ class DRSTree(object):
                         drs = self._vtrans.filename_to_drs(filename)
                     except TranslationError:
                         # File doesn't match
-                        log.debug('File %s is not a DRS file' % filename)
+                        log.warn('File %s is not a DRS file' % filename)
                         continue
 
                     log.debug('File %s => %s' % (repr(filename), drs))
@@ -157,7 +160,7 @@ class DRSTree(object):
                         drs_v = drs.get(k, None)
                         if drs_v is not None:
                             if drs_v != v:
-                                log.debug('%s Filtered out.  %s != %s' %
+                                log.warn('FILTERED OUT: %s.  %s != %s' %
                                           (drs, repr(drs_v), repr(v)))
                                 break
                         else:
@@ -166,7 +169,12 @@ class DRSTree(object):
                             setattr(drs, k, v)
                     else:
                         # Only if break not called
-                        log.info('Discovered %s as %s' % (filename, drs))
+                        
+                        # Detect product if enabled
+                        if self._p_cmip5:
+                            self._detect_product(dirpath, drs)
+
+                        log.debug('Discovered %s as %s' % (filename, drs))
                         drs_list.append((os.path.join(dirpath, filename), drs))
 
         self._incoming = DRSList(drs_list)
@@ -182,6 +190,40 @@ class DRSTree(object):
         else:
             # not found
             raise Exception("File %s not found in incoming" % src)
+
+    def set_p_cmip5(self, p_cmip5):
+        """
+        Set the :class:`p_cmip5.product.cmip5_product` instance used to deduce
+        the DRS product component.
+
+        """
+        self._p_cmip5 = p_cmip5
+
+    def _detect_product(self, path, drs):
+        """
+        Use the p_cmip5 module to deduce the product of this DRS object.
+        p_cmip5 must be configured by calling :meth:`DRSTree.set_p_cmip5`.
+
+        """
+        log.info('Deducing product for %s' % drs)
+
+        pci = self._p_cmip5
+        startyear = drs.subset[0][0]
+        endyear = drs.subset[1][0]
+
+        status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,
+                                  path, startyear=startyear, endyear=endyear)
+        if status:
+            log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                         path, startyear, endyear,
+                                                         pci.product, pci.reason ))
+            
+        else:
+            raise ProductDetectionException('FAILED:: %s:: %s, %s, %s' % (pci.status, drs.variable,
+                                                                          drs.table,drs.experiment))
+            
+        drs.product = pci.product
+        log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
 
     def set_move_cmd(self, cmd):
         self._move_cmd = cmd

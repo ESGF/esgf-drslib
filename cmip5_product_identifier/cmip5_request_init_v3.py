@@ -10,16 +10,18 @@ def a():
   ri.import_template()
   ri.import_standard_output()
 
-
-## see also scan_standard_output.py -- to get mip tables
-
 def helper_year( val ):
   if type( val ) == type( 1. ):
     return int(val)
-  elif type(val) == type( 'x' ):
+  elif type(val) in [type( 'x' ),type( u'x' )]:
+    if string.strip( val ) == '':
+      return None
     if val[-1] == '*':
       val = val[:-1]
     return int(val)
+  else:
+    print val
+    assert False, 'bad place to be'
 
 class workflow:
   def __init__(self,name='fred',states=[]):
@@ -113,7 +115,7 @@ class request_importer:
     book = xlrd.open_workbook( self.template )
     sheet = book.sheet_by_name('template')
     this_row = sheet.row(41)
-    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000]:
+    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000,2001,2002,2003,2004,2006,2007,2008,2009,2010]:
       key = 'decadal%4.4i' % y
       sh[key] = (41, '1.1',str(this_row[0].value), str(this_row[1].value))
 
@@ -127,6 +129,8 @@ class request_importer:
     for r in rl1:
       this_row = sheet.row(r)
       key = string.strip( str(this_row[10].value ) )
+      while key in sh.keys():
+        key += '+'
       sh[key] = (r,str(this_row[2].value), str(this_row[0].value), str(this_row[1].value))
     sh.close()
 
@@ -214,7 +218,8 @@ class request_importer:
           if str( this_row[3+kseg*2].value ) != '':
             y0 = helper_year( this_row[3+kseg*2].value )
             y9 = helper_year( this_row[4+kseg*2].value )
-            this_ee[kseg].append( (y0,y9) )
+            if y0 != None:
+              this_ee[kseg].append( (y0,y9) )
         ee[expt_nn] = this_ee
    
     print 'putting cfmip in shelve'
