@@ -16,10 +16,10 @@ verbose = False
 pc1 = None
 pc2 = None
 tmpdir = None
-
+shelve_dir = None
 
 def setup_module():
-    global pc1, pc2, tmpdir
+    global pc1, pc2, tmpdir, shelve_dir
     tmpdir = tempfile.mkdtemp(prefix='p_cmip5-')
     print 'TMPDIR   ',tmpdir
     shelve_dir = os.path.join(tmpdir, 'sh')
@@ -214,5 +214,36 @@ cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1
 """.strip().split())
 
 
-for x in test_gen8():
-   print x
+def test_p_cmip5_data_perms():
+    """
+    Regression test to detect the case when the shelve files
+    are only readable by the user.
+
+    """
+    global pc1
+
+    #!TODO: Repeating bits of setup_module() here.  Could be DRY.
+    test_dir = os.path.dirname(__file__)
+    config1 = os.path.join(test_dir, 'sample_1.ini')
+    shelves = init._find_shelves(shelve_dir)
+    shelve_file = shelves['stdo']
+
+    try:
+        os.chmod(shelve_file, 0400)
+        # Reload shelves
+        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+                              template=shelves['template'],
+                              stdo=shelves['stdo'],
+                              config=config1, not_ok_excpt=False)
+        # Repeat test
+        test_drs_tree()
+    finally:
+        os.chmod(shelve_file, 0644)
+        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+                              template=shelves['template'],
+                              stdo=shelves['stdo'],
+                              config=config1, not_ok_excpt=False)
+
+if __name__ == '__main__':
+    for x in test_gen8():
+        print x

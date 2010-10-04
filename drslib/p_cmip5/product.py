@@ -76,9 +76,9 @@ class cmip5_product:
                     config='ini/sample_1.ini', \
                     override_product_change_warning=False,\
                     policy_opt1='all_rel',not_ok_excpt=False):
-    self.mip_sh = shelve.open( mip_table_shelve )
-    self.tmpl = shelve.open( template )
-    self.stdo = shelve.open( stdo )
+    self.mip_sh = shelve.open( mip_table_shelve, flag='r' )
+    self.tmpl = shelve.open( template, flag='r' )
+    self.stdo = shelve.open( stdo, flag='r' )
     self.tmpl_keys = self.tmpl.keys()
     self.tmpl_keys.sort( ddsort(self.tmpl,0).cmp )
     self.pos_in_table = 999
