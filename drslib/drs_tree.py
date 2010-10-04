@@ -28,7 +28,7 @@ from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
-from drslib.p_cmip5 import ProductDetectionException
+from drslib.p_cmip5 import ProductScope
 
 import logging
 log = logging.getLogger(__name__)
@@ -211,16 +211,20 @@ class DRSTree(object):
         startyear = drs.subset[0][0]
         endyear = drs.subset[1][0]
 
-        #!NOTE: failures are now raised as exceptions pci.ScopeException
-        status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,
-                                  path, startyear=startyear, endyear=endyear)
-        assert status
-        log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
-                                                     path, startyear, endyear,
-                                                     pci.product, pci.reason ))
+        try:
+            status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,
+                                      path, startyear=startyear, endyear=endyear)
+            # Make sure status is consistent with no exceptions being raised
+            assert status
+        except ProductScope as e:
+            log.error('FAILED product detection for %s, %s' % (drs, e))
+        else:
+            log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                         path, startyear, endyear,
+                                                         pci.product, pci.reason ))
             
-        drs.product = pci.product
-        log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
+            drs.product = pci.product
+            log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
 
     def set_move_cmd(self, cmd):
         self._move_cmd = cmd

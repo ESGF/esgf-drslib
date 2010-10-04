@@ -1,5 +1,5 @@
 import product
 import init
 
-class ProductDetectionException(Exception):
-    pass
+# Exception raised by product detection failures
+from product import ProductScope
