@@ -10,7 +10,10 @@
 ##   3. option to raise a ProductScopeexception instead of providing "False" return when arguments are inconsistent with selection tables
 ##   4. cmip5_product.rc has a return code on exit -- each return code coming from a unique line of code.
 ##
-## 20101004 [0.8]: fixed bug which failed on all tables among the special cases.
+## 20101004 [0.8]: -- fixed bug which failed on all tables among the special cases.
+##                 -- fixed scan_atomic_dataset to scan only files matching variable, table, and experiment.
+##                        there is an option to turn this of (and scan all files in a directory), without which the legacy test suite will fail.
+##                    
 ##   
 version = 0.8
 version_date = '20101004'
@@ -115,7 +118,10 @@ class cmip5_product:
     import glob, string
     if dir[-1] != '/':
       dir += '/'
-    fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + '*.nc' ) )
+    if self.selective_ads_scan:
+      fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + '%s_%s_%s_%s_*.nc' % (self.var,self.table,self.model,self.expt) ) )
+    else:
+      fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + '*.nc' ) )
     if len(fl) == 0:
       return False
 
@@ -182,6 +188,7 @@ class cmip5_product:
         mo = year_re.match(tbits[0])
         assert mo, 'Start Date not of form yyyy[mm[dd[hh[mm]]]]: not supported: %s' % tbits[0]
         startyear = int(mo.group(1))
+        assert mo.group(2) in ['01','02','03','04','05','06','07','08','09','10','11','12'], 'Unsupported date %s: yyyymm, mm should be month' % tbits[0]
         if len(tbits) > 1:
           mo = year_re.match(tbits[1])
           assert mo, 'End Date not of form yyyy[mm[dd[hh[mm]]]]: not supported: %s' % tbits[1]
@@ -271,7 +278,6 @@ class cmip5_product:
 
   def find_rei( self,expt ):
     if expt in ['piControl','historical','amip']:
-      ##self.get_slicer()
 
       if not self.config_loaded:
         self.load_config()
@@ -370,13 +376,15 @@ class cmip5_product:
         self.config_loaded = True
 
   def find_product(self,var,table,expt,model,path,startyear=None,endyear=None,verbose=False, \
-                  path_output1=None, path_output2=None):
+                  path_output1=None, path_output2=None,selective_ads_scan=True):
 
     if self.last_result[0] != arg_string( var,table,expt,model,path,path_output1,path_output2):
-      self.find_product_ads(var,table,expt,model,path,verbose=verbose, path_output1=path_output1, path_output2=path_output2)
+      self.find_product_ads(var,table,expt,model,path,verbose=verbose, path_output1=path_output1, \
+                  path_output2=path_output2,selective_ads_scan=selective_ads_scan)
     self.ads_new = path_output1 == None and path_output2 == None
     
     self.ads_product = self.last_result[1]
+    self.selective_ads_scan=selective_ads_scan
 
     assert self.last_result[1] in ['output1','output2','Failed','split','output1*','output2*','split*'], 'ERR901: Result [%s] not in accepted range' % self.last_result[1]
 
@@ -400,8 +408,9 @@ class cmip5_product:
 
 ###################
   def find_product_ads(self,var,table,expt,model,path,verbose=False, \
-                  path_output1=None, path_output2=None):
+                  path_output1=None, path_output2=None, selective_ads_scan=True):
 ##
+    self.selective_ads_scan=selective_ads_scan
     if self.last_result[0] == arg_string( var,table,expt,model,path,path_output1,path_output2):
       return True
     self.path_output1 = path_output1
@@ -533,7 +542,6 @@ class cmip5_product:
 ##
 ## load module to deal with time slices in the variable request
 ##
-    ##self.get_slicer()
 
     if self.request_spec[0] == 'listrel':
       if self.policy_opt1 == 'all_rel' and self.not_enough_years():
@@ -541,7 +549,7 @@ class cmip5_product:
             'years submitted (%s) not greater than 5 + years requested (%s)' % (self.nyears_submitted,self.nyears_requested), 'OK009.2' )
 
       if not self.config_loaded:
-        self.tsl.load_config()
+        self.load_config()
 
       if (self.expt == 'piControl' and self.table in ['aero','day','6hrPlev'] ) or \
          (self.expt == 'esmControl' and self.table in ['aero','day'] ):
