@@ -32,6 +32,9 @@ from drslib.p_cmip5 import ProductScope
 import logging
 log = logging.getLogger(__name__)
 
+# We also want to log to p_cmip5 so that product detection can be filtered sensibly
+p_cmip5_log = logging.getLogger('drslib.p_cmip5')
+
 #---------------------------------------------------------------------------
 # DRY definitions
 
@@ -227,7 +230,7 @@ class DRSTree(object):
             # Make sure status is consistent with no exceptions being raised
             assert status
         except ProductScope as e:
-            log.error('FAILED product detection for %s, %s' % (drs, e))
+            p_cmip5_log.warn('FAILED product detection for %s, %s' % (drs, e))
         else:
             log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
                                                          path, startyear, endyear,
