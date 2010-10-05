@@ -13,10 +13,11 @@
 ## 20101004 [0.8]: -- fixed bug which failed on all tables among the special cases.
 ##                 -- fixed scan_atomic_dataset to scan only files matching variable, table, and experiment.
 ##                        there is an option to turn this of (and scan all files in a directory), without which the legacy test suite will fail.
+## 20101005 [0.9]: -- fixed code to deal with file time spans not aligned with calendar years.
 ##                    
 ##   
-version = 0.8
-version_date = '20101004'
+version = 0.9
+version_date = '20101005'
 
 
 import logging
@@ -118,12 +119,16 @@ class cmip5_product:
     import glob, string
     if dir[-1] != '/':
       dir += '/'
+
+    assert os.path.isdir( dir ),'Attempt to scan a non-existent directory: %s' % dir
+
     if self.selective_ads_scan:
-      fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + '%s_%s_%s_%s_*.nc' % (self.var,self.table,self.model,self.expt) ) )
+      fpat = '%s_%s_%s_%s_*.nc' % (self.var,self.table,self.model,self.expt)
     else:
-      fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + '*.nc' ) )
-    if len(fl) == 0:
-      return False
+      fpat = '*.nc' 
+    fl = map( lambda x: string.split(x, '/')[-1], glob.glob( dir + fpat ) )
+
+    assert len(fl) != 0,'No files matching %s found in %s' % (fpat,self.path)
 
     fl.sort()
     if self.path_output1 != None or self.path_output2 != None:
@@ -168,6 +173,7 @@ class cmip5_product:
     kk = -1
     time_periods = []
     year_slices = []
+    time_tuples = []
     nyears = 0
     start_years = []
     for f in fl:
@@ -189,12 +195,15 @@ class cmip5_product:
         assert mo, 'Start Date not of form yyyy[mm[dd[hh[mm]]]]: not supported: %s' % tbits[0]
         startyear = int(mo.group(1))
         assert mo.group(2) in ['01','02','03','04','05','06','07','08','09','10','11','12'], 'Unsupported date %s: yyyymm, mm should be month' % tbits[0]
+        start_tuple = mo.groups()
         if len(tbits) > 1:
           mo = year_re.match(tbits[1])
           assert mo, 'End Date not of form yyyy[mm[dd[hh[mm]]]]: not supported: %s' % tbits[1]
           endyear = int(mo.group(1))
+          end_tuple = mo.groups()
         else:
           endyear = startyear
+          end_tuple = start_tuple
 
         start_years.append( startyear )
 
@@ -205,7 +214,23 @@ class cmip5_product:
         time_periods.append( (startyear, endyear) )
         if len( year_slices ) == 0 or (startyear != year_slices[-1][0] or endyear != year_slices[-1][1]):
           year_slices.append( (startyear, endyear) )
-          nyears += endyear - startyear + 1
+          time_tuples.append( (start_tuple, end_tuple) )
+          if len( start_tuple) ==1:
+            nyears += endyear - startyear + 1
+          else:
+            nyears += endyear - startyear
+            startm = int(start_tuple[1])
+            if len( end_tuple ) == 5 and end_tuple[2] == '01' and end_tuple[3] == '00' and end_tuple[4] == '00':
+              endm = int(end_tuple[1]) - 1
+              if endm == 0:
+                endm = 12
+                nyears += -1
+            else:
+              endm = int(end_tuple[1])
+            if endm > startm:
+              nyears += 1
+              
+            
       elif len(fl) > 1:
           return self.not_ok( 'error: multiple files in atomic dataset with no temporal subset: %s ' % dir, 'ERR012' )
 
@@ -222,6 +247,7 @@ class cmip5_product:
     self.drs = (var, mip, model, expt, ens)
     self.has_time = has_time
     self.time_periods = time_periods
+    self.time_tuples = time_tuples
     self.year_slices = year_slices
     if len( time_periods ) > 0:
       self.ads_time_period = ( time_periods[0][0], time_periods[-1][1] )
@@ -507,7 +533,7 @@ class cmip5_product:
     reason = 'default'
 
     if not self.scan_atomic_dataset(self.path):
-       return self.not_ok( 'Could not scan atomic dataset %s' % self.path, 'ERR006' )
+       return False
 
 
     if len(self.files) == 1 and not self.has_time:
@@ -537,7 +563,7 @@ class cmip5_product:
       if self.verbose:
          log.info( 'Experiment %s, time dataum %s' % (self.expt, self.time_datum ) )
 
-      return self.select_year_list( requested_years, 'output1' )
+      return self.select_year_list( requested_years, 'output1', rc='OK300.01' )
 
 ##
 ## load module to deal with time slices in the variable request
@@ -674,8 +700,9 @@ class cmip5_product:
 
   def check_time_slices(self):
     for k in range( len( self.year_slices ) -1 ):
-       if self.year_slices[k+1][0] <= self.year_slices[k][1]:
-          return self.not_ok( 'Overlapping time segments in submitted data', 'ERR009' )
+       for j in range( len( self.time_tuples[k] ) ):
+         if self.time_tuples[k+1][0] < self.time_tuples[k][1]:
+           return self.not_ok( 'Overlapping time segments in submitted data', 'ERR009' )
 
 ## if time slices appear OK, return True
     return True

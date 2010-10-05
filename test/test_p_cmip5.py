@@ -50,8 +50,7 @@ def teardown_module():
     shutil.rmtree(tmpdir)
 
 def do_product2(var, mip, expt,path, startyear,
-            pci=None,path_output1=None,path_output2=None,verbose=False, tab='    ',selective_ads_scan=False):
-    model = 'HADCM3'
+            pci=None,path_output1=None,path_output2=None,verbose=False, tab='    ',selective_ads_scan=False,model='HADCM3'):
 
     if path != None:
       path = os.path.join(tmpdir, path)
@@ -143,6 +142,18 @@ def test_gen8():
     yield check_product3, ( 'clisccp', 'cfMon', 'piControl', 'tmp/a_2005_2100', 2040 ), {}, ('output2', 'OK200')
     yield check_product3, ( 'clisccp', 'cfMon', 'abrupt4xco2', 'tmp/a_2010_2020', 2015 ), {}, ('output1','OK009.2')
 
+def test_gen9():
+    print '------------ mohc, first batch --------------'
+    yield check_product3, ( 'hus', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    yield check_product3, ( 'ps', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    yield check_product3, ( 'ta', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    yield check_product3, ( 'ua', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    yield check_product3, ( 'va', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    yield check_product3, ( 'psl', '6hrPlev', 'historical', 'tmp/mohc1', 1949 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
+    yield check_product3, ( 'ta', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
+    yield check_product3, ( 'ua', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
+    yield check_product3, ( 'va', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
+
 ##( 'rlu4co2', 'cfMon', 'piControl', startyear=2000, endyear=2000, path='./tmp/a_2010_2020', expected=('output1', 'OK008.2') )
 
 
@@ -167,6 +178,3 @@ cmip5.output1.UKMO.HADCM3.piControl.day.atmos.day.r3i1p1
 cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1
 """.strip().split())
 
-
-for x in test_gen8():
-   print x
