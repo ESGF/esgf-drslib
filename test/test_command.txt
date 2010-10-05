@@ -45,8 +45,8 @@ List the realm-trees
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1                 5 305
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                5 325
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1                 0:0 5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0 5:325
 ------------------------------------------------------------------------------
 2 datasets awaiting upgrade
 ==============================================================================
@@ -94,8 +94,8 @@ List the results
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       0 0
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                5 325
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0 5:325
 ------------------------------------------------------------------------------
 1 datasets awaiting upgrade
 ==============================================================================
@@ -114,8 +114,8 @@ Upgrading cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 to version 20
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       0 0
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      0 0
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
 ==============================================================================
 
 Simulate a new file ariving
@@ -127,8 +127,8 @@ Simulate a new file ariving
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       1 61
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      0 0
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100101       5:305 1:61
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
 ------------------------------------------------------------------------------
 1 datasets awaiting upgrade
 ==============================================================================
@@ -167,8 +167,8 @@ Publisher Tree cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1 has no p
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
-cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       0 0
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      0 0
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
 ==============================================================================
 
 >>> do_drs_tool('history', '--realm=atmos') # doctest:+ELLIPSIS

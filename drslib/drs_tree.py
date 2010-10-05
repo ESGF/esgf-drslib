@@ -404,24 +404,31 @@ class PublisherTree(object):
 
         return count
 
-    def find_nc_files(self, version = "latest"):
+    def list_files(self, version=None):
         """
         Returns a list of netcdf files found under ``version`` directory.
-        Where ``version`` is an integer > 0 or "latest".
+        Where ``version`` is an integer > 0 or None to signify latest.
         """
 
-        if version == "latest":
-            version = max(self.versions.keys())
+        if version is None:
+            version = self.latest
+        if version == 0:
+            return []
 
         if version not in self.versions:
             raise Exception("When searching for NetCDF files you need to provide a `version` argument as an integer or thestring 'latest'.")
 
-        nc_paths = []
-        for filepath, drs in self.versions[version]:
-            nc_paths.append(os.path.basename(filepath))
+        return (filepath for filepath, drs in self.versions[version])
 
-        return nc_paths
+    def count(self, version=None):
+        return len(list(self.list_files(version=version)))
 
+    def size(self, version=None):
+        count = 0
+        for filename in self.list_files(version=version):
+            count += os.stat(filename)[stat.ST_SIZE]
+
+        return count
 
     def diff_version(self, v1, v2=None, by_tracking_id=False):
         """
