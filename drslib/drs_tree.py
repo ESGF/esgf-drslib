@@ -218,7 +218,7 @@ class DRSTree(object):
         p_cmip5 must be configured by calling :meth:`DRSTree.set_p_cmip5`.
 
         """
-        log.info('Deducing product for %s' % drs)
+        p_cmip5_log.info('Deducing product for %s' % drs)
 
         pci = self._p_cmip5
         startyear = drs.subset[0][0]
@@ -232,12 +232,12 @@ class DRSTree(object):
         except ProductScope as e:
             p_cmip5_log.warn('FAILED product detection for %s, %s' % (drs, e))
         else:
-            log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
-                                                         path, startyear, endyear,
-                                                         pci.product, pci.reason ))
+            p_cmip5_log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                                 path, startyear, endyear,
+                                                                 pci.product, pci.reason ))
             
             drs.product = pci.product
-            log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
+            p_cmip5_log.info('Product deduced as %s, %s' % (drs.product, pci.reason))
 
     def set_move_cmd(self, cmd):
         self._move_cmd = cmd
