@@ -393,6 +393,17 @@ class PublisherTree(object):
         """
         return len(self._todo)
 
+    def todo_size(self):
+        """
+        Return the total size of files in the todo list.
+
+        """
+        count = 0
+        for filename, drs in self._todo:
+            count += os.stat(filename)[stat.ST_SIZE]
+
+        return count
+
     def find_nc_files(self, version = "latest"):
         """
         Returns a list of netcdf files found under ``version`` directory.

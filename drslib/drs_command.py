@@ -193,7 +193,7 @@ class ListCommand(Command):
         to_upgrade = 0
         for k in sorted(self.drs_tree.pub_trees):
             pt = self.drs_tree.pub_trees[k]
-            state_msg = str(pt.count_todo())
+            state_msg = '%s %s' % (pt.count_todo(), pt.todo_size())
             if pt.state != pt.STATE_VERSIONED:
                 to_upgrade += 1
             #!TODO: print update summary
