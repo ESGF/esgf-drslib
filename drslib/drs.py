@@ -111,6 +111,17 @@ class DRS(dict):
 
         return True
 
+    def is_publish_level(self):
+        """Returns boolian to indicate if the all publish-level components are
+        specified.
+
+        """
+        for attr in PUB_ATTRS:
+            if self.get(attr, None) is None:
+                return False
+
+        return True
+
     def __repr__(self):
         kws = []
         for attr in DRS_ATTRS:

@@ -124,10 +124,10 @@ class TestEg3(TestEg):
 
     def test_01(self):
         self._cmor1()
-        assert len(self.pt.drs_tree._incoming) > 0
+        assert len(self.pt.drs_tree.incoming) > 0
 
         self.pt.do_version()
-        assert len(self.pt.drs_tree._incoming) == 0
+        assert len(self.pt.drs_tree.incoming) == 0
         assert self.pt.count_todo() == 0
         assert len(list(self.pt.list_todo())) == 0
 
@@ -138,7 +138,7 @@ class TestEg3(TestEg):
         self._cmor2()
         self.pt.do_version(20100102)
 
-        assert len(self.pt.drs_tree._incoming) == 0
+        assert len(self.pt.drs_tree.incoming) == 0
 
         assert self._exists('files')
         assert self._exists('files/rsus_20100102')
@@ -396,7 +396,7 @@ class TestCopyUpgrade(TestListing):
         self.dt.set_move_cmd('cp')
         
         pt = self.dt.pub_trees.values()[0]
-        filename = self.dt._incoming[0][0]
+        filename = self.dt.incoming[0][0]
         
         # Filename should remain after copy
         assert os.path.exists(filename)

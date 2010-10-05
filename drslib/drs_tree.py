@@ -23,7 +23,6 @@ import re
 import stat
 import datetime
 
-
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
 from drslib.drs import DRS, path_to_drs, drs_to_path
@@ -50,6 +49,11 @@ class DRSTree(object):
     searched for files matching the DRS structure.  Any file within
     the incoming tree will be considered for new versions of PublisherTrees.
 
+    :ivar incoming: :class:`DRSList` of (filepath, DRS) of all files to be added to the
+                    DRSTree on next upgrade.
+    :ivar incomplete: :class:`DRSList` of (filepath, DRS) of all files rejected because
+                      of incomplete DRS attributes.
+
     """
 
     def __init__(self, drs_root):
@@ -60,7 +64,8 @@ class DRSTree(object):
         self.drs_root = drs_root
         self.pub_trees = {}
         self._vtrans = make_translator(drs_root)
-        self._incoming = None
+        self.incoming = None
+        self.incomplete = None
         self._p_cmip5 = None
 
         self._move_cmd = config.move_cmd
@@ -97,15 +102,13 @@ class DRSTree(object):
 
         activity = components.setdefault('activity',
                                          config.drs_defaults.get('activity'))
-        if (product is None and self._p_cmip5 is None) or activity is None:
-            raise Exception("You must specifiy an activity and product")
         
 
         # Scan for incoming DRS files
         if incoming_glob:
             self.discover_incoming(incoming_glob, **components)
         else:
-            self._incoming = []
+            self.incoming = []
 
         drs_t = DRS(**components)
 
@@ -113,6 +116,12 @@ class DRSTree(object):
         pt_glob = drs_to_path(self.drs_root, drs_t)
         pub_trees = glob(pt_glob)
         for pt_path in pub_trees:
+            # Detect whether pt_path is inside incoming.  If so ignore.
+            #!FIXME: won't work if incoming_glob is a glob.  Move to directory.
+            if os.path.commonprefix((pt_path+'/', incoming_glob+'/')) == incoming_glob+'/':
+                log.warning("PublisherTree path %s is inside incoming, ignoring" % pt_path)
+                continue
+
             drs = path_to_drs(self.drs_root, pt_path)
             #!FIXME: Set inside path_to_drs?
             drs.activity = drs_t.activity
@@ -120,11 +129,11 @@ class DRSTree(object):
             if drs_id in self.pub_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)
 
-            log.info('Discovered realm-tree at %s' % pt_path)
+            log.info('Discovered PublisherTree at %s' % pt_path)
             self.pub_trees[drs_id] = PublisherTree(drs, self)
 
         # Instantiate a PublisherTree for each unique publication-level dataset
-        for path, drs in self._incoming:
+        for path, drs in self.incoming:
             drs_id = drs.to_dataset_id()
             if drs_id not in self.pub_trees:
                 self.pub_trees[drs_id] = PublisherTree(drs, self)
@@ -139,7 +148,8 @@ class DRSTree(object):
 
         """
 
-        drs_list = []
+        self.incoming = DRSList()
+        self.incomplete = DRSList()
         paths = glob(incoming_glob)
         for path in paths:
             for dirpath, dirnames, filenames in os.walk(path):
@@ -174,18 +184,21 @@ class DRSTree(object):
                         if self._p_cmip5:
                             self._detect_product(dirpath, drs)
 
-                        log.debug('Discovered %s as %s' % (filename, drs))
-                        drs_list.append((os.path.join(dirpath, filename), drs))
+                        if drs.is_publish_level():
+                            log.debug('Discovered %s as %s' % (filename, drs))
+                            self.incoming.append((os.path.join(dirpath, filename), drs))
+                        else:
+                            log.debug('Rejected %s as incomplete %s' % (filename, drs))
+                            self.incomplete.append((os.path.join(dirpath, filename), drs))
 
-        self._incoming = DRSList(drs_list)
 
             
     def remove_incoming(self, path):
         # Remove path from incoming
-        #!TODO: This isn't efficient.  Refactoring of _incoming or _todo required.
-        for npath, drs in self._incoming:
+        #!TODO: This isn't efficient.  Refactoring of incoming or _todo required.
+        for npath, drs in self.incoming:
             if path == npath:
-                self._incoming.remove((npath, drs))
+                self.incoming.remove((npath, drs))
                 break
         else:
             # not found
@@ -228,6 +241,17 @@ class DRSTree(object):
 
     def set_move_cmd(self, cmd):
         self._move_cmd = cmd
+
+    def incomplete_dataset_ids(self):
+        """
+        Return a set of dataset ids for each publication-level dataset that detect_incoming()
+        has found as incomplete.
+        
+        """
+        if self.incomplete is None:
+            return set()
+        else:
+            return set(drs.to_dataset_id() for fp, drs in self.incomplete)
 
 class DRSList(list):
     """
@@ -625,8 +649,8 @@ class PublisherTree(object):
                 filter[comp] = val
 
         # Filter the incoming list
-        if self.drs_tree._incoming:
-            self._todo = self.drs_tree._incoming.select(**filter)
+        if self.drs_tree.incoming:
+            self._todo = self.drs_tree.incoming.select(**filter)
         else:
             self._todo = []
 

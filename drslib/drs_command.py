@@ -199,6 +199,13 @@ class ListCommand(Command):
             #!TODO: print update summary
             print '%-70s  %s' % (pt.version_drs().to_dataset_id(with_version=True), state_msg)
     
+        if self.drs_tree.incomplete:
+            self.print_sep()
+            print 'Incompletely specified incoming datasets'
+            self.print_sep()
+            for dataset_id in sorted(self.drs_tree.incomplete_dataset_ids()):
+                print '%-70s' % dataset_id
+
         if to_upgrade:
             self.print_sep()
             print '%d datasets awaiting upgrade' % to_upgrade
