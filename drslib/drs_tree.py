@@ -73,7 +73,7 @@ class DRSTree(object):
         if not os.path.isdir(drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
-    def discover(self, incoming_glob=None, **components):
+    def discover(self, incoming_dir=None, **components):
         """
         Scan the directory structure for PublisherTrees.
 
@@ -86,7 +86,7 @@ class DRSTree(object):
         optional.  All components can be set to wildcard values.  This
         allows an exaustive scan to be forced if desired.
 
-        :incoming_glob: A filesystem wildcard which should resolve to 
+        :incoming_dir: A filesystem wildcard which should resolve to 
             directories to recursively scan for files.  If None no incoming
             files are detected
 
@@ -105,8 +105,8 @@ class DRSTree(object):
         
 
         # Scan for incoming DRS files
-        if incoming_glob:
-            self.discover_incoming(incoming_glob, **components)
+        if incoming_dir:
+            self.discover_incoming(incoming_dir, **components)
         else:
             self.incoming = []
 
@@ -117,8 +117,7 @@ class DRSTree(object):
         pub_trees = glob(pt_glob)
         for pt_path in pub_trees:
             # Detect whether pt_path is inside incoming.  If so ignore.
-            #!FIXME: won't work if incoming_glob is a glob.  Move to directory.
-            if os.path.commonprefix((pt_path+'/', incoming_glob+'/')) == incoming_glob+'/':
+            if os.path.commonprefix((pt_path+'/', incoming_dir+'/')) == incoming_dir+'/':
                 log.warning("PublisherTree path %s is inside incoming, ignoring" % pt_path)
                 continue
 
@@ -139,57 +138,55 @@ class DRSTree(object):
                 self.pub_trees[drs_id] = PublisherTree(drs, self)
 
         
-    def discover_incoming(self, incoming_glob, **components):
+    def discover_incoming(self, incoming_dir, **components):
         """
         Scan the filesystem for incoming DRS files.
 
-        :incoming_glob: A filesystem wildcard which should resolve to 
+        :incoming_dir: A filesystem wildcard which should resolve to 
             directories to recursively scan for files.
 
         """
 
         self.incoming = DRSList()
         self.incomplete = DRSList()
-        paths = glob(incoming_glob)
-        for path in paths:
-            for dirpath, dirnames, filenames in os.walk(path):
-                for filename in filenames:
-                    log.debug('Processing %s' % filename)
-                    try:
-                        drs = self._vtrans.filename_to_drs(filename)
-                    except TranslationError:
-                        # File doesn't match
-                        log.warn('File %s is not a DRS file' % filename)
+        for dirpath, dirnames, filenames in os.walk(incoming_dir):
+            for filename in filenames:
+                log.debug('Processing %s' % filename)
+                try:
+                    drs = self._vtrans.filename_to_drs(filename)
+                except TranslationError:
+                    # File doesn't match
+                    log.warn('File %s is not a DRS file' % filename)
+                    continue
+
+                log.debug('File %s => %s' % (repr(filename), drs))
+                for k, v in components.items():
+                    if v is None:
                         continue
-
-                    log.debug('File %s => %s' % (repr(filename), drs))
-                    for k, v in components.items():
-                        if v is None:
-                            continue
-                        # If component is present in drs act as a filter
-                        drs_v = drs.get(k, None)
-                        if drs_v is not None:
-                            if drs_v != v:
-                                log.warn('FILTERED OUT: %s.  %s != %s' %
-                                          (drs, repr(drs_v), repr(v)))
-                                break
-                        else:
-                            # Otherwise set as default
-                            log.debug('Set %s=%s' % (k, repr(v)))
-                            setattr(drs, k, v)
+                    # If component is present in drs act as a filter
+                    drs_v = drs.get(k, None)
+                    if drs_v is not None:
+                        if drs_v != v:
+                            log.warn('FILTERED OUT: %s.  %s != %s' %
+                                      (drs, repr(drs_v), repr(v)))
+                            break
                     else:
-                        # Only if break not called
-                        
-                        # Detect product if enabled
-                        if self._p_cmip5:
-                            self._detect_product(dirpath, drs)
+                        # Otherwise set as default
+                        log.debug('Set %s=%s' % (k, repr(v)))
+                        setattr(drs, k, v)
+                else:
+                    # Only if break not called
 
-                        if drs.is_publish_level():
-                            log.debug('Discovered %s as %s' % (filename, drs))
-                            self.incoming.append((os.path.join(dirpath, filename), drs))
-                        else:
-                            log.debug('Rejected %s as incomplete %s' % (filename, drs))
-                            self.incomplete.append((os.path.join(dirpath, filename), drs))
+                    # Detect product if enabled
+                    if self._p_cmip5:
+                        self._detect_product(dirpath, drs)
+
+                    if drs.is_publish_level():
+                        log.debug('Discovered %s as %s' % (filename, drs))
+                        self.incoming.append((os.path.join(dirpath, filename), drs))
+                    else:
+                        log.debug('Rejected %s as incomplete %s' % (filename, drs))
+                        self.incomplete.append((os.path.join(dirpath, filename), drs))
 
 
             
