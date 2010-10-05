@@ -23,6 +23,11 @@ import re
 import logging
 log = logging.getLogger(__name__)
 
+DRS_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
+             'realm', 'table', 'ensemble', 'version', 'variable', 'subset', 'extended']
+PUB_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
+             'realm', 'table', 'ensemble', ]
+
 class DRS(dict):
     """
     Represents a DRS entry.  DRS objects are dictionaries where DRS
@@ -50,8 +55,7 @@ class DRS(dict):
 
     """
 
-    _drs_attrs = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-                 'realm', 'table', 'ensemble', 'variable', 'version', 'subset', 'extended']
+    
 
     def __init__(self, *argv, **kwargs):
         """
@@ -67,12 +71,12 @@ class DRS(dict):
         """
 
         # Initialise all components as None
-        for attr in self._drs_attrs:
+        for attr in DRS_ATTRS:
             self[attr] = None
 
         # Check only DRS components are used
         for kw in kwargs:
-            if kw not in self._drs_attrs:
+            if kw not in DRS_ATTRS:
                 raise KeywordError("Keyword %s is not a DRS component" % repr(kw))
 
         # Use dict flexible instantiation
@@ -80,14 +84,14 @@ class DRS(dict):
 
 
     def __getattr__(self, attr):
-        if attr in self._drs_attrs:
+        if attr in DRS_ATTRS:
             return self[attr]
         else:
             raise AttributeError('%s object has no attribute %s' % 
                                  (repr(type(self).__name__), repr(attr)))
 
     def __setattr__(self, attr, value):
-        if attr in self._drs_attrs:
+        if attr in DRS_ATTRS:
             self[attr] = value
         else:
             raise AttributeError('%s is not a DRS component' % repr(attr))
@@ -99,7 +103,7 @@ class DRS(dict):
 
         """
 
-        for attr in self._drs_attrs:
+        for attr in DRS_ATTRS:
             if attr is 'extended':
                 continue
             if self.get(attr, None) is None:
@@ -109,34 +113,43 @@ class DRS(dict):
 
     def __repr__(self):
         kws = []
-        for attr in self._drs_attrs:
-            if self[attr] is None:
-                val = '%'
-            elif attr is 'ensemble':
-                val = 'r%di%dp%d' % self.ensemble
-            elif attr is 'version':
-                val = 'v%d' % self.version
-            elif attr is 'subset':
-                N1, N2, clim = self.subset
-                if None in N1:
-                    val = '%'
-                    continue
-                N1_str = '%04d%02d%02d%02d' % N1
-                N2_str = '%04d%02d%02d%02d' % N2
-                if clim:
-                    val = '%s-%s-clim' % (N1_str, N2_str)
-                else:
-                    val = '%s-%s' % (N1_str, N2_str)
-            else:
-                val = self[attr]
-
-            kws.append(val)
+        for attr in DRS_ATTRS:
+            kws.append(self._encode_component(attr))
 
         # Remove trailing '%' from components
         while kws[-1] == '%':
             kws.pop(-1)
 
         return '<DRS %s>' % '.'.join(kws)
+
+    def _encode_component(self, attr):
+        """
+        Encode a DRS component as a string.  Components that are None
+        are encoded as '%'.
+
+        """
+        if self[attr] is None:
+            val = '%'
+        elif attr is 'ensemble':
+            val = 'r%di%dp%d' % self.ensemble
+        elif attr is 'version':
+            val = 'v%d' % self.version
+        elif attr is 'subset':
+            N1, N2, clim = self.subset
+            if None in N1:
+                val = '%'
+                return val
+            N1_str = '%04d%02d%02d%02d' % N1
+            N2_str = '%04d%02d%02d%02d' % N2
+            if clim:
+                val = '%s-%s-clim' % (N1_str, N2_str)
+            else:
+                val = '%s-%s' % (N1_str, N2_str)
+        else:
+            val = self[attr]
+
+        return val
+
 
     def to_dataset_id(self, with_version=False):
         """
@@ -145,11 +158,9 @@ class DRS(dict):
         If version is not None and with_version=True the version is included.
 
         """
-        parts = [self.activity, self.product, self.institute, self.model,
-                 self.experiment, self.frequency, self.realm,
-                 self.table, 'r%di%dp%d' % self.ensemble]
+        parts = [self._encode_component(x) for x in PUB_ATTRS]
         if self.version and with_version:
-            parts.append('v%d' % self.version)
+            parts.append(self._encode_component('version'))
         return '.'.join(parts)
 
     @classmethod
@@ -168,7 +179,7 @@ class DRS(dict):
         """
 
         parts = dataset_id.split('.')
-        for attr, val in itertools.izip(klass._drs_attrs, parts):
+        for attr, val in itertools.izip(DRS_ATTRS, parts):
             if val is '%':
                 continue
             if attr is 'ensemble':
