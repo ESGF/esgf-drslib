@@ -2,33 +2,72 @@
 Introduction
 ============
 
+drslib is a library for managing data conforming to the CMIP5_ Data
+Reference Syntax (DRS_).  It includes API-level code for working with
+DRS components, algorithms for decuding DRS components from incomplete
+information and a command-line tool for manipulating data files into
+the recommended DRS directory structure.
+
+drslib has been developed by `Stephen Pascoe`_ and Martin Juckes at
+the `Centre of Environmental Data Archival`__.
+
+__ CEDA_
+
 Use Cases
-=========
+---------
 
 The design of the library has been driven by 3 requirements:
 
 1. Deduce the DRS directory structure a DRS-compliant filename. 
 2. Validate filenames and directory paths against the DRS.
 3. Convert the CMIP3 directory structure into a DRS-compliant form.
-4. Manage multiple versions of DRS realm-datasets on the filesystem.
+4. Manage multiple versions of DRS publication-level datasets on the filesystem.
+5. Detect the CMIP5 product DRS component during data publication.
 
 
-Quick Start
-===========
+Installation
+============
 
-drslib is requires setuptools_ or pip_ for installation.  Download and
-install with::
+drslib is requires setuptools_ or pip_ for installation.  Download and install with:
 
+.. code-block:: bash
+
+  # Using pip
   $ pip install drslib
 
-OR::
-
+  # OR using setuptools
   $ easy_install drslib
 
-If you want to download the distribution manually visit drslib's `PyPI page <http://pypi.python.org/pypi/drslib>`_.
+If you are upgrading drslib you will need to add the "-U" option to
+either pip or easy_install.
+
+.. pull-quote::
+
+  **Note:** If you are installing onto an ESG datanode you will already have 
+  setuptools_ installed with ``easy_install`` in ``/usr/local/cdat/bin``.
 
 
-See the ``examples`` directory and ``translate_cmip3.py``.
+
+
+Installing for development
+--------------------------
+
+If you want to inspect the code you will need to get the source
+distribution. Either visit drslib's `PyPI page
+<http://pypi.python.org/pypi/drslib>`_ and follow the download link or
+clone the git repository esgf-drslib.git_.  You can also view the
+evolution of the project on esgf's gitweb__.
+
+Once you have unpacked the tarball you must activate the distribution
+in `develop` mode.  To do this execute the following using a python
+interpreter with setuptools_ installed::
+
+.. code-block:: bash
+
+  $ python setup.py develop
+
+__ esgf-drslib.gitweb_
+
 
 Configuration
 =============
@@ -136,9 +175,13 @@ Or if the depencencies are satisfied you can run all tests with::
   $ nosetests
 
 
-.. [CMIP5] http://cmip-pcmdi.llnl.gov/cmip5/
-.. [DRS] http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
+.. _CMIP5: http://cmip-pcmdi.llnl.gov/cmip5/
+.. _DRS: http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose
 .. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _pip: http://pypi.python.org/pypi/pip
 .. _NoseXUnit: http://pypi.python.org/pypi/NoseXUnit
+.. _esgf-drslib.git: http://esgf.org/git/esgf-drslib.git
+.. _esgf-drslib.gitweb: http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary
+.. _CEDA: http://www.ceda.ac.uk
+.. _`Stephen Pascoe`: mailto:Stephen.Pascoe@stfc.ac.uk

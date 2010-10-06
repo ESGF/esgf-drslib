@@ -40,3 +40,8 @@ Module Reference
 .. automodule:: drslib.drs_tree
    :members:
 
+:mod:`drslib.p_cmip5` -- CMIP5 product detection
+----------------------------------------------------------------------------
+
+.. automodule:: drslib.p_cmip5
+   :members:
