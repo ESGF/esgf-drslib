@@ -40,15 +40,18 @@ Usage
 Usage: drs_tool [command] [options] [drs-pattern]
 
 command:
-  list            list publication-level datasets
-  todo            show file operations pending for the next version
-  upgrade         make changes to the selected datasets to upgrade to the next version.
-  mapfile         make a mapfile of the selected dataset
-  history         list all versions of the selected dataset
+
+=======  ====================================================================
+list     list publication-level datasets
+todo     show file operations pending for the next version
+upgrade  make changes to the selected datasets to upgrade to the next version
+mapfile  make a mapfile of the selected dataset
+history  list all versions of the selected dataset
+init     initialise CMIP5 product detection data
+=======  ====================================================================
 
 drs-pattern:
-  A dataset identifier in '.'-separated notation using '%' for wildcards for matching 
-  any component (e.g. cmip5.%.MPI-M wil match any product)
+  A dataset identifier in '.'-separated notation.  Use the '%' to indicate unknown DRS components, e.g. ``cmip5.%.MPI-M`` will match any product.
 
 
 Options:

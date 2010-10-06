@@ -2,19 +2,9 @@
 Introduction
 ============
 
-drslib is a library for managing data conforming to the CMIP5_ Data
-Reference Syntax (DRS_).  It includes API-level code for working with
-DRS components, algorithms for decuding DRS components from incomplete
-information and a command-line tool for manipulating data files into
-the recommended DRS directory structure.
-
-drslib has been developed by `Stephen Pascoe`_ and Martin Juckes at
-the `Centre of Environmental Data Archival`__.
-
-__ CEDA_
 
 Use Cases
----------
+=========
 
 The design of the library has been driven by the following requirements:
 
@@ -114,7 +104,7 @@ It is usually convenient to set at least ``root`` and ``activity`` in
 the configuration file.
 
 Logging
--------
+=======
 
 ``drslib`` uses Python's standard logging infrastructure to give
 details of it's operation.  Messages are sent to loggers under the
@@ -128,37 +118,67 @@ pointing to a separate logging configuration file:
   logging = ~/logging.conf
 
 The format of ``logging.conf`` should conform to the Python logging
-`configuration file format`__.  For instance to log warnings to STDERR
-you could use the following configuration:
+`configuration file format`__.  An example logging configuration is
+given below which will log product detection decisions separately from
+general drslib warnings:
 
 .. code-block:: ini
 
-    [loggers]
-    keys=root,drslib
-    
-    [handlers]
-    keys=hand01
-    
-    [formatters]
-    keys=form01
-    
-    [logger_drslib]
-    qualname=drslib
-    level=WARN
-    handlers=hand01
-    
-    [logger_root]
-    level=NOTSET
-    handlers=hand01
-    
-    [handler_hand01]
-    class=StreamHandler
-    args=(sys.stderr, )
-    formatter=form01
-    
-    [formatter_form01]
-    format=%(asctime)s [%(levelname)s] %(name)s: %(message)s
-    datefmt=
+   #
+   # Basic logging configuration for drs_tool
+   #
+   # This configuration prints product detection decisions to STDERR and logs
+   # warnings to ./drs_tool.log
+   #
+
+   [loggers]
+   keys=root,drslib,p_cmip5
+
+   [handlers]
+   keys=drslib_h,p_cmip5_h
+
+   [formatters]
+   keys=f1,f2
+
+   #---------------------------------------------------------------------------
+   # Loggers
+
+   # No catch-all logging
+   [logger_root]
+   handlers=
+   level=NOTSET
+
+   [logger_drslib]
+   qualname=drslib
+   handlers=drslib_h
+
+   [logger_p_cmip5]
+   qualname=drslib.p_cmip5
+   handlers=p_cmip5_h
+   propagate=0
+
+   #---------------------------------------------------------------------------
+   # Handlers & Formatters
+
+   [handler_drslib_h]
+   class=FileHandler
+   args=('./drs_tool.log', )
+   formatter=f1
+   level=INFO
+
+   [handler_p_cmip5_h]
+   class=StreamHandler
+   args=(sys.stderr, )
+   formatter=f2
+   level=INFO
+
+   [formatter_f1]
+   format=%(asctime)s [%(levelname)s] %(name)s: %(message)s
+   datefmt=
+
+   [formatter_f2]
+   format=[%(levelname)s] %(name)s: %(message)s
+                                                                        
 
 __ http://docs.python.org/library/logging.html#configuration-file-format
 

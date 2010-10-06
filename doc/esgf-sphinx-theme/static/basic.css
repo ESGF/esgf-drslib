@@ -15,6 +15,7 @@ div.clearer {
     clear: both;
 }
 
+
 /* -- relbar ---------------------------------------------------------------- */
 
 div.related {
@@ -52,10 +53,26 @@ div.sphinxsidebar {
     width: 230px;
     margin-left: -100%;
     font-size: 90%;
+    background-color: white;
+}
+
+div.sphinxsidebar h3 {
+    margin: 0.2em 0px;
+    width: 100%;
+    border-bottom: 2px solid;
+}
+
+div.sphinxsidebar h4 {
+    margin: 0.3em 0px;
+    width: 100%;
+    border-bottom: 1px solid;
 }
 
 div.sphinxsidebar ul {
     list-style: none;
+    margin: 0.5em 0.5em;
+    padding-left: 6px;
+    line-height: 120%;
 }
 
 div.sphinxsidebar ul ul,
@@ -177,6 +194,11 @@ div.genindex-jumpbox {
 }
 
 /* -- general body styles --------------------------------------------------- */
+
+div.document {
+    line-height: 120%;
+}
+
 
 a.headerlink {
     visibility: hidden;

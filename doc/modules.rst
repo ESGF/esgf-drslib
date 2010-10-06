@@ -3,10 +3,6 @@
 Module Reference
 ================
 
-:mod:`drslib` -- Data Reference Syntax management library
-================================================================
-
-.. automodule:: drslib
 
 :mod:`drslib.drs` -- DRS objects and utilities
 -----------------------------------------------------

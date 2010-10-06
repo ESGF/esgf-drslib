@@ -51,7 +51,7 @@ Both these parameters can be configured using metaconfig as follows:
 
 
 Invoking drs_tool with product detection
-----------------------------------------
+========================================
 
 ``drs_tool`` will allocate a product to files in the incoming
 directory when invoked with the ``--detect-product`` option.

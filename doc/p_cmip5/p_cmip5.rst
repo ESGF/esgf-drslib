@@ -21,7 +21,9 @@ The :mod:`drslib.p_cmip5.product` module provides a ``cmip5_product`` class with
 configuration tables The configuration file (sample in
 ini/sample_1.ini, ini/smaple_2.ini) needs to contain information about
 each model. This information is used for a small number of cases and
-the format is not yet stable::
+the format is not yet stable:
+
+.. code-block:: python
 
   class cmip5_product:						 
   								 
@@ -34,45 +36,47 @@ the format is not yet stable::
 
 Optional arguments
 ''''''''''''''''''
-     :param mip_table_shelve: shelve containing information about MIP tables;
-     :param template: shelve containing information mapping experiment names to labels used in the standard_output spreadsheet;
-     :param stdo: shelve containing information from the standard_output spreadsheet;
-     :param config: configuration file;
-     :param override_product_change_warning: in some cases it is possible that adding new data to previously published data can change the product
+     :mip_table_shelve: shelve containing information about MIP tables;
+     :template: shelve containing information mapping experiment names to labels used in the standard_output spreadsheet;
+     :stdo: shelve containing information from the standard_output spreadsheet;
+     :config: configuration file;
+     :override_product_change_warning: in some cases it is possible that adding new data to previously published data can change the product
           designation of the previously published data. The default behaviour is to givw an error return at this point. This can be over-ridden, 
           the code will then provide the product of the file to be added and lists of changes that need to be made to previously published data.
           It is not expected, however, that the ESG publisher will support such updates: the user should instead compile a new set of files to
           submit using all the previously published files and the new files.
-     :param policy_opt1: this controls two options for treatment of data blocks in which time slices are requested. The default is that, if the time
+     :policy_opt1: this controls two options for treatment of data blocks in which time slices are requested. The default is that, if the time
           slices are specified using relative dates (e.g. relative to start of experiment) and the number of years submitted is les than the number
           of years requested, all years submitted will be assigned to output1 without examining the dates. There is an option (depricated) to extend
           this catch-all approach to time slices specified with absolute dates.
-     :param not_ok_excpt: if True, raise an exception if product can not be designated as output1 or output2.
+     :not_ok_excpt: if True, raise an exception if product can not be designated as output1 or output2.
 
 The find_product method
 .......................
 
-The principal interface to the cmip5_product class is the find_product method::
+The principal interface to the cmip5_product class is the find_product method:
+
+.. code-block:: python
 
   def find_product(self,var,table,expt,model,path,startyear=None,endyear=None,verbose=False,
                   path_output1=None, path_output2=None,selective_ads_scan=True):
 
 Required arguments
 ''''''''''''''''''
-  :param var: DRS variable name
-  :param table: MIP table
-  :param expt: DRS experiment name
-  :param model: Model name
-  :param path: Path to directory containing all the files of one atomic dataset.
+  :var: DRS variable name
+  :table: MIP table
+  :expt: DRS experiment name
+  :model: Model name
+  :path: Path to directory containing all the files of one atomic dataset.
 
 Optional arguments
 ''''''''''''''''''
-  :param startyear: first year of the file to be assessed
-  :param endyear: last year of file to be assessed (not currently used)
-  :param verbose: if True, provide additional comments to logger
-  :param path_output1: path to last published output1 data for this atomic dataset, if new data is to be considered as an addition;
-  :param path_output2: path to last published output1 data for this atomic dataset, if new data is to be considered as an addition;
-  :param selective_ads_scan: when scanning the atomic dataset directory, look only at files matching the variable, table, experiment and model.
+  :startyear: first year of the file to be assessed
+  :endyear: last year of file to be assessed (not currently used)
+  :verbose: if True, provide additional comments to logger
+  :path_output1: path to last published output1 data for this atomic dataset, if new data is to be considered as an addition;
+  :path_output2: path to last published output1 data for this atomic dataset, if new data is to be considered as an addition;
+  :selective_ads_scan: when scanning the atomic dataset directory, look only at files matching the variable, table, experiment and model.
      The False option is provided to facilitate testing using dummy data files, and should not otherwise be used.
   :return: if "not_ok_excp=True", the method will return True if it can assign output1 or output2, otherwise an exception will be raised.
            if "not_ok_excpt=False", the method will return False when it cannot assign output1 or output2, with a message in pc.reason (where pc 
@@ -82,9 +86,9 @@ Attributes containing results
 '''''''''''''''''''''''''''''
 After successful completion of the find_product method, the followin attibutes of the instance contain information:
 
-   :ivar product: the product to be assigned to the file;
-   :ivar reason: a short summary of the reasons for the assigment;
-   :ivar rc: a return code, 'OKnnn' if successful, 'ERRnnn' if not.
+   :product: the product to be assigned to the file;
+   :reason: a short summary of the reasons for the assigment;
+   :rc: a return code, 'OKnnn' if successful, 'ERRnnn' if not.
 
 
 Usage
