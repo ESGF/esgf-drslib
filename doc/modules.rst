@@ -43,5 +43,4 @@ Module Reference
 :mod:`drslib.p_cmip5` -- CMIP5 product detection
 ----------------------------------------------------------------------------
 
-.. automodule:: drslib.p_cmip5
-   :members:
+.. include:: p_cmip5/p_cmip5.rst

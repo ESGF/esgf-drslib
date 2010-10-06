@@ -16,7 +16,7 @@ __ CEDA_
 Use Cases
 ---------
 
-The design of the library has been driven by 3 requirements:
+The design of the library has been driven by the following requirements:
 
 1. Deduce the DRS directory structure a DRS-compliant filename. 
 2. Validate filenames and directory paths against the DRS.
@@ -28,7 +28,9 @@ The design of the library has been driven by 3 requirements:
 Installation
 ============
 
-drslib is requires setuptools_ or pip_ for installation.  Download and install with:
+drslib is written in Python_.  It requires one of the installation
+tools setuptools_ or pip_.  Other requirements are downloaded
+automatically during installation.  Download and install with:
 
 .. code-block:: bash
 
@@ -43,8 +45,10 @@ either pip or easy_install.
 
 .. pull-quote::
 
-  **Note:** If you are installing onto an ESG datanode you will already have 
-  setuptools_ installed with ``easy_install`` in ``/usr/local/cdat/bin``.
+  **Note:** To install onto an ESG datanode you can use use the
+  ``easy_install`` in ``/usr/local/cdat/bin``.  This will install
+  ``drslib`` into ``/usr/local/cdat/bin/python`` and install
+  ``drs_tool`` as ``/usr/local/cdat/bin/drs_tool``.
 
 
 
@@ -60,7 +64,7 @@ evolution of the project on esgf's gitweb__.
 
 Once you have unpacked the tarball you must activate the distribution
 in `develop` mode.  To do this execute the following using a python
-interpreter with setuptools_ installed::
+interpreter with setuptools_ installed:
 
 .. code-block:: bash
 
@@ -185,3 +189,4 @@ Or if the depencencies are satisfied you can run all tests with::
 .. _esgf-drslib.gitweb: http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary
 .. _CEDA: http://www.ceda.ac.uk
 .. _`Stephen Pascoe`: mailto:Stephen.Pascoe@stfc.ac.uk
+.. _Python: http://www.python.org

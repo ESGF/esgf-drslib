@@ -23,7 +23,7 @@ been developed by the `Centre for Environmental Data Archival
    intro.rst
    howto.rst
    command.rst
-   p_cmip5.rst
+   product.rst
    modules.rst
    cmip3.rst
 

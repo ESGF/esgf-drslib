@@ -14,7 +14,7 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest includes
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -39,7 +39,7 @@ help:
 #clean:
 #	-rm -rf $(BUILDDIR)/*
 
-html:
+html: includes
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(DOCDIR)
 	@echo
 	@echo "Build finished. The HTML pages are in $(DOCDIR)."
@@ -131,3 +131,7 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+includes:
+	mkdir -p $(DOCDIR)/doc
+	cp p_cmip5/*.pdf $(DOCDIR)/doc/
