@@ -144,45 +144,64 @@ class DRSTree(object):
 
         """
 
-        for dirpath, dirnames, filenames in os.walk(incoming_dir):
-            for filename in filenames:
-                log.debug('Processing %s' % filename)
-                try:
-                    drs = self._vtrans.filename_to_drs(filename)
-                except TranslationError:
-                    # File doesn't match
-                    log.warn('File %s is not a DRS file' % filename)
+        def _iter_incoming():
+            for dirpath, dirnames, filenames in os.walk(incoming_dir):
+                for filename in filenames:
+                    yield (filename, dirpath)
+
+        self.discover_incoming_fromfiles(_iter_incoming(), **components)
+
+
+    def discover_incoming_fromfiles(self, files_iter, **components):
+        """
+        Process a stream of files into the incoming list from an
+        iterable.
+
+        This method is useful as a low-level hook for integrating
+        with processing pipelines.
+
+        :files_iter: An iterable of (filename, path) for
+            each file to process into incoming.
+
+        """
+        for filename, dirpath in files_iter:
+            log.debug('Processing %s' % filename)
+            try:
+                drs = self._vtrans.filename_to_drs(filename)
+            except TranslationError:
+                # File doesn't match
+                log.warn('File %s is not a DRS file' % filename)
+                continue
+
+            log.debug('File %s => %s' % (repr(filename), drs))
+            for k, v in components.items():
+                if v is None:
                     continue
-
-                log.debug('File %s => %s' % (repr(filename), drs))
-                for k, v in components.items():
-                    if v is None:
-                        continue
-                    # If component is present in drs act as a filter
-                    drs_v = drs.get(k, None)
-                    if drs_v is not None:
-                        if drs_v != v:
-                            log.warn('FILTERED OUT: %s.  %s != %s' %
-                                      (drs, repr(drs_v), repr(v)))
-                            break
-                    else:
-                        # Otherwise set as default
-                        log.debug('Set %s=%s' % (k, repr(v)))
-                        setattr(drs, k, v)
+                # If component is present in drs act as a filter
+                drs_v = drs.get(k, None)
+                if drs_v is not None:
+                    if drs_v != v:
+                        log.warn('FILTERED OUT: %s.  %s != %s' %
+                                  (drs, repr(drs_v), repr(v)))
+                        break
                 else:
-                    # Only if break not called
+                    # Otherwise set as default
+                    log.debug('Set %s=%s' % (k, repr(v)))
+                    setattr(drs, k, v)
+            else:
+                # Only if break not called
 
-                    # Detect product if enabled
-                    if self._p_cmip5:
-                        self._detect_product(dirpath, drs)
+                # Detect product if enabled
+                if self._p_cmip5:
+                    self._detect_product(dirpath, drs)
 
-                    if drs.is_publish_level():
-                        log.debug('Discovered %s as %s' % (filename, drs))
-                        self.incoming.append((os.path.join(dirpath, filename), drs))
-                    else:
-                        log.debug('Rejected %s as incomplete %s' % (filename, drs))
-                        self.incomplete.append((os.path.join(dirpath, filename), drs))
-                    # Instantiate a PublisherTree for each unique publication-level dataset
+                if drs.is_publish_level():
+                    log.debug('Discovered %s as %s' % (filename, drs))
+                    self.incoming.append((os.path.join(dirpath, filename), drs))
+                else:
+                    log.debug('Rejected %s as incomplete %s' % (filename, drs))
+                    self.incomplete.append((os.path.join(dirpath, filename), drs))
+                # Instantiate a PublisherTree for each unique publication-level dataset
 
         for path, drs in self.incoming:
             drs_id = drs.to_dataset_id()
