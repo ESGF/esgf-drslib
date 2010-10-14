@@ -67,8 +67,8 @@ class DRSTree(object):
         self.drs_root = drs_root
         self.pub_trees = {}
         self._vtrans = make_translator(drs_root)
-        self.incoming = None
-        self.incomplete = None
+        self.incoming = DRSList()
+        self.incomplete = DRSList()
         self._p_cmip5 = None
 
         self._move_cmd = config.move_cmd
@@ -106,13 +106,6 @@ class DRSTree(object):
         activity = components.setdefault('activity',
                                          config.drs_defaults.get('activity'))
         
-
-        # Scan for incoming DRS files
-        if incoming_dir:
-            self.discover_incoming(incoming_dir, **components)
-        else:
-            self.incoming = []
-
         drs_t = DRS(**components)
 
         # NOTE: None components are converted to wildcards
@@ -134,24 +127,23 @@ class DRSTree(object):
             log.info('Discovered PublisherTree at %s' % pt_path)
             self.pub_trees[drs_id] = PublisherTree(drs, self)
 
-        # Instantiate a PublisherTree for each unique publication-level dataset
-        for path, drs in self.incoming:
-            drs_id = drs.to_dataset_id()
-            if drs_id not in self.pub_trees:
-                self.pub_trees[drs_id] = PublisherTree(drs, self)
+        # Scan for incoming DRS files
+        if incoming_dir:
+            self.discover_incoming(incoming_dir, **components)
+
 
         
     def discover_incoming(self, incoming_dir, **components):
         """
         Scan the filesystem for incoming DRS files.
 
-        :incoming_dir: A filesystem wildcard which should resolve to 
-            directories to recursively scan for files.
+        After a call to :meth:`DRSTree.discover` this method can be called
+        repeatedly to discover incoming files in separate directory trees.
+
+        :incoming_dir: A directory to recursively scan for files.
 
         """
 
-        self.incoming = DRSList()
-        self.incomplete = DRSList()
         for dirpath, dirnames, filenames in os.walk(incoming_dir):
             for filename in filenames:
                 log.debug('Processing %s' % filename)
@@ -190,6 +182,14 @@ class DRSTree(object):
                     else:
                         log.debug('Rejected %s as incomplete %s' % (filename, drs))
                         self.incomplete.append((os.path.join(dirpath, filename), drs))
+                    # Instantiate a PublisherTree for each unique publication-level dataset
+
+        for path, drs in self.incoming:
+            drs_id = drs.to_dataset_id()
+            if drs_id in self.pub_trees:
+                self.pub_trees[drs_id].deduce_state()
+            else:
+                self.pub_trees[drs_id] = PublisherTree(drs, self)
 
 
             

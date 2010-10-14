@@ -90,6 +90,29 @@ class TestEg2(TestEg):
         assert len(dt.pub_trees) == 2
         assert set([x.drs.realm for x in dt.pub_trees.values()]) == set(['atmos', 'ocean'])
 
+class TestEg2_1(TestEg2):
+    __test__ = True
+
+    def test_1(self):
+        """Test incremental discovery"""
+        dt = DRSTree(self.tmpdir)
+        components = dict(activity='cmip5',
+                          product='output1', institute='MOHC', model='HadCM3')
+        # Call discover without incoming_dir
+        dt.discover(None, **components)
+        assert len(dt.pub_trees) == 0
+
+        # Discover ocean realm
+        dt.discover_incoming(self.tmpdir, realm='ocean', **components)
+        assert len(dt.pub_trees) == 1
+
+        # Discover atmos realm
+        dt.discover_incoming(self.tmpdir, realm='atmos', **components)
+        assert len(dt.pub_trees) == 2
+
+        assert set([x.drs.realm for x in dt.pub_trees.values()]) == set(['atmos', 'ocean'])
+
+
 #!TODO: latest
 
 #
