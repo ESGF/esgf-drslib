@@ -112,6 +112,25 @@ class TestEg2_1(TestEg2):
 
         assert set([x.drs.realm for x in dt.pub_trees.values()]) == set(['atmos', 'ocean'])
 
+    def test_2(self):
+        """Test incremental discovery without calling discover() first."""
+        dt = DRSTree(self.tmpdir)
+        components = dict(activity='cmip5',
+                          product='output1', institute='MOHC', model='HadCM3')
+        assert len(dt.pub_trees) == 0
+
+        # Discover ocean realm
+        dt.discover_incoming(self.tmpdir, realm='ocean', **components)
+        assert len(dt.pub_trees) == 1
+
+        # Discover atmos realm
+        dt.discover_incoming(self.tmpdir, realm='atmos', **components)
+        assert len(dt.pub_trees) == 2
+
+        assert set([x.drs.realm for x in dt.pub_trees.values()]) == set(['atmos', 'ocean'])
+
+
+
 
 #!TODO: latest
 
@@ -133,7 +152,6 @@ class TestEg3(TestEg):
         gen_drs.write_eg3_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
-        self.pt.deduce_state()
 
         
     def _exists(self, x):
@@ -237,6 +255,21 @@ class TestEg3(TestEg):
         assert len(todo) == 5
 
 
+class TestEg3_1(TestEg3):
+    """Use a separate DRSTree instance for the upgrade to test
+    TestEg3 still works in this scenario.
+    """
+
+    __test__ = True
+
+    def _cmor2(self):
+        gen_drs.write_eg3_2(self.tmpdir)
+        self.dt2 = DRSTree(self.tmpdir)
+        self.dt2.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output1')
+        (self.pt, ) = self.dt2.pub_trees.values()
+
+
 
 #
 # Test Moving from one version to another, updating a variable
@@ -256,7 +289,6 @@ class TestEg4(TestEg3):
         gen_drs.write_eg4_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
-        self.pt.deduce_state()
 
     def test_1(self):
         self._cmor1()
@@ -304,6 +336,18 @@ class TestEg4(TestEg3):
         assert len(todo) == 2
 
 
+class TestEg4_1(TestEg4):
+    __test__ = True
+
+    def _cmor2(self):
+        gen_drs.write_eg4_2(self.tmpdir)
+        self.dt2 = DRSTree(self.tmpdir)
+        self.dt2.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output1')
+
+        (self.pt, ) = self.dt2.pub_trees.values()
+
+
 class TestEg5(TestEg4):
     __test__ = True
 
@@ -319,7 +363,6 @@ class TestEg5(TestEg4):
         gen_drs.write_eg5_2(self.tmpdir)
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
-        self.pt.deduce_state()
 
     # Do test1 from superclass
 
@@ -362,6 +405,18 @@ class TestEg5(TestEg4):
         #!TODO: not same?  This test needs reviewing.
         assert len(v1) == 3
         assert len(same) == 2
+
+
+class TestEg5_1(TestEg5):
+    __test__ = True
+
+
+    def _cmor2(self):
+        gen_drs.write_eg5_2(self.tmpdir)
+        self.dt2 = DRSTree(self.tmpdir)
+        self.dt2.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output1')
+        (self.pt, ) = self.dt2.pub_trees.values()
 
 
 

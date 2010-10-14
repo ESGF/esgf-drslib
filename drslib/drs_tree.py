@@ -137,8 +137,8 @@ class DRSTree(object):
         """
         Scan the filesystem for incoming DRS files.
 
-        After a call to :meth:`DRSTree.discover` this method can be called
-        repeatedly to discover incoming files in separate directory trees.
+        This method can be repeatedly called to discover incoming
+        files independently of :meth:`DRSTree.discover` repeatedly .
 
         :incoming_dir: A directory to recursively scan for files.
 
