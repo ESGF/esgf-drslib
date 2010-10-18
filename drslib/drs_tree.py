@@ -94,17 +94,6 @@ class DRSTree(object):
             files are detected
 
         """
-
-        # Grab options from the config
-        product = components.setdefault('product',
-                                        config.drs_defaults.get('product'))
-        institute = components.setdefault('institute',
-                                          config.drs_defaults.get('institute'))
-        model = components.setdefault('model',
-                                      config.drs_defaults.get('model'))
-
-        activity = components.setdefault('activity',
-                                         config.drs_defaults.get('activity'))
         
         drs_t = DRS(**components)
 
@@ -221,7 +210,7 @@ class DRSTree(object):
                 break
         else:
             # not found
-            raise Exception("File %s not found in incoming" % src)
+            raise Exception("File %s not found in incoming" % path)
 
     def set_p_cmip5(self, p_cmip5):
         """
