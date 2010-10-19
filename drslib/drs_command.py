@@ -3,7 +3,7 @@ Command-line access to drslib
 
 """
 
-import sys, os, re
+import sys, os
 
 from optparse import OptionParser
 from ConfigParser import NoSectionError, NoOptionError
@@ -73,6 +73,10 @@ class Command(object):
     def __init__(self, opts, args):
         self.opts = opts
         self.args = args
+        self.shelve_dir = None
+        self.p_cmip5_config = None
+        self.drs_root = None
+        self.drs_tree = None
 
         self.make_drs_tree()
 

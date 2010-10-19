@@ -17,9 +17,8 @@ Detailed diagnostics can be logged by setting handlers for the logger
 
 """
 
-import os, shutil, sys
+import os, sys
 from glob import glob
-import re
 import stat
 import datetime
 

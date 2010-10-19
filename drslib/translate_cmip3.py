@@ -11,7 +11,7 @@ Translate a stream of filepaths from CMIP3 to CMIP5 syntax
 """
 
 
-import sys, os, shutil, re
+import sys, os, re
 
 import logging
 log = logging.getLogger(__name__)
@@ -81,10 +81,10 @@ def check_dirnames(dirpath, dirnames):
     log.debug('dirnames remaining %s' % dirnames)
 
 
-def _mkdirs(name, mode=511):
+def _mkdirs(name, mode=0777):
     log.info('mkdir -p %s' % name)
     if not dry_run:
-        os.makedirs(name)
+        os.makedirs(name, mode)
 
 def _copy(old, new):
     cmd = 'cp %s %s' % (old, new)
@@ -126,7 +126,6 @@ def trans_files(cmip3_path, cmip5_path):
             _mkdirs(path)
 
         for filename in filenames:
-            ext = os.path.splitext(filename)[1]
 
             try:
                 drs2 = cmip3_t.filepath_to_drs(os.path.join(dirpath, filename))

@@ -77,7 +77,7 @@ class DRS(dict):
         # Check only DRS components are used
         for kw in kwargs:
             if kw not in DRS_ATTRS:
-                raise KeywordError("Keyword %s is not a DRS component" % repr(kw))
+                raise KeyError("Keyword %s is not a DRS component" % repr(kw))
 
         # Use dict flexible instantiation
         super(DRS, self).__init__(*argv, **kwargs)
