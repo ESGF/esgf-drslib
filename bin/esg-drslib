@@ -75,7 +75,7 @@ drslib_version=${drslib_version:-"0.2.1b2"}
 
 #arg (1) - install = 0 [default]
 #          upgrade = 1 
-setup_security() {
+setup_drslib() {
     echo
     echo "*******************************"
     echo "Setting up The ESGF DRSLIB Python Module..."
