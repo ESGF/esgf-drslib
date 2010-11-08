@@ -392,7 +392,6 @@ class Translator(object):
     def __init__(self, prefix='', table_store=None):
         self.prefix = prefix
         self.table_store = table_store
-        self.translators = []
 
     def filename_to_drs(self, filename, context=None):
         """
