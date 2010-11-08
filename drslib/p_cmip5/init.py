@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
 TEMPLATE_XLS = 'CMIP5_archive_size_template.xls'
+TEMPLATE_MAPPINGS = 'expt_id_mapping.txt'
 TEMPLATE_SHELVE = 'template'
 STDO_SHELVE = 'standard_output'
 STDO_MIP_SHELVE = 'standard_output_mip'
@@ -38,15 +39,17 @@ def _find_shelves(shelve_dir):
     return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
 
 
-def init(shelve_dir):
+def init(shelve_dir,xls_dir=None):
     """
     Create the shelve files needed to run p_cmip5.
 
     """
 
-    xls_dir = os.path.join(os.path.dirname(__file__), 'xls')
+    if xls_dir == None:
+      xls_dir = os.path.join(os.path.dirname(__file__), 'xls')
     stdo_xls = os.path.join(xls_dir, STANDARD_OUTPUT_XLS)
     template_xls = os.path.join(xls_dir, TEMPLATE_XLS)
+    template_map = os.path.join(xls_dir, TEMPLATE_MAPPINGS)
 
     if not os.path.exists(shelve_dir):
         os.makedirs(shelve_dir)
@@ -58,7 +61,7 @@ def init(shelve_dir):
 
     mi = mip_importer(stdo_xls)
     ri = request_importer(template=template_xls, cmip5_stdo=stdo_xls)
-    ri.import_template(template)
+    ri.import_template(template,expt_mapping_file=template_map)
     ri.import_standard_output(stdo)
     #!TODO: Extra argument x1_sh not supported yet.  What's it for?
     mi.imprt(stdo_mip)
@@ -167,25 +170,54 @@ class request_importer:
     self.template = template
     self.cmip5_stdo = cmip5_stdo
 
-  def import_template(self,out='sh/template'):
+  def import_template(self,out='sh/template',expt_mapping_file='expt_id_mapping.txt'):
+    mappings = {}
+    assert os.path.isfile(expt_mapping_file), 'Cannot find expt_mapping_file %s' % expt_mapping_file
+    ii = open(expt_mapping_file).readlines()
+    for l in ii:
+      bits = string.split( string.strip( l ) )
+      mappings[bits[0]] = bits[1]
+    
     sh = shelve.open( out, 'n' )
     book = xlrd.open_workbook( self.template )
     sheet = book.sheet_by_name('template')
+    ydec = [1965, 1970, 1975, 1985, 1990, 1995, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010]
+    y30 = [1960, 1980, 2005]
+
     this_row = sheet.row(41)
-    for y in [1965, 1970, 1975, 1985, 1990, 1995, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010]:
+    k0 = string.strip( str(this_row[10].value ) )
+    assert k0 == 'decadalXXXX*', 'key should be decadalXXXX*: %s' % k0
+    for y in ydec:
       key = 'decadal%4.4i' % y
       sh[key] = (41, '1.1',str(this_row[0].value), str(this_row[1].value))
 
     this_row = sheet.row(42)
-
-    for y in [1960, 1980, 2005]:
+    for y in y30:
       key = 'decadal%4.4i' % y
       sh[key] = (42, '1.2',str(this_row[0].value), str(this_row[1].value))
+
+    this_row = sheet.row(49)
+    k0 = string.strip( str(this_row[10].value ) )
+    assert k0 == 'noVolcano', 'key should be noVolcano: %s' % k0
+    for y in ydec + y30:
+      key = 'noVolc%4.4i' % y
+      sh[key] = (49, '1.3',str(this_row[0].value), str(this_row[1].value))
+
+    histVars = ['Nat', 'Ant', 'GHG', 'SD', 'SI', 'SA', 'TO', 'SO', 'Oz', 'LU', 'Sl', 'Vl', 'SS', 'Ds', 'BC', 'MD', 'OC', 'AA']
+    this_row = sheet.row(93)
+    k0 = string.strip( str(this_row[10].value ) )
+    assert k0 == 'historical???', 'key should be historical???: %s' % k0
+    for v in histVars:
+      if v not in ['GHG','Nat']:
+        key = 'historical%s' % y
+        sh[key] = (93, '7.3',str(this_row[0].value), str(this_row[1].value))
 
     rl1 = range(46,52) + range(56,97) + range(100,110)
     for r in rl1:
       this_row = sheet.row(r)
       key = string.strip( str(this_row[10].value ) )
+      if key in mappings.keys():
+        key = mappings[key]
       while key in sh.keys():
           key += '+'
       sh[key] = (r,str(this_row[2].value), str(this_row[0].value), str(this_row[1].value))
@@ -250,7 +282,7 @@ class request_importer:
                    st,en = map( int, string.split(b,'-') )
                    ll.append( ('slice',st,en) )
                  else:
-                   log.info('%s %s' % (bits,b))
+                   log.info(bits,b)
                    ll.append( ('year',int(b)) )
                ee[r] = ll
    

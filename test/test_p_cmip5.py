@@ -17,7 +17,6 @@ pc1 = None
 pc2 = None
 tmpdir = None
 
-
 def setup_module():
     global pc1, pc2, tmpdir
     tmpdir = tempfile.mkdtemp(prefix='p_cmip5-')
@@ -26,8 +25,8 @@ def setup_module():
 
     # Example config file is in test directory
     test_dir = os.path.dirname(__file__)
-    config1 = os.path.join(test_dir, 'sample_1.ini')
-    config2 = os.path.join(test_dir, 'sample_2.ini')
+    config1 = os.path.join(test_dir, 'sample_3.ini')
+    config2 = os.path.join(test_dir, 'sample_4.ini')
 
     # Shelves are regenerated each time.  This could be optimised.
     init.init(shelve_dir)
@@ -46,8 +45,8 @@ def setup_module():
                           stdo=shelves['stdo'],
                           config=config2, not_ok_excpt=False)
 
-def teardown_module():
-    shutil.rmtree(tmpdir)
+##def teardown_module():
+ ##   shutil.rmtree(tmpdir)
 
 def do_product2(var, mip, expt,path, startyear,
             pci=None,path_output1=None,path_output2=None,verbose=False, tab='    ',selective_ads_scan=False,model='HADCM3'):
@@ -101,6 +100,12 @@ def test_gen3():
     yield check_product3, ( 'rhs', 'day', 'historical', 'tmp/a_1930_2000', -999), {}, 'split'
     yield check_product3, ( 'rhs', 'day', 'historical', 'tmp/a_1930_2000', -999), dict( pci=pc2 ), 'split'
     yield check_product3, ( 'rhs', 'day', 'piControl', 'tmp/a_1930_2000', -999), {}, 'split'
+    print '------------ noVolc1980  --------------'
+    yield check_product3, ( 'sconcno3', 'aero', 'noVolc1980', 'tmp/a_2005_2100', 2015 ), {'model':'HadGEM2-ES'}, ('output2', 'OK300.08')
+    yield check_product3, ( 'sconcno3', 'aero', 'noVolc1980', 'tmp/a_2005_2100', 2010 ), {'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
+    print '------------ volcIn2010  --------------'
+    yield check_product3, ( 'sconcno3', 'aero', 'volcIn2010', 'tmp/a_2005_2100', 2015 ), {'model':'HadGEM2-ES'}, ('output2', 'OK300.09')
+    yield check_product3, ( 'sconcno3', 'aero', 'volcIn2010', 'tmp/a_2005_2100', 2014 ), {'model':'HadGEM2-ES'}, ('output1', 'OK300.09')
 
 def test_gen4():
     print 'test using sample_2.ini, in which there is a 30 year offset between dating in historical and piControl'
@@ -123,7 +128,7 @@ def test_gen4():
 
 def test_gen5():
     print 'cfMon, section 1'
-    yield check_product3, ( 'rlu', 'cfMon', 'amip', 'tmp/a_1930_2000', 1990 ), {}, ('output1','OK300')
+    yield check_product3, ( 'rlu', 'cfMon', 'amip', 'tmp/a_1930_2000', 1990 ), {}, ('output1','OK300.08')
     yield check_product3, ( 'rlu', 'cfMon', 'amip', 'tmp/single', None ), {}, ('output1','OK012')
 
 def test_gen6():
@@ -132,15 +137,20 @@ def test_gen6():
 
 def test_gen7():
     print 'cfMon, section 3'
-    yield check_product3, ( 'rlu4co2', 'cfMon', 'amip', 'tmp/a_1930_2000', 1980 ), {}, ('output1','OK300')
+    yield check_product3, ( 'rlu4co2', 'cfMon', 'amip', 'tmp/a_1930_2000', 1980 ), {}, ('output1','OK300.08')
     yield check_product3, ( 'rlu4co2', 'cfMon', 'piControl', 'tmp/a_1930_2000', 1950  ), {}, ('output1','OK008.2')
 
 def test_gen8():
     print '------------ cfMon, section 4 --------------'
-    yield check_product3, ( 'clisccp', 'cfMon', 'amip', 'tmp/a_1930_2000', 1980 ), {}, ('output1', 'OK300')
-    yield check_product3, ( 'clisccp', 'cfMon', 'piControl', 'tmp/a_2005_2100', 2020 ), {}, ('output1', 'OK200')
-    yield check_product3, ( 'clisccp', 'cfMon', 'piControl', 'tmp/a_2005_2100', 2040 ), {}, ('output2', 'OK200')
-    yield check_product3, ( 'clisccp', 'cfMon', 'abrupt4xco2', 'tmp/a_2010_2020', 2015 ), {}, ('output1','OK009.2')
+    yield check_product3, ( 'clisccp', 'cfMon', 'amip', 'tmp/a_1930_2000', 1980 ), {}, ('output1', 'OK300.08')
+    yield check_product3, ( 'clisccp', 'cfMon', 'piControl', 'tmp/a_2005_2100', 2030 ), {}, ('output2', 'OK200.06')
+    yield check_product3, ( 'clisccp', 'cfMon', 'piControl', 'tmp/a_2005_2100', 2029 ), {}, ('output1', 'OK200.06')
+    yield check_product3, ( 'clisccp', 'cfMon', 'abrupt4xCO2', 'tmp/a_2010_2020', 2015 ), {}, ('output1','OK009.2')
+    print '------------ 1pctCO2  --------------'
+    yield check_product3, ( 'va', '6hrPlev', '1pctCO2', 'tmp/a_2010_2020', 1980 ), {'model':'HadGEM2-ES'}, ('output1', 'OK008.1')
+    yield check_product3, ( 'tas', '3hr', 'abrupt4xCO2', 'tmp/a_2010_2020', 2012 ), {'model':'HadGEM2-ES'}, ('output1', 'OK009.2')
+    yield check_product3, ( 'tas', '3hr', 'abrupt4xCO2', 'tmp/a_2005_2100', 2007 ), {'model':'HADCM3'}, ('output1', 'OK200.03')
+    yield check_product3, ( 'tas', '3hr', 'abrupt4xCO2', 'tmp/a_2005_2100', 2016 ), {'model':'HADCM3'}, ('output2', 'OK200.03')
 
 def test_gen9():
     print '------------ mohc, first batch --------------'
@@ -149,10 +159,10 @@ def test_gen9():
     yield check_product3, ( 'ta', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
     yield check_product3, ( 'ua', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
     yield check_product3, ( 'va', '6hrLev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
-    yield check_product3, ( 'psl', '6hrPlev', 'historical', 'tmp/mohc1', 1949 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
-    yield check_product3, ( 'ta', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
-    yield check_product3, ( 'ua', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
-    yield check_product3, ( 'va', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300')
+    yield check_product3, ( 'psl', '6hrPlev', 'historical', 'tmp/mohc1', 1949 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
+    yield check_product3, ( 'ta', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
+    yield check_product3, ( 'ua', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
+    yield check_product3, ( 'va', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
 
 ##( 'rlu4co2', 'cfMon', 'piControl', startyear=2000, endyear=2000, path='./tmp/a_2010_2020', expected=('output1', 'OK008.2') )
 

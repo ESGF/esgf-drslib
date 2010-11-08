@@ -1,88 +1,72 @@
-Input configuration file
-========================
+The configuration file.
+======================
 
 A configuration file is required by the p_cmip5 module (which assigns the data to DRS product=output1 or output2) for processing piControl data,
 and may optionally contain additional information which will ensure consistency of of the assigment for some other datasets (details below).
-
-Example
--------
-
-.. code-block:: ini
-
-  [HADCM3]
-  
-  category=centennial
-  year_piControl_spawn_to_historical=1850
-  year_historical_start=1850
-  year_piControl_spawn_to_abrupt4xco2=700
-  year_start_abrupt4xco2=2050
-  year_piControl spawn_to_1pctCo2=600
-  year_start_1pctCo2=1950
-  
-  [HIGEM1.2]
-  
-  category=decadal
-  year_piControl_spawn_to_historical=1850
-  year_historical_start=1850
-  year_piControl_spawn_to_abrupt4xco2=700
-  year_start_abrupt4xco2=2050
-  year_piControl spawn_to_1pctCo2=600
-  year_start_1pctCo2=1950
-
-
-Sections and Options
---------------------
-
 The configuration file should contain one section for each model, containing values for:
 
 1. category 
+-----------
+Value: either 'centennial' or 'other' 
 
-  :Value: either 'centennial' or 'decadal' 
-  
-  The category specifies which suite of experiments the model is being
-  used for.  This information is use to determine what data should be
-  prioritised for quality control and DOI assignment.  The aim is to
-  ensure consistency between experiments and between modelling groups.
+The category specifies which suite of experiments the model is being used for.
+This information is use to determine what data should be prioritised for quality control and DOI assignment.
+The aim is to ensure consistency between experiments and between modelling groups.
+If a model is used both for centennial and decadal experiments, specify 'centennial'.
 
-2. year_piControl_spawn_to_historical
+2. branch_year_piControl_to_historical
+-------------------------------------
+Value: integer
 
-  :Value: integer
-  
-  The year of the piControl data used to initiate the historical run
+The year of the piControl data used to initiate the historical run.
 
-3. year_historical_start
+Required if piControl data for tables aero, day or 6hrPlev is archived. This information can be determined from
+the global attribute "branch" in the historical data files and the base year from the time units of the piControl
+experiment. 
 
-  :Value: integer
-  
-  The year of the start of the historical run
+3. base_year_historical
+------------------------
+Value: integer
 
-4. year_piControl_spawn_to_abrupt4xco2
+The year of the start of the historical run. This is required becuase it is needed when processing piControl
+data, and thus cannot generally be obtained from the data files being processed.
 
-  :Value: integer
-  
-  The year of the piControl data used to initiate the abrupt4xco2 run
+4. branch_year_esmControl_to_esmHistorical
+-------------------------------------
+Value: integer
 
-5. year_start_abrupt4xco2=2050
+The year of the piControl data used to initiate the historical run. See notes on 2. branch_year_piControl_to_historical
 
-  :Value: integer
-  
-  The year of start of the abrupt4xco2 run
+5. base_year_esmHistorical
 
-6. year_piControl spawn_to_1pctCo2
+------------------------
+Value: integer
 
-  :Value: integer
-  
-  The year of the piControl data used to initiate the 1pctCo2 run
+Start of esmHistorical expt. See notes on 3. base_year_historical
 
-7. year_start_1pctCo2
+6. base_year_abrupt4xCO2 [optional]
+------------------------
+Value: integer
 
-  :Value: integer
-  
-  The year of start of the 1pctCo2 run
+The year of start of the abrupt4xCO2 run. Used for processing abrupt4xCO2 data -- only needed if the base year specified
+by the time units does not correspond to start of experiment.
 
-  The first 3 are required [catgory,
-  year_piControl_spawn_to_historical, year_historical_start] for
-  processing piControl data in MIP tables aero, day, 6hrPlev and 3hr.
-  The others are optional but may improve the consistency of data
-  prioritised for replication.
+Value: integer
+7. base_year_piControl [optional]
+------------------------
+Value: integer
+
+The year of start of the piControl run. Only needed if the base year specified 
+by the time units does not correspond to start of experiment.
+
+Used in determining which years of data from the aero table, piControl experiment in the decadal
+suite are replicated.
+
+8. base_year_1pctCO2 [optional]
+------------------------
+Value: integer
+
+The year of start of the 1pctCO2 run. Only needed if the base year specified
+by the time units does not correspond to start of experiment.
+
 
