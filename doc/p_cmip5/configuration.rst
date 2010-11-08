@@ -1,5 +1,5 @@
 The configuration file.
-======================
+=======================
 
 A configuration file is required by the p_cmip5 module (which assigns the data to DRS product=output1 or output2) for processing piControl data,
 and may optionally contain additional information which will ensure consistency of of the assigment for some other datasets (details below).
@@ -15,7 +15,7 @@ The aim is to ensure consistency between experiments and between modelling group
 If a model is used both for centennial and decadal experiments, specify 'centennial'.
 
 2. branch_year_piControl_to_historical
--------------------------------------
+--------------------------------------
 Value: integer
 
 The year of the piControl data used to initiate the historical run.
@@ -25,35 +25,34 @@ the global attribute "branch" in the historical data files and the base year fro
 experiment. 
 
 3. base_year_historical
-------------------------
+-----------------------
 Value: integer
 
 The year of the start of the historical run. This is required becuase it is needed when processing piControl
 data, and thus cannot generally be obtained from the data files being processed.
 
 4. branch_year_esmControl_to_esmHistorical
--------------------------------------
+------------------------------------------
 Value: integer
 
 The year of the piControl data used to initiate the historical run. See notes on 2. branch_year_piControl_to_historical
 
 5. base_year_esmHistorical
-
-------------------------
+--------------------------
 Value: integer
 
 Start of esmHistorical expt. See notes on 3. base_year_historical
 
 6. base_year_abrupt4xCO2 [optional]
-------------------------
+-----------------------------------
 Value: integer
 
 The year of start of the abrupt4xCO2 run. Used for processing abrupt4xCO2 data -- only needed if the base year specified
 by the time units does not correspond to start of experiment.
 
-Value: integer
+
 7. base_year_piControl [optional]
-------------------------
+---------------------------------
 Value: integer
 
 The year of start of the piControl run. Only needed if the base year specified 
@@ -63,7 +62,7 @@ Used in determining which years of data from the aero table, piControl experimen
 suite are replicated.
 
 8. base_year_1pctCO2 [optional]
-------------------------
+-------------------------------
 Value: integer
 
 The year of start of the 1pctCO2 run. Only needed if the base year specified
