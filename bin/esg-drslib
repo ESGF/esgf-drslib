@@ -72,7 +72,7 @@
 install_logfile=${ESG_INSTALL_LOGFILE:-"/etc/esg.install_log"}
 date_format=${date_format:-"+%Y_%m_%d_%H%M%S"}
 drslib_version=${drslib_version:-"0.2.2b1"}
-cdat_home=${CDAT_HOME:/usr/local/cdat}
+cdat_home=${CDAT_HOME:-/usr/local/cdat}
 
 #arg (1) - install = 0 [default]
 #          upgrade = 1 
@@ -86,7 +86,7 @@ setup_drslib() {
     local upgrade=${1:-0}
 
     $cdat_home/bin/easy_install --upgrade drslib
-    [ $? != 0 ] && echo "WARNING: drslib did not install successfuly"
+    [ $? != 0 ] && echo "WARNING: drslib did not install successfuly" && checked_done 1
 
     write_drslib_install_log
     echo "done"
@@ -99,3 +99,29 @@ write_drslib_install_log() {
     return 0
 }
 
+############################################
+# General - Utility Functions
+############################################
+
+#These functions are identical to the ones in the esg-node script they are
+#being copied here in the case where we are not running this script as
+#a sub process of esg-node.  In other words, this allows this script
+#to be stand-alone.
+checked_done() {
+    if (($1)); then
+        echo ""
+        echo "Sorry..."
+        echo "This action did not complete successfully"
+        echo "Please re-run this task until successful before continuing further"
+        echo ""
+        exit 1
+    fi
+    return 0
+}
+
+dedup() {
+    local infile=${1:-${envfile}}
+    [ ! -w "${infile}" ] && echo "WARNING: dedup() - unable to write to ${infile}" && return 1
+    local tmp=$(tac ${infile} | awk 'BEGIN {FS="[ =]"} !($2 in a) {a[$2];print $0}' | sort -k2,2)
+    echo "$tmp" > ${infile}
+}
