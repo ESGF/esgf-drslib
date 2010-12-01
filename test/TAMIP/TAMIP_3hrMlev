@@ -1,0 +1,966 @@
+table_id: Table 3hrMlev   ! Variables on model levels
+modeling_realm: atmos
+
+frequency: 3hr
+
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.4         ! version of CF that output conforms to
+project_id:   TAMIP  ! project id
+table_date:   28 October 2010 ! date this table was constructed
+
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
+product: output
+
+required_global_attributes: creation_date tracking_id model_id ! space separated required global attribute
+
+expt_id_ok: '5 day hindcast for tamip hindcast group 200810' 'tamip200810' 
+expt_id_ok: '5 day hindcast for tamip hindcast group 200901' 'tamip200901' 
+expt_id_ok: '5 day hindcast for tamip hindcast group 200904' 'tamip200904' 
+expt_id_ok: '5 day hindcast for tamip hindcast group 200907' 'tamip200907' 
+
+
+approx_interval:  0.125000     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+
+generic_levels:   alevel alevhalf
+
+!============
+axis_entry: longitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    longitude
+units:            degrees_east
+axis:             X             ! X, Y, Z, T (default: undeclared)
+long_name:        longitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lon
+valid_min:        0.0         
+valid_max:        360.0 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: latitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    latitude
+units:            degrees_north
+axis:             Y             ! X, Y, Z, T (default: undeclared)
+long_name:        latitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lat
+valid_min:        -90.0        
+valid_max:        90.0 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: time
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: smooth_level
+!============
+!
+! This coordinate is a hybrid height coordinate with units of meters (m).
+!  It increases upward.
+!  The values of a(k)*ztop, which appear in the formula below, should be stored as smooth_level. 
+!  Note that in the netCDF file the variable will be named "lev", not smooth_level.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sleve_coordinate
+units:            m
+axis:             Z
+positive:	      up
+long_name:        atmosphere smooth level vertical (SLEVE) coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: increasing
+valid_min:        -200.
+valid_max:        800000.
+formula:          z(n,k,j,i) = a(k)*ztop + b1(k)*zsurf1(n,j,i) + b2(k)*zsurf2(n,j,i)
+z_factors:        a: a b1: b1 b2: b2 ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+z_bounds_factors: a: a_bnds b1: b1_bnds b2: b2_bnds ztop: ztop zsurf1: zsurf1 zsurf2: zsurf2
+!----------------------------------	
+!
+!============
+axis_entry: natural_log_pressure
+!============
+!
+!This coordinate is dimensionless and varies from near 0 at the surface and increases upward.
+!  The values of lev(k), which appears in the formula below, should be stored as natural_log_pressure.  
+!  Note that in the netCDF file the variable will be named "lev", not natural_log_pressure.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_ln_pressure_coordinate
+axis:             Z
+long_name:        atmosphere natural log pressure coordinate
+positive:	      down
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        -1.
+valid_max:        20.
+formula:          p(k) = p0 * exp(-lev(k))
+z_factors:        p0: p0 lev: lev
+z_bounds_factors: p0: p0 lev: lev_bnds
+!----------------------------------	
+!
+!============
+axis_entry: standard_sigma
+!============
+!
+! This coordinate is dimensionless and varies from 0 at the model top to 1.0 at the surface.
+!  The values of sigma(k), which appears in the formula below, should be stored as standard_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_sigma.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sigma_coordinate
+axis:             Z
+positive:         down
+long_name:        sigma coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
+z_factors:        ptop: ptop sigma: lev ps: ps
+z_bounds_factors: ptop: ptop sigma: lev_bnds ps: ps
+!----------------------------------	
+!
+!
+!============
+axis_entry:  standard_hybrid_sigma
+!============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of a(k)+ b(k), which appear in the formula below, should be stored as standard_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not standard_hybrid_sigma.
+!
+!---------------------------------
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+units:            1
+axis:             Z 
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = a(k)*p0 + b(k)*ps(n,j,i)
+z_factors:        p0: p0 a: a b: b ps: ps
+z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  alternate_hybrid_sigma
+!============
+!
+! This coordinate is dimensionless and varies from a small value at the model top to 1.0 at the surface.
+!  The values of ap(k)/p0 + b(k), which appear in the formula below, should be stored as alternate_hybrid_sigma.  
+!  Note that in the netCDF file the variable will be named "lev", not alternate_hybrid_sigma.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+units:            1
+axis:             Z
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
+z_factors:        ap: ap b: b ps: ps
+z_bounds_factors: ap: ap_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  hybrid_height
+!============
+!
+! This coordinate has dimension of meters (m) and increases upward.
+!  The values of a(k) which appear in the formula below, should be stored as hybrid_height.  
+!  Note that in the netCDF file the variable will be named "lev", not hybrid_height.
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_height_coordinate
+units:            m
+axis:             Z 
+positive:         up
+long_name:        hybrid height coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+must_have_bounds: yes
+stored_direction: increasing
+valid_min:        0.0
+formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
+z_factors:        a: lev b: b orog: orog
+z_bounds_factors: a: lev_bnds b: b_bnds orog: orog
+!----------------------------------		
+!
+! ***************************************************************
+!
+! Vertical coordinate formula terms:
+!
+! ***************************************************************
+!
+!
+!============
+variable_entry:    orog
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     surface_altitude
+units:             m
+long_name:         Surface Altitude
+comment:           height above the geoid; as defined here, ""the geoid"" is a surface of constant geopotential that, if the ocean were at rest, would coincide with mean sea level. Under this definition, the geoid changes as the mean volume of the ocean changes (e.g., due to glacial melt, or global warming of the ocean).  Report here the height above the present-day geoid.  Over ocean, report as 0.0
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude
+out_name:          orog
+type:              real
+valid_min:         -700
+valid_max:         1.00E+04
+!----------------------------------
+!
+!
+!============
+variable_entry: p0
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       vertical coordinate formula term: reference pressure 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: ptop
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       pressure at top of model 
+units:           Pa
+!----------------------------------	
+!
+!
+!
+!============
+variable_entry: a
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   vertical coordinate formula term: a(k)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         alevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b
+!============
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   vertical coordinate formula term: b(k)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         alevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   vertical coordinate formula term: a(k+1/2)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         alevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b_bnds
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   vertical coordinate formula term: b(k+1/2)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         alevel
+type:               double
+!----------------------------------
+!
+!
+!============
+variable_entry: ap
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   vertical coordinate formula term: ap(k)
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         alevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ap_bnds
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   vertical coordinate formula term: ap(k+1/2)
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         alevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ztop
+!============
+!
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       height of top of model 
+units:           m
+!----------------------------------	
+!
+!
+!
+!
+
+!============
+variable_entry:    ua
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     eastward_wind
+units:             m s-1 
+cell_methods:      time: mean
+long_name:         Eastward Wind
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          ua
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    va
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     northward_wind
+units:             m s-1
+cell_methods:      time: mean
+long_name:         Northward Wind
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          va
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    ta
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_temperature
+units:             K
+cell_methods:      time: mean
+long_name:         Air Temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          ta
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    hus
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     specific_humidity
+units:             1
+cell_methods:      time: mean
+long_name:         Specific Humidity
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          hus
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    wap
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     lagrangian_tendency_of_air_pressure
+units:             Pa s-1
+cell_methods:      time: mean
+long_name:         omega (=dp/dt)
+comment:           commonly referred to as ""omega"", this represents the vertical component of velocity in pressure coordinates (positive down)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          wap
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    zg
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     geopotential_height
+units:             m
+cell_methods:      time: mean
+long_name:         Geopotential Height
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          zg
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    hur
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     relative_humidity
+units:             %
+cell_methods:      time: mean
+long_name:         Relative Humidity
+comment:           This is the relative humidity with respect to liquid water for T> 0 C, and with respect to ice for T<0 C.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          hur
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    cl
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
+units:             %
+cell_methods:      time: mean
+long_name:         Cloud Area Fraction in Atmosphere Layer
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          cl
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clw
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mass_fraction_of_cloud_liquid_water_in_air
+units:             1
+cell_methods:      time: mean
+long_name:         Mass Fraction of Cloud Liquid Water
+comment:           Calculate as the mass of  cloud liquid water in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          clw
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    cli
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     mass_fraction_of_cloud_ice_in_air
+units:             1
+cell_methods:      time: mean
+long_name:         Mass Fraction of Cloud Ice
+comment:           Calculate as the mass of cloud ice  in the grid cell divided by the mass of air (including the water in all phases) in the grid cell.  Include precipitating hydrometeors ONLY if the precipitating hydrometeor affects the calculation of radiative transfer in model.  
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          cli
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    mc
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     atmosphere_convective_mass_flux
+units:             kg m-2 s-1 
+cell_methods:      time: mean
+long_name:         Convective Mass Flux
+comment:           Report on model half-levels (i.e., model layer bounds and not standard pressures).  Calculate as the convective mass flux divided by the area of the whole grid cell (not just the area of the cloud).
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevhalf time
+out_name:          mc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnt
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnt
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnta 
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_advection
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Advection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnta 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntmp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_model_physics
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Diabatic Processes
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntmp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntscpbl
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_stratiform_cloud_and_precipitation_and_boundary_layer_mixing
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature Due to Stratiform Cloud and Precipitation and Boundary Layer Mixing
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntscpbl
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntr 
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_radiative_heating
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Radiative Heating
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntr 
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tntc
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_air_temperature_due_to_convection
+units:             K s-1
+cell_methods:      time: mean
+long_name:         Tendency of Air Temperature due to Moist Convection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tntc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhus
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhus
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusa
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_advection
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Advection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusa
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusc
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_convection
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Convection
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusc
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusd
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_diffusion
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Diffusion
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusd
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusscpbl
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_stratiform_cloud_and_precipitation_and_boundary_layer_mixing
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Stratiform Cloud Condensation and Evaporation
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusscpbl
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    tnhusmp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     tendency_of_specific_humidity_due_to_model_physics
+units:             s-1
+cell_methods:      time: mean
+long_name:         Tendency of Specific Humidity due to Model Physics
+comment:           This should include sources and sinks from parametrized physics (e.g. convection, stratiform condensation/evaporation, etc.) and should exclude sources and sinks from resolved dynamics and diffusion.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          tnhusmp
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    pfull
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_pressure
+units:             Pa
+cell_methods:      time: mean 
+long_name:         Pressure on Model Levels
+comment:           This field is needed only for models in which the pressure can't be calculated from the vertical coordinate information stored already for each variable.  Thus, the pressures are needed for height or theta-coordinate models, for example, but not sigma- or eta-coordinate models.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevel time
+out_name:          pfull
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    phalf
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_pressure
+units:             Pa
+cell_methods:      time: mean 
+long_name:         Pressure on Model Half-Levels
+comment:           This field is needed only for models in which the pressure can't be calculated from the vertical coordinate information stored already for each variable.  Thus, the pressures are needed for height or theta-coordinate models, for example, but not sigma- or eta-coordinate models.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude alevhalf time
+out_name:          phalf
+type:              real
+!----------------------------------
+!
+

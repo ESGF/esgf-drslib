@@ -23,6 +23,11 @@ else:
     except:
         raise Exception("Please configure your MIP table path using MIP_TABLE_PATH or a config file")
 
+if config.has_option('tables', 'prefix'):
+    table_prefix = config.get('tables', 'prefix')
+else:
+    table_prefix = 'CMIP5_'
+
 if config.has_section('drs'):
     drs_defaults = dict(config.items('drs'))
 else:

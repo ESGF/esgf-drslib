@@ -64,6 +64,9 @@ cmip3_models = {
     # Models in test listings contributed from MPI
     'ECHAM6-MPIOM-HR': 'MPI-M',
     'ECHAM6-MPIOM-LR': 'MPI-M',
+
+    # Models in TAMIP test suite
+    'HadGEM2-A': 'MOHC',
 }
 for k in cmip3_models:
     if k in model_institute_map:
@@ -267,11 +270,12 @@ def get_table_store():
     from drslib.mip_table import MIPTableStore
 
     if _table_store is None:
-        _table_store = MIPTableStore(config.table_path+'/CMIP5_*')
+        _table_store = MIPTableStore('%s/%s*' % (config.table_path, 
+                                                 config.table_prefix))
 
     return _table_store
 
-def make_translator(prefix, with_version=True):
+def make_translator(prefix, with_version=True, table_store=None):
     """
     Return a :class:`drslib.translate.Translator` object for
     translating filepaths to and from ``DRS`` instances.
@@ -283,8 +287,12 @@ def make_translator(prefix, with_version=True):
         version directory in filesystem paths, otherwise it reflects
         the output structure of CMOR.
 
+    :param table_store:: Override default table store.
+
     """
-    table_store = get_table_store()
+
+    if table_store is None:
+        table_store = get_table_store()
 
     t = CMIP5Translator(prefix, table_store)
     t.translators = [

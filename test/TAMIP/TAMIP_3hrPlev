@@ -1,0 +1,327 @@
+table_id: Table 3hrPlev   ! Variables on selected pressure levels
+
+frequency: 3hr
+
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.4         ! version of CF that output conforms to
+project_id:   TAMIP  ! project id
+table_date:   28 October 2010 ! date this table was constructed
+
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation 
+product: output
+
+required_global_attributes: creation_date tracking_id model_id ! space separated required global attribute
+
+expt_id_ok: '5 day hindcast for tamip hindcast group 200810' 'tamip200810' 
+expt_id_ok: '5 day hindcast for tamip hindcast group 200901' 'tamip200901' 
+expt_id_ok: '5 day hindcast for tamip hindcast group 200904' 'tamip200904' 
+expt_id_ok: '5 day hindcast for tamip hindcast group 200907' 'tamip200907' 
+
+
+approx_interval:  0.125000     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+
+
+!============
+axis_entry: longitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    longitude
+units:            degrees_east
+axis:             X             ! X, Y, Z, T (default: undeclared)
+long_name:        longitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lon
+valid_min:        0.0         
+valid_max:        360.0 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+
+!============
+axis_entry: latitude
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    latitude
+units:            degrees_north
+axis:             Y             ! X, Y, Z, T (default: undeclared)
+long_name:        latitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         lat
+valid_min:        -90.0        
+valid_max:        90.0 
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+!============
+axis_entry: plev7
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    air_pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+tolerance:        0.001
+
+type:             double
+requested_bounds: 100000. 80000. 80000. 68000. 68000. 56000. 56000. 44000. 44000. 31000. 31000. 18000. 18000.  0. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+!============
+axis_entry: plev8
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    air_pressure
+units:            Pa
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         down         ! up or down (default: undeclared)
+long_name:        pressure
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         plev
+stored_direction: decreasing
+tolerance:        0.001
+
+type:             double
+requested:        100000. 85000. 70000. 50000. 25000. 10000. 5000. 1000.        ! space-separated list of requested coordinates 
+must_have_bounds: no
+!----------------------------------
+!
+
+!============
+axis_entry: time
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    time
+units:            days since ?
+axis:             T             ! X, Y, Z, T (default: undeclared)
+long_name:        time
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         time
+stored_direction: increasing
+type:             double
+must_have_bounds: yes
+!----------------------------------
+!
+
+!============
+axis_entry: tau
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    atmosphere_optical_thickness_due_to_cloud
+units:            1
+long_name:        cloud optical thickness
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         tau
+stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+requested:        0.15 0.8 2.45 6.5 16.2 41.5 100.        ! space-separated list of requested coordinates 
+requested_bounds: 0.0  0.3  0.3  1.3  1.3  3.6  3.6  9.4 9.4 23.0 23.0 60.0 60.0 100000. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+!============
+variable_entry:    ua
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     eastward_wind
+units:             m s-1 
+cell_methods:      time: mean
+long_name:         Eastward Wind
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          ua
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    va
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     northward_wind
+units:             m s-1
+cell_methods:      time: mean
+long_name:         Northward Wind
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          va
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    ta
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     air_temperature
+units:             K
+cell_methods:      time: mean
+long_name:         Air Temperature
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          ta
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    hus
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     specific_humidity
+units:             1
+cell_methods:      time: mean
+long_name:         Specific Humidity
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          hus
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    wap
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     lagrangian_tendency_of_air_pressure
+units:             Pa s-1
+cell_methods:      time: mean
+long_name:         omega (=dp/dt)
+comment:           commonly referred to as ""omega"", this represents the vertical component of velocity in pressure coordinates (positive down)
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          wap
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    zg
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     geopotential_height
+units:             m
+cell_methods:      time: mean
+long_name:         Geopotential Height
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          zg
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    hur
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     relative_humidity
+units:             %
+cell_methods:      time: mean
+long_name:         Relative Humidity
+comment:           This is the relative humidity with respect to liquid water for T> 0 C, and with respect to ice for T<0 C.
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude plev8 time
+out_name:          hur
+type:              real
+!----------------------------------
+!
+
+!============
+variable_entry:    clisccp
+!============
+modeling_realm:    atmos
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:     cloud_area_fraction_in_atmosphere_layer
+units:             %
+cell_methods:      time: mean
+long_name:         ISCCP Cloud Area Fraction
+comment:           7 levels x 7 tau
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:        longitude latitude tau plev7 time
+out_name:          clisccp
+type:              real
+!----------------------------------
+!
