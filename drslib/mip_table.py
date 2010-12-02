@@ -16,6 +16,9 @@ import re
 from glob import glob
 import csv
 
+import logging
+log = logging.getLogger(__name__)
+
 entry_ids = ['axis_entry', 'variable_entry']
 
 line_rexp = re.compile(r'(\w+):\s*(.*)')
@@ -201,6 +204,7 @@ class MIPTableStore(object):
 
         """
         t = MIPTable(filename)
+        log.info('Adding table %s from %s to table store' % (t.name, filename))
         self.tables[t.name] = t
 
         return t
