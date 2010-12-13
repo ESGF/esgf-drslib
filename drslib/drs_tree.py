@@ -58,14 +58,16 @@ class DRSTree(object):
 
     """
 
-    def __init__(self, drs_root):
+    def __init__(self, drs_root, table_store=None):
         """
         :param drs_root: The path to the DRS *activity* directory.
+        :param table_store: Override the default table store.  This can be used
+            to select the TAMIP tables.
 
         """
         self.drs_root = drs_root
         self.pub_trees = {}
-        self._vtrans = make_translator(drs_root)
+        self._vtrans = make_translator(drs_root, table_store=table_store)
         self.incoming = DRSList()
         self.incomplete = DRSList()
         self._p_cmip5 = None
