@@ -65,8 +65,6 @@ cmip3_models = {
     'ECHAM6-MPIOM-HR': 'MPI-M',
     'ECHAM6-MPIOM-LR': 'MPI-M',
 
-    # Models in TAMIP test suite
-    'HadGEM2-A': 'MOHC',
 }
 for k in cmip3_models:
     if k in model_institute_map:
