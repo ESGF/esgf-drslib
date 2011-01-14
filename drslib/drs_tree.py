@@ -665,7 +665,7 @@ class PublisherTree(object):
 
         FILTER_COMPONENTS = ['institution', 'model', 'experiment',
                              'frequency', 'realm', 'table',
-                             'ensemble',
+                             'ensemble', 'product',
                              ]
 
         # Gather DRS components from the template drs instance to filter

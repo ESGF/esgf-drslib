@@ -8,6 +8,9 @@ import os, shutil
 import metaconfig
 import tempfile
 
+LISTING = 'mohc_product_dup.ls'
+#LISTING = 'multi_product.ls'
+
 config = metaconfig.get_config('drslib')
 shelve_dir = config.get('p_cmip5', 'shelve-dir')
 drs_root = '/cmip5'
@@ -22,7 +25,7 @@ def setup_module():
     shelves = p_cmip5.init._find_shelves(shelve_dir)
 
     config_file = os.path.join(os.path.dirname(__file__), 'ukmo_sample.ini')
-    listing = os.path.join(os.path.dirname(__file__), 'mohc_product_dup.ls')
+    listing = os.path.join(os.path.dirname(__file__), LISTING)
     gen_drs.write_listing(tmpdir, listing)
     
     p_cmip5 = p_cmip5.product.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
@@ -34,19 +37,19 @@ def setup_module():
     dt = drs_tree.DRSTree(tmpdir)
     dt.set_p_cmip5(p_cmip5)
 
-def iter_files():
-    filenames = open(listing).readlines()
-    for filename in filenames:
-        filename = filename.strip()
-        yield filename, tmpdir
-
-
 
 def test_product_dup():
     """
     Test scanning a set of files that are put into multiple products.
 
     """
+
+
+    filenames = [f.strip() for f in open(listing).readlines()]
+    def iter_files():
+        for filename in filenames:
+            yield filename, tmpdir
+
 
     dt.discover_incoming_fromfiles(iter_files())
 
@@ -65,6 +68,9 @@ def test_product_dup():
     set1 = set(x[0] for x in pt1._todo)
     set2 = set(x[0] for x in pt2._todo)
     assert set1.isdisjoint(set2)
+
+    # Check the total number of files is right
+    assert len(set1) + len(set2) == len(filenames)
 
 def teardown_module():
     shutil.rmtree(tmpdir)
