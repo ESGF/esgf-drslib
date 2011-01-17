@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 
 STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
+STANDARD_OUTPUT_XLS = 'standard_output_mod.xls'
 TEMPLATE_XLS = 'CMIP5_archive_size_template.xls'
 TEMPLATE_MAPPINGS = 'expt_id_mapping.txt'
 TEMPLATE_SHELVE = 'template'
@@ -126,7 +127,7 @@ class workflow:
       self.status = next
     else:
       log.info('%s %s' % (self.status, next))
-      raise Exception('failed to set')
+      raise Exception('failed to set [%s] %s --> %s' % (self.name,self.status, next) )
 
   def reset(self):
     self.status = None
@@ -282,7 +283,7 @@ class request_importer:
                    st,en = map( int, string.split(b,'-') )
                    ll.append( ('slice',st,en) )
                  else:
-                   log.info('%s %s' % (bits,b))
+                   log.info(bits,b)
                    ll.append( ('year',int(b)) )
                ee[r] = ll
    
@@ -350,6 +351,7 @@ class mip_importer:
     qrows = []
     for sn in sns:
     
+      wf.name = sn
       qrows_mip=[]
       wf.reset()
       wf.set( 'wait' )
@@ -370,7 +372,7 @@ class mip_importer:
             kk+=1
     
         if type(v) == type(u'x'):
-          if string.find( v, 'CMOR Table') != -1:
+          if string.find( v, 'CMOR Table') != -1 or string.find( v, 'Ocean layer depth field requested only from models ') != -1:
             log.info(v)
             kt+=1
             kk = 0

@@ -102,7 +102,7 @@ def test_gen3():
     yield check_product3, ( 'rhs', 'day', 'piControl', 'tmp/a_1930_2000', -999), {}, 'split'
     print '------------ noVolc1980  --------------'
     yield check_product3, ( 'sconcno3', 'aero', 'noVolc1980', 'tmp/a_2005_2100', 2015 ), {'model':'HadGEM2-ES'}, ('output2', 'OK300.08')
-    yield check_product3, ( 'sconcno3', 'aero', 'noVolc1980', 'tmp/a_2005_2100', 2010 ), {'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
+    yield check_product3, ( 'sconcno3', 'aero', 'noVolc1980', 'tmp/a_2005_2100', 2010 ), {'model':'HadGEM2-ES'}, ('output2', 'OK300.08')
     print '------------ volcIn2010  --------------'
     yield check_product3, ( 'sconcno3', 'aero', 'volcIn2010', 'tmp/a_2005_2100', 2015 ), {'model':'HadGEM2-ES'}, ('output2', 'OK300.09')
     yield check_product3, ( 'sconcno3', 'aero', 'volcIn2010', 'tmp/a_2005_2100', 2014 ), {'model':'HadGEM2-ES'}, ('output1', 'OK300.09')
@@ -115,7 +115,7 @@ def test_gen4():
     yield check_product3, ( 'tasxx', '3hr', 'rcp45', None, 1990 ),  {},'output2'
     yield check_product3, ( 'intpdiaz', 'Omon', 'rcp45', 'tmp/a_2010_2020', 2050 ),  {},'output1'
     yield check_product3, ( 'intpp', 'Omon', 'rcp45', 'tmp/a_2010_2020', 2050 ),  {},'output1'
-    yield check_product3, ( 'sconcno3', 'aero', 'piControl', 'tmp/a_2010_2020', 2050 ), {}, 'output1'
+    yield check_product3, ( 'sconcno3', 'aero', 'piControl', 'tmp/a_2005_2100', 2040 ), {}, 'output1'
     yield check_product3, ( 'ta', '6hrPlev', 'midHolocene', 'tmp/a_1001_1050', 1040 ), {}, ('output1','OK200.01')
     yield check_product3, ( 'ta', '6hrPlev', 'midHolocene', 'tmp/a_1001_1050', 1040 ), {'path_output1':'tmp/a_1001_1030'}, ('Failed','ERR007')
     yield check_product3, ( 'ta', '6hrPlev', 'midHolocene', 'tmp/a_2005_2100', -999 ), {}, 'split'
