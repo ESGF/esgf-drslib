@@ -8,8 +8,7 @@ import os, shutil
 import metaconfig
 import tempfile
 
-LISTING = 'mohc_product_dup.ls'
-#LISTING = 'multi_product.ls'
+LISTING = 'multi_product.ls'
 
 config = metaconfig.get_config('drslib')
 shelve_dir = config.get('p_cmip5', 'shelve-dir')
