@@ -1,5 +1,5 @@
 recursive-include drslib/data *
-recursive-include drslib/p_cmip5/xls *.xls
+recursive-include drslib/p_cmip5/xls *.xls *.txt
 recursive-include test *.py *.txt *.ls *_ls *.zip *.ini
 recursive-include examples *.txt *.py
 recursive-include doc *.py *.rst *.conf *.html *.css *.png Makefile *.pdf
