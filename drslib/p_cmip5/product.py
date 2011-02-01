@@ -347,7 +347,7 @@ class cmip5_product:
       ssp = tlist[tli]
       self.request_spec = ssp
       assert ssp[0] in ['list','listrel','corres','none','all'], 'unexpected ssp[0]:: %s [%s,%s]' % (str( ssp[0] ),self.expt,self.table)
-      if ssp[0] in ['list','listrel']:
+      if ssp[0] in ['list','listrel','corres']:
         nyears = 0
         for s in ssp[1:]:
           assert s[0] in ['year','slice'], 'Unexpected time specification %s' % str(s[0])

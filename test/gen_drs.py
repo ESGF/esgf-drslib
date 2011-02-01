@@ -169,21 +169,30 @@ def write_listing(prefix, listing_file):
     Create a drs-tree from a listing file
     
     """
-    for line in open(listing_file):
-        line = line.strip()
-        if not line or line[0] == '#':
-            continue
-        if line[0] == '/':
-            raise Exception("Absolute path in listing file!")
+    def it():
+        for line in open(listing_file):
+            line = line.strip()
+            if not line or line[0] == '#':
+                continue
+            yield line
+    write_listing_seq(prefix, it())
 
-        path = os.path.normpath(line)
+        
+def write_listing_seq(prefix, sequence):
+    """
+    Create a drs-tree from a sequence.
 
-        filepath = os.path.join(prefix, line)
+    """
+    for filename in sequence:
+        if filename[0] == '/':
+            raise Exception("Absolute path in listing!")
+
+        path = os.path.normpath(filename)
+
+        filepath = os.path.join(prefix, filename)
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
         write_eg_file(filepath)
-        
-
 
 
 def write_eg1(prefix):

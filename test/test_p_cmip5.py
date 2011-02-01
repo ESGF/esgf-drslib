@@ -166,12 +166,39 @@ def test_gen9():
 
 ##( 'rlu4co2', 'cfMon', 'piControl', startyear=2000, endyear=2000, path='./tmp/a_2010_2020', expected=('output1', 'OK008.2') )
 
+def test_regression_1():
+    """
+    Bug identified during ingest.
 
-def txxx_drs_tree():
+    """
+    from drslib.cmip5 import make_translator
+    from test.gen_drs import write_listing_seq
+    
+    prefix = os.path.join(tmpdir, 'reg_1')
+    filenames = [
+        'clt_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc',
+        'clt_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc',
+        'clt_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc',
+        ]
+
+    write_listing_seq(prefix, filenames)
+    trans = make_translator(prefix)
+
+    drs = trans.filename_to_drs(filenames[0])
+    
+    status = pc1.find_product(drs.variable, drs.table, drs.experiment,
+                              drs.model, prefix,
+                              startyear=1979, endyear=1989)
+    assert status
+    #!TODO: next?
+
+
+def test_drs_tree():
     """
     Test drs_tree interface to p_cmip5.
     """
     from drslib import drs_tree
+
 
     # Point drs_root at /tmp since we won't be making any upgrades.
     dt = drs_tree.DRSTree('/tmp')
@@ -187,4 +214,7 @@ cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r1i1p1
 cmip5.output1.UKMO.HADCM3.piControl.day.atmos.day.r3i1p1
 cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1
 """.strip().split())
+# Deactivated test
+#!TODO: ask Martin why he switched this off.
+test_drs_tree.__test__ = False
 

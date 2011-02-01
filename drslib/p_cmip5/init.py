@@ -269,9 +269,18 @@ class request_importer:
                this_type = 'list'
              bits = string.split( item, ',' )
 
-             if string.find( item, 'corresp') != -1 or string.find( item, 'last') != -1:
-               ee[r] =  ('corres',)
+             if string.find( item, 'corresp') != -1:
+               assert r in [54,69], 'Only expecting corres in piControl r=%s' % r
+               if r == 69 and colh[kkk] == 'M':
+                 ll1 = []
+                 for y in [1850, 1870, 1890, 1900,1910,1920,1930,1940, 1950, 1960, 1970, 1980,1990 , 2000, 2010, 2020, 2040, 2060, 2080, 2100]:
+                   ll1.append( ('year',y) )
+               else:
+                 ll1 = { 'N':('slice',1986,2005), 'Q':('slice',1979,2008), 'R':('slice',111,140) }[colh[kkk]]
+               ee[r] =  ['listrel',ll1]
                log.info('corres:: row %s, col %s' % ( oo.row(r)[0].value, colh[kkk] ))
+             elif string.find( item, 'last') != -1:
+               ee[r] =  ['corres',ll1]
              else:
                ll = [this_type]
                for b in bits:
