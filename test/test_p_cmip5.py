@@ -190,7 +190,7 @@ def test_regression_1():
                               drs.model, prefix,
                               startyear=1979, endyear=1989)
     assert status
-    #!TODO: next?
+    assert pc1.product=='output1'
 
 
 def test_drs_tree():
@@ -247,5 +247,5 @@ def test_p_cmip5_data_perms():
                               template=shelves['template'],
                               stdo=shelves['stdo'],
                               config=config1, not_ok_excpt=False)
-test_p_cmip5_data_perms.__test__ = False
+#test_p_cmip5_data_perms.__test__ = False
 

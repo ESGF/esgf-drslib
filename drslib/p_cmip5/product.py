@@ -19,9 +19,11 @@
 ##                 -- fixed bug: piControl, decadal, aero data was using wrong offset
 ##                 -- changed names to be consistent with MIP tables (Co2,co2 --> CO2, volcano2010 --> volcIn2010 -- see expt_id_mappings.txt
 ##                 -- added code to deal with volcIn2010, aero option (previously overlooked)
+## 20110201        -- debugged atomic dataset scanning to get robust estimate of nyears_submitted
+##                 -- debugged support for "corresponding"
 ##   
-version = 1.0
-version_date = '20101021'
+version = 1.1
+version_date = '20100201'
 import logging
 log = logging.getLogger(__name__)
 import re
@@ -94,6 +96,7 @@ class cmip5_product:
     self.override_product_change_warning = override_product_change_warning
     self.not_ok_excpt = not_ok_excpt
     self.ScopeException = ProductScope
+    self.warning = "this is a depricated variable"
 
   def ok(self, product, reason, rc=None):
     self.product = product
@@ -157,6 +160,7 @@ class cmip5_product:
     kk = -1
     time_periods = []
     year_slices = []
+    years_present = []
     time_tuples = []
     nyears = 0
     start_years = []
@@ -190,8 +194,13 @@ class cmip5_product:
         start_years.append( startyear )
       else:
           return self.not_ok( 'filename does not match DRS: %s in %s' % (f,dir), 'ERR011' )
+
       if has_time:
         time_periods.append( (startyear, endyear) )
+        for thisy in range( startyear, endyear+1):
+          if thisy not in years_present:
+             years_present.append( thisy)
+
         if len( year_slices ) == 0 or (startyear != year_slices[-1][0] or endyear != year_slices[-1][1]):
           year_slices.append( (startyear, endyear) )
           time_tuples.append( (start_tuple, end_tuple) )
@@ -207,9 +216,10 @@ class cmip5_product:
                 nyears += -1
             else:
               endm = int(end_tuple[1])
+
             if endm > startm:
               nyears += 1
-              
+ 
             
       elif len(fl) > 1:
           return self.not_ok( 'error: multiple files in atomic dataset with no temporal subset: %s ' % dir, 'ERR012' )
@@ -221,7 +231,7 @@ class cmip5_product:
           log.info( base )
           log.info( string.join(bits[0:5],'_') )
           return self.not_ok( 'error: inconsistent files in %s' % dir, 'ERR013' )
-    self.nyears_submitted = nyears
+    self.nyears_submitted = len( years_present )
     self.drs = (var, mip, model, expt, ens)
     self.has_time = has_time
     self.time_periods = time_periods
