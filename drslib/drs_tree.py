@@ -587,8 +587,12 @@ class PublisherTree(object):
         if os.path.exists(dest):
             log.warning('Moving symlink %s' % dest)
             os.remove(dest)
-        log.info('Linking %s %s' % (src, dest))
-        os.symlink(src, dest)
+
+        # Make src relative to dest
+        rel_src = os.path.relpath(src, dir)
+
+        log.info('Linking %s %s' % (rel_src, dest))
+        os.symlink(rel_src, dest)
 
     def _setup_versioning(self):
         """
@@ -711,3 +715,4 @@ def _get_tracking_id(filename):
 
 def _get_size(filename):
     return os.stat(filename)[stat.ST_SIZE]
+
