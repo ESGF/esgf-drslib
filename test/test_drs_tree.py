@@ -512,6 +512,34 @@ class TestMapfile(TestListing):
 
 
 
+
+class TestSymlinks(TestEg):
+    """
+    Test that symlinks created during versioning are all relative.
+
+    """
+    __test__ = True
+
+    def setUp(self):
+        super(TestSymlinks, self).setUp()
+
+        gen_drs.write_eg1(self.tmpdir)
+
+    def test_1(self):
+        dt = DRSTree(self.tmpdir)
+        dt.discover(self.incoming, activity='cmip5',
+                    product='output1', institute='MOHC', model='HadCM3')
+        
+        pt = dt.pub_trees.values()[0]
+        assert pt.state == pt.STATE_INITIAL
+
+        pt.do_version()
+
+        for path, drs in pt.versions[pt.latest]:
+            lnk = os.readlink(path)
+            assert not os.path.isabs(lnk)
+
+
 #----------------------------------------------------------------------------
 
 def test_1():
