@@ -142,7 +142,7 @@ class DRS(dict):
         if self[attr] is None:
             val = '%'
         elif attr is 'ensemble':
-            val = 'r%di%dp%d' % self.ensemble
+            val = self._encode_ensemble()
         elif attr is 'version':
             val = 'v%d' % self.version
         elif attr is 'subset':
@@ -161,6 +161,15 @@ class DRS(dict):
 
         return val
 
+    def _encode_ensemble(self):
+        r, i, p = self.ensemble
+        ret = 'r%d' % r
+        if i:
+            ret += 'i%d' % i
+            if p:
+                ret += 'p%d' % p
+
+        return ret
 
     def to_dataset_id(self, with_version=False):
         """
