@@ -125,3 +125,9 @@ def test_11():
     drs = translator_noversion.filename_to_drs('snw_LImon_HadGEM2-ES_rcp45_r1i1p1_201512-204011.nc')
 
     assert drs.realm == 'landIce'
+
+def test_11():
+    # Check single ensemble number is allowed
+    drs = translator_noversion.filename_to_drs('hur_Amon_HadGEM2-ES_historical_r1_186212-186311.nc')
+    print drs.to_dataset_id()
+
