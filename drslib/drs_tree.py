@@ -329,7 +329,8 @@ class PublisherTree(object):
         self._vtrans = make_translator(drs_tree.drs_root)
         self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
 
-        ensemble = 'r%di%dp%d' % self.drs.ensemble
+        #!TODO: calling internal method.  Make this method public.
+        ensemble = self.drs._encode_ensemble()
         self.pub_dir = os.path.join(self.drs_tree.drs_root,
                                       self.drs.product,
                                       self.drs.institute,

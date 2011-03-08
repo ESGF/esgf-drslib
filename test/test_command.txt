@@ -187,4 +187,11 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | ./drs_tool_example/...
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | ./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2008010109-2010010100.nc | 61 | mod_time=...
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1 | ./drs_tool_example/.../tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc | 61 | mod_time=...
 
->>> do_drs_tool('list', pattern="cmip5.%.MOHC.NoModel")
+>>> do_drs_tool('list', '--product=output1', pattern="cmip5.%.MOHC.NoModel")
+==============================================================================
+DRS Tree at ./drs_tool_example
+------------------------------------------------------------------------------
+cmip5.output1.MOHC.NoModel.historical.mon.atmos.Amon.r1                 0:0 62:3255
+------------------------------------------------------------------------------
+1 datasets awaiting upgrade
+==============================================================================

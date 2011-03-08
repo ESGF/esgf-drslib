@@ -17,6 +17,9 @@ import drslib.translate as T
 from drslib import config
 from drslib.mip_table import read_model_table
 
+import logging
+log = logging.getLogger(__name__)
+
 class ProductTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
@@ -64,7 +67,6 @@ cmip3_models = {
     # Models in test listings contributed from MPI
     'ECHAM6-MPIOM-HR': 'MPI-M',
     'ECHAM6-MPIOM-LR': 'MPI-M',
-
 }
 for k in cmip3_models:
     if k in model_institute_map:
@@ -90,10 +92,12 @@ class InstituteTranslator(T.GenericComponentTranslator):
 
     def _deduce_institute(self, context):
         model = context.drs.model
-        if model is None:
-            raise T.TranslationError('Institute translation requires model to be known')
+        try:
+            return model_institute_map[model]
+        except KeyError:
+            log.warn('Institute translation requires model to be known')
+            return None
 
-        return model_institute_map[model]
 
     # Allow all institutes
     def _validate(self, s):
@@ -106,6 +110,14 @@ class ModelTranslator(T.GenericComponentTranslator):
     file_i = T.CMIP5_DRS.FILE_MODEL
     component = 'model'
     vocab = model_institute_map.keys()
+
+    def _validate(self, s):
+        # Demote validation errors to a warning.
+        try:
+            return super(ModelTranslator, self)._validate(s)
+        except T.TranslationError, e:
+            log.warning('Model validation error: %s', e)
+        return s
 
 model_t = ModelTranslator()
 
