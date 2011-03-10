@@ -42,7 +42,7 @@ except:
 
 #
 # Allow backward compatibility with the original version system
-# Original behaviour is default
+# Date behaviour is default
 #
 try:
     version_by_date = config.getboolean('versioning', 'version_by_date')
@@ -61,7 +61,17 @@ try:
 except:
     move_cmd = DEFAULT_MOVE_CMD
 
-
+#
+# Configure detection of incoming files already present in a version
+#
+# The default behaviour is to assume all files in incoming are new
+# Alternatively duplicate files can be analysed by size, tracking_id or md5sum
+#
+try:
+    detect_duplicates = config.get('versioning', 'detect_duplicates_by')
+    assert detect_duplicates in ['size', 'tracking_id', 'md5sum']
+except:
+    detect_duplicates = False
 
 #
 # CMIP3 component to file/path position mapping

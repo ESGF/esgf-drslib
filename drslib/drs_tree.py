@@ -532,10 +532,10 @@ class PublisherTree(object):
             
             yield self.CMD_MOVE, filepath, newpath
 
-            #!TODO: could automatically deduce relative path.  Also see linkpath below
             linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
                                                     drs.variable,
                                                     filename))
+
             yield self.CMD_LINK, newpath, linkpath
             done.add(filename)
 
@@ -589,6 +589,7 @@ class PublisherTree(object):
             log.warning('Moving symlink %s' % dest)
             os.remove(dest)
 
+        #!TODO: would be better implemented in _todo_commands()
         # Make src relative to dest
         rel_src = os.path.relpath(src, dir)
 
