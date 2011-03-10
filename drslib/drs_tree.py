@@ -328,6 +328,7 @@ class PublisherTree(object):
         self.latest = 0
         self._vtrans = make_translator(drs_tree.drs_root)
         self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
+        self._detect_duplicates = config.detect_duplicates
 
         #!TODO: calling internal method.  Make this method public.
         ensemble = self.drs._encode_ensemble()
@@ -440,7 +441,7 @@ class PublisherTree(object):
 
         return count
 
-    def diff_version(self, v1, v2=None, by_tracking_id=False):
+    def diff_version(self, v1, v2=None, strategy=False):
         """
         Deduce the difference between two versions or between a version
         and the todo list.
@@ -462,7 +463,7 @@ class PublisherTree(object):
         for file in set(files1.keys() + files2.keys()):
             if file in  files1 and file in files2:
                 yield (self._diff_file(files1[file], files2[file], 
-                                       by_tracking_id),
+                                       strategy),
                        files1[file], files2[file])
             elif file in files1:
                 yield (self.DIFF_V1_ONLY, files1[file], None)
@@ -687,11 +688,21 @@ class PublisherTree(object):
         else:
             self._todo = []
 
+        #!TODO: another not very efficient algorithm
+        # If duplicate detection is enabled filter files by duplicate
+        if self._detect_duplicates:
+            dups = []
+            for reason, file1, file2 in self.diff_version(self.latest, strategy=self._detect_duplicates):
+                if reason == self.DIFF_NONE:
+                    log.info('Duplicate file in incoming ignored: %s' % file2)
+                    dups.append(file2)
+            self._todo = [row for row in self._todo if row[0] not in dups]
+
         log.info('Deduced %d incoming DRS files for PublisherTree %s' % 
                  (len(self._todo), self.drs))
                 
 
-    def _diff_file(self, filepath1, filepath2, by_tracking_id=False):
+    def _diff_file(self, filepath1, filepath2, strategy):
         diff_state = self.DIFF_NONE
 
         # Check files are the same size
@@ -699,13 +710,16 @@ class PublisherTree(object):
             diff_state |= self.DIFF_SIZE
 
         # Check by tracking_id
-        if by_tracking_id:
+        if strategy == 'tracking_id':
             if filepath1[-3:] == filepath2[-3:] == '.nc':
                 if _get_tracking_id(filepath1) != _get_tracking_id(filepath2):
                     diff_state |= self.DIFF_TRACKING_ID
-
-        #!TODO: what about md5sum?  This would be slow, particularly as
-        #       esgpublish does it anyway.
+        # Check by md5sum
+        elif strategy == 'md5sum':
+            hash1 = _md5sum(filepath1)
+            hash2 = _md5sum(filepath2)
+            if hash1 != hash2:
+                diff_state |= self.DIFF_MD5SUM
 
         return diff_state
 
