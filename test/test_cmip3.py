@@ -21,7 +21,7 @@ cmip5_translator = cmip5.make_translator('cmip5')
 def test_1():
     p = '/20c3m/atm/da/rsus/gfdl_cm2_0/run1/rsus_A2.19610101-19651231.nc'
     p2 = convert(p)
-    assert p2 == 'cmip5/output/GFDL/CM2/20c3m/day/atmos/A2/r1/v1/rsus/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc'
+    assert p2 == 'cmip5/output/GFDL/CM2/20c3m/day/atmos/A2/r1/v%s/rsus/rsus_A2_CM2_20c3m_r1_19610101-19651231.nc' % cmip3.today_version
     
 def test_listing():
     """
@@ -51,4 +51,4 @@ def test_var_underscore():
     p = '/1pctto2x/atm/mo/rlftoaa_co2/ipsl_cm4/run1/rlftoaa_co2_A5_1860-1869.nc'
     p2 = convert(p)
 
-    assert p2 == 'cmip5/output/IPSL/CM4/1pctto2x/mon/atmos/A5/r1/v1/rlftoaa_co2/rlftoaa_co2_A5_CM4_1pctto2x_r1_1860-1869.nc'
+    assert p2 == 'cmip5/output/IPSL/CM4/1pctto2x/mon/atmos/A5/r1/v%s/rlftoaa_co2/rlftoaa_co2_A5_CM4_1pctto2x_r1_1860-1869.nc' % cmip3.today_version

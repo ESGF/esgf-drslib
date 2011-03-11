@@ -25,6 +25,9 @@ import drslib.translate as T
 from drslib.drs import DRS
 from drslib.config import CMIP5_DRS, CMIP3_DRS
 
+import datetime
+today_version = int(datetime.date.today().strftime('%Y%m%d'))
+
 TranslationError = T.TranslationError
 
 
@@ -299,7 +302,7 @@ class CMIP3Translator(T.Translator):
             drs = DRS()
 
         drs.activity = 'cmip3'
-        drs.version = 1
+        drs.version = today_version
         drs.product = 'output'
 
         return drs
