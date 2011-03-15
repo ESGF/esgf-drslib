@@ -5,6 +5,7 @@ initialise the drslib.p_cmip5 module.
 
 import os, sys
 import xlrd, string, shelve
+import whichdb
 
 import logging
 log = logging.getLogger(__name__)
@@ -33,9 +34,9 @@ def _find_shelves(shelve_dir):
     stdo = os.path.join(shelve_dir, STDO_SHELVE)
     stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
 
-    assert os.path.exists(template)
-    assert os.path.exists(stdo)
-    assert os.path.exists(stdo_mip)
+    assert whichdb.whichdb(template) != None
+    assert whichdb.whichdb(stdo) != None
+    assert whichdb.whichdb(stdo_mip) != None
 
     return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
 
