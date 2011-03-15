@@ -28,6 +28,9 @@ import logging
 log = logging.getLogger(__name__)
 import re
 
+#!TODO: can this information be taken from the shelves?
+REQUESTED_FX_VARS = ['areacella', 'orog', 'sftlf', 'sftgif', 'mrsofc', 'rootd']
+
 class ProductScope(Exception):
   def __init__(self,value):
      self.value = value
@@ -395,6 +398,12 @@ class cmip5_product:
         return True
     elif self.ads_product == 'Failed':
         return False
+    elif table == 'fx':
+      if var in REQUESTED_FX_VARS:
+        self.product = 'output1'
+      else:
+        self.product = 'output2'
+      return True
     else:
         if startyear in self.output1_start_years:
           self.product = 'output1'

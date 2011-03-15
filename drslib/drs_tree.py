@@ -230,8 +230,11 @@ class DRSTree(object):
         p_cmip5_log.info('Deducing product for %s' % drs)
 
         pci = self._p_cmip5
-        startyear = drs.subset[0][0]
-        endyear = drs.subset[1][0]
+        if drs.subset[0] == None:
+            startyear = endyear = None
+        else:
+            startyear = drs.subset[0][0]
+            endyear = drs.subset[1][0]
 
         try:
             status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,

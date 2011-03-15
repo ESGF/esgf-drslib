@@ -192,6 +192,26 @@ def test_regression_1():
     assert status
     assert pc1.product=='output1'
 
+def test_regression_2():
+    from drslib.cmip5 import make_translator
+    from test.gen_drs import write_listing_seq
+    
+    prefix = os.path.join(tmpdir, 'reg_2')
+    filenames = [
+        'areacella_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
+        'orog_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
+        'sftlf_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
+    ]
+
+    write_listing_seq(prefix, filenames)
+    trans = make_translator(prefix)
+
+    for filename in filenames:
+        drs = trans.filename_to_drs(filenames[0])
+        status = pc1.find_product(drs.variable, drs.table, drs.experiment,
+                                  drs.model, prefix)
+        assert status
+        assert pc1.product=='output1'
 
 def test_drs_tree():
     """
