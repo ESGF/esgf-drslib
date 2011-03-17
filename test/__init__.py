@@ -131,3 +131,8 @@ def test_11():
     drs = translator_noversion.filename_to_drs('hur_Amon_HadGEM2-ES_historical_r1_186212-186311.nc')
     print drs.to_dataset_id()
 
+def test_11():
+    # Detect regression where 0-indexed ensembles are printed wrong
+    drs = translator_noversion.filename_to_drs('areacella_fx_IPSL-CM5A-LR_piControl_r0i0p0.nc')
+    assert drs.ensemble == (0, 0, 0)
+    assert 'r0i0p0' in repr(drs)
