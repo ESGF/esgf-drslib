@@ -230,7 +230,7 @@ class DRSTree(object):
         p_cmip5_log.info('Deducing product for %s' % drs)
 
         pci = self._p_cmip5
-        if drs.subset[0] == None:
+        if not drs.subset or drs.subset[0] == None:
             startyear = endyear = None
         else:
             startyear = drs.subset[0][0]
