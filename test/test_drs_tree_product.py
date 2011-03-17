@@ -71,6 +71,20 @@ def test_product_dup():
     # Check the total number of files is right
     assert len(set1) + len(set2) == len(filenames)
 
+
+
+def test_product_fixed():
+
+
+    filenames = ['areacella_fx_IPSL-CM5A-LR_piControl_r0i0p0.nc']
+    def iter_files():
+        for filename in filenames:
+            yield filename, tmpdir
+
+
+    dt.discover_incoming_fromfiles(iter_files())
+
+
 def teardown_module():
     shutil.rmtree(tmpdir)
     
