@@ -199,6 +199,13 @@ Or if the depencencies are satisfied you can run all tests with::
   $ nosetests
 
 
+Reporting Bugs
+==============
+
+The drslib bugtracker is available on `esgf.org bugzilla`_.
+
+* `Submit a bug here <http://esgf.org/bugzilla/enter_bug.cgi?product=drslib>`_.
+
 .. _CMIP5: http://cmip-pcmdi.llnl.gov/cmip5/
 .. _DRS: http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose
@@ -210,3 +217,4 @@ Or if the depencencies are satisfied you can run all tests with::
 .. _CEDA: http://www.ceda.ac.uk
 .. _`Stephen Pascoe`: mailto:Stephen.Pascoe@stfc.ac.uk
 .. _Python: http://www.python.org
+.. _`esgf.org bugzilla`: http://esgf.org/bugzilla/enter_bug.cgi?product=drslib
