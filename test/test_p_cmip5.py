@@ -8,6 +8,8 @@ import zipfile
 
 import drslib.p_cmip5.product as p
 from drslib.p_cmip5 import init
+from drslib.cmip5 import make_translator
+from test.gen_drs import write_listing_seq
 
 from nose import with_setup
 
@@ -166,14 +168,15 @@ def test_gen9():
 
 ##( 'rlu4co2', 'cfMon', 'piControl', startyear=2000, endyear=2000, path='./tmp/a_2010_2020', expected=('output1', 'OK008.2') )
 
+
+
+
+
 def test_regression_1():
     """
     Bug identified during ingest.
 
-    """
-    from drslib.cmip5 import make_translator
-    from test.gen_drs import write_listing_seq
-    
+    """    
     prefix = os.path.join(tmpdir, 'reg_1')
     filenames = [
         'clt_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc',
@@ -193,9 +196,6 @@ def test_regression_1():
     assert pc1.product=='output1'
 
 def test_regression_2():
-    from drslib.cmip5 import make_translator
-    from test.gen_drs import write_listing_seq
-    
     prefix = os.path.join(tmpdir, 'reg_2')
     filenames = [
         'areacella_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
@@ -212,6 +212,8 @@ def test_regression_2():
                                   drs.model, prefix)
         assert status
         assert pc1.product=='output1'
+
+
 
 def test_drs_tree():
     """

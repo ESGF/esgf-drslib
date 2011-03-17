@@ -164,9 +164,9 @@ class DRS(dict):
     def _encode_ensemble(self):
         r, i, p = self.ensemble
         ret = 'r%d' % r
-        if i:
+        if i is not None:
             ret += 'i%d' % i
-            if p:
+            if p is not None:
                 ret += 'p%d' % p
 
         return ret
