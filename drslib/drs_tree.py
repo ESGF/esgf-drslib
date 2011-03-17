@@ -244,8 +244,12 @@ class DRSTree(object):
         except ProductScope as e:
             p_cmip5_log.warn('FAILED product detection for %s, %s' % (drs, e))
         else:
-            p_cmip5_log.debug('%s, %s, %s, %s, %d-%d:: %s %s' % (drs.variable, drs.table, drs.experiment, 
-                                                                 path, startyear, endyear,
+            if startyear and endyear:
+                dur_str = '%d-%d' % (startyear, endyear)
+            else:
+                dur_str = ''
+            p_cmip5_log.debug('%s, %s, %s, %s, %s:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                                 path, dur_str,
                                                                  pci.product, pci.reason ))
             
             drs.product = pci.product
