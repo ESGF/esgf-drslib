@@ -5,7 +5,6 @@ initialise the drslib.p_cmip5 module.
 
 import os, sys
 import xlrd, string, shelve
-import whichdb
 
 import logging
 log = logging.getLogger(__name__)
@@ -34,9 +33,9 @@ def _find_shelves(shelve_dir):
     stdo = os.path.join(shelve_dir, STDO_SHELVE)
     stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
 
-    assert whichdb.whichdb(template) != None
-    assert whichdb.whichdb(stdo) != None
-    assert whichdb.whichdb(stdo_mip) != None
+    assert os.path.exists(template)
+    assert os.path.exists(stdo)
+    assert os.path.exists(stdo_mip)
 
     return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
 
@@ -293,7 +292,7 @@ class request_importer:
                    st,en = map( int, string.split(b,'-') )
                    ll.append( ('slice',st,en) )
                  else:
-                   log.info('%s %s' % (bits,b))
+                   log.info('%s %s', (bits,b))
                    ll.append( ('year',int(b)) )
                ee[r] = ll
    
@@ -348,7 +347,7 @@ class mip_importer:
     wf.add( 'items', allowed=['wait','title'], disallowed=['items'] )
     wf.add( 'title', allowed=['items','title'], disallowed=['wait'] )
 
-    sns = book.sheet_names()[3:-2]
+    sns = book.sheet_names()[2:-2]
     
     x1 = x1_sh != None
     if x1:
@@ -382,7 +381,7 @@ class mip_importer:
             kk+=1
     
         if type(v) == type(u'x'):
-          if string.find( v, 'CMOR Table') != -1 or string.find( v, 'Ocean layer depth field requested only from models ') != -1:
+          if string.find( v, 'CMOR Table') != -1 or string.find( v, 'Ocean layer depth field requested only from models ') != -1 or string.find(v,'on ocean grid') != -1:
             log.info(v)
             kt+=1
             kk = 0
