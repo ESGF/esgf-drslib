@@ -16,7 +16,7 @@ on translating paths to DRS instances.
 
 """
 
-import re
+import re, os
 
 import logging
 log = logging.getLogger(__name__)
@@ -251,8 +251,6 @@ class CMIP3TranslatorContext(T.TranslatorContext):
     
     """
 
-    #!FIXME: This regular expression doesn't allow underscores in variable
-    #        names.  Unfortunately CMIP3 has them.
     _fnrexp = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9]+)(?:[._-](.*))?.nc$')
     
 
@@ -264,20 +262,22 @@ class CMIP3TranslatorContext(T.TranslatorContext):
         else:
             self.path_parts = path.split('/')
     
+        if drs is None:
+            self.drs = DRS()
+        else:
+            self.drs = drs
+
         self.file_parts = [None] * 7
         if filename is not None:
             # CMIP3 requires different filename parsing
             mo = self._fnrexp.match(filename)
             if not mo:
                 raise TranslationError('Unrecognised CMIP3 filename %s' % filename)
-            self.file_parts[CMIP3_DRS.PATH_VARIABLE] = mo.group(1)
+            self.file_parts[CMIP3_DRS.FILE_VARIABLE] = mo.group(1)
             self.file_parts[CMIP3_DRS.FILE_TABLE] = mo.group(2)
             self.file_parts[CMIP3_DRS.FILE_EXTENDED] = mo.group(3)
+
             
-        if drs is None:
-            self.drs = DRS()
-        else:
-            self.drs = drs
 
 class CMIP3Translator(T.Translator):
     
@@ -307,7 +307,40 @@ class CMIP3Translator(T.Translator):
 
         return drs
 
-
 def make_translator(prefix):
     return CMIP3Translator(prefix)
 
+
+##############################################################################
+# Handling legacy cmip3_drs format
+#
+# Originally cmip3_drs was /cmip3_drs/<product>/<inst>/<model>/<experiment>/
+#    <freq>/<realm>/<var>/<ensemble>/v<n>/<file>
+#
+
+def legacy_filepath_to_drs(filepath, prefix):
+    relpath = os.path.relpath(filepath, prefix)
+    
+    dirname, basename = os.path.split(relpath)
+    (product, institute, model, experiment, frequency, realm, variable,
+     ensemble_str, version_str) = dirname.split('/')
+    
+    mo = re.match(r'r(\d+)', ensemble_str)
+    assert mo
+    ensemble = (int(mo.group(1)), None, None)
+
+    # Table is the part of the filename after variable
+    var, rest = basename[:len(variable)], basename[len(variable):]
+    assert var == variable
+    table = rest.split('_')[1]
+
+    # Version is set to today
+    drs = DRS(activity='cmip3',
+              product=product, institute=institute, model=model, 
+              experiment=experiment, frequency=frequency, 
+              realm=realm, variable=variable, 
+              ensemble=ensemble, version=today_version,
+              table = table
+              )
+
+    return drs
