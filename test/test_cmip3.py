@@ -52,3 +52,14 @@ def test_var_underscore():
     p2 = convert(p)
 
     assert p2 == 'cmip5/output/IPSL/CM4/1pctto2x/mon/atmos/A5/r1/v%s/rlftoaa_co2/rlftoaa_co2_A5_CM4_1pctto2x_r1_1860-1869.nc' % cmip3.today_version
+
+############################################################################
+# Tests on new DRS structure (including mip_table) start here
+#
+def test_table():
+    p = '/sresb1/ocn/mo/wfo/csiro_mk3_5/run1/wfo_O1c_2211-2220_SRESB1_mk3.5_run1.nc'
+    drs = translator.filepath_to_drs(p)
+
+    print drs
+    assert drs.table == 'O1c'
+

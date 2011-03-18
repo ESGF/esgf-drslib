@@ -110,21 +110,6 @@ def trans_files(cmip3_path, cmip5_path):
     for dirpath, filenames in walk_cmip3(cmip3_path):
         log.info('Processing directory %s' % dirpath)
 
-        try:
-            drs = cmip3_t.path_to_drs(dirpath)
-            path = cmip5_t.drs_to_path(drs)
-        except TranslationError, e:
-            log.error('Failed to translate path %s: %s' % (dirpath, e))
-            continue
-        except:
-            log.exception('Error translating path %s' % dirpath)
-            continue
-
-        log.info('Translating atomic dataset %s' % drs)
-
-        if not os.path.exists(path):
-            _mkdirs(path)
-
         for filename in filenames:
 
             try:
@@ -134,9 +119,9 @@ def trans_files(cmip3_path, cmip5_path):
                 log.error('Failed to translate filename %s: %s' % (filename, e))
                 continue
 
-            # Sanity check
-            path2 = cmip5_t.drs_to_path(drs2)
-            assert path2 == path
+            path = cmip5_t.drs_to_path(drs2)
+            if not os.path.exists(path):
+                _mkdirs(path)
 
             if copy_trans:
                 _copy(os.path.join(dirpath, filename),
@@ -173,7 +158,7 @@ def main(argv=sys.argv):
                       default='INFO',
                       help="Set logging level")
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(argv[1:])
     cmip3_path, cmip5_path = args
 
     loglevel = getattr(logging, options.loglevel)    
