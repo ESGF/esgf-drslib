@@ -111,15 +111,24 @@ def trans_files(cmip3_path, cmip5_path):
         log.info('Processing directory %s' % dirpath)
 
         for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
 
-            try:
-                drs2 = cmip3_t.filepath_to_drs(os.path.join(dirpath, filename))
-                filename2 = cmip5_t.drs_to_file(drs2)
-            except TranslationError, e:
-                log.error('Failed to translate filename %s: %s' % (filename, e))
+            if os.path.splitext(filename)[1] != '.nc':
+                log.info('Passing over %s' % filename)
                 continue
 
-            path = cmip5_t.drs_to_path(drs2)
+            if legacy:
+                drs = cmip3.legacy_filepath_to_drs(filepath, cmip3_path)
+                filename2 = cmip5_t.drs_to_file(drs)
+            else:
+                try:
+                    drs = cmip3_t.filepath_to_drs(filepath)
+                    filename2 = cmip5_t.drs_to_file(drs)
+                except TranslationError, e:
+                    log.error('Failed to translate filename %s: %s' % (filename, e))
+                    continue
+
+            path = cmip5_t.drs_to_path(drs)
             if not os.path.exists(path):
                 _mkdirs(path)
 
@@ -158,6 +167,10 @@ def main(argv=sys.argv):
                       default='INFO',
                       help="Set logging level")
 
+    parser.add_option('-L', '--legacy', action='store_true',
+                      default=False,
+                      help='Convert legacy cmip3_drs structure to new cmip3_drs structure')
+
     (options, args) = parser.parse_args(argv[1:])
     cmip3_path, cmip5_path = args
 
@@ -174,11 +187,12 @@ def main(argv=sys.argv):
 
 
     # Set global variables
-    global include, exclude, dry_run, copy_trans
+    global include, exclude, dry_run, copy_trans, legacy
     include = [re.compile(x) for x in options.include]
     exclude = [re.compile(x) for x in options.exclude]
     dry_run = options.dryrun
     copy_trans = options.copy
+    legacy = options.legacy
 
     trans_files(cmip3_path, cmip5_path)
 

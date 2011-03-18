@@ -37,17 +37,13 @@ class AssertLevelFilter(logging.Filter):
         
         return True
 
-class TestNewBatch(TestCase):
-    """
-    Test processing of the batch that was originally missed.
-
-    """
+class MyTestCase(TestCase):
+    __test__ = False
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix='translate_cmip3-')
-        listing = os.path.join(os.path.dirname(__file__), 'cmip3_new.ls')
         self.src_dir = os.path.join(self.tmpdir, 'src')
         self.dst_dir = os.path.join(self.tmpdir, 'dst')
-        write_listing(self.src_dir, listing)
+        write_listing(self.src_dir, self.listing)
 
         self.log_filter = AssertLevelFilter()
         self.script_logger = logging.getLogger('drslib.translate_cmip3')
@@ -57,6 +53,23 @@ class TestNewBatch(TestCase):
         shutil.rmtree(self.tmpdir)
         self.script_logger.removeFilter(self.log_filter)
 
+class TestNewBatch(MyTestCase):
+    """
+    Test processing of the batch that was originally missed.
+
+    """
+    __test__ = True
+    listing = os.path.join(os.path.dirname(__file__), 'cmip3_new.ls')
+
     def test1(self):
         cmd = 'translate_cmip3 -l WARNING -d %s %s' % (self.src_dir, self.dst_dir)
+        script_main(cmd.split())
+
+
+class TestLegacy(MyTestCase):
+    __test__ = True
+    listing = os.path.join(os.path.dirname(__file__), 'cmip3_drs_GFDL.ls')
+
+    def test1(self):
+        cmd = 'translate_cmip3 --legacy -l WARNING -d %s %s' % (self.src_dir, self.dst_dir)
         script_main(cmd.split())
