@@ -1,5 +1,11 @@
 #!/usr/bin/python
-## Code to identify the CMIP5 DRS "product" element based on other DRS elements and selection tables.
+# BSD Licence
+# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
+# All rights reserved.
+#
+# See the LICENSE file in the source distribution of this software for
+# the full license text.
+
 ## Author: Martin Juckes (martin.juckes@stfc.ac.uk)
 ## New in this version:
 ##   1. cmip5_product.status no longer used

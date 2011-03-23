@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-"""
+# BSD Licence
+# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
+# All rights reserved.
+#
+# See the LICENSE file in the source distribution of this software for
+# the full license text.
+
 Randomly sample a CMIP listing file
 
 Usage: sample_listing.py n <listing.txt

@@ -1,3 +1,10 @@
+# BSD Licence
+# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
+# All rights reserved.
+#
+# See the LICENSE file in the source distribution of this software for
+# the full license text.
+
 """
 Code to identify the CMIP5 DRS "product" element based on other DRS elements and selection tables.
 
