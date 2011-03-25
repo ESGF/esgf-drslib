@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 """
 # BSD Licence
-# Copyright (c) 2009, Science & Technology Facilities Council (STFC)
+# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
 # All rights reserved.
 #
 # See the LICENSE file in the source distribution of this software for
@@ -22,11 +23,28 @@ license_text = """
 
 """.lstrip()
 
+license_re = re.compile(r"""# BSD Licence
+# Copyright \(c\) \d+, Science & Technology Facilities Council \(STFC\)
+# All rights reserved.
+#
+""", re.M)
 
 default_message = """
 See the LICENSE file in the source distribution of this software for
 the full license text.
 """.strip()
+
+def detect_license(filename):
+    """
+    Detect whether a STFC license is present
+    """
+    src = open(filename).read()
+    if license_re.search(src):
+        return True
+    else:
+        return False
+    
+
 
 def add_license(filename, year=None, msg=None):
     """
@@ -86,8 +104,10 @@ def add_license(filename, year=None, msg=None):
 
 def main(argv=sys.argv):
     for filename in argv[1:]:
-        add_license(filename)
-    
+        if not detect_license(filename):
+            add_license(filename)
+        else:
+            print 'License already present in %s' % filename
     
 
 if __name__ == '__main__':
