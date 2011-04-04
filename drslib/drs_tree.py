@@ -325,6 +325,7 @@ class PublisherTree(object):
 
     CMD_MOVE = 0
     CMD_LINK = 1
+    CMD_MKDIR = 2
 
     DIFF_NONE = 0
     DIFF_TRACKING_ID = 1
@@ -386,7 +387,7 @@ class PublisherTree(object):
             next_version = self._next_version()
 
         log.info('Transfering %s to version %d' % (self.pub_dir, next_version))
-        self._do_commands(self._todo_commands(next_version))
+        self._do_commands(self.todo_commands(next_version))
         self.deduce_state()
         self._do_latest()
 
@@ -402,11 +403,13 @@ class PublisherTree(object):
         if next_version is None:
             next_version = self._next_version()
 
-        for cmd, src, dest in self._todo_commands(next_version):
+        for cmd, src, dest in self.todo_commands(next_version):
             if cmd == self.CMD_MOVE:
                 yield "%s %s %s" % (self.drs_tree._move_cmd, src, dest)
             elif cmd == self.CMD_LINK:
                 yield "ln -s %s %s" % (src, dest)
+            elif cmd == self.CMD_MKDIR:
+                yield "mkdir -p %s" % (dest, )
             else:
                 raise Exception("Unrecognised command type")
 
@@ -512,22 +515,21 @@ class PublisherTree(object):
 
         return DRS(self.drs, version=version)
 
-    #-------------------------------------------------------------------
-    
-    def _do_latest(self):
-        version = max(self.versions.keys())
-        latest_dir = 'v%d' % version
-        log.info('Setting latest to %s' % latest_dir)
-        latest_lnk = os.path.join(self.pub_dir, VERSIONING_LATEST_DIR)
-
-        if os.path.exists(latest_lnk):
-            os.remove(latest_lnk)
-        os.symlink(latest_dir, latest_lnk)
-
-    def _todo_commands(self, next_version=None):
+    def todo_commands(self, next_version=None):
         """
         Yield a sequence of tuples (CMD, SRS, DEST) indicating the
         files that need to be moved and linked to transfer to next version.
+
+        CMD is one of self.CMD_MOVE, self.CMD_LINK and self.CMD_MKDIR.  
+        CMD_MOVE 
+          implies executing the command DRSTree._move_command to move, copy or 
+          otherwise relocate the file.
+        CMD_LINK 
+          implies symbolically linking.
+        CMD_MKDIR 
+          implies creating a leaf directory DEST and all necessary intermediate 
+          directories.  CMD_MKDIR commands are only yielded if the directory 
+          does not exist.  SRC is None.
 
         """
         
@@ -543,14 +545,27 @@ class PublisherTree(object):
             fdir = '%s_%d' % (drs.variable, next_version)
             newpath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                    fdir, filename))
-            
+
+
+            # Detect directories needing creation
+            ddir_src = os.path.dirname(newpath)
+            if not os.path.exists(ddir_src):
+                yield self.CMD_MKDIR, None, ddir_src
+
             yield self.CMD_MOVE, filepath, newpath
 
-            #!TODO: could automatically deduce relative path.  Also see linkpath below
             linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
                                                     drs.variable,
                                                     filename))
+            # Detect directories needing creation
+            ddir_dst = os.path.dirname(linkpath)
+            if not os.path.exists(ddir_dst):
+                yield self.CMD_MKDIR, None, ddir_dst
+            # Make relative to source path ddir_dst
+            newpath = os.path.relpath(newpath, ddir_dst)
+
             yield self.CMD_LINK, newpath, linkpath
+
             done.add(filename)
 
         #!TODO: Handle deleted files!
@@ -565,22 +580,39 @@ class PublisherTree(object):
                                                             drs.variable, filename))
                     pfilepath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                              fdir, filename))
+                    # Detect directories needing creation
+                    ddir = os.path.dirname(linkpath)
+                    if not os.path.exists(ddir):
+                        yield self.CMD_MKDIR, None, ddir
+                    pfilepath = os.path.relpath(pfilepath, ddir)
                     yield self.CMD_LINK, pfilepath, linkpath
 
+
+    #-------------------------------------------------------------------
+    
+    def _do_latest(self):
+        version = max(self.versions.keys())
+        latest_dir = 'v%d' % version
+        log.info('Setting latest to %s' % latest_dir)
+        latest_lnk = os.path.join(self.pub_dir, VERSIONING_LATEST_DIR)
+
+        if os.path.exists(latest_lnk):
+            os.remove(latest_lnk)
+        os.symlink(latest_dir, latest_lnk)
+
+    
     def _do_commands(self, commands):
         for cmd, src, dest in commands:
             if cmd == self.CMD_MOVE:
                 self._do_mv(src, dest)
             elif cmd == self.CMD_LINK:
                 self._do_link(src, dest)
-            
+            elif cmd == self.CMD_MKDIR:
+                self._do_mkdir(dest)
+            else:
+                raise Exception('Internal error: Unrecognised command type %s' % cmd)
 
     def _do_mv(self, src, dest):
-        dir = os.path.dirname(dest)
-        if not os.path.exists(dir):
-            log.info('Creating %s' % dir)
-            os.makedirs(dir)
-
         cmd = '%s %s %s' % (self.drs_tree._move_cmd, src, dest)
         if os.path.exists(dest):
             log.warn('Overwriting existing file: %s' % cmd)
@@ -595,19 +627,23 @@ class PublisherTree(object):
         self.drs_tree.remove_incoming(src)
 
     def _do_link(self, src, dest):
-        dir = os.path.dirname(dest)
-        if not os.path.exists(dir):
-            log.info('Creating %s' % dir)
-            os.makedirs(dir)
         if os.path.exists(dest):
             log.warning('Moving symlink %s' % dest)
             os.remove(dest)
 
-        # Make src relative to dest
-        rel_src = os.path.relpath(src, dir)
+        log.info('Linking %s %s' % (src, dest))
 
-        log.info('Linking %s %s' % (rel_src, dest))
-        os.symlink(rel_src, dest)
+        os.symlink(src, dest)
+
+    def _do_mkdir(self, ddir):
+        if not os.path.exists(ddir):
+
+            log.info('Creating %s' % ddir)
+            os.makedirs(ddir)
+        else:
+            log.warning('Directory already exists %s' % ddir)
+
+
 
     def _setup_versioning(self):
         """

@@ -75,6 +75,7 @@ DRS Tree at ...
 ------------------------------------------------------------------------------
 Publisher Tree ... todo for version 20100101
 <BLANKLINE>
+mkdir -p .../r1i1p1/files/tas_20100101
 mv .../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
 ...
 ln -s .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
