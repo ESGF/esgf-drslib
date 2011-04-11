@@ -41,7 +41,8 @@ Syntax [DRS]_.
       #tests_require=['NoseXUnit'],
       entry_points= {
         'console_scripts': ['translate_cmip3 = drslib.translate_cmip3:main',
-                            'drs_tool = drslib.drs_command:main'],
+                            'drs_tool = drslib.drs_command:main',
+                            'drs_checkthredds = drslib.thredds:main'],
         },
       test_suite='nose.collector',
       )

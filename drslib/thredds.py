@@ -16,16 +16,28 @@ Currently implemented: 1-3
 """
 
 import sys
+import os
 import re
 
 from lxml import etree as ET
 from drslib.drs import DRS
 from drslib.cmip5 import make_translator
+import urlparse
+from optparse import OptionParser
 
 import logging
 log = logging.getLogger(__name__)
 
 THREDDS_NS = 'http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0'
+XLINK_NS = 'http://www.w3.org/1999/xlink'
+
+usage = """%prog [options] thredds ...
+
+thredds:
+  A thredds url or file path of a dataset published by esgpublish.\
+"""
+
+
 
 trans = make_translator('')
 drs_prop_map = {'dataset_version': 'version',
@@ -47,6 +59,13 @@ class InvalidThreddsException(Exception):
     """
     pass
 
+class CheckNotPossible(Exception):
+    """
+    Raised to indicate a check doesn't have enough information to continue.
+
+    """
+    pass
+
 class ThreddsCheck(object):
     """
     Base class of all checks, defining the interface.
@@ -59,6 +78,7 @@ class ThreddsCheck(object):
         checks to share information.
         """
         self.environ = environ
+
 
     def check(self, etree):
         """
@@ -84,6 +104,8 @@ def run_checks(etree, checks, environ=None):
             check.check(etree)
         except InvalidThreddsException, e:
             log.error(e)
+        except CheckNotPossible:
+            log.warn('Check %s aborted' % CheckClass.__name__)
         else:
             log.info('Check %s succeeded' % CheckClass.__name__)
 
@@ -155,7 +177,7 @@ class ValidDRSCheck(ThreddsCheck):
 
     def check(self, etree):
         if 'drs' not in self.environ:
-            return
+            raise CheckNotPossible
 
         drs = self.environ['drs']
         
@@ -171,11 +193,13 @@ class ValidDateCheck(ThreddsCheck):
 
     """
     def check(self, etree):
-        if 'drs' in self.environ:
-            drs = self.environ['drs']
-            if not drs.version > 20100101:
-                raise InvalidThreddsException("The version of dataset doesn't look like a date: %s" %
-                                              drs)
+        if not 'drs' in self.environ:
+            raise CheckNotPossible
+
+        drs = self.environ['drs']
+        if not drs.version > 20100101:
+            raise InvalidThreddsException("The version of dataset doesn't look like a date: %s" %
+                                          drs)
 
 #
 # Utility functions
@@ -199,12 +223,42 @@ def get_property(dataset, name):
     return prop.get('value')
 
 
+def read_master_catalog(catalog_url):
+    """
+    Read master catalogue and generate dataset catalogue ElementTree objects.
+
+    """
+    cat_etree = ET.parse(catalog_url)
+    scheme, netloc, path, query, fragment = urlparse.urlsplit(catalog_url)
+    base_url = urlparse.urlunsplit((scheme, netloc, os.path.dirname(path)+'/', None, None))
+
+    for catalog_ref in cat_etree.findall('{%s}catalogRef' % THREDDS_NS):
+        ds_url = catalog_ref.get('{%s}href' % XLINK_NS)
+        abs_ds_url = urlparse.urljoin(base_url, ds_url)
+        
+        yield abs_ds_url
+
+
 def main(argv=sys.argv):
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
 
     checks = [DRSIdCheck, DRSPropCheck, ValidDRSCheck, ValidDateCheck]
 
-    xmls = sys.argv[1:]
+    op = OptionParser(usage)
+    op.add_option('-c', '--catalog', action='store',
+                  help="Scan root THREDDS catalog CATALOG for catalogRef "
+                        "elements and check each referenced catalog")
+
+    opts, args = op.parse_args(argv[1:])
+
+    xmls = args
+    if opts.catalog:
+        log.info('Discovering catalogs from master catalog %s' % opts.catalog)
+        xmls += list(read_master_catalog(opts.catalog))
+
+    if not xmls:
+        op.print_help()
+
     for xml in xmls:
         log.info('Checking %s' % xml)
         etree = ET.parse(xml)
