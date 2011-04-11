@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0" xmlns:xlink="http://www.w3.org/1999/xlink" name="TDS configuration file" version="1.0.1">
+  <service name="gridded" serviceType="OPENDAP" base="/thredds/dodsC/">
+    <property name="requires_authorization" value="false" />
+    <property name="application" value="Web Browser" />
+  </service>
+  <service name="HTTPServer" serviceType="HTTPServer" base="/thredds/fileServer/">
+    <property name="requires_authorization" value="true" />
+    <property name="application" value="Web Browser" />
+    <property name="application" value="Web Script" />
+  </service>
+  <service name="HRMatPCMDI" serviceType="SRM" base="srm://host.sample.gov:6288/srm/v2/server?SFN=/archive.sample.gov/">
+    <property name="requires_authorization" value="false" />
+  </service>
+  <property name="catalog_version" value="2" />
+  <dataset name="project=CMIP5 / IPCC Fifth Assessment Report, model=HadGEM2-ES, Met Office Hadley Centre, experiment=pre-industrial control, time_frequency=day, modeling realm=land, ensemble=r1i1p1, version=20110202" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202" restrictAccess="esg-user">
+    <property name="dataset_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1" />
+    <property name="dataset_version" value="20110202" />
+    <property name="project" value="cmip5" />
+    <property name="experiment" value="piControl" />
+    <property name="product" value="output1" />
+    <property name="model" value="HadGEM2-ES" />
+    <property name="time_frequency" value="day" />
+    <property name="realm" value="land" />
+    <property name="cmor_table" value="day" />
+    <property name="ensemble" value="r1i1p1" />
+    <property name="institute" value="MOHC" />
+    <property name="forcing" value="N/A" />
+    <property name="title" value="HadGEM2-ES model output prepared for CMIP5 pre-industrial control" />
+    <property name="creation_time" value="2011-02-09 14:29:38" />
+    <property name="format" value="netCDF, CF-1.4" />
+    <property name="drs_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1" />
+    <variables vocabulary="CF-1.0">
+      <variable name="mrsos" vocabulary_name="moisture_content_of_soil_layer" units="kg m-2">Moisture in Upper 0.1 m of Soil Column</variable>
+      <variable name="snw" vocabulary_name="surface_snow_amount" units="kg m-2">Surface Snow Amount</variable>
+      <variable name="mrro" vocabulary_name="runoff_flux" units="kg m-2 s-1">Total Runoff</variable>
+    </variables>
+    <metadata inherited="true">
+      <dataType>GRID</dataType>
+      <dataFormat>NetCDF</dataFormat>
+    </metadata>
+    <dataset name="mrsos_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.mrsos_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/mrsos/mrsos_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999900" />
+      <property name="tracking_id" value="eb9da3d1-3bc9-48a0-bc19-6e5b3ad0ff74" />
+      <property name="mod_time" value="2011-01-27 15:22:11" />
+      <property name="checksum" value="MD5:2693c0aabde297d95454f4b1f251519c" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrsos" vocabulary_name="moisture_content_of_soil_layer" units="kg m-2">Moisture in Upper 0.1 m of Soil Column</variable>
+      </variables>
+    </dataset>
+    <dataset name="mrsos_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.mrsos_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/mrsos/mrsos_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999900" />
+      <property name="tracking_id" value="7b7cbfaa-960b-430e-831f-5ec049fddd8c" />
+      <property name="mod_time" value="2011-01-27 15:22:17" />
+      <property name="checksum" value="MD5:f9c442ece2a2cf131ae66255b03165b2" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrsos" vocabulary_name="moisture_content_of_soil_layer" units="kg m-2">Moisture in Upper 0.1 m of Soil Column</variable>
+      </variables>
+    </dataset>
+    <dataset name="mrsos_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.mrsos_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/mrsos/mrsos_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999900" />
+      <property name="tracking_id" value="739a96d3-1be1-43a1-91cc-0bfc1fe1070e" />
+      <property name="mod_time" value="2011-01-27 15:22:23" />
+      <property name="checksum" value="MD5:ef10f273c60f70edfa55af6e870136b3" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrsos" vocabulary_name="moisture_content_of_soil_layer" units="kg m-2">Moisture in Upper 0.1 m of Soil Column</variable>
+      </variables>
+    </dataset>
+    <dataset name="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos.20110202.aggregation" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos.20110202.aggregation" urlPath="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos.20110202.aggregation" restrictAccess="esg-user">
+      <serviceName>gridded</serviceName>
+      <property name="aggregation_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrsos.20110202.aggregation" />
+      <property name="time_length" value="10800" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrsos" vocabulary_name="moisture_content_of_soil_layer" units="kg m-2">Moisture in Upper 0.1 m of Soil Column</variable>
+      </variables>
+      <metadata inherited="true">
+        <geospatialCoverage>
+          <northsouth>
+            <start>-90.0</start>
+            <size>180.0</size>
+            <units>degrees_north</units>
+          </northsouth>
+          <eastwest>
+            <start>0.0</start>
+            <size>358.125</size>
+            <units>degrees_east</units>
+          </eastwest>
+        </geospatialCoverage>
+        <timeCoverage>
+          <start>1979-12-01T12:00:00</start>
+          <end>2009-11-30T12:00:00</end>
+        </timeCoverage>
+      </metadata>
+    </dataset>
+    <dataset name="snw_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.snw_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/snw/snw_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999696" />
+      <property name="tracking_id" value="59511360-76f0-4fe6-89cb-1067f26bbf99" />
+      <property name="mod_time" value="2011-01-27 15:34:48" />
+      <property name="checksum" value="MD5:b083ef30516f940a9f37729753c4b7da" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="snw" vocabulary_name="surface_snow_amount" units="kg m-2">Surface Snow Amount</variable>
+      </variables>
+    </dataset>
+    <dataset name="snw_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.snw_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/snw/snw_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999696" />
+      <property name="tracking_id" value="c7a1e958-d358-4a3a-a54f-36e5ceff0108" />
+      <property name="mod_time" value="2011-01-27 15:34:53" />
+      <property name="checksum" value="MD5:c280e1e3d9d91bb260f2b57df48ee06f" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="snw" vocabulary_name="surface_snow_amount" units="kg m-2">Surface Snow Amount</variable>
+      </variables>
+    </dataset>
+    <dataset name="snw_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.snw_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/snw/snw_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999696" />
+      <property name="tracking_id" value="5f4f880a-2bac-4613-a073-00552e86741b" />
+      <property name="mod_time" value="2011-01-27 15:34:59" />
+      <property name="checksum" value="MD5:1b954ad69c757352cece746f93b07e55" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="snw" vocabulary_name="surface_snow_amount" units="kg m-2">Surface Snow Amount</variable>
+      </variables>
+    </dataset>
+    <dataset name="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw.20110202.aggregation" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw.20110202.aggregation" urlPath="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw.20110202.aggregation" restrictAccess="esg-user">
+      <serviceName>gridded</serviceName>
+      <property name="aggregation_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.snw.20110202.aggregation" />
+      <property name="time_length" value="10800" />
+      <variables vocabulary="CF-1.0">
+        <variable name="snw" vocabulary_name="surface_snow_amount" units="kg m-2">Surface Snow Amount</variable>
+      </variables>
+      <metadata inherited="true">
+        <geospatialCoverage>
+          <northsouth>
+            <start>-90.0</start>
+            <size>180.0</size>
+            <units>degrees_north</units>
+          </northsouth>
+          <eastwest>
+            <start>0.0</start>
+            <size>358.125</size>
+            <units>degrees_east</units>
+          </eastwest>
+        </geospatialCoverage>
+        <timeCoverage>
+          <start>1979-12-01T12:00:00</start>
+          <end>2009-11-30T12:00:00</end>
+        </timeCoverage>
+      </metadata>
+    </dataset>
+    <dataset name="mrro_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.mrro_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/mrro/mrro_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999588" />
+      <property name="tracking_id" value="036dc4db-7cab-405c-8be6-d567b2a959b7" />
+      <property name="mod_time" value="2011-01-27 15:21:54" />
+      <property name="checksum" value="MD5:250d298065665e7af722135449a676da" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrro" vocabulary_name="runoff_flux" units="kg m-2 s-1">Total Runoff</variable>
+      </variables>
+    </dataset>
+    <dataset name="mrro_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.mrro_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/mrro/mrro_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999588" />
+      <property name="tracking_id" value="f6338c9c-8664-4faf-9d1b-f353cb443333" />
+      <property name="mod_time" value="2011-01-27 15:21:59" />
+      <property name="checksum" value="MD5:1bd05046fe02adb3ee73f1826a5408f1" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrro" vocabulary_name="runoff_flux" units="kg m-2 s-1">Total Runoff</variable>
+      </variables>
+    </dataset>
+    <dataset name="mrro_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.v20110202.mrro_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" urlPath="esg_dataroot/cmip5/output1/MOHC/HadGEM2-ES/piControl/day/land/day/r1i1p1/v20110202/mrro/mrro_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" restrictAccess="esg-user">
+      <serviceName>HTTPServer</serviceName>
+      <dataSize units="Mbytes">400.9</dataSize>
+      <property name="file_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc" />
+      <property name="file_version" value="1" />
+      <property name="size" value="400999588" />
+      <property name="tracking_id" value="fae8e2ba-36a1-46b2-b403-9d678310fe77" />
+      <property name="mod_time" value="2011-01-27 15:22:05" />
+      <property name="checksum" value="MD5:7aeb355b3da822cd4f5f3647a84dc753" />
+      <property name="checksum_type" value="MD5" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrro" vocabulary_name="runoff_flux" units="kg m-2 s-1">Total Runoff</variable>
+      </variables>
+    </dataset>
+    <dataset name="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro.20110202.aggregation" ID="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro.20110202.aggregation" urlPath="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro.20110202.aggregation" restrictAccess="esg-user">
+      <serviceName>gridded</serviceName>
+      <property name="aggregation_id" value="cmip5.output1.MOHC.HadGEM2-ES.piControl.day.land.day.r1i1p1.mrro.20110202.aggregation" />
+      <property name="time_length" value="10800" />
+      <variables vocabulary="CF-1.0">
+        <variable name="mrro" vocabulary_name="runoff_flux" units="kg m-2 s-1">Total Runoff</variable>
+      </variables>
+      <metadata inherited="true">
+        <geospatialCoverage>
+          <northsouth>
+            <start>-90.0</start>
+            <size>180.0</size>
+            <units>degrees_north</units>
+          </northsouth>
+          <eastwest>
+            <start>0.0</start>
+            <size>358.125</size>
+            <units>degrees_east</units>
+          </eastwest>
+        </geospatialCoverage>
+        <timeCoverage>
+          <start>1979-12-01T12:00:00</start>
+          <end>2009-11-30T12:00:00</end>
+        </timeCoverage>
+      </metadata>
+    </dataset>
+  </dataset>
+</catalog>
+

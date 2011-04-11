@@ -11,6 +11,8 @@ Things to check:
 6. tracking_id is present
 7. Check product assignement is right.
 
+Currently implemented: 1-3
+
 """
 
 import sys
@@ -162,6 +164,19 @@ class ValidDRSCheck(ThreddsCheck):
         except:
             raise InvalidThreddsException("drs %s fails to validate" % drs)
 
+
+class ValidDateCheck(ThreddsCheck):
+    """
+    Check date versioning.
+
+    """
+    def check(self, etree):
+        if 'drs' in self.environ:
+            drs = self.environ['drs']
+            if not drs.version > 20100101:
+                raise InvalidThreddsException("The version of dataset doesn't look like a date: %s" %
+                                              drs)
+
 #
 # Utility functions
 #
@@ -187,7 +202,7 @@ def get_property(dataset, name):
 def main(argv=sys.argv):
     logging.basicConfig(level=logging.INFO)
 
-    checks = [DRSIdCheck, DRSPropCheck, ValidDRSCheck]
+    checks = [DRSIdCheck, DRSPropCheck, ValidDRSCheck, ValidDateCheck]
 
     xmls = sys.argv[1:]
     for xml in xmls:
