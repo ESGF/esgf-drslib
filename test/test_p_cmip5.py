@@ -6,6 +6,8 @@ This test module uses the functional test features of nose.
 import tempfile, os, shutil
 import zipfile
 
+import esgcet.config.cmip5_product
+
 import drslib.p_cmip5.product as p
 from drslib.p_cmip5 import init
 from drslib.cmip5 import make_translator
@@ -14,6 +16,7 @@ from drslib import config
 
 from nose import with_setup
 from drs_tree_shared import test_dir
+
 
 verbose = False
 
@@ -53,6 +56,22 @@ def setup_module():
 ##def teardown_module():
  ##   shutil.rmtree(tmpdir)
 
+
+def check_esgcet(p_cmip5_product, table, variable, experiment, startyear, endyear=None):
+    if endyear is None:
+        endyear = startyear
+
+    print "Checking table=%s, variable=%s, experiment=%s, years=%s-%s" % (
+        table, variable, experiment, startyear, endyear)
+
+    esgcet_product = esgcet.config.cmip5_product.getProduct(table, variable, experiment,
+                                                            startyear, endyear)
+
+    print "esgcet_product == p_cmip5_product --> %s == %s" % (esgcet_product,
+                                                              p_cmip5_product)
+    assert esgcet_product == p_cmip5_product
+
+
 def do_product2(var, mip, expt,path, startyear,
             pci=None,path_output1=None,path_output2=None,verbose=False, tab='    ',selective_ads_scan=False,model='HADCM3'):
 
@@ -80,6 +99,10 @@ def check_product3(args, kwargs, expect=None):
         assert r == expect, '%s :: %s' % (str(r),str(expect))
       else:
         assert r[0] == expect, '%s :: %s' % (str(r),str(expect))
+
+      # Check consistency with esgcet
+      var, table, expt, file, startyear = args
+      check_esgcet(r[0], table, var, expt, startyear)
 
 def test_gen():
     for var in ['tas','pr','ua']:
@@ -270,7 +293,6 @@ def test_p_cmip5_data_perms():
                               template=shelves['template'],
                               stdo=shelves['stdo'],
                               config=config1, not_ok_excpt=False)
-#test_p_cmip5_data_perms.__test__ = False
 
 
 def check_listing(listing_file):
@@ -290,3 +312,47 @@ def check_listing(listing_file):
 def test_regression_ncc():
     for listing in ['ncc_rcp45.ls', 'ncc_piControl.ls', 'ncc_rcp45.ls']:
         yield check_listing, listing
+
+def test_esgcet1():
+    """
+    Regression test for a discrepency found between esgcet and p_cmip5 product detection.
+
+    """
+    tests = [
+        ('cmip5.*.MOHC.HadGEM2-ES.historical.6hr.atmos.6hrLev', 'hus ta ua va', 1949 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.historical.6hr.atmos.6hrPlev', 'psl ta ua va', 1949 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.historical.day.atmos.day', 'clt hfls hfss huss pr prc prsn psl rhs rhsmax rhsmin rlds rlus rlut rsds rsus sfcWind sfcWindmax tas tasmax tasmin uas vas', 1859 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.historical.day.land.day', 'mrro mrsos snw', 1949 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.historical.day.ocean.day', 'tos', 1859 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.historical.day.seaIce.day', 'sic sit usi vsi', 1949 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.piControl.6hr.atmos.6hrPlev', 'psl ta ua va psl ta ua va', 1979 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.piControl.day.land.day', 'mrro mrsos snw', 1979 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.piControl.day.ocean.day', 'tos', 1859 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.3hr.atmos.3hr', 'clt hfls hfss huss pr prc prsn rlds rldscs rlus rsds rsdscs rsdsdiff rsus rsuscs tas uas vas', 2025 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.3hr.land.3hr', 'mrro mrsos', 2025 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.6hr.atmos.6hrPlev', 'psl ta ua va', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.day.land.day', 'mrro mrsos snw', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.day.seaIce.day', 'sic sit usi vsi', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.3hr.land.3hr', 'mrro mrsos', 2025 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.6hr.atmos.6hrLev', 'hus ta ua va', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.day.atmos.day', 'clt hfls hfss hur hus huss pr prc prsn psl rhs rhsmax rhsmin rlds rlus rlut rsds rsus sfcWind sfcWindmax ta tas tasmax tasmin ua uas va vas wap zg', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.day.ocean.day', 'tos', 2025 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.piControl.day.atmos.day', 'clt hfls hfss hur hus huss pr prc prsn psl rhs rhsmax rhsmin rlds rlus rlut rsds rsus sfcWind sfcWindmax ta tas tasmax tasmin ua uas va vas wap zg hur hus ta ua va wap zg', 1979 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.piControl.day.seaIce.day', 'sic sit usi vsi', 1979 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.6hr.atmos.6hrLev', 'hus ta ua va', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.day.atmos.day', 'clt hfls hfss hur hus huss pr prc prsn psl rhs rhsmax rhsmin rlds rlus rlut rsds rsus sfcWind sfcWindmax ta tas tasmax tasmin ua uas va vas wap zg', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp45.day.ocean.day', 'tos', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.3hr.atmos.3hr', 'clt hfls hfss huss pr prc prsn rlds rldscs rlus rsds rsdscs rsdsdiff rsus rsuscs tas uas vas', 2025 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.6hr.atmos.6hrPlev', 'psl ta ua va', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.day.land.day', 'mrro mrsos snw', 2005 ),
+        ('cmip5.*.MOHC.HadGEM2-ES.rcp85.day.seaIce.day', 'sic sit usi vsi', 2025 ),
+        ]
+
+    for drs, varstr, startyear in tests:
+        parts = drs.split('.')
+        expt = parts[4]
+        table = parts[7]
+        vars = varstr.split()
+
+        for variable in vars:
+            yield check_product3, (variable, table, expt, None, startyear), {}
