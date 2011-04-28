@@ -27,12 +27,13 @@
 ##                 -- added code to deal with volcIn2010, aero option (previously overlooked)
 ## 20110201        -- debugged atomic dataset scanning to get robust estimate of nyears_submitted
 ##                 -- debugged support for "corresponding"
+## 20110428        -- debugged logic on 1pctCO2, 3hr data -- added no_exception arcgument to select_year_list to allow ERR00##                     to be caught by calling routine.
 ##   
-version = 1.1
-version_date = '20100201'
+version = 1.2
+version_date = '20110428'
 import logging
 log = logging.getLogger(__name__)
-import re
+import re, string
 
 class ProductScope(Exception):
   def __init__(self,value):
@@ -95,6 +96,7 @@ class cmip5_product:
     self.config = config
     self.config_exists = os.path.isfile( config )
     self.config_loaded = False
+    self.uid = 'uid-unset'
     self.policy_opt1=policy_opt1
     self.last_result = ['none','none']
     self.product = 'none'
@@ -108,12 +110,14 @@ class cmip5_product:
     self.product = product
     self.reason = reason
     self.rc = rc
+    log.info( '--- %s: %s: %s: %s' % ( self.rc, self.product, self.uid, self.reason ) )
     return True
 
   def not_ok(self, status,rc,no_except=False):
     self.reason = status
     self.rc = rc
     self.product = 'Failed'
+    log.info( '--- %s: %s: %s: %s' % ( self.rc, self.product, self.uid, self.reason ) )
     if self.not_ok_excpt and not no_except:
       raise self.ScopeException( '%s:: %s' % (rc,status) )
     return False
@@ -389,6 +393,7 @@ class cmip5_product:
 
   def find_product(self,var,table,expt,model,path,startyear=None,endyear=None,verbose=False, \
                   path_output1=None, path_output2=None,selective_ads_scan=True):
+    self.uid = string.join( [var,table,expt,model], '_' )
     if self.last_result[0] != arg_string( var,table,expt,model,path,path_output1,path_output2):
       self.find_product_ads(var,table,expt,model,path,verbose=verbose, path_output1=path_output1, \
                   path_output2=path_output2,selective_ads_scan=selective_ads_scan)
@@ -417,6 +422,7 @@ class cmip5_product:
 ###################
   def find_product_ads(self,var,table,expt,model,path,verbose=False, \
                   path_output1=None, path_output2=None, selective_ads_scan=True):
+    self.uid = string.join( [var,table,expt,model], '_' )
     self.selective_ads_scan=selective_ads_scan
     if self.last_result[0] == arg_string( var,table,expt,model,path,path_output1,path_output2):
       return True
@@ -582,7 +588,7 @@ class cmip5_product:
               requested_years = map( lambda x: offset + x, range(5) ) + \
                               map( lambda x: offset + 120 + x, range(30) )
               nrq = 35
-        if self.select_year_list( requested_years, 'output1', force_complete = True, rc='OK300.03' ):
+        if self.select_year_list( requested_years, 'output1', force_complete = True, rc='OK300.03', no_except=True ):
               return True
 ## if not all years found, take first and last submitted as appropriate.
         if self.rc == 'ERR005':
@@ -593,6 +599,7 @@ class cmip5_product:
             return self.select_last( 30, 'output1', append=True, rc='OK200.03' )
 ## if select_year_list has failed for some other reason (e.g. product change flagged) return false.
         else: 
+          assert not self.not_ok_excpt, '%s:: Not all requested years found'
           return False
 
       elif (self.expt == 'piControl' and self.table == '3hr'):
@@ -714,7 +721,7 @@ class cmip5_product:
     reason = 'first %s years assigned to %s ' % (n,product)
     return self.__assign_selected_files( fs, product, fns, reason, rc=rc )
 
-  def select_year_list( self, yl, product, force_complete=False, rc='OK300' ):
+  def select_year_list( self, yl, product, force_complete=False, rc='OK300', no_except=False ):
     if not self._check_time_slices():
       return False
 
@@ -730,7 +737,7 @@ class cmip5_product:
 
     if force_complete and not ny == len(yl):
       self.res = {'fs':fs, 'fns':fns, 'ny':ny, 'yl':yl }
-      return self.not_ok( 'Not all years requested have been found', 'ERR005' )
+      return self.not_ok( 'Not all years requested have been found', 'ERR005', no_except=no_except )
 
     reason = 'selected years [%s/%s] assigned to %s ' % (ny,len(yl),product)
     return self.__assign_selected_files( fs, product, fns, reason, rc=rc )
