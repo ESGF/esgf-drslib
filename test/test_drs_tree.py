@@ -474,12 +474,26 @@ class TestListingOptVar(TestListing):
     listing_file = 'opt_var.ls'
 
     def test_1(self):
+        # This should detect no pub_trees because realm was not specified
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output1',
                          institute='MOHC',
                          model='HadGEM2-ES')
+        assert len(self.dt.pub_trees) == 0
+
+
+    def test_2(self):
+        # This should accept the provided realm
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output1',
+                         institute='MOHC',
+                         model='HadGEM2-ES',
+                         realm='atmos')
+
         pt = self.dt.pub_trees.values()[0]
         self._do_version(pt)
+        #!TODO: confirm realm set right
+
 
 class TestCopyUpgrade(TestListing):
     """Test overriding the move command.

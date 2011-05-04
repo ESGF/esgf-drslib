@@ -218,7 +218,10 @@ class RealmTranslator(T.GenericComponentTranslator):
         return super(RealmTranslator, self)._validate(s)
 
     def filename_to_drs(self, context):
-        context.drs.realm = self._deduce_realm(context)
+        try:
+            context.drs.realm = self._deduce_realm(context)
+        except T.TranslationError:
+            log.warning("Realm translation not possible.  You must provide the realm manually")
 
     def drs_to_filepath(self, context):
         # If context.drs.realm is None it could be deduced from the MIP table
@@ -237,7 +240,12 @@ class RealmTranslator(T.GenericComponentTranslator):
         if (table is None) or (variable is None):
             raise T.TranslationError('Realm translation requires table and variable to be known')
 
-        return self._validate(context.table_store.get_variable_attr(table, variable, 'modeling_realm'))
+        try:
+            val = context.table_store.get_variable_attr(table, variable, 'modeling_realm')
+        except ValueError:
+            raise T.TranslationError
+
+        return self._validate(val)
 
 
 
