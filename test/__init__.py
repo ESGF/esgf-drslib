@@ -136,3 +136,10 @@ def test_11():
     drs = translator_noversion.filename_to_drs('areacella_fx_IPSL-CM5A-LR_piControl_r0i0p0.nc')
     assert drs.ensemble == (0, 0, 0)
     assert 'r0i0p0' in repr(drs)
+
+
+def test_12():
+    # Variables not in MIP table
+    drs = translator_noversion.filename_to_drs('novar1_Amon_HadGEM2-ES_rcp45_r1i1p1_201512-204011.nc')
+
+
