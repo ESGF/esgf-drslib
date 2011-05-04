@@ -468,6 +468,19 @@ class TestListing1(TestListing):
         pt = self.dt.pub_trees.values()[0]
         self._do_version(pt)
 
+class TestListingOptVar(TestListing):
+    __test__ = True
+
+    listing_file = 'opt_var.ls'
+
+    def test_1(self):
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output1',
+                         institute='MOHC',
+                         model='HadGEM2-ES')
+        pt = self.dt.pub_trees.values()[0]
+        self._do_version(pt)
+
 class TestCopyUpgrade(TestListing):
     """Test overriding the move command.
     """
