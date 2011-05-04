@@ -28,6 +28,7 @@ import os, sys
 from glob import glob
 import stat
 import datetime
+import re
 
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
@@ -679,7 +680,7 @@ class PublisherTree(object):
             return
         # Detect version paths and sort by date
         for basename in os.listdir(self.pub_dir):
-            if basename[0] != 'v':
+            if not re.match(r'v\d+$', basename):
                 continue
             i = int(basename[1:])
             self.latest = max(i, self.latest)
