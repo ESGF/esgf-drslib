@@ -1,0 +1,5 @@
+output/hur_day_HadGEM2-ES_piControl_r1i1p1_19841201-19891130.nc
+output/hur_day_HadGEM2-ES_piControl_r1i1p1_19891201-19941130.nc
+output/hur_day_HadGEM2-ES_piControl_r1i1p1_19941201-19991130.nc
+output/hur_day_HadGEM2-ES_piControl_r1i1p1_19991201-20041130.nc
+output/hur_day_HadGEM2-ES_piControl_r1i1p1_20041201-20091130.nc

@@ -18,7 +18,7 @@ from drslib.drs_tree import DRSTree
 from drslib.drs import path_to_drs, drs_to_path, DRS
 from drslib import config
 
-from drs_tree_shared import TestEg, TestListing
+from drs_tree_shared import TestEg, TestListing, test_dir
 
 class TestListing1(TestListing):
     __test__ = True
@@ -112,4 +112,50 @@ class TestMapfile(TestListing):
         assert 'cmip5.output1.MPI-M.ECHAM6-MPIOM-HR.rcp45.mon.ocean.Omon.r1i1p1' in mapfile
         assert 'output1/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v%s'%self.today in mapfile
 
+
+class TestThreeway(TestEg):
+    __test__ = True
+
+    listing_files = ['threeway_1.ls', 'threeway_2.ls', 'threeway_3.ls']
+
+    def setUp(self):
+        super(TestThreeway, self).setUp()
+
+        self.dt = DRSTree(self.tmpdir)
+        self.listing_iter = self._iterSetUpListings()
+
+    def _iterSetUpListings(self):
+        for listing_file in self.listing_files:
+            listing_path = os.path.join(test_dir, listing_file)
+            gen_drs.write_listing(self.tmpdir, listing_path)
+
+            yield listing_path
+
+    def _discover(self):
+        self.dt.discover_incoming(self.incoming, activity='cmip5',
+                         product='output1',
+                         institute='MOHC',
+                         model='HadGEM2-ES')
+
+    def _do_version(self, pt, next_version):
+        assert next_version not in pt.versions.keys()
+        pt.do_version(next_version)
+        assert next_version in pt.versions.keys()
+
+    def _check_version(self, pt, version):
+        for path, drs in pt.versions[version]:
+            assert os.path.islink(path)
+            assert os.path.isfile(os.readlink(path))
+
+    def test1(self):
+        v = 1
+        for listing_path in self.listing_iter:
+            print 'Doing version %d' % v
+            self._discover()
+            assert len(self.dt.pub_trees) == 1
+            pt = self.dt.pub_trees.values()[0]
+
+            self._do_version(pt, v)
+            self._check_version(pt, v)
+            v += 1
 
