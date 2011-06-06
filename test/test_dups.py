@@ -11,7 +11,7 @@ import tempfile
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from test_drs_tree import TestEg, test_dir
+from drs_tree_shared import TestEg, test_dir
 
 CHANGE_FILE = 'hfss_Amon_HadGEM2-ES_rcp45_r1i1p1_209012-209911.nc'
 
