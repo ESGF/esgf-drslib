@@ -111,7 +111,7 @@ class DRSTree(object):
         pub_trees = glob(pt_glob)
         for pt_path in pub_trees:
             # Detect whether pt_path is inside incoming.  If so ignore.
-            if os.path.commonprefix((pt_path+'/', incoming_dir+'/')) == incoming_dir+'/':
+            if incoming_dir and (os.path.commonprefix((pt_path+'/', incoming_dir+'/')) == incoming_dir+'/'):
                 log.warning("PublisherTree path %s is inside incoming, ignoring" % pt_path)
                 continue
 
