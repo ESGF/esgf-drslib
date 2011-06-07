@@ -20,6 +20,8 @@ from drslib import config
 
 from drs_tree_shared import TestEg, TestListing, test_dir
 
+
+
 class TestListing1(TestListing):
     __test__ = True
 
@@ -145,7 +147,10 @@ class TestThreeway(TestEg):
     def _check_version(self, pt, version):
         for path, drs in pt.versions[version]:
             assert os.path.islink(path)
-            assert os.path.isfile(os.readlink(path))
+            # link is relative
+            real_path = os.path.realpath(os.path.join(os.path.dirname(path),
+                                                      os.readlink(path)))
+            assert os.path.isfile(real_path)
 
     def test1(self):
         v = 1
