@@ -576,11 +576,15 @@ class PublisherTree(object):
             for filepath, drs in self.versions[self.latest]:
                 filename = os.path.basename(filepath)
                 if filename not in done:
-                    fdir = '%s_%d' % (drs.variable, self.latest)
+                    # Find link target from previous version
+                    prevlink = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % self.latest,
+                                                            drs.variable, filename))
+                    pfilepath = os.path.realpath(os.path.join(os.path.dirname(prevlink),
+                                                              os.readlink(prevlink)))
+
                     linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
                                                             drs.variable, filename))
-                    pfilepath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
-                                                             fdir, filename))
+                    
                     # Detect directories needing creation
                     ddir = os.path.dirname(linkpath)
                     if not os.path.exists(ddir):

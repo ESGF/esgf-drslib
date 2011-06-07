@@ -8,7 +8,7 @@
 
 import tempfile
 import shutil
-import sys, os
+import sys, os, re
 from glob import glob
 from StringIO import StringIO
 import datetime
@@ -151,6 +151,10 @@ class TestThreeway(TestEg):
             real_path = os.path.realpath(os.path.join(os.path.dirname(path),
                                                       os.readlink(path)))
             assert os.path.isfile(real_path)
+
+            # Check variables match
+            mo = re.search(r'/files/(.*?)_\d+/(.*?)_', real_path)
+            assert mo.group(1) == mo.group(2)
 
     def test1(self):
         v = 1
