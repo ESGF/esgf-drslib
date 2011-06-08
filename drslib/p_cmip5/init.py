@@ -1,10 +1,4 @@
-# BSD Licence
-# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
-# All rights reserved.
-#
-# See the LICENSE file in the source distribution of this software for
-# the full license text.
-
+#!/usr/bin/python
 """
 initialise the drslib.p_cmip5 module.
 
@@ -12,7 +6,7 @@ initialise the drslib.p_cmip5 module.
 
 import os, sys
 import xlrd, string, shelve
-import whichdb
+import re, glob
 
 import logging
 log = logging.getLogger(__name__)
@@ -25,12 +19,72 @@ TEMPLATE_MAPPINGS = 'expt_id_mapping.txt'
 TEMPLATE_SHELVE = 'template'
 STDO_SHELVE = 'standard_output'
 STDO_MIP_SHELVE = 'standard_output_mip'
+STDO_MIP_REV_SHELVE = 'standard_output_mip_rev'
+
+re_cmor_mip = re.compile( 'variable_entry:(?P<var>.*?):::(?P<misc>.*?)dimensions:(?P<dims>.*?):::' )
+
+CMOR_TABLE_DIR = '/data/u10/fwsrc/cmor/cmor/Tables/'
+CMOR_TABLE_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables/'
+CMOR_TABLE_CSV_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables_csv/'
+CMIP5_REQUEST_XLS ='/home/martin/python/cmip5/work2/esgf-drslib-p_cmip5-d324c7c/drslib/p_cmip5/xls/'
+
+re_cmor_mip2 = re.compile( 'dimensions:(?P<dims>.*?):::' )
+
+day_f10 = ['huss','tasmax','tasmin','tas','pr','psl','sfcWind','tossq','tos','omldamax']
+
+def scan_table(mip,dir=CMOR_TABLE_DIR):
+  ll = open( '%s/CMIP5_%s' % (dir, mip), 'r' ).readlines()
+
+  lll = map( string.strip, ll )
+  ssss = string.join( lll, ':::' )
+  vitems = string.split( ssss, ':::variable_entry:' )[1:]
+
+  ee = []
+  for i in vitems:
+    b1 = string.split( i, ':::')[0]
+    var = string.strip( b1 )
+    mm = re_cmor_mip2.findall( i )
+    if len(mm) == 1:
+      ds = string.split( string.strip(mm[0]) )
+    elif len(mm) == 0:
+      ds = 'scalar'
+    else:
+      log.warn(  'Mistake?? in scan_table %s' % str(mm) )
+      ds = mm
+      raise 'Mistake?? in scan_table %s' % str(mm)
+    ee.append( (var,ds) )
+  return tuple( ee )
+
+def get_priority( v, lll ):
+    kseg = 0
+    for l in lll:
+       if string.find( l, ',%s,' % v) != -1:
+         return (string.split( l, ',' )[0], kseg)
+       if l[0:8] == 'priority':
+         kseg +=1
+    return (None,None)
+
+def scan_table_csv(mip,ee,dir=CMOR_TABLE_CSV_DIR):
+  ll = open( '%s%s.csv' % (dir, mip), 'r' ).readlines()
+
+## strip out white space, so that variable can be identified unambiguously by ',var,'
+  lll = map( lambda x: string.replace( string.strip(x), ' ',''), ll )
+  vlist = map( lambda x: x[0], ee )
+
+  ee2 = []
+  for x in ee:
+    p,kseg = get_priority( x[0], lll )
+    if mip == 'day' and x[0] in day_f10:
+      flag1 = 1
+    else:
+      flag1 = 0
+    ee2.append( (x[0],x[1],p,flag1,kseg) )
+  return tuple( ee2 )
 
 usage = """usage: %prog [shelve-dir]
 
 shelve-dir: Destination of data files of CMIP5 standard output and archive size.
 """
-
 def _find_shelves(shelve_dir):
     """
     Return the location of CMIP5 shelve files as a dictionary.
@@ -40,15 +94,17 @@ def _find_shelves(shelve_dir):
     template = os.path.join(shelve_dir, TEMPLATE_SHELVE)
     stdo = os.path.join(shelve_dir, STDO_SHELVE)
     stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
+    stdo_mip_rev = os.path.join(shelve_dir, STDO_MIP_REV_SHELVE)
 
-    assert whichdb.whichdb(template) != None
-    assert whichdb.whichdb(stdo) != None
-    assert whichdb.whichdb(stdo_mip) != None
+    assert os.path.exists(template)
+    assert os.path.exists(stdo)
+    assert os.path.exists(stdo_mip)
+    assert os.path.exists(stdo_mip_rev)
 
-    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
+    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip, stdo_mip_rev=stdo_mip_rev)
 
 
-def init(shelve_dir,xls_dir=None):
+def init(shelve_dir,mip_dir,mip_csv_dir=None,xls_dir=None):
     """
     Create the shelve files needed to run p_cmip5.
 
@@ -56,6 +112,12 @@ def init(shelve_dir,xls_dir=None):
 
     if xls_dir == None:
       xls_dir = os.path.join(os.path.dirname(__file__), 'xls')
+    if mip_csv_dir == None:
+      if mip_dir[-1] == '/':
+        mip_csv_dir = mip_dir[0:-1] + '_csv'
+      else:
+        mip_csv_dir = mip_dir + '_csv'
+
     stdo_xls = os.path.join(xls_dir, STANDARD_OUTPUT_XLS)
     template_xls = os.path.join(xls_dir, TEMPLATE_XLS)
     template_map = os.path.join(xls_dir, TEMPLATE_MAPPINGS)
@@ -67,6 +129,7 @@ def init(shelve_dir,xls_dir=None):
     template = os.path.join(shelve_dir, TEMPLATE_SHELVE)
     stdo = os.path.join(shelve_dir, STDO_SHELVE)
     stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
+    stdo_mip_rev = os.path.join(shelve_dir, STDO_MIP_REV_SHELVE)
 
     mi = mip_importer(stdo_xls)
     ri = request_importer(template=template_xls, cmip5_stdo=stdo_xls)
@@ -74,6 +137,8 @@ def init(shelve_dir,xls_dir=None):
     ri.import_standard_output(stdo)
     #!TODO: Extra argument x1_sh not supported yet.  What's it for?
     mi.imprt(stdo_mip)
+    mi2 = mip_importer_rev(mip_dir,mip_csv_dir)
+    mi2.imprt(mip=stdo_mip_rev)
     
 
 #---------------------------------------------------------------------------
@@ -300,7 +365,7 @@ class request_importer:
                    st,en = map( int, string.split(b,'-') )
                    ll.append( ('slice',st,en) )
                  else:
-                   log.info('%s %s', (bits,b))
+                   log.info('%s %s' % (bits,b) )
                    ll.append( ('year',int(b)) )
                ee[r] = ll
    
@@ -345,7 +410,7 @@ class mip_importer:
 ##file = '/data/synced/home_projects/isenes/standard_output_17Sep2010.xls'
     self.input_xls = input_xls
 
-  def imprt(self,mip='sh/standard_output_mip',x1_sh=None):
+  def imprt(self,mip='sh/standard_output_mip',x1_sh=None,sns=None,return_as_dict=False):
     book = xlrd.open_workbook( self.input_xls )
 
     log.info(book.sheet_names())
@@ -355,13 +420,18 @@ class mip_importer:
     wf.add( 'items', allowed=['wait','title'], disallowed=['items'] )
     wf.add( 'title', allowed=['items','title'], disallowed=['wait'] )
 
-    sns = book.sheet_names()[2:-2]
+## modified to allow specification of sheet names in argument
+    if sns == None:
+      sns = book.sheet_names()[2:-2]
     
     x1 = x1_sh != None
     if x1:
       sh = shelve.open( x1_sh, 'n' )
       ##sh = shelve.open( 'standard_output_x1', 'n' )
-    sh_mip = shelve.open( mip, 'n' )
+    if return_as_dict:
+      sh_mip = {}
+    else:
+      sh_mip = shelve.open( mip, 'n' )
 
     ktt = 0
     title = None
@@ -440,5 +510,142 @@ class mip_importer:
     log.info(len(qrows))
     if x1:
       sh.close()
-    sh_mip.close()
+
+## modified to allow return of dictionary
+    if return_as_dict:
+      return sh_mip
+    else:
+      sh_mip.close()
+      return None
+
+class mip_importer_rev:
+
+  def __init__(self,mip_dir,mip_csv_dir,mip_tables=None):
+    self.input_mip_dir = mip_dir
+    self.input_mip_csv_dir = mip_csv_dir
+    assert os.path.isdir( self.input_mip_dir ), 'Specified input MIP table directory not found: %s' % self.input_mip_dir
+    assert os.path.isdir( self.input_mip_csv_dir ), 'Specified input MIP csv directory not found: %s' % self.input_mip_csv_dir
+    fl = glob.glob( self.input_mip_dir + '/CMIP5_*' )
+    if mip_tables == None:
+      self.mip_tables = []
+      for f in fl:
+        self.mip_tables.append( string.replace( string.split(f,'/')[-1], 'CMIP5_', '' ) )
+    else:
+      self.mip_tables = mip_tables
+      for t in mip_tables:
+         assert os.path.isfile( '%s/CMIP5_%s' % (self.input_mip_dir,t) ), 'File CMIP5_%s not found in %s' % (t,self.input_mip_dir)
+
+  def imprt(self,mip='sh/standard_output_mip_rev',return_as_dict=False):
+
+    if return_as_dict:
+      sh_mip = {}
+    else:
+      sh_mip = shelve.open( mip, 'n' )
+
+    for t in self.mip_tables:
+      ee = scan_table( t )
+      if t == 'grids':
+         ee2 = []
+         for e in ee:
+           ee2.append( (e[0],e[1], None, 0, None ) )
+      else:
+        ee2 = scan_table_csv(t,ee)
+        if t == 'Omon':
+          ee3 = scan_table_csv('Oyr',ee)
+          ee4 = []
+          for k in range(len(ee2)):
+            assert len(ee2[k]) == 5, 'Bad ee2 element %s,%s' % (k, ee2[k] )
+            if ee2[k][2] != None:
+              ee4.append( ee2[k] )
+            else:
+              assert ee2[k][0] == ee3[k][0], 'mismatch at %s, %s, %s' % (k,str(ee2[k]),str(ee3[k]))
+              ee4.append( (ee2[k][0],ee2[k][1], ee3[k][2], ee2[k][3], None ) )
+          ee2 = ee4
+
+      sh_mip[t] = ee2
+
+    if return_as_dict:
+      return sh_mip
+    else:
+      sh_mip.close()
+      return None
+
+if __name__ == '__main__':
+  import sys
+  if len( sys.argv ) != 3:
+     print 'usage: init.py go <dir>'
+     sys.exit(0)
+
+  init( sys.argv[2],CMOR_TABLE_DIR, xls_dir=CMIP5_REQUEST_XLS )
+
+  sh = shelve.open( sys.argv[2] + '/standard_output_mip', 'r' )
+  tlist = ['cf3hr', 'cfSites', 'Oyr','Omon','aero','day','6hrPlev','3hr','cfMon']
+  print sh.keys(), len(sh.keys())
+  for t in tlist:
+    l1 = sh[t]
+    ee = scan_table( t )
+    ee2 = scan_table_csv(t,ee)
+    if t in ['Omon','cf3hr','cfSites']:
+      if t == 'Omon':
+         t2 = 'Oyr'
+      else:
+         t2 = 'Amon'
+      ee3 = scan_table_csv(t2,ee)
+      ee4 = []
+      for k in range(len(ee2)):
+        assert len(ee2[k]) == 5, 'Bad ee2 element %s,%s' % (k, ee2[k] )
+        if ee2[k][2] != None:
+          ee4.append( ee2[k] )
+        else:
+          assert ee2[k][0] == ee3[k][0], 'mismatch at %s, %s, %s' % (k,str(ee2[k]),str(ee3[k]))
+          ee4.append( (ee2[k][0],ee2[k][1], ee3[k][2], ee2[k][3] ) )
+      ee2 = ee4
+      
+    kkk = 0
+    kk1 = 0
+    for e in ee2:
+      if e[2] == None:
+        kkk += 1
+      if e[3] == 1:
+        kk1 += 1
+
+    print t, len(ee), len(ee2), len(l1), kkk, kk1
+    if kkk > 0:
+       print '==================================='
+       for e in ee2:
+         if e[2] == None:
+           print e
+       print '==================================='
+       
+    if t == 'day' and kk1 != 10:
+      print 'error',ee2[0:10]
+    if t == 'day':
+      print ee2[0:10]
+
+    if len(ee) != len(l1):
+      eevl = []
+      for e in ee:
+        eevl.append( e[0] )
+      knf = 0
+      kmd = []
+      for i in range(len(l1)):
+          rold = l1[i]
+          vold = string.strip(rold[5])
+          if vold not in eevl:
+            print t,':: not found: ',vold
+            knf += 1
+          else:
+            kmd.append( eevl.index( vold ) )
+      knmd = []
+      for i in range(len(eevl)):
+           if i not in kmd:
+             knmd.append( eevl[i] )
+      knmd.sort()
+      print knmd
+    else:
+      for i in range(len(l1)):
+          rold = l1[i]
+          rnew = ee[i]
+          if rnew[0] != rold[5]:
+            print t,i,rnew[0],rold[5]
 

@@ -1,10 +1,3 @@
-# BSD Licence
-# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
-# All rights reserved.
-#
-# See the LICENSE file in the source distribution of this software for
-# the full license text.
-
 """
 This test module uses the functional test features of nose.
 
@@ -15,8 +8,6 @@ import zipfile
 
 import drslib.p_cmip5.product as p
 from drslib.p_cmip5 import init
-from drslib.cmip5 import make_translator
-from test.gen_drs import write_listing_seq
 
 from nose import with_setup
 
@@ -25,6 +16,8 @@ verbose = False
 pc1 = None
 pc2 = None
 tmpdir = None
+CMOR_TABLE_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables/'
+CMOR_TABLE_DIR = os.environ['MIP_TABLE_PATH']
 
 def setup_module():
     global pc1, pc2, tmpdir
@@ -38,20 +31,22 @@ def setup_module():
     config2 = os.path.join(test_dir, 'sample_4.ini')
 
     # Shelves are regenerated each time.  This could be optimised.
-    init.init(shelve_dir)
+    init.init(shelve_dir,CMOR_TABLE_DIR)
     shelves = init._find_shelves(shelve_dir)
 
     # Create the dummy data
     z = zipfile.ZipFile(os.path.join(test_dir, 'dummy_archive.zip'))
     z.extractall(path=tmpdir)
 
-    pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+    pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
                           template=shelves['template'],
                           stdo=shelves['stdo'],
+                          use_rev=True,
                           config=config1, not_ok_excpt=False)
-    pc2 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+    pc2 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
                           template=shelves['template'],
                           stdo=shelves['stdo'],
+                          use_rev=True,
                           config=config2, not_ok_excpt=False)
 
 ##def teardown_module():
@@ -172,54 +167,11 @@ def test_gen9():
     yield check_product3, ( 'ta', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
     yield check_product3, ( 'ua', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
     yield check_product3, ( 'va', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
+    yield check_product3, ( 'areacella', 'fx', 'rcp85', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    
+##yield check_product3, ( 'clt', 'day', 'piControl', 'tmp/mohc1', 1979 ), {'selective_ads_scan':False, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
 
 ##( 'rlu4co2', 'cfMon', 'piControl', startyear=2000, endyear=2000, path='./tmp/a_2010_2020', expected=('output1', 'OK008.2') )
-
-
-
-
-
-def test_regression_1():
-    """
-    Bug identified during ingest.
-
-    """    
-    prefix = os.path.join(tmpdir, 'reg_1')
-    filenames = [
-        'clt_day_HadGEM2-ES_piControl_r1i1p1_19791201-19891130.nc',
-        'clt_day_HadGEM2-ES_piControl_r1i1p1_19891201-19991130.nc',
-        'clt_day_HadGEM2-ES_piControl_r1i1p1_19991201-20091130.nc',
-        ]
-
-    write_listing_seq(prefix, filenames)
-    trans = make_translator(prefix)
-
-    drs = trans.filename_to_drs(filenames[0])
-    
-    status = pc1.find_product(drs.variable, drs.table, drs.experiment,
-                              drs.model, prefix,
-                              startyear=1979, endyear=1989)
-    assert status
-    assert pc1.product=='output1'
-
-def test_regression_2():
-    prefix = os.path.join(tmpdir, 'reg_2')
-    filenames = [
-        'areacella_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
-        'orog_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
-        'sftlf_fx_HadGEM2-ES_rcp85_r1i1p1.nc',
-    ]
-
-    write_listing_seq(prefix, filenames)
-    trans = make_translator(prefix)
-
-    for filename in filenames:
-        drs = trans.filename_to_drs(filenames[0])
-        status = pc1.find_product(drs.variable, drs.table, drs.experiment,
-                                  drs.model, prefix)
-        assert status
-        assert pc1.product=='output1'
-
 
 
 def test_drs_tree():
@@ -227,7 +179,6 @@ def test_drs_tree():
     Test drs_tree interface to p_cmip5.
     """
     from drslib import drs_tree
-
 
     # Point drs_root at /tmp since we won't be making any upgrades.
     dt = drs_tree.DRSTree('/tmp')
@@ -243,38 +194,4 @@ cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r1i1p1
 cmip5.output1.UKMO.HADCM3.piControl.day.atmos.day.r3i1p1
 cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1
 """.strip().split())
-
-
-def test_p_cmip5_data_perms():
-    """
-    Regression test to detect the case when the shelve files
-    are only readable by the user.
-
-    """
-    global pc1
-
-    #!TODO: Repeating bits of setup_module() here.  Could be DRY.
-    shelve_dir = os.path.join(tmpdir, 'sh')
-    test_dir = os.path.dirname(__file__)
-    config1 = os.path.join(test_dir, 'sample_1.ini')
-    shelves = init._find_shelves(shelve_dir)
-    shelve_file = shelves['stdo']
-
-
-    try:
-        os.chmod(shelve_file, 0400)
-        # Reload shelves
-        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
-                              template=shelves['template'],
-                              stdo=shelves['stdo'],
-                              config=config1, not_ok_excpt=False)
-        # Repeat test
-        test_drs_tree()
-    finally:
-        os.chmod(shelve_file, 0644)
-        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
-                              template=shelves['template'],
-                              stdo=shelves['stdo'],
-                              config=config1, not_ok_excpt=False)
-#test_p_cmip5_data_perms.__test__ = False
 

@@ -1,11 +1,5 @@
 #!/usr/bin/python
-# BSD Licence
-# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
-# All rights reserved.
-#
-# See the LICENSE file in the source distribution of this software for
-# the full license text.
-
+## Code to identify the CMIP5 DRS "product" element based on other DRS elements and selection tables.
 ## Author: Martin Juckes (martin.juckes@stfc.ac.uk)
 ## New in this version:
 ##   1. cmip5_product.status no longer used
@@ -29,7 +23,7 @@
 ##                 -- debugged support for "corresponding"
 ## 20110428        -- debugged logic on 1pctCO2, 3hr data -- added no_exception arcgument to select_year_list to allow ERR00##                     to be caught by calling routine.
 ##   
-version = 1.2
+version = 1.3
 version_date = '20110428'
 import logging
 log = logging.getLogger(__name__)
@@ -86,7 +80,9 @@ class cmip5_product:
                     stdo='sh/standard_output',\
                     config='ini/sample_1.ini', \
                     override_product_change_warning=False,\
+                    use_rev=True,\
                     policy_opt1='all_rel',not_ok_excpt=False):
+    self.use_rev = use_rev
     self.mip_sh = shelve.open( mip_table_shelve, flag='r' )
     self.tmpl = shelve.open( template, flag='r' )
     self.stdo = shelve.open( stdo, flag='r' )
@@ -258,6 +254,31 @@ class cmip5_product:
     return True
         
   def check_var(self):
+    if self.use_rev:
+       return self.check_var_rev()
+    else:
+       return self.check_var_old()
+
+  def check_var_rev(self):
+    kk = 0
+    for r in self.mip_sh[self.table]:
+      kk+=1
+      if r[0] == self.var:
+        self.vline = r[:]
+        self.pos_flag = r[3]
+        self.table_segment = r[4]
+        if self.table_segment == None:
+          self.table_segment = 0
+## interim solution, to change way 1st 10 variables in day table are flagged.
+        if self.pos_flag == 1:
+          self.pos_in_table = 5
+        else:
+          self.pos_in_table = 99
+        return True
+
+    return False
+
+  def check_var_old(self):
     kk = 0
     if self.table == 'cfMon':
 ## identify start and end of each section, and record in self.table_segment
@@ -326,10 +347,16 @@ class cmip5_product:
       return False
 
   def priority(self):
-    return self.vline[0]
+    if self.use_rev:
+      return int(float(self.vline[2]))
+    else:
+      return self.vline[0]
     
   def dimensions(self):
-    return self.vline[16]
+    if self.use_rev:
+      return self.vline[1]
+    else:
+      return self.vline[16]
 
   def get_cfmip_request_spec(self):
     keys = self.stdo['cfmip'].keys()
