@@ -10,6 +10,8 @@
 
 """
 
+#!TODO: tidy this up and review what needs documenting.
+
 import os
 
 import metaconfig
@@ -23,7 +25,10 @@ else:
     except:
         raise Exception("Please configure your MIP table path using MIP_TABLE_PATH or a config file")
 
-table_path_csv = '%s_csv' % os.path.normpath(table_path)
+try:
+    table_path_csv = config.get('tables', 'path_csv')
+except:
+    table_path_csv = '%s_csv' % os.path.normpath(table_path)
 
 # Check both paths exist
 if not os.path.exists(table_path):
