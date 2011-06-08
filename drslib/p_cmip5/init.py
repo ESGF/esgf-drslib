@@ -11,6 +11,8 @@ import re, glob
 import logging
 log = logging.getLogger(__name__)
 
+from drslib.config import table_path, table_path_csv
+
 
 STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
 STANDARD_OUTPUT_XLS = 'standard_output_mod.xls'
@@ -23,9 +25,8 @@ STDO_MIP_REV_SHELVE = 'standard_output_mip_rev'
 
 re_cmor_mip = re.compile( 'variable_entry:(?P<var>.*?):::(?P<misc>.*?)dimensions:(?P<dims>.*?):::' )
 
-CMOR_TABLE_DIR = '/data/u10/fwsrc/cmor/cmor/Tables/'
-CMOR_TABLE_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables/'
-CMOR_TABLE_CSV_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables_csv/'
+CMOR_TABLE_DIR = table_path
+CMOR_TABLE_CSV_DIR = table_path_csv
 CMIP5_REQUEST_XLS ='/home/martin/python/cmip5/work2/esgf-drslib-p_cmip5-d324c7c/drslib/p_cmip5/xls/'
 
 re_cmor_mip2 = re.compile( 'dimensions:(?P<dims>.*?):::' )
@@ -65,7 +66,7 @@ def get_priority( v, lll ):
     return (None,None)
 
 def scan_table_csv(mip,ee,dir=CMOR_TABLE_CSV_DIR):
-  ll = open( '%s%s.csv' % (dir, mip), 'r' ).readlines()
+  ll = open( os.path.join(dir, '%s.csv' % mip), 'r' ).readlines()
 
 ## strip out white space, so that variable can be identified unambiguously by ',var,'
   lll = map( lambda x: string.replace( string.strip(x), ' ',''), ll )

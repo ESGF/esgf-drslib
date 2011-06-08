@@ -23,6 +23,15 @@ else:
     except:
         raise Exception("Please configure your MIP table path using MIP_TABLE_PATH or a config file")
 
+table_path_csv = '%s_csv' % os.path.normpath(table_path)
+
+# Check both paths exist
+if not os.path.exists(table_path):
+    raise Exception("The configured mip-table path %s does not exist" % table_path)
+if not os.path.exists(table_path_csv):
+    raise Exception("The mip-table CSV directory %s could not be found" % table_path_csv)
+
+
 if config.has_option('tables', 'prefix'):
     table_prefix = config.get('tables', 'prefix')
 else:

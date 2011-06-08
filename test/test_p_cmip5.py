@@ -10,6 +10,7 @@ import drslib.p_cmip5.product as p
 from drslib.p_cmip5 import init
 from drslib.cmip5 import make_translator
 from test.gen_drs import write_listing_seq
+from drslib import config
 
 from nose import with_setup
 
@@ -18,8 +19,8 @@ verbose = False
 pc1 = None
 pc2 = None
 tmpdir = None
-CMOR_TABLE_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables/'
-CMOR_TABLE_DIR = os.environ['MIP_TABLE_PATH']
+CMOR_TABLE_DIR = config.table_path
+CMOR_TABLE_CSV = config.table_path_csv
 
 def setup_module():
     global pc1, pc2, tmpdir
@@ -258,16 +259,18 @@ def test_p_cmip5_data_perms():
     try:
         os.chmod(shelve_file, 0400)
         # Reload shelves
-        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
                               template=shelves['template'],
                               stdo=shelves['stdo'],
+                              use_rev=True,
                               config=config1, not_ok_excpt=False)
         # Repeat test
         test_drs_tree()
     finally:
         os.chmod(shelve_file, 0644)
-        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
                               template=shelves['template'],
                               stdo=shelves['stdo'],
+                              use_rev=True,
                               config=config1, not_ok_excpt=False)
 #test_p_cmip5_data_perms.__test__ = False

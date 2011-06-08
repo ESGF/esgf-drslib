@@ -334,7 +334,7 @@ class InitCommand(Command):
         self._config_p_cmip5()
 
         from drslib.p_cmip5.init import init
-        init(self.shelve_dir)
+        init(self.shelve_dir, config.table_path)
 
         print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
 
