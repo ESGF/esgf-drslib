@@ -22,6 +22,7 @@
 ## 20110201        -- debugged atomic dataset scanning to get robust estimate of nyears_submitted
 ##                 -- debugged support for "corresponding"
 ## 20110428        -- debugged logic on 1pctCO2, 3hr data -- added no_exception arcgument to select_year_list to allow ERR00##                     to be caught by calling routine.
+## 20110613        -- debugged select_year_list to deal with case when data file spans time range greater than requested period
 ##   
 version = 1.3
 version_date = '20110428'
@@ -418,7 +419,7 @@ class cmip5_product:
         self.cp.read( self.config )
         self.config_loaded = True
 
-  def find_product(self,var,table,expt,model,path,startyear=None,endyear=None,verbose=False, \
+  def find_product(self,var,table,expt,model,path,startyear=None,verbose=False, \
                   path_output1=None, path_output2=None,selective_ads_scan=True):
     self.uid = string.join( [var,table,expt,model], '_' )
     if self.last_result[0] != arg_string( var,table,expt,model,path,path_output1,path_output2):
@@ -757,10 +758,18 @@ class cmip5_product:
     fs = []
     fns = []
     for k in range( len(self.files) ):
-       if self.time_periods[k][1] in yl or self.time_periods[k][0] in yl:
-         fs.append( self.files[k] )
-       else:
-         fns.append( self.files[k] )
+       kdone = False
+       for y in yl:
+         if not kdone:
+           if y in range( self.time_periods[k][0],self.time_periods[k][1]+1 ):
+              fs.append( self.files[k] )
+              kdone = True
+
+       if not kdone:
+         if self.time_periods[k][1] in yl or self.time_periods[k][0] in yl:
+           fs.append( self.files[k] )
+         else:
+           fns.append( self.files[k] )
 
     if force_complete and not ny == len(yl):
       self.res = {'fs':fs, 'fns':fns, 'ny':ny, 'yl':yl }

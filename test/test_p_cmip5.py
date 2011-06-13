@@ -171,6 +171,7 @@ def test_gen9():
     yield check_product3, ( 'ua', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
     yield check_product3, ( 'va', '6hrPlev', 'historical', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
     yield check_product3, ( 'areacella', 'fx', 'rcp85', 'tmp/mohc1', 1980 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK013')
+    yield check_product3, ( 'sconcbc', 'aero', 'rcp85', 'tmp/mohc_cf/', 2005 ), {'selective_ads_scan':True, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
     
 ##yield check_product3, ( 'clt', 'day', 'piControl', 'tmp/mohc1', 1979 ), {'selective_ads_scan':False, 'model':'HadGEM2-ES'}, ('output1', 'OK300.08')
 
@@ -195,7 +196,7 @@ def test_regression_1():
     
     status = pc1.find_product(drs.variable, drs.table, drs.experiment,
                               drs.model, prefix,
-                              startyear=1979, endyear=1989)
+                              startyear=1979)
     assert status
     assert pc1.product=='output1'
 

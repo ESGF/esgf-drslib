@@ -239,25 +239,20 @@ class DRSTree(object):
 
         pci = self._p_cmip5
         if drs.subset is None or drs.subset[0] == None:
-            startyear = endyear = None
+            startyear = None
         else:
             startyear = drs.subset[0][0]
-            endyear = drs.subset[1][0]
 
         try:
             status = pci.find_product(drs.variable, drs.table, drs.experiment, drs.model,
-                                      path, startyear=startyear, endyear=endyear)
+                                      path, startyear=startyear)
             # Make sure status is consistent with no exceptions being raised
             assert status
         except ProductScope as e:
             p_cmip5_log.warn('FAILED product detection for %s, %s' % (drs, e))
         else:
-            if startyear and endyear:
-                dur_str = '%d-%d' % (startyear, endyear)
-            else:
-                dur_str = ''
-            p_cmip5_log.debug('%s, %s, %s, %s, %s:: %s %s' % (drs.variable, drs.table, drs.experiment, 
-                                                                 path, dur_str,
+            p_cmip5_log.debug('%s, %s, %s, %s:: %s %s' % (drs.variable, drs.table, drs.experiment, 
+                                                                 path, 
                                                                  pci.product, pci.reason ))
             
             drs.product = pci.product
