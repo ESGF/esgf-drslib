@@ -59,6 +59,7 @@ class PublisherTree(object):
     DIFF_SIZE = 2
     DIFF_V1_ONLY = 4
     DIFF_V2_ONLY = 8
+    DIFF_PATH = 16
 
     def __init__(self, drs, drs_tree):
 
@@ -474,14 +475,20 @@ class PublisherTree(object):
     def _diff_file(self, filepath1, filepath2, by_tracking_id=False):
         diff_state = self.DIFF_NONE
 
+        fp1 = os.path.realpath(filepath1)
+        fp2 = os.path.realpath(filepath2)
+
+        if fp1 != fp2:
+            diff_state |= self.DIFF_PATH
+
         # Check files are the same size
-        if _get_size(filepath1) != _get_size(filepath2):
+        if _get_size(fp1) != _get_size(fp2):
             diff_state |= self.DIFF_SIZE
 
         # Check by tracking_id
         if by_tracking_id:
-            if filepath1[-3:] == filepath2[-3:] == '.nc':
-                if _get_tracking_id(filepath1) != _get_tracking_id(filepath2):
+            if fp1[-3:] == fp2[-3:] == '.nc':
+                if _get_tracking_id(fp1) != _get_tracking_id(fp2):
                     diff_state |= self.DIFF_TRACKING_ID
 
         #!TODO: what about md5sum?  This would be slow, particularly as

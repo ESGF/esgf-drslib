@@ -34,7 +34,8 @@ command:
   upgrade         make changes to the selected datasets to upgrade to the next version.
   mapfile         make a mapfile of the selected dataset
   history         list all versions of the selected dataset
-  init            Initialise CMIP5 data for product detection
+  init            initialise CMIP5 data for product detection
+  diff            list differences between versions or between a version and the todo list 
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -338,6 +339,69 @@ class InitCommand(Command):
 
         print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
 
+
+
+class DiffCommand(Command):
+    """
+    Accepts 0-2 arguments.  If no arguments given lists the diff between
+    the latest version and the todo list.  If 1 given lists  the diff
+    between that version and the todo list.  If 2 given lists the diff
+    between these versions.
+
+    """
+    def do(self):
+        if len(self.drs_tree.pub_trees) != 1:
+            raise Exception("You must select 1 dataset to view differences. %d selected" %
+                            len(self.drs_tree.pub_trees))
+
+        if len(self.drs_tree.pub_trees) == 0:
+            raise Exception("No datasets selected")
+
+        pt =self.drs_tree.pub_trees.values()[0]
+
+        #!TODO: better argument handling
+        args = self.args[:]
+        if not args:
+            v1 = pt.latest
+            v2 = None
+        else:
+            v1 = int(args.pop(0))
+            if args:
+                v2 = int(args.pop(0))
+            else:
+                v2 = None
+        
+        # Yields DIFF_STATE, file1, file2
+
+        self.print_header()
+        if v2:
+            v2_msg = v2
+        else:
+            v2_msg = 'todo list'
+        print 'Diff between %s and %s' % (v1, v2_msg)
+        self.print_sep()
+
+        #!FIXME: Just compare file sizes at the moment!
+        for diff_type, f1, f2 in pt.diff_version(v1, v2):
+            filename = os.path.basename(f1 or f2)
+            if diff_type == pt.DIFF_NONE:
+                continue
+            # Don't compare by path if using the todo list
+            elif (v2 is not None) and (diff_type & pt.DIFF_PATH == pt.DIFF_PATH):
+                print 'PATH\t\t%s' % filename
+            elif diff_type & pt.DIFF_SIZE == pt.DIFF_SIZE:
+                print 'SIZE\t\t%s' % filename
+            elif diff_type & pt.DIFF_TRACKING_ID == pt.DIFF_TRACKING_ID:
+                print 'TRACKING_ID\t%s' % filename
+            elif diff_type & pt.DIFF_V1_ONLY == pt.DIFF_V1_ONLY:
+                print '%s\t\t%s' % (v1, filename)
+            elif diff_type & pt.DIFF_V2_ONLY == pt.DIFF_V2_ONLY:
+                print '%s\t\t%s' % (v2_msg, filename)
+            else:
+                assert False
+                
+        self.print_footer()
+
 def run(op, command, opts, args):
     if command == 'list':
         c = ListCommand(opts, args)
@@ -351,6 +415,8 @@ def run(op, command, opts, args):
         c = HistoryCommand(opts, args)
     elif command == 'init':
         c = InitCommand(opts, args)
+    elif command == 'diff':
+        c = DiffCommand(opts, args)
     else:
         op.error("Unrecognised command %s" % command)
 
