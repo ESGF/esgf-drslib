@@ -305,7 +305,7 @@ class PublisherTree(object):
                     # Find link target from previous version
                     prevlink = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % self.latest,
                                                             drs.variable, filename))
-                    pfilepath = os.path.realpath(os.path.join(os.path.dirname(prevlink),
+                    pfilepath = os.path.abspath(os.path.join(os.path.dirname(prevlink),
                                                               os.readlink(prevlink)))
 
                     linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
