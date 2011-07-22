@@ -143,3 +143,12 @@ def test_12():
     drs = translator_noversion.filename_to_drs('novar1_Amon_HadGEM2-ES_rcp45_r1i1p1_201512-204011.nc')
 
 
+def test_13():
+    # Variables with clim flag as in DRS doc
+    drs = translator_noversion.filename_to_drs('novar1_Amon_HadGEM2-ES_rcp45_r1i1p1_201512-204011-clim.nc')
+    assert drs.subset[2] == True
+
+def test_14():
+    # Variables with clim flag as produced by CMOR
+    drs = translator_noversion.filename_to_drs('novar1_Amon_HadGEM2-ES_rcp45_r1i1p1_201512-204011_clim.nc')
+    assert drs.subset[2] == True

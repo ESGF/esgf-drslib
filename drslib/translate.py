@@ -45,6 +45,10 @@ class TranslatorContext(object):
         else:
             self.file_parts = os.path.splitext(filename)[0].split('_')
             
+        # Work-arround because CMOR encodes 'clim' as flag as _clim
+        if self.file_parts[-1] == 'clim':
+            self.file_parts[-2:] = [self.file_parts[-2] + '-clim']
+
         if drs is None:
             self.drs = DRS()
         else:
