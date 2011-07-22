@@ -17,6 +17,19 @@ import os
 import metaconfig
 config = metaconfig.get_config('drslib')
 
+##############################################################################
+# Configure the location of MIP tables.  
+# 
+# This can be configured with the MIP_TABLE_PATH environment varliable
+# or in the drslib metaconfig as 
+# [drslib:tables]
+# path = $MIP_TABLE_PATH
+#
+# You can override the location of CSV versions of the tables with the 
+# "path_csv" option in metaconfig.  You can override the prefix of tables
+# with the "prefix" option.
+#
+
 if 'MIP_TABLE_PATH' in os.environ:
     table_path = os.environ['MIP_TABLE_PATH']
 else:
@@ -42,12 +55,24 @@ if config.has_option('tables', 'prefix'):
 else:
     table_prefix = 'CMIP5_'
 
+##############################################################################
+# Configure site-specific drs vocabulary behaviour
+#
+
+#
+# Configure default values of the drs attributes
+#
+#!TODO: this should probably be drs_defaults.  Requires major version change. 
 if config.has_section('drs'):
     drs_defaults = dict(config.items('drs'))
 else:
     drs_defaults = {}
 
-
+#
+# Configure the model table.  You shouldn't need to change this from the
+# internal default.
+#
+#!TODO: Check whether this is used.
 try:
     model_table = config.get('tables', 'model_table')
 except:
@@ -64,6 +89,15 @@ except:
     version_by_date = True
 
 #
+# Allow override of experiment names.  
+# These are merged with names in the MIP tables
+#
+try:
+    experiments = config.get('vocabularies', 'experiments').split()
+except:
+    experiments = []
+
+##############################################################################
 # drs_tree command defaults
 #
 

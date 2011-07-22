@@ -125,22 +125,8 @@ class ExperimentTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_EXPERIMENT
     file_i = T.CMIP5_DRS.FILE_EXPERIMENT
     component = 'experiment'
-    #!TODO: replace XXXX with decades
-    vocab = set([    
-        # Experiments for CMIP3
-        '1pctto2x',  
-        '2xco2',
-        'pdcntrl',
-        'sresa1b',
-        '1pctto4x',
-        'amip',
-        'picntrl', 
-        'sresa2',
-        '20c3m',
-        'commit',
-        'slabcntl', 
-        'sresb1',
-        ])
+    #!NOTE: Set CMIP3 and decadal experiments in metaconfig.
+    vocab = set()
 
     def __init__(self, table_store):
         super(ExperimentTranslator, self).__init__(table_store)
@@ -149,6 +135,8 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         for table in self.table_store.tables.values():
             self.vocab.update(table.experiments)
 
+        # Get valid experiment ids from metaconfig
+        self.vocab.update(config.experiments)
 
 class FrequencyTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_FREQUENCY
