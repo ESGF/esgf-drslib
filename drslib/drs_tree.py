@@ -109,9 +109,7 @@ class DRSTree(object):
                 log.warning("PublisherTree path %s is inside incoming, ignoring" % pt_path)
                 continue
 
-            drs = path_to_drs(self.drs_root, pt_path)
-            #!FIXME: Set inside path_to_drs?
-            drs.activity = drs_t.activity
+            drs = path_to_drs(self.drs_root, pt_path, activity=drs_t.activity)
             drs_id = drs.to_dataset_id()
             if drs_id in self.pub_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)
