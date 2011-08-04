@@ -152,3 +152,7 @@ def test_14():
     # Variables with clim flag as produced by CMOR
     drs = translator_noversion.filename_to_drs('novar1_Amon_HadGEM2-ES_rcp45_r1i1p1_201512-204011_clim.nc')
     assert drs.subset[2] == True
+
+def test_15():
+    drs = translator.filepath_to_drs('cmip5/output1/IPSL/IPSL-CM5A-LR/piControl/3hr/atmos/3hr/r1i1p1/v20110324/ps/ps_3hr_IPSL-CM5A-LR_piControl_r1i1p1_275001010300-279912312100.nc')
+    assert drs.institute == 'IPSL'

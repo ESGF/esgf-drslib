@@ -92,6 +92,8 @@ class InstituteTranslator(T.GenericComponentTranslator):
 
     def _deduce_institute(self, context):
         model = context.drs.model
+        if context.drs.institute:
+            return context.drs.institute
         try:
             return model_institute_map[model]
         except KeyError:
