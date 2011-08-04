@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 
 VERSIONING_FILES_DIR = 'files'
 VERSIONING_LATEST_DIR = 'latest'
+IGNORE_FILES_REGEXP = r'^\..*'
 
 #---------------------------------------------------------------------------
 
@@ -438,6 +439,10 @@ class PublisherTree(object):
         for dirpath, dirnames, filenames in os.walk(vpath,
                                                     topdown=False):
             for filename in filenames:
+                # Ignore files matching a regexp
+                if re.match(IGNORE_FILES_REGEXP, filename):
+                    continue
+
                 filepath = os.path.join(dirpath, filename)
                 drs = self.drs_tree._vtrans.filepath_to_drs(filepath)
                 vlist.append((filepath, drs))
