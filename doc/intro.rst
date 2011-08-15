@@ -115,7 +115,7 @@ pointing to a separate logging configuration file:
 
   [metaconfig]
   configs = drslib
-  logging = ~/logging.conf
+  logging = /path/to/logging.conf
 
 The format of ``logging.conf`` should conform to the Python logging
 `configuration file format`__.  An example logging configuration is
