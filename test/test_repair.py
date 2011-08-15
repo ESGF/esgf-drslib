@@ -36,6 +36,7 @@ class TestRepair(TestEg):
                     product='output1', institute='MOHC', model='HadCM3')
         self.pt = dt.pub_trees.values()[0]
         self.pt.do_version()
+        assert self.pt.state == self.pt.STATE_VERSIONED
 
         self.breakme()
 
@@ -48,7 +49,7 @@ class TestRepair(TestEg):
 
     def test_broken(self):
         self.pt.deduce_state()
-        assert self.pt.state == self.pt.STATE_VERSIONED_BROKEN
+        assert self.pt.state == self.pt.STATE_BROKEN
         
 
 class TestRepairLatestLink(TestRepair):
