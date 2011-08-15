@@ -50,7 +50,7 @@ class PublisherTree(object):
     STATE_INITIAL = 'INITIAL'
     STATE_VERSIONED = 'VERSIONED'
     STATE_VERSIONED_TRANS = 'VERSIONED_TRANS'
-    STATE_VERSIONED_BROKEN = 'BROKEN'
+    STATE_BROKEN = 'BROKEN'
 
     CMD_MOVE = 0
     CMD_LINK = 1
@@ -73,6 +73,8 @@ class PublisherTree(object):
         self.latest = 0
         self._vtrans = make_translator(drs_tree.drs_root)
         self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
+        self._checkers = []
+        self._check_failures = {}
 
         #!TODO: calling internal method.  Make this method public.
         ensemble = self.drs._encode_ensemble()
@@ -103,6 +105,9 @@ class PublisherTree(object):
             self.state = self.STATE_VERSIONED_TRANS
         else:
             self.state = self.STATE_VERSIONED
+
+        if not self._check_tree():
+            self.state = self.STATE_BROKEN
 
 
     def do_version(self, next_version=None):
@@ -433,7 +438,6 @@ class PublisherTree(object):
 
             self.versions[i] = self._make_version_list(vpath)
             i += 1
-            
         
     def _make_version_list(self, vpath):
         vlist = []
@@ -502,7 +506,20 @@ class PublisherTree(object):
 
         return diff_state
 
+    def _check_tree(self):
+        """
+        Run a series of checker instances on the object to check for inconsistencies.
 
+        """
+        self._checker_status = {}
+        ret = True
+        for checker in self._checkers:
+            result, reason = checker.check(self)
+            if not result:
+                self._checker_failures[checker.get_name] = reason
+                ret = False
+
+        return ret
 
 def _get_tracking_id(filename):
     import cdms2
