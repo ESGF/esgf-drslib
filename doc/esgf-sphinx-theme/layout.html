@@ -5,8 +5,10 @@
 {% extends "basic/layout.html" %}
 
 {% set projects = (
+  ('installer', "http://esgf.org/esgf-installer-site/"),
   ('node-manager', "http://esgf.org/esg-node-site/"),
   ('publisher', "http://esgf.org/esg-publisher-site/"),
+  ('idp', "http://esgf.org/esgf-idp-site/"),
   ('orp', "http://esgf.org/esg-orp-site"),
   ('security', "http://esgf.org/esgf-security-site"),
   ('search', "http://esgf.org/esg-search-site"),
@@ -44,7 +46,7 @@
     {%- if p == theme_esgf_project %}
       <b>{{ p }}</b> &middot;
     {%- else %}
-      <a href="{{ url }}">{{ p }}</a> &middot;
+      <a href="{{ url }}">{{ p }}</a>
     {%- endif %}
   {%- endfor -%}
 </div> <!-- projects -->    
@@ -136,7 +138,7 @@
 	    <a href="http://cmip-pcmdi.llnl.gov/cmip5/" target="_other">CMIP5</a> &middot; 
 	    <a href="http://www.llnl.gov" target="_other">LLNL</a> &middot;
             <a href="https://www.llnl.gov/disclaimer.html" target="_other">Privacy &amp; Legal Notice</a> &middot;
-            <a  > LLNL-WEB-xxxxxx &nbsp;&nbsp;&nbsp; </a &middot;></div>
+            <a  > LLNL-WEB-460643 &nbsp;&nbsp;&nbsp; </a &middot;></div>
 	</div>
       </div>    <!-- footer -->      
       {% endblock %}
