@@ -73,8 +73,10 @@ class PublisherTree(object):
         self.latest = 0
         self._vtrans = make_translator(drs_tree.drs_root)
         self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
-        self._checkers = []
-        self._check_failures = {}
+
+        from drslib.drs_tree_check import default_checkers
+        self._checkers = default_checkers[:]
+        self._checker_failures = {}
 
         #!TODO: calling internal method.  Make this method public.
         ensemble = self.drs._encode_ensemble()
@@ -511,13 +513,13 @@ class PublisherTree(object):
         Run a series of checker instances on the object to check for inconsistencies.
 
         """
-        self._checker_status = {}
+        self._checker_failures = {}
         ret = True
         for checker in self._checkers:
-            result, reason = checker.check(self)
+            result, reason, data = checker.check(self)
+            ret &= result
             if not result:
-                self._checker_failures[checker.get_name] = reason
-                ret = False
+                self._checker_failures[checker.get_name] = (reason, data)
 
         return ret
 
