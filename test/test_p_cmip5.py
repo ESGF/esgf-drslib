@@ -13,6 +13,7 @@ from test.gen_drs import write_listing_seq
 from drslib import config
 
 from nose import with_setup
+from drs_tree_shared import test_dir
 
 verbose = False
 
@@ -275,3 +276,22 @@ def test_p_cmip5_data_perms():
                               use_rev=True,
                               config=config1, not_ok_excpt=False)
 #test_p_cmip5_data_perms.__test__ = False
+
+
+def check_listing(listing_file):
+    prefix = os.path.join(tmpdir, 'reg_ncc')
+    filenames = open(os.path.join(test_dir, listing_file)).readlines()
+
+    write_listing_seq(prefix, filenames)
+    trans = make_translator(prefix)
+
+    for filename in filenames:
+        drs = trans.filename_to_drs(filenames[0])
+        status = pc1.find_product(drs.variable, drs.table, drs.experiment,
+                                  drs.model, prefix)
+        assert status
+        assert pc1.product=='output1'
+
+def test_regression_ncc():
+    for listing in ['ncc_rcp45.ls', 'ncc_piControl.ls', 'ncc_rcp45.ls']:
+        yield check_listing, listing
