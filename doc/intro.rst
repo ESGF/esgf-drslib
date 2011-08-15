@@ -80,7 +80,7 @@ your MIP tables.  Create the following in your ``$HOME/.metaconfig.conf`` file:
   configs = drslib
 
   [drslib:tables]
-  tables = /path/to/mip/tables
+  path = /path/to/mip/tables
   model_table = /path/to/model_table
 
 .. _metaconfig: http://pypi.python.org/pypi/metaconfig
