@@ -64,7 +64,7 @@ def test_3():
 
 def test_4():
     # Read some filenames from UKMO and roundtrip them
-    fh = open(os.path.join(os.path.dirname(__file__), 'cmip5_test_ls'))
+    fh = open(os.path.join(os.path.dirname(__file__), 'cmip5_test.ls'))
     for filename in fh:
         yield roundtrip_filename, filename.strip()
 
