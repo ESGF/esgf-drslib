@@ -81,9 +81,7 @@ class cmip5_product:
                     stdo='sh/standard_output',\
                     config='ini/sample_1.ini', \
                     override_product_change_warning=False,\
-                    use_rev=True,\
                     policy_opt1='all_rel',not_ok_excpt=False):
-    self.use_rev = use_rev
     self.mip_sh = shelve.open( mip_table_shelve, flag='r' )
     self.tmpl = shelve.open( template, flag='r' )
     self.stdo = shelve.open( stdo, flag='r' )
@@ -255,12 +253,6 @@ class cmip5_product:
     return True
         
   def check_var(self):
-    if self.use_rev:
-       return self.check_var_rev()
-    else:
-       return self.check_var_old()
-
-  def check_var_rev(self):
     kk = 0
     for r in self.mip_sh[self.table]:
       kk+=1
@@ -279,41 +271,6 @@ class cmip5_product:
 
     return False
 
-  def check_var_old(self):
-    kk = 0
-    if self.table == 'cfMon':
-## identify start and end of each section, and record in self.table_segment
-      segstarts = ['rlu','rsut4co2','rlu4co2','cltisccp']
-      segix = []
-      kseg = 0
-      for r in self.mip_sh[self.table]:
-        kk+=1
-        if r[5] in segstarts:
-          segix.append(kk)
-          kseg += 1
-        if r[5] == self.var:
-          self.vline = r[:]
-          self.pos_in_table = kk
-          self.table_segment = kseg
-          return True
-    for r in self.mip_sh[self.table]:
-      kk+=1
-      if r[5] == self.var:
-        self.vline = r[:]
-        self.pos_in_table = kk
-        return True
-##cross links::  [(u'include Oyr 3D tracers', u'Omon'), (u'include Amon 2D', u'cf3hr'), (u'include Amon 2D', u'cfSites')]
-    if self.table in ['Omon','cf3hr','cfsites']:
-      if self.table == 'Omon':
-        rlist = self.mip_sh['Oyr'][0:43]
-      else:
-        rlist = self.mip_sh['Amon'][0:51]
-      for r in rlist:
-        if r[5] == self.var:
-          self.vline = r[:]
-          self.pos_in_table = 99
-          return True
-    return False
 
   def find_rei( self,expt ):
       
@@ -348,16 +305,10 @@ class cmip5_product:
       return False
 
   def priority(self):
-    if self.use_rev:
       return int(float(self.vline[2]))
-    else:
-      return self.vline[0]
     
   def dimensions(self):
-    if self.use_rev:
       return self.vline[1]
-    else:
-      return self.vline[16]
 
   def get_cfmip_request_spec(self):
     keys = self.stdo['cfmip'].keys()

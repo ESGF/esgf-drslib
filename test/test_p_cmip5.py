@@ -41,15 +41,13 @@ def setup_module():
     z = zipfile.ZipFile(os.path.join(test_dir, 'dummy_archive.zip'))
     z.extractall(path=tmpdir)
 
-    pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
+    pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
                           template=shelves['template'],
                           stdo=shelves['stdo'],
-                          use_rev=True,
                           config=config1, not_ok_excpt=False)
-    pc2 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
+    pc2 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
                           template=shelves['template'],
                           stdo=shelves['stdo'],
-                          use_rev=True,
                           config=config2, not_ok_excpt=False)
 
 ##def teardown_module():
@@ -260,19 +258,17 @@ def test_p_cmip5_data_perms():
     try:
         os.chmod(shelve_file, 0400)
         # Reload shelves
-        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
+        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
                               template=shelves['template'],
                               stdo=shelves['stdo'],
-                              use_rev=True,
                               config=config1, not_ok_excpt=False)
         # Repeat test
         test_drs_tree()
     finally:
         os.chmod(shelve_file, 0644)
-        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
+        pc1 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
                               template=shelves['template'],
                               stdo=shelves['stdo'],
-                              use_rev=True,
                               config=config1, not_ok_excpt=False)
 #test_p_cmip5_data_perms.__test__ = False
 

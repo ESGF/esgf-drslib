@@ -34,11 +34,10 @@ def setup_module():
     listing = os.path.join(os.path.dirname(__file__), LISTING)
     gen_drs.write_listing(tmpdir, listing)
     
-    p_cmip5 = p_cmip5.product.cmip5_product(mip_table_shelve=shelves['stdo_mip_rev'],
+    p_cmip5 = p_cmip5.product.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
                                             template=shelves['template'],
                                             stdo=shelves['stdo'],
                                             config=config_file,
-                                            use_rev=True,
                                             not_ok_excpt=True)
 
     dt = drs_tree.DRSTree(tmpdir)
