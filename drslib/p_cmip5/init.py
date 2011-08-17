@@ -14,6 +14,13 @@ log = logging.getLogger(__name__)
 
 from drslib.config import table_path, table_path_csv
 
+# Shelve version is designed to enable drslib to detect when the user needs to upgrade
+# their shelves using "drstool init".  A value of 0 implies pre-versioning and is compatible
+# with shelve versions up to this point.  A value greater than 0 requires the file SHELVE_VERSION_FILE
+# to be present in the shelve directory containing the version.  If they don't match _find_shelves() will
+# complain
+SHELVE_VERSION = 0
+SHELVE_VERSION_FILE = 'VERSION'
 
 STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
 STANDARD_OUTPUT_XLS = 'standard_output_mod.xls'
@@ -105,6 +112,16 @@ def _find_shelves(shelve_dir):
 
     return dict(template=template, stdo=stdo, stdo_mip=stdo_mip, stdo_mip_rev=stdo_mip_rev)
 
+def _check_shelve_version(shelve_dir):
+    version_file = os.path.join(shelve_dir, SHELVE_VERSION_FILE)
+    if os.path.exists(version_file):
+        shelve_version = int(open(version_file).read().strip())
+    else:
+        shelve_version = 0
+
+    if shelve_version != SHELVE_VERSION:
+        raise Exception("Your shelve directory version is incompatible with this version of drslib"
+                        "Please run 'drs_tool init' to reconstruct your shelves")
 
 def init(shelve_dir,mip_dir,mip_csv_dir=None,xls_dir=None):
     """
