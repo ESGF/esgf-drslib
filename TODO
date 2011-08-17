@@ -1,0 +1,9 @@
+
+ * Check the product of existing PublisherTrees.  This requires
+   checking each file so would require a new option in drs_tool.
+
+ * Check consistency of p_cmip5 with esgcet.  See branch check_product
+   for first steps.
+
+ * Reconstruct symbolic links from structure only containing
+   */files/*.  See branch drs-reconstruct.
