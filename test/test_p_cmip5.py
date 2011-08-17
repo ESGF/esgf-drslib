@@ -26,7 +26,6 @@ CMOR_TABLE_CSV = config.table_path_csv
 def setup_module():
     global pc1, pc2, tmpdir
     tmpdir = tempfile.mkdtemp(prefix='p_cmip5-')
-    print 'TMPDIR   ',tmpdir
     shelve_dir = os.path.join(tmpdir, 'sh')
 
     # Example config file is in test directory

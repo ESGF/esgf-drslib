@@ -1,0 +1,28 @@
+
+
+Test Prerequisites
+==================
+
+Import modules required to for this test.
+
+>>> from test import test_p_cmip5
+>>> test_p_cmip5.setup_module()
+
+>>> import sys, os, shutil
+>>> from drslib.drs_command import main as drs_tool_main
+
+Create a directory and build a drs-tree in it called './drs_tool_example/cmip5'
+
+>>> drs_tool_main(('''drs_tool list --detect-product --root=/tmp --incoming=%s/tmp/tas
+...                   cmip5.%%.UKMO.HADCM3''' % test_p_cmip5.tmpdir).split())
+==============================================================================
+DRS Tree at /tmp
+------------------------------------------------------------------------------
+cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r1i1p1                0:0 420:0
+cmip5.output1.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1                0:0 35:0
+cmip5.output1.UKMO.HADCM3.piControl.day.atmos.day.r3i1p1                0:0 30:0
+cmip5.output2.UKMO.HADCM3.piControl.3hr.atmos.3hr.r1i1p1                0:0 72:0
+cmip5.output2.UKMO.HADCM3.piControl.3hr.atmos.3hr.r2i1p1                0:0 6:0
+------------------------------------------------------------------------------
+5 datasets awaiting upgrade
+==============================================================================
