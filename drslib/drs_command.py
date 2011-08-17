@@ -118,7 +118,7 @@ class Command(object):
                 raise Exception("p_cmip5 configuration file not specified.  Please use --p-cmip5-config or set via metaconfig")
 
         self.drs_tree.set_p_cmip5(p_cmip5.product.cmip5_product(
-                mip_table_shelve=shelves['stdo_mip'],
+                mip_table_shelve=shelves['stdo_mip_rev'],
                 template=shelves['template'],
                 stdo=shelves['stdo'],
                 config=self.p_cmip5_config,
