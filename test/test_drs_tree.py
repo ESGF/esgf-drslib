@@ -343,8 +343,13 @@ class TestEg4_1(TestEg4):
         (self.pt, ) = self.dt2.pub_trees.values()
 
 
+
+#!FIXME: This test is meant to test removing files but needs more work.
+#        cmor2 creates 2 files that are the same as cmor1.  This could
+#        be interpreted as removing 3 files but do we need to check file
+#        contents?
 class TestEg5(TestEg4):
-    __test__ = True
+    __test__ = False
 
     def _cmor1(self):
         gen_drs.write_eg5_1(self.tmpdir)
@@ -402,8 +407,9 @@ class TestEg5(TestEg4):
         assert len(same) == 2
 
 
+#!FIXME: See TestEg5
 class TestEg5_1(TestEg5):
-    __test__ = True
+    __test__ = False
 
 
     def _cmor2(self):
