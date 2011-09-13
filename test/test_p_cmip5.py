@@ -102,7 +102,8 @@ def check_product3(args, kwargs, expect=None):
 
       # Check consistency with esgcet
       var, table, expt, file, startyear = args
-      check_esgcet(r[0], table, var, expt, startyear)
+      if os.path.exists(file):
+          check_esgcet(r[0], table, var, expt, startyear)
 
 def test_gen():
     for var in ['tas','pr','ua']:
@@ -314,10 +315,8 @@ def test_regression_ncc():
         yield check_listing, listing
 
 def test_esgcet1():
-    """
-    Regression test for a discrepency found between esgcet and p_cmip5 product detection.
+    # Regression test for a discrepency found between esgcet and p_cmip5 product detection.
 
-    """
     tests = [
         ('cmip5.*.MOHC.HadGEM2-ES.historical.6hr.atmos.6hrLev', 'hus ta ua va', 1949 ),
         ('cmip5.*.MOHC.HadGEM2-ES.historical.6hr.atmos.6hrPlev', 'psl ta ua va', 1949 ),
@@ -356,3 +355,4 @@ def test_esgcet1():
 
         for variable in vars:
             yield check_product3, (variable, table, expt, None, startyear), {}
+test_esgcet1.__test__ = False
