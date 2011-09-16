@@ -169,3 +169,8 @@ def test_16():
 
     calculated_path = translator.drs_to_filepath(drs)
     assert calculated_path == fullpath
+
+def test_17():
+    # From Estani for bug 112
+    drs = translator.filename_to_drs('psl_6hrPlev_MPI-ESM-LR_amip_r1i1p1_1979010100-197912311800.nc')
+    print translator.drs_to_file(drs)

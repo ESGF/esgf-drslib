@@ -305,7 +305,8 @@ class VersionTranslator(BaseComponentTranslator):
 
 
     def drs_to_filepath(self, context):
-        context.path_parts[CMIP5_DRS.PATH_VERSION] = 'v%d' % context.drs.version
+        if context.drs.version is not None:
+            context.path_parts[CMIP5_DRS.PATH_VERSION] = 'v%d' % context.drs.version
         
     #----
 
