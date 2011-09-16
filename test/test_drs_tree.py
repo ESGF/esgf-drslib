@@ -35,6 +35,7 @@ class TestEg1(TestEg):
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
+
         assert len(dt.pub_trees) == 3
         k = sorted(dt.pub_trees.keys())[2]
         assert k == 'cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r3i1p1'

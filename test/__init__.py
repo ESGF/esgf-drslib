@@ -174,3 +174,11 @@ def test_17():
     # From Estani for bug 112
     drs = translator.filename_to_drs('psl_6hrPlev_MPI-ESM-LR_amip_r1i1p1_1979010100-197912311800.nc')
     print translator.drs_to_file(drs)
+
+def test_18():
+    # From Estani for bug 86
+    fn = 'psl_6hrPlev_MPI-ESM-LR_amip_r1i1p1_1979010100-197912311800.nc'
+    drs = translator.filename_to_drs(fn)
+    calculated_fn = translator.drs_to_file(drs)
+
+    assert calculated_fn == fn

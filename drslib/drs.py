@@ -28,6 +28,7 @@ DRS_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment', 'frequen
 PUB_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
              'realm', 'table', 'ensemble', ]
 
+
 class DRS(dict):
     """
     Represents a DRS entry.  DRS objects are dictionaries where DRS
@@ -48,7 +49,7 @@ class DRS(dict):
     :ivar table: string of None
     :ivar ensemble: (r, i, p)
     :ivar version: integer
-    :ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h) 
+    :ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h, mn) 
         and clim is boolean
     :ivar extended: A string containing miscellaneous stuff.  Useful for
         representing irregular CMIP3 files
@@ -139,6 +140,9 @@ class DRS(dict):
         are encoded as '%'.
 
         """
+        from drslib.translate import _to_date, _from_date
+
+        #!TODO: this code overlaps serialisation code in translate.py
         if self[attr] is None:
             val = '%'
         elif attr is 'ensemble':
@@ -147,15 +151,10 @@ class DRS(dict):
             val = 'v%d' % self.version
         elif attr is 'subset':
             N1, N2, clim = self.subset
-            if None in N1:
-                val = '%'
-                return val
-            N1_str = '%04d%02d%02d%02d' % N1
-            N2_str = '%04d%02d%02d%02d' % N2
             if clim:
-                val = '%s-%s-clim' % (N1_str, N2_str)
+                val = '%s-%s-clim' % (_from_date(N1), _from_date(N2))
             else:
-                val = '%s-%s' % (N1_str, N2_str)
+                val = '%s-%s' % (_from_date(N1), _from_date(N2))
         else:
             val = self[attr]
 

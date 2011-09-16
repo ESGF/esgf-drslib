@@ -500,15 +500,15 @@ class Translator(object):
 
 
 def _to_date(date_str):
-    mo = re.match(r'(\d{4})(\d{2})?(\d{2})?(\d{2})?', date_str)
+    mo = re.match(r'(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?', date_str)
     if not mo:
         raise ValueError()
 
-    (y, m, d, h) = mo.groups()
-    return (int(y), _int_or_none(m), _int_or_none(d), _int_or_none(h))
+    (y, m, d, h, mn) = mo.groups()
+    return (int(y), _int_or_none(m), _int_or_none(d), _int_or_none(h), _int_or_none(mn))
 
 def _from_date(date):
-    (y, m, d, h) = date
+    (y, m, d, h, mn) = date
 
     ret = ['%04d' % y]
     if m is not None:
@@ -517,6 +517,8 @@ def _from_date(date):
         ret.append('%02d' % d)
     if h is not None:
         ret.append('%02d' % h)
+    if mn is not None:
+        ret.append('%02d' % mn)
     return ''.join(ret)
     
 def _int_or_none(x):
