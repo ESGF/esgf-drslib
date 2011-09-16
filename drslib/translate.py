@@ -509,7 +509,7 @@ def _to_date(date_str):
 def _from_date(date):
     (y, m, d, h) = date
 
-    ret = ['%d' % y]
+    ret = ['%04d' % y]
     if m is not None:
         ret.append('%02d' % m)
     if d is not None:
