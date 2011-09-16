@@ -156,3 +156,16 @@ def test_14():
 def test_15():
     drs = translator.filepath_to_drs('cmip5/output1/IPSL/IPSL-CM5A-LR/piControl/3hr/atmos/3hr/r1i1p1/v20110324/ps/ps_3hr_IPSL-CM5A-LR_piControl_r1i1p1_275001010300-279912312100.nc')
     assert drs.institute == 'IPSL'
+
+def test_16():
+    # From Estani for Bug 111
+    #ds='cmip5.output1.CSIRO-QCCCE.CSIRO-Mk3-6-0.1pctCO2.day.atmos.day.r1i1p1'
+    fn='pr_day_CSIRO-Mk3-6-0_1pctCO2_r1i1p1_00010101-00201231.nc'
+    path='cmip5/output1/CSIRO-QCCCE/CSIRO-Mk3-6-0/1pctCO2/day/atmos/day/r1i1p1/v20110518/pr'
+
+    fullpath = os.path.join(path, fn)
+    drs = translator.filepath_to_drs(fullpath)
+    #drs.product, drs.institute, drs.model =  ds.split('.')[1:4]
+
+    calculated_path = translator.drs_to_filepath(drs)
+    assert calculated_path == fullpath
