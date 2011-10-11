@@ -229,9 +229,10 @@ def test_regression_3():
     for filename in filenames:
         drs = trans.filename_to_drs(filenames[0])
         status = pc1.find_product(drs.variable, drs.table, drs.experiment,
-                                  drs.model, prefix)
+                                  drs.model, prefix,
+                                  startyear=drs.subset[0][0])
         assert status
-        print '%s product=%s' % (filename, pc1.product)
+        print '%s startyear=%d product=%s' % (filename, drs.subset[0][0], pc1.product)
         assert pc1.product=='output2'
 
 def test_drs_tree():
@@ -299,6 +300,7 @@ def check_listing(listing_file):
 
     for filename in filenames:
         drs = trans.filename_to_drs(filenames[0])
+
         status = pc1.find_product(drs.variable, drs.table, drs.experiment,
                                   drs.model, prefix)
         assert status
