@@ -190,13 +190,13 @@ def test_regression_1():
     write_listing_seq(prefix, filenames)
     trans = make_translator(prefix)
 
-    drs = trans.filename_to_drs(filenames[0])
-    
-    status = pc1.find_product(drs.variable, drs.table, drs.experiment,
-                              drs.model, prefix,
-                              startyear=1979)
-    assert status
-    assert pc1.product=='output1'
+    for filename in filenames:
+        drs = trans.filename_to_drs(filename)    
+        status = pc1.find_product(drs.variable, drs.table, drs.experiment,
+                                  drs.model, prefix,
+                                  startyear=1979)
+        assert status
+        assert pc1.product=='output1'
 
 def test_regression_2():
     prefix = os.path.join(tmpdir, 'reg_2')
@@ -210,7 +210,7 @@ def test_regression_2():
     trans = make_translator(prefix)
 
     for filename in filenames:
-        drs = trans.filename_to_drs(filenames[0])
+        drs = trans.filename_to_drs(filename)
         status = pc1.find_product(drs.variable, drs.table, drs.experiment,
                                   drs.model, prefix)
         assert status
