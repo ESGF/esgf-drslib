@@ -216,6 +216,23 @@ def test_regression_2():
         assert status
         assert pc1.product=='output1'
 
+def test_regression_3():
+    prefix = os.path.join(tmpdir, 'reg_3')
+    filenames = [
+        'ps_6hrLev_NorESM1-M_rcp45_r1i1p1_2181010100-2190123118.nc',
+        'ps_6hrLev_NorESM1-M_rcp45_r1i1p1_2191010100-2200123118.nc'
+        ]
+
+    write_listing_seq(prefix, filenames)
+    trans = make_translator(prefix)
+
+    for filename in filenames:
+        drs = trans.filename_to_drs(filenames[0])
+        status = pc1.find_product(drs.variable, drs.table, drs.experiment,
+                                  drs.model, prefix)
+        assert status
+        print '%s product=%s' % (filename, pc1.product)
+        assert pc1.product=='output2'
 
 def test_drs_tree():
     """
