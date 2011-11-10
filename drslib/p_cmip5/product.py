@@ -553,6 +553,7 @@ class cmip5_product:
         else:
           y_ec2eh = int( self.cp.get( self.model, 'branch_year_esmControl_to_esmHistorical' ) )
           y_ehist0 = int( self.cp.get( self.model, 'base_year_esmHistorical' ) )
+          #!FIXME: typo  below y_ec2eh!  Fix once a test exists that finds it.
           offset = y_ec2h - y_ehist0
         requested_years = map( lambda x: x + offset, self.requested_years_list )
         return self.select_year_list( requested_years, 'output1', rc='OK300.02' )

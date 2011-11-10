@@ -9,7 +9,7 @@ import zipfile
 import drslib.p_cmip5.product as p
 from drslib.p_cmip5 import init
 from drslib.cmip5 import make_translator
-from test.gen_drs import write_listing_seq
+from test.gen_drs import write_listing_seq, write_listing
 from drslib import config
 
 from nose import with_setup
@@ -24,7 +24,7 @@ CMOR_TABLE_DIR = config.table_path
 CMOR_TABLE_CSV = config.table_path_csv
 
 def setup_module():
-    global pc1, pc2, tmpdir
+    global pc1, pc2, pc3, tmpdir
     tmpdir = tempfile.mkdtemp(prefix='p_cmip5-')
     shelve_dir = os.path.join(tmpdir, 'sh')
 
@@ -32,6 +32,7 @@ def setup_module():
     test_dir = os.path.dirname(__file__)
     config1 = os.path.join(test_dir, 'sample_3.ini')
     config2 = os.path.join(test_dir, 'sample_4.ini')
+    config3 = os.path.join(test_dir, 'sample_ipsl.ini')
 
     # Shelves are regenerated each time.  This could be optimised.
     init.init(shelve_dir,CMOR_TABLE_DIR)
@@ -49,6 +50,10 @@ def setup_module():
                           template=shelves['template'],
                           stdo=shelves['stdo'],
                           config=config2, not_ok_excpt=False)
+    pc3 = p.cmip5_product(mip_table_shelve=shelves['stdo_mip'],
+                          template=shelves['template'],
+                          stdo=shelves['stdo'],
+                          config=config3, not_ok_excpt=False)
 
 ##def teardown_module():
  ##   shutil.rmtree(tmpdir)
@@ -235,6 +240,27 @@ def test_regression_3():
         print '%s startyear=%d product=%s' % (filename, drs.subset[0][0], pc1.product)
         assert pc1.product=='output2'
 
+
+def test_regression_4():
+    listing_file = 'esmControl.ls'
+ 
+    prefix = os.path.join(tmpdir, 'reg_4')
+    write_listing(prefix, os.path.join(os.path.dirname(__file__),
+                                       listing_file))
+
+    trans = make_translator(prefix)
+
+    for filename in os.listdir(prefix):
+
+        drs = trans.filename_to_drs(filename)
+
+        status = pc3.find_product(drs.variable, drs.table, drs.experiment,
+                                  drs.model, prefix,
+                                  startyear=drs.subset[0][0])
+        assert status
+
+
+
 def test_drs_tree():
     """
     Test drs_tree interface to p_cmip5.
@@ -291,7 +317,7 @@ def test_p_cmip5_data_perms():
 #test_p_cmip5_data_perms.__test__ = False
 
 
-def check_listing(listing_file):
+def check_listing(listing_file, output='output1'):
     prefix = os.path.join(tmpdir, 'reg_ncc')
     filenames = open(os.path.join(test_dir, listing_file)).readlines()
 
@@ -304,7 +330,8 @@ def check_listing(listing_file):
         status = pc1.find_product(drs.variable, drs.table, drs.experiment,
                                   drs.model, prefix)
         assert status
-        assert pc1.product=='output1'
+        if output:
+            assert pc1.product == output
 
 def test_regression_ncc():
     for listing in ['ncc_rcp45.ls', 'ncc_piControl.ls', 'ncc_rcp45.ls']:
