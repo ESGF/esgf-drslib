@@ -78,6 +78,7 @@ class TestRepairVersionContents(TestRepair):
         var_dir = os.path.join(self.pt.pub_dir, 'v%d/%s' % (version, variable))
 
         # Delete every 3rd file
-        for path in glob('var_dir/*.nc')[::3]:
+        for path in glob('%s/*.nc' % var_dir)[::3]:
+            print 'REMOVING %s' % path
             os.remove(path)
 

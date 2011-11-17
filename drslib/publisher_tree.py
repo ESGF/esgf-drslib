@@ -6,7 +6,6 @@
 # the full license text.
 
 import os, sys
-from glob import glob
 import stat
 import datetime
 import re
@@ -101,6 +100,13 @@ class PublisherTree(object):
         self._deduce_versions()
         self._deduce_todo()
 
+        self._deduce_state()
+
+    def _deduce_state(self, with_checks=True):
+        """
+        Internal API to state deduction assumes versions and TODO are
+        already correct.
+        """
         if not self.versions:
             self.state = self.STATE_INITIAL
         elif self._todo:
@@ -108,8 +114,9 @@ class PublisherTree(object):
         else:
             self.state = self.STATE_VERSIONED
 
-        if not self._check_tree():
-            self.state = self.STATE_BROKEN
+        if with_checks and self.state != self.STATE_INITIAL:
+            if not self._check_tree():
+                self.state = self.STATE_BROKEN
 
 
     def do_version(self, next_version=None):
@@ -127,6 +134,7 @@ class PublisherTree(object):
         self._do_commands(self.todo_commands(next_version))
         self.deduce_state()
         self._do_latest()
+        self._deduce_state()
 
     def list_todo(self, next_version=None):
         """
@@ -279,10 +287,8 @@ class PublisherTree(object):
         done = set()
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
-            fdir = '%s_%d' % (drs.variable, next_version)
-            newpath = os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
-                                                   fdir, filename))
-
+            newpath = os.path.join(self.real_file_dir(drs.variable, next_version),
+                                   filename)
 
             # Detect directories needing creation
             ddir_src = os.path.dirname(newpath)
@@ -291,9 +297,9 @@ class PublisherTree(object):
 
             yield self.CMD_MOVE, filepath, newpath
 
-            linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
-                                                    drs.variable,
-                                                    filename))
+            linkpath = os.path.join(self.link_file_dir(drs.variable, next_version),
+                                    filename)
+
             # Detect directories needing creation
             ddir_dst = os.path.dirname(linkpath)
             if not os.path.exists(ddir_dst):
@@ -313,13 +319,13 @@ class PublisherTree(object):
                 filename = os.path.basename(filepath)
                 if filename not in done:
                     # Find link target from previous version
-                    prevlink = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % self.latest,
-                                                            drs.variable, filename))
+                    prevlink = os.path.abspath(os.path.join(self.link_file_dir(drs.variable, self.latest),
+                                                            filename))
                     pfilepath = os.path.abspath(os.path.join(os.path.dirname(prevlink),
                                                               os.readlink(prevlink)))
 
-                    linkpath = os.path.abspath(os.path.join(self.pub_dir, 'v%d' % next_version,
-                                                            drs.variable, filename))
+                    linkpath = os.path.abspath(os.path.join(self.link_file_dir(drs.variable, next_version),
+                                                            filename))
                     
                     # Detect directories needing creation
                     ddir = os.path.dirname(linkpath)
@@ -327,7 +333,46 @@ class PublisherTree(object):
                         yield self.CMD_MKDIR, None, ddir
                     pfilepath = os.path.relpath(pfilepath, ddir)
                     yield self.CMD_LINK, pfilepath, linkpath
+                    
 
+    #-------------------------------------------------------------------
+    # These methods could be considered protected.  They are designed
+    # for use by drs_check_tree.py
+
+    def real_file_dir(self, variable, version):
+        """
+        Return the expected dir containing the real file represented by drs.
+        """
+
+        fdir = '%s_%d' % (variable, version)
+        return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
+                                               fdir))
+
+    def link_file_dir(self, variable, version):
+        """
+        Return the expected dir containing the link to the file represented by drs.
+        """
+        
+        return os.path.abspath(os.path.join(self.pub_dir, 'v%d' % version,
+                                            variable))
+
+
+    def file_version_map(self):
+        """
+        Return a dictionary D[filename] = (variable, versions)
+
+        """
+        D = {}
+
+        path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        for filedir in os.listdir(path):
+            variable, version = filedir.split('_')
+            version = int(version)
+                
+            for filename in os.listdir(os.path.join(path, filedir)):
+                D.setdefault(filename, (variable, []))[1].append(version)
+
+        return D
 
     #-------------------------------------------------------------------
     
@@ -519,9 +564,11 @@ class PublisherTree(object):
             result, reason, data = checker.check(self)
             ret &= result
             if not result:
-                self._checker_failures[checker.get_name] = (reason, data)
+                log.warning('Checker %s failed: %s' % (checker.get_name(), reason))
+                self._checker_failures[checker.get_name()] = (reason, data)
 
         return ret
+
 
 def _get_tracking_id(filename):
     import cdms2
