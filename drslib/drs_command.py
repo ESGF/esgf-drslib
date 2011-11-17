@@ -225,6 +225,12 @@ class ListCommand(Command):
         if to_upgrade:
             self.print_sep()
             print '%d datasets awaiting upgrade' % to_upgrade
+
+        self.print_sep()
+        for pt in self.drs_tree.pub_trees.values():
+            for line in pt.list_failures():
+                print line
+
         self.print_footer()
 
 class TodoCommand(Command):

@@ -335,6 +335,15 @@ class PublisherTree(object):
                     yield self.CMD_LINK, pfilepath, linkpath
                     
 
+    def list_failures(self):
+        """
+        Iterate over a descriptions of check failures.
+ 
+        """
+        for name in self._checker_failures:
+            reason, data = self._checker_failures[name]
+            yield '%s: %s' % (name, reason)
+
     #-------------------------------------------------------------------
     # These methods could be considered protected.  They are designed
     # for use by drs_check_tree.py

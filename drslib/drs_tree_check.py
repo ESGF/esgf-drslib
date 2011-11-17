@@ -60,6 +60,7 @@ class CheckVersionLinks(TreeChecker):
     def check(self, pt):
         for version in pt.versions:
             for filepath, drs in pt.versions[version]:
+                filepath = os.path.abspath(filepath)
 
                 realdir = pt.real_file_dir(drs.variable, drs.version)
                 linkdir = pt.link_file_dir(drs.variable, drs.version)
@@ -73,18 +74,17 @@ class CheckVersionLinks(TreeChecker):
                             % (filepath, linkdir), None)
 
 
-                if not os.path.exists(realpath):
-                    return (False, 'realpath %s does not exist' % realpath, None)
                 if not os.path.exists(linkpath):
                     return (False, 'linkpath %s does not exist' % linkpath, None)
 
                 link = os.readlink(linkpath)
                 if not os.path.isabs(link):
                     link = os.path.abspath(os.path.join(linkdir, link))
+                linkfile = os.path.basename(link)
 
-                if link != realpath:
+                if linkfile != filename:
                     return (False, 'linkpath %s does not point to %s' 
-                            % (linkpath, linkpath), None)
+                            % (linkpath, filename), None)
                  
         return (True, '', None)
                 
@@ -105,9 +105,9 @@ class CheckVersionFiles(TreeChecker):
         for filename in fv_map:
             variable, fversions = fv_map[filename]
 
-            # Add all subsequent versions
+            # deduce subsequent versions
             max_fv = max(fversions)
-            fversions += [v for v in versions if v > max_fv]
+            later_versions = [v for v in versions if v > max_fv]
 
             for version in fversions:
                 linkpath = os.path.abspath(os.path.join(pt.link_file_dir(variable, version),
@@ -120,6 +120,14 @@ class CheckVersionFiles(TreeChecker):
                     return (False, 'realpath %s does not exist' % realpath, None)
                 if not os.path.exists(linkpath):
                     return (False, 'linkpath %s does not exist' % linkpath, None)
+
+            for version in later_versions:
+                # the link should exist but not necessarily the real path
+                linkpath = os.path.abspath(os.path.join(pt.link_file_dir(variable, version),
+                                                        filename))
+                if not os.path.exists(linkpath):
+                    return (False, 'linkpath %s does not exist' % linkpath, None)
+
 
         return (True, '', None)
 
