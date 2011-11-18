@@ -341,8 +341,10 @@ class PublisherTree(object):
  
         """
         for name in self._checker_failures:
-            reason, data = self._checker_failures[name]
-            yield '%s: %s' % (name, reason)
+            yield '%s: %s' % (name, self._checker_failures[name].get_message())
+
+    def has_failures(self):
+        return self._checker_failures != {}
 
     #-------------------------------------------------------------------
     # These methods could be considered protected.  They are designed
@@ -569,12 +571,13 @@ class PublisherTree(object):
         """
         self._checker_failures = {}
         ret = True
-        for checker in self._checkers:
-            result, reason, data = checker.check(self)
-            ret &= result
-            if not result:
-                log.warning('Checker %s failed: %s' % (checker.get_name(), reason))
-                self._checker_failures[checker.get_name()] = (reason, data)
+        for Checker in self._checkers:
+            checker = Checker()
+            if not checker.check(self):
+                log.warning('Checker %s failed: %s' % (checker.get_name(), 
+                                                       checker.get_message()))
+                self._checker_failures[checker.get_name()] = checker
+                ret = False
 
         return ret
 

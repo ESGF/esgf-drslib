@@ -228,8 +228,10 @@ class ListCommand(Command):
 
         self.print_sep()
         for pt in self.drs_tree.pub_trees.values():
-            for line in pt.list_failures():
-                print line
+            if pt.has_failures():
+                print 'FAIL %-70s' % pt.drs.to_dataset_id()
+                for line in pt.list_failures():
+                    print '  ', line
 
         self.print_footer()
 
