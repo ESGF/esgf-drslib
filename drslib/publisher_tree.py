@@ -15,7 +15,6 @@ from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
-from drslib.p_cmip5 import ProductScope
 
 import logging
 log = logging.getLogger(__name__)

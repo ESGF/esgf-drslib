@@ -23,14 +23,21 @@
 ##                 -- debugged support for "corresponding"
 ## 20110428        -- debugged logic on 1pctCO2, 3hr data -- added no_exception arcgument to select_year_list to allow ERR00##                     to be caught by calling routine.
 ## 20110613        -- debugged select_year_list to deal with case when data file spans time range greater than requested period
+## 20111118        -- fixed bug issuing false warning for piControl, cfMon data after using incorrect date offset.
 ##   
-version = 1.3
-version_date = '20110428'
+version = 1.4
+version_date = '20111118'
 import logging
 log = logging.getLogger(__name__)
 import re, string
 
 class ProductScope(Exception):
+  def __init__(self,value):
+     self.value = value
+  def __str__(self):
+     return repr(self.value)
+
+class ProductDetectionError(Exception):
   def __init__(self,value):
      self.value = value
   def __str__(self):
@@ -76,12 +83,14 @@ def index_in_list( yl, year_slices ):
       
 import shelve, os
 class cmip5_product:
-  def __init__(self,mip_table_shelve='sh/standard_output_mip', \
+  def __init__(self,mip_table_shelve='sh/standard_output_mip_rev', \
                     template='sh/template',\
                     stdo='sh/standard_output',\
                     config='ini/sample_1.ini', \
                     override_product_change_warning=False,\
+                    cmip5_sanity_check=True,\
                     policy_opt1='all_rel',not_ok_excpt=False):
+    self.mip_table_shelve = mip_table_shelve
     self.mip_sh = shelve.open( mip_table_shelve, flag='r' )
     self.tmpl = shelve.open( template, flag='r' )
     self.stdo = shelve.open( stdo, flag='r' )
@@ -100,6 +109,22 @@ class cmip5_product:
     self.not_ok_excpt = not_ok_excpt
     self.ScopeException = ProductScope
     self.warning = "this is a depricated variable"
+    if cmip5_sanity_check:
+      self.cmip5_sanity_check()
+
+##
+## perform simple sanity checks to help detection of configuration errors
+##
+  def cmip5_sanity_check(self):
+    log.info( 'Performing CMIP5 sanity checks (cmip5_sanity_check=True)' )
+    req_vars = { '6hrPlev':'psl', 'day':'tas' }
+    for tab in ['6hrPlev','day']:
+      if not self.mip_sh.has_key( tab ):
+        raise ProductDetectionError( 'MIP table shelve [%s] does not contain CMIP5 required table %s' % (self.mip_table_shelve, tab ) )
+      self.table = tab
+      self.var = req_vars[tab]
+      if not self.check_var():
+        raise ProductDetectionError( 'MIP table [%s] in does not contain CMIP5 requested variable %s' % (tab,self.mip_table_shelve, self.var ) )
 
   def ok(self, product, reason, rc=None):
     self.product = product
@@ -271,6 +296,41 @@ class cmip5_product:
 
     return False
 
+  def check_var_old(self):
+    kk = 0
+    if self.table == 'cfMon':
+## identify start and end of each section, and record in self.table_segment
+      segstarts = ['rlu','rsut4co2','rlu4co2','cltisccp']
+      segix = []
+      kseg = 0
+      for r in self.mip_sh[self.table]:
+        kk+=1
+        if r[5] in segstarts:
+          segix.append(kk)
+          kseg += 1
+        if r[5] == self.var:
+          self.vline = r[:]
+          self.pos_in_table = kk
+          self.table_segment = kseg
+          return True
+    for r in self.mip_sh[self.table]:
+      kk+=1
+      if r[5] == self.var:
+        self.vline = r[:]
+        self.pos_in_table = kk
+        return True
+##cross links::  [(u'include Oyr 3D tracers', u'Omon'), (u'include Amon 2D', u'cf3hr'), (u'include Amon 2D', u'cfSites')]
+    if self.table in ['Omon','cf3hr','cfsites']:
+      if self.table == 'Omon':
+        rlist = self.mip_sh['Oyr'][0:43]
+      else:
+        rlist = self.mip_sh['Amon'][0:51]
+      for r in rlist:
+        if r[5] == self.var:
+          self.vline = r[:]
+          self.pos_in_table = 99
+          return True
+    return False
 
   def find_rei( self,expt ):
       
@@ -440,7 +500,7 @@ class cmip5_product:
     self.model = model
     self.verbose = verbose
     if not self.check_var():
-      return self.ok( 'output2', 'variable not requested', 'OK002' )
+      return self.ok( 'output2', 'variable [%s] not requested in table %s' % (var,table), 'OK002' )
     if table not in ['Oyr','Omon','aero','day','6hrPlev','3hr','cfMon']:
        return self.ok( 'output1', 'Table is all in output1', 'OK013' )
     if table == 'Oyr': 
@@ -620,15 +680,20 @@ class cmip5_product:
                   return result
 ## return last 25 years if none of the above apply
           return self.select_last( 25, 'output1', rc='OK200.05' )
+##  NB '3.1' === piControl
         elif self.rei[1] in ['3.1']:
           opts = self.cp.options( self.model )
-          y_pic2h = int( self.cp.get( self.model, 'branch_year_picontrol_to_historical' ) )
-          y_hist0 = int( self.cp.get( self.model, 'base_year_historical' ) )
-          offset = y_pic2h - y_hist0
-          requested_years = map( lambda x: x + offset, self.requested_years_list )
-          result = self.select_year_list( requested_years, 'output1', force_complete = True, rc='OK300.07' )
-          if self.rc != 'ERR005':
+## try to apply offset from base_year of 1pctCO2 expt.
+          if 'base_year_1pctCO2' in opts:
+            y_pic2h = int( self.cp.get( self.model, 'base_year_1pctCO2' ) )
+          ##y_hist0 = int( self.cp.get( self.model, 'base_year_historical' ) )
+            offset = y_pic2h
+            requested_years = map( lambda x: x + offset, self.requested_years_list )
+            result = self.select_year_list( requested_years, 'output1', force_complete = True, rc='OK300.07' )
+            if self.rc != 'ERR005':
                   return result
+
+## if above does not work, return first 25 or first plus last 25.
           if self.table_segment == 2:
             return self.select_first( 25, 'output1' )
           else:
