@@ -34,7 +34,7 @@ from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
-from drslib.p_cmip5 import ProductScope, ProductDetectionError
+from drslib.p_cmip5 import ProductException
 from drslib.publisher_tree import PublisherTree
 
 import logging
@@ -240,7 +240,7 @@ class DRSTree(object):
                                       path, startyear=startyear)
             # Make sure status is consistent with no exceptions being raised
             assert status
-        except (ProductScope, ProductDetectionError) as e:
+        except ProductException as e:
             p_cmip5_log.warn('FAILED product detection for %s, %s' % (drs, e))
         else:
             p_cmip5_log.debug('%s, %s, %s, %s:: %s %s' % (drs.variable, drs.table, drs.experiment, 

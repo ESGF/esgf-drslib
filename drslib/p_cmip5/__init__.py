@@ -32,4 +32,4 @@ import product
 import init
 
 # Exception raised by product detection failures
-from product import ProductScope, cmip5_product, version, version_date, ProductDetectionError
+from product import ProductException, cmip5_product, version, version_date
