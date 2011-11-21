@@ -24,12 +24,26 @@
 ## 20110428        -- debugged logic on 1pctCO2, 3hr data -- added no_exception arcgument to select_year_list to allow ERR00##                     to be caught by calling routine.
 ## 20110613        -- debugged select_year_list to deal with case when data file spans time range greater than requested period
 ## 20111118        -- fixed bug issuing false warning for piControl, cfMon data after using incorrect date offset.
+## 20111121        -- fixed bug (typo) at line 630 (y_ec2h --> y_ec2eh); 
+##                    fixed bug in find_rei: was not idenyfying centennial 1pctCO2 experiment correctly, going to decadal version instead.
+##                    fixed bug in init.py, creating record in wrong format in standard_ouput shelve
+##                    cleared up logic on "last xx" decisions.
 ##   
-version = 1.4
-version_date = '20111118'
+version = 1.5
+version_date = '20111121'
 import logging
 log = logging.getLogger(__name__)
 import re, string
+
+class DebugException(Exception):
+
+  def __init__(self,tup):
+    self.tup = tup
+
+  def __str__(self):
+    for t in self.tup:
+      print t
+    return repr(self.tup)
 
 class ProductScope(Exception):
   def __init__(self,value):
@@ -278,6 +292,9 @@ class cmip5_product:
     return True
         
   def check_var(self):
+       return self.check_var_rev()
+
+  def check_var_rev(self):
     kk = 0
     for r in self.mip_sh[self.table]:
       kk+=1
@@ -296,48 +313,13 @@ class cmip5_product:
 
     return False
 
-  def check_var_old(self):
-    kk = 0
-    if self.table == 'cfMon':
-## identify start and end of each section, and record in self.table_segment
-      segstarts = ['rlu','rsut4co2','rlu4co2','cltisccp']
-      segix = []
-      kseg = 0
-      for r in self.mip_sh[self.table]:
-        kk+=1
-        if r[5] in segstarts:
-          segix.append(kk)
-          kseg += 1
-        if r[5] == self.var:
-          self.vline = r[:]
-          self.pos_in_table = kk
-          self.table_segment = kseg
-          return True
-    for r in self.mip_sh[self.table]:
-      kk+=1
-      if r[5] == self.var:
-        self.vline = r[:]
-        self.pos_in_table = kk
-        return True
-##cross links::  [(u'include Oyr 3D tracers', u'Omon'), (u'include Amon 2D', u'cf3hr'), (u'include Amon 2D', u'cfSites')]
-    if self.table in ['Omon','cf3hr','cfsites']:
-      if self.table == 'Omon':
-        rlist = self.mip_sh['Oyr'][0:43]
-      else:
-        rlist = self.mip_sh['Amon'][0:51]
-      for r in rlist:
-        if r[5] == self.var:
-          self.vline = r[:]
-          self.pos_in_table = 99
-          return True
-    return False
 
   def find_rei( self,expt ):
       
     ##if expt == ['piControl','historical','amip']:
     k1 = expt
     self.category = 'centennial'
-    if expt == 'piControl':
+    if expt in ['piControl','1pctCO2']:
 ## need configuration file for branch -- if table is in [aero, day, 6hrPlev, 3hr]
       if not self.config_loaded:
         self.load_config()
@@ -354,8 +336,10 @@ class cmip5_product:
           categ = 'centennial'
         categ = self.cp.get( self.model, 'category' )
 
+## centennial versions of experiments distinguished from decadal in shelve by an appended '+' on key.
+
       if categ == 'centennial':
-        k1 = 'piControl+'
+        k1 += '+'
       self.category = categ
       
     if k1 in self.tmpl_keys:
@@ -409,7 +393,11 @@ class cmip5_product:
       if ssp[0] in ['list','listrel','corres']:
         nyears = 0
         for s in ssp[1:]:
-          assert s[0] in ['year','slice'], 'Unexpected time specification %s' % str(s[0])
+          ##assert s[0] in ['year','slice'], 'Unexpected time specification %s' % str(s[0])
+          if s[0] not in ['year','slice']:
+            raise DebugException(  ('Unexpected time specification %s' % str(s[0]), \
+                                    'Request col = %s' % self.request_col, \
+                                    'ssp = %s' % str(ssp) ) )
           if s[0] == 'year':
             nyears += 1
             self.requested_years_list.append( s[1] )
@@ -586,12 +574,15 @@ class cmip5_product:
 
 ## override shelf spec.
     override_shelf = (self.table == '3hr' and self.expt in ['1pctCO2','abrupt4xCO2'] ) or (self.expt == 'volcIn2010' and self.table == 'aero')
+    
        ##rspec = list( self.request_spec[0] )
        ##rspec[0] = 'listrel'
        ##self.request_spec = tuple( rspec )
 
 ## load module to deal with time slices in the variable request
     if self.request_spec[0] == 'listrel' or override_shelf:
+      if override_shelf:
+        self.nyears_requested = 30
       if self.policy_opt1 == 'all_rel' and self.not_enough_years():
          return self.ok( 'output1',  \
             'years submitted (%s) not greater than 5 + years requested (%s)' % (self.nyears_submitted,self.nyears_requested), 'OK009.2' )
