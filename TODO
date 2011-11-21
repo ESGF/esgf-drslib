@@ -6,7 +6,6 @@
 
  * Reconstruct symbolic links from structure only containing
    */files/*.  See branch drs-reconstruct.
-   - change checkers to yield multiple results
    - Summarise checks better in drs_tool
    - switch on/off checks
    - Implement fixes for each check

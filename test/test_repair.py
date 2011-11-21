@@ -50,6 +50,13 @@ class TestRepair(TestEg):
     def test_broken(self):
         self.pt.deduce_state()
         assert self.pt.state == self.pt.STATE_BROKEN
+
+    def test_repair(self):
+        self.pt.deduce_state()
+        if self.pt.has_failures():
+            self.pt.repair()
+            assert self.pt.state != self.pt.STATE_BROKEN
+            
         
 
 class TestRepairLatestLink(TestRepair):

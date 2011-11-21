@@ -68,6 +68,9 @@ class TreeChecker(object):
     def has_passed(self):
         return self.state == self.STATE_PASS
 
+    def is_fixable(self):
+        return self.state == self.STATE_FAIL_FIXABLE
+
     def check(self, pt):
         try:
             self._state_pass()
@@ -78,9 +81,26 @@ class TreeChecker(object):
 
         return self.has_passed()
 
+    def repair(self, pt):
+        try:
+            self._repair_hook(pt)
+        except:
+            self._state_exception()
+            raise
+
+        # Recheck after fixing
+        self.check(pt)
+
+        return self.has_passed()
+
     def _check_hook(self, pt):
         # Implement in subclasses
         raise NotImplementedError
+
+    def _repair_hook(self, pt):
+        # Implement in subclasses
+        raise NotImplementedError
+
 
     #-------------------------------------------------------------------------
     # State changes
@@ -109,8 +129,10 @@ class CheckLatest(TreeChecker):
     def _check_hook(self, pt):
         latest_dir = os.path.join(pt.pub_dir, VERSIONING_LATEST_DIR)
         if not os.path.exists(latest_dir):
-            self._state_unfixable('latest directory missing')
+            self._state_fixable('latest directory missing')
         
+    def _repair_hook(self, pt):
+        pt._do_latest()
 
 
 class CheckVersionLinks(TreeChecker):
