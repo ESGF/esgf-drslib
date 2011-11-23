@@ -35,7 +35,10 @@ import logging
 log = logging.getLogger(__name__)
 import re, string
 
-class DebugException(Exception):
+class ProductException(Exception):
+  pass
+
+class DebugException(ProductException):
 
   def __init__(self,tup):
     self.tup = tup
@@ -45,13 +48,13 @@ class DebugException(Exception):
       print t
     return repr(self.tup)
 
-class ProductScope(Exception):
+class ProductScope(ProductException):
   def __init__(self,value):
      self.value = value
   def __str__(self):
      return repr(self.value)
 
-class ProductDetectionError(Exception):
+class ProductDetectionError(ProductException):
   def __init__(self,value):
      self.value = value
   def __str__(self):

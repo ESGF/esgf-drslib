@@ -7,10 +7,20 @@ initialise the drslib.p_cmip5 module.
 import os, sys
 import xlrd, string, shelve
 import re, glob
+from whichdb import whichdb
 
 import logging
 log = logging.getLogger(__name__)
 
+from drslib.config import table_path, table_path_csv
+
+# Shelve version is designed to enable drslib to detect when the user needs to upgrade
+# their shelves using "drstool init".  A value of 0 implies pre-versioning and is compatible
+# with shelve versions up to this point.  A value greater than 0 requires the file SHELVE_VERSION_FILE
+# to be present in the shelve directory containing the version.  If they don't match _find_shelves() will
+# complain
+SHELVE_VERSION = 1
+SHELVE_VERSION_FILE = 'VERSION'
 
 STANDARD_OUTPUT_XLS = 'standard_output_17Sep2010_mod.xls'
 STANDARD_OUTPUT_XLS = 'standard_output_mod.xls'
@@ -19,13 +29,11 @@ TEMPLATE_MAPPINGS = 'expt_id_mapping.txt'
 TEMPLATE_SHELVE = 'template'
 STDO_SHELVE = 'standard_output'
 STDO_MIP_SHELVE = 'standard_output_mip'
-STDO_MIP_REV_SHELVE = 'standard_output_mip_rev'
 
 re_cmor_mip = re.compile( 'variable_entry:(?P<var>.*?):::(?P<misc>.*?)dimensions:(?P<dims>.*?):::' )
 
-CMOR_TABLE_DIR = '/data/u10/fwsrc/cmor/cmor/Tables/'
-CMOR_TABLE_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables/'
-CMOR_TABLE_CSV_DIR = '/data/u10/cmip5/cmip5-cmor-tables/Tables_csv/'
+CMOR_TABLE_DIR = table_path
+CMOR_TABLE_CSV_DIR = table_path_csv
 CMIP5_REQUEST_XLS ='/home/martin/python/cmip5/work2/esgf-drslib-p_cmip5-d324c7c/drslib/p_cmip5/xls/'
 
 re_cmor_mip2 = re.compile( 'dimensions:(?P<dims>.*?):::' )
@@ -90,19 +98,32 @@ def _find_shelves(shelve_dir):
     Return the location of CMIP5 shelve files as a dictionary.
 
     """
+
+    _check_shelve_version(shelve_dir)
+
     # Locations of shelve files
     template = os.path.join(shelve_dir, TEMPLATE_SHELVE)
     stdo = os.path.join(shelve_dir, STDO_SHELVE)
     stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
-    stdo_mip_rev = os.path.join(shelve_dir, STDO_MIP_REV_SHELVE)
 
-    assert os.path.exists(template)
-    assert os.path.exists(stdo)
-    assert os.path.exists(stdo_mip)
-    assert os.path.exists(stdo_mip_rev)
+    assert whichdb(template)
+    assert whichdb(stdo)
+    assert whichdb(stdo_mip)
 
-    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip, stdo_mip_rev=stdo_mip_rev)
+    return dict(template=template, stdo=stdo, stdo_mip=stdo_mip)
 
+def _check_shelve_version(shelve_dir):
+    version_file = os.path.join(shelve_dir, SHELVE_VERSION_FILE)
+    if os.path.exists(version_file):
+        shelve_version = int(open(version_file).read().strip())
+    else:
+        shelve_version = 0
+
+    log.info('Shelve version detected as %d' % shelve_version)
+
+    if shelve_version != SHELVE_VERSION:
+        raise Exception("Your shelve directory version is incompatible with this version of drslib"
+                        "Please run 'drs_tool init' to reconstruct your shelves")
 
 def init(shelve_dir,mip_dir,mip_csv_dir=None,xls_dir=None):
     """
@@ -129,17 +150,18 @@ def init(shelve_dir,mip_dir,mip_csv_dir=None,xls_dir=None):
     template = os.path.join(shelve_dir, TEMPLATE_SHELVE)
     stdo = os.path.join(shelve_dir, STDO_SHELVE)
     stdo_mip = os.path.join(shelve_dir, STDO_MIP_SHELVE)
-    stdo_mip_rev = os.path.join(shelve_dir, STDO_MIP_REV_SHELVE)
 
-    mi = mip_importer(stdo_xls)
     ri = request_importer(template=template_xls, cmip5_stdo=stdo_xls)
     ri.import_template(template,expt_mapping_file=template_map)
     ri.import_standard_output(stdo)
-    #!TODO: Extra argument x1_sh not supported yet.  What's it for?
-    mi.imprt(stdo_mip)
-    mi2 = mip_importer_rev(mip_dir,mip_csv_dir)
-    mi2.imprt(mip=stdo_mip_rev)
+
+    mi = mip_importer_rev(mip_dir,mip_csv_dir)
+    mi.imprt(mip=stdo_mip)
     
+    version_file = os.path.join(shelve_dir, SHELVE_VERSION_FILE)
+    fh = open(version_file, 'w')
+    print >>fh, SHELVE_VERSION
+    fh.close()
 
 #---------------------------------------------------------------------------
 # Martin's code below this point with a few non-functional changes
@@ -403,120 +425,6 @@ class request_importer:
 ##
 
 
-class mip_importer:
-
-  def __init__(self,input_xls):
-##file = '/data/synced/home_projects/processing/standard_output_x1.xls'
-##file = '/data/synced/home_projects/isenes/standard_output_17Sep2010.xls'
-    self.input_xls = input_xls
-
-  def imprt(self,mip='sh/standard_output_mip',x1_sh=None,sns=None,return_as_dict=False):
-    book = xlrd.open_workbook( self.input_xls )
-
-    log.info(book.sheet_names())
-
-    wf = workflow(states=['wait','items','title'])
-    wf.add( 'wait', allowed=['title'], disallowed=['wait','items'] )
-    wf.add( 'items', allowed=['wait','title'], disallowed=['items'] )
-    wf.add( 'title', allowed=['items','title'], disallowed=['wait'] )
-
-## modified to allow specification of sheet names in argument
-    if sns == None:
-      sns = book.sheet_names()[2:-2]
-    
-    x1 = x1_sh != None
-    if x1:
-      sh = shelve.open( x1_sh, 'n' )
-      ##sh = shelve.open( 'standard_output_x1', 'n' )
-    if return_as_dict:
-      sh_mip = {}
-    else:
-      sh_mip = shelve.open( mip, 'n' )
-
-    ktt = 0
-    title = None
-    qrows = []
-    for sn in sns:
-    
-      wf.name = sn
-      qrows_mip=[]
-      wf.reset()
-      wf.set( 'wait' )
-      this = book.sheet_by_name(sn)
-    
-      kt=0
-      kp=0
-      kkkk = -1
-      ilist = this.col(0)[:]
-      for i in ilist:
-        kkkk += 1
-        v = i.value
-        if wf.status == 'items':
-          if string.strip( str( v ) ) == '':
-            wf.set( 'wait' )
-            log.info(kk)
-          else:
-            kk+=1
-    
-        if type(v) == type(u'x'):
-          if string.find( v, 'CMOR Table') != -1 or string.find( v, 'Ocean layer depth field requested only from models ') != -1 or string.find(v,'on ocean grid') != -1:
-            log.info(v)
-            kt+=1
-            kk = 0
-            wf.set( 'title' )
-            if title != None:
-              if x1:
-                sh[str(ktt)] = ( (title, this_sn), qrows[:] )
-              ktt+=1
-            title = v
-            this_sn = sn
-            qrows = []
-          if string.find( v, 'priority') != -1:
-            kp+=1
-            wf.set( 'items' )
-
-        if type(v) == type(0.):
-          if wf.status == 'title':
-             if v == 0.:
-               wf.set( 'items' )
-               kp +=1
-             else:
-               raise Exception('dodgy transition')
-          elif v == 0.:
-            log.info('%s %s' % (wf.status, i))
-            log.info(kkkk)
-            log.info(this.row(kkkk-1))
-            log.info(this.row(kkkk))
-            log.info(this.row(kkkk+1))
-            log.info(this.col(0))
-            raise Exception('dodgy status')
-          elif wf.status in ('items','wait'):
-            qrows.append( map( lambda x: x.value, this.row(kkkk) ) )
-            qrows_mip.append( map( lambda x: x.value, this.row(kkkk) ) )
-
-      if kp != kt:
-            log.info('mismatch in heading count %s %s' % (kp,kt))
-            log.info(this.col(0))
-    
-      if title != None and len(qrows) != 0:
-         if x1:
-            sh[str(ktt)] = ( (title,this_sn), qrows[:] )
-         ktt+=1
-         qrows = []
-      if len(qrows) != 0:
-         raise Exception('bad len')
-      sh_mip[str(sn)] = qrows_mip[:]
-
-    log.info(len(qrows))
-    if x1:
-      sh.close()
-
-## modified to allow return of dictionary
-    if return_as_dict:
-      return sh_mip
-    else:
-      sh_mip.close()
-      return None
 
 class mip_importer_rev:
 
@@ -535,7 +443,7 @@ class mip_importer_rev:
       for t in mip_tables:
          assert os.path.isfile( '%s/CMIP5_%s' % (self.input_mip_dir,t) ), 'File CMIP5_%s not found in %s' % (t,self.input_mip_dir)
 
-  def imprt(self,mip='sh/standard_output_mip_rev',return_as_dict=False):
+  def imprt(self,mip='sh/standard_output_mip',return_as_dict=False):
 
     if return_as_dict:
       sh_mip = {}
