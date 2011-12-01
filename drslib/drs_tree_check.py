@@ -34,21 +34,6 @@ class TreeChecker(object):
     def __init__(self):
         self.state = self.STATE_INITIAL
 
-    def check(self, pt):
-        """
-
-        :param pt: PublisherTree instance to check
-        :return: bool for pass or fail
-        
-        """
-        raise NotImplementedError
-
-    def repair(self, pt, data):
-        """
-        :param pt: PublisherTree instance to check
-        """
-        raise UnfixableInconsistency()
-
     def get_name(self):
         return getattr(self, 'name', self.__class__.__name__)
 

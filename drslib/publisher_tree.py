@@ -346,6 +346,11 @@ class PublisherTree(object):
     def has_failures(self):
         return self._checker_failures != {}
 
+    def repair(self):
+        if self.has_failures():
+            self._repair_tree()
+            self._deduce_state(with_checks=True)
+
     #-------------------------------------------------------------------
     # These methods could be considered protected.  They are designed
     # for use by drs_check_tree.py
@@ -580,6 +585,22 @@ class PublisherTree(object):
                 ret = False
 
         return ret
+
+    def _repair_tree(self):
+        """
+        Repair inconsistencies that are fixable.
+
+        """
+        for cname, checker in self._checker_failures.items():
+            log.debug('Repairing with %s' % cname)
+            if checker.is_fixable():
+                try:
+                    checker.repair(self)
+                    log.info('Repaired with %s' % cname)
+                except:
+                    log.exception('FAILED repairing with %s' % cname)
+            else:
+                log.info('Unrepairable %s' % cname)
 
 
 def _get_tracking_id(filename):
