@@ -113,10 +113,23 @@ class CheckLatest(TreeChecker):
 
     def _check_hook(self, pt):
         latest_dir = os.path.join(pt.pub_dir, VERSIONING_LATEST_DIR)
+
         if not os.path.exists(latest_dir):
-            self._state_fixable('latest directory missing')
+            self._state_fixable('latest directory missing or broken')
+            return
+
+        # Link could be there but invalid
+        link = os.path.join(pt.pub_dir, os.readlink(latest_dir))
+        if os.path.exists(link):
+            link_v = int(os.path.basename(link)[1:]) # remove leading "v"
+            if link_v != pt.latest:
+                self._state_fixable('latest directory not pointing to latest version')
+        
         
     def _repair_hook(self, pt):
+        latest_dir = os.path.join(pt.pub_dir, VERSIONING_LATEST_DIR)
+        if os.path.islink(latest_dir):
+            os.remove(latest_dir)
         pt._do_latest()
 
 

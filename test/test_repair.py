@@ -57,7 +57,45 @@ class TestRepair(TestEg):
             self.pt.repair()
             assert self.pt.state != self.pt.STATE_BROKEN
             
-        
+# For tests that need 2 versions
+class TestRepair2(TestRepair):
+    def setUp(self):
+        TestEg.setUp(self)
+
+        self._cmor1()
+        self.pt.do_version(20100101)
+        self._cmor2()
+        self.pt.do_version(20100102)
+
+        assert self.pt.state == self.pt.STATE_VERSIONED
+
+        self.breakme()
+
+    def _cmor1(self):
+        gen_drs.write_eg3_1(self.tmpdir)
+        self.dt = DRSTree(self.tmpdir)
+        self.dt.discover(self.incoming, activity='cmip5',
+                         product='output1', institute='MOHC', model='HadCM3')
+
+        (self.pt, ) = self.dt.pub_trees.values()
+
+    def _cmor2(self):
+        gen_drs.write_eg3_2(self.tmpdir)
+        self.dt.discover_incoming(self.incoming, activity='cmip5',
+                                  product='output1')
+
+
+class TestRepairLatestLink2(TestRepair2):
+    __test__ = True
+
+    def breakme(self):
+        # Point latest at the wrong version
+        v = os.path.join(self.pt.pub_dir, VERSIONING_LATEST_DIR)
+        prev_version = 20100101
+        prev_dir = 'v%d' % prev_version
+        os.remove(v)
+        os.symlink(prev_dir, v)
+
 
 class TestRepairLatestLink(TestRepair):
     __test__ = True
