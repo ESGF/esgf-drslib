@@ -122,8 +122,13 @@ class CheckLatest(TreeChecker):
         link = os.path.join(pt.pub_dir, os.readlink(latest_dir))
         if os.path.exists(link):
             link_v = int(os.path.basename(link)[1:]) # remove leading "v"
+
+            #!FIXME: logic wrong.  pt.latest could be 0
+            # Work-arround
+            pt._deduce_versions()
             if link_v != pt.latest:
                 self._state_fixable('latest directory not pointing to latest version')
+
         
         
     def _repair_hook(self, pt):
@@ -152,8 +157,8 @@ class CheckVersionLinks(TreeChecker):
                 realdir = pt.real_file_dir(drs.variable, drs.version)
                 linkdir = pt.link_file_dir(drs.variable, drs.version)
                 filename = os.path.basename(filepath)
-                realpath = os.path.abspath(os.path.join(realdir, filename))
-                linkpath = os.path.abspath(os.path.join(linkdir, filename))
+                realpath = os.path.join(realdir, filename)
+                linkpath = os.path.join(linkdir, filename)
 
                 # filepath should be deducable from drs
                 if os.path.dirname(filepath) != linkdir:
@@ -163,8 +168,8 @@ class CheckVersionLinks(TreeChecker):
 
 
                 if not os.path.exists(linkpath):
-                    self.missing_links.append(linkpath)
-                    self._state_unfixable('linkpath %s does not exist' % linkpath)
+                    self.missing_links.append((drs.variable, drs.version, filename))
+                    self._state_fixable('linkpath %s does not exist' % linkpath)
                     continue
 
                 link = os.readlink(linkpath)
@@ -177,6 +182,32 @@ class CheckVersionLinks(TreeChecker):
                     self._state_unfixable('linkpath %s does not point to %s' 
                                           % (linkpath, filename))
                     
+    def _repair_hook(self, pt):
+        for variable, version, filename in self.missing_links:
+            ldir = pt.link_file_dir(variable, version)
+            rdir = pt.real_file_dir(variable, version)
+
+            _repair_link(ldir, rdir, filename)
+
+
+
+def _repair_link(ldir, rdir, filename):
+    # Don't repair if already repaired
+    if os.path.exists(os.path.join(ldir, filename)):
+        return
+
+    if not os.path.exists(ldir):
+        log.info('Creating missing directory %s' % ldir)
+        os.makedirs(ldir)
+
+    src = os.path.join(rdir, filename)
+    dest = os.path.join(ldir, filename)
+
+    # Make relative to dest
+    src = os.path.relpath(src, ldir)
+
+    log.info('Relinking file %s -> %s' % (src, dest))
+    os.symlink(src, dest)
                 
 
 class CheckVersionFiles(TreeChecker):
@@ -188,7 +219,7 @@ class CheckVersionFiles(TreeChecker):
     def __init__(self):
         super(self.__class__, self).__init__()
         self.missing_realpaths = []
-        self.missing_linkpaths = []
+        self.missing_links = []
 
     def _check_hook(self, pt):
         fv_map = pt.file_version_map()
@@ -205,26 +236,36 @@ class CheckVersionFiles(TreeChecker):
             later_versions = [v for v in versions if v > max_fv]
 
             for version in fversions:
-                linkpath = os.path.abspath(os.path.join(pt.link_file_dir(variable, version),
-                                                        filename))
-                realpath = os.path.abspath(os.path.join(pt.real_file_dir(variable, version),
-                                                        filename))
+                linkpath = os.path.join(pt.link_file_dir(variable, version),
+                                        filename)
+                realpath = os.path.join(pt.real_file_dir(variable, version),
+                                        filename)
 
                 # Check the files exists
                 if not os.path.exists(realpath):
-                    self.missing_realpaths.append(realpath)
+                    self.missing_realpaths.append((variable, version, filename))
                     self._state_unfixable('realpath %s does not exist' % realpath)
                 if not os.path.exists(linkpath):
-                    self.missing_linkpaths.append(linkpath)
-                    self._state_unfixable('linkpath %s does not exist' % linkpath)
+                    self.missing_links.append((variable, version, filename))
+                    self._state_fixable('linkpath %s does not exist' % linkpath)
 
             for version in later_versions:
                 # the link should exist but not necessarily the real path
                 linkpath = os.path.abspath(os.path.join(pt.link_file_dir(variable, version),
                                                         filename))
                 if not os.path.exists(linkpath):
-                    self.missing_linkpaths.append(linkpath)
-                    self._state_unfixable('linkpath %s does not exist' % linkpath)
+                    self.missing_links.append((variable, version, filename))
+                    self._state_fixable('linkpath %s does not exist' % linkpath)
+
+    def _repair_hook(self, pt):
+        for variable, version, filename in self.missing_links:
+            ldir = pt.link_file_dir(variable, version)
+            rdir = pt.real_file_dir(variable, version)
+
+            _repair_link(ldir, rdir, filename)
 
 
-default_checkers = [CheckLatest, CheckVersionLinks, CheckVersionFiles]
+
+default_checkers = [CheckLatest, CheckVersionLinks, 
+                    CheckVersionFiles,
+                    ]

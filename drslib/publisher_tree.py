@@ -118,7 +118,6 @@ class PublisherTree(object):
             if not self._check_tree():
                 self.state = self.STATE_BROKEN
 
-
     def do_version(self, next_version=None):
         """
         Move incoming files into the next version
@@ -297,23 +296,28 @@ class PublisherTree(object):
 
             yield self.CMD_MOVE, filepath, newpath
 
-            linkpath = os.path.join(self.link_file_dir(drs.variable, next_version),
-                                    filename)
-
-            # Detect directories needing creation
-            ddir_dst = os.path.dirname(linkpath)
-            if not os.path.exists(ddir_dst):
-                yield self.CMD_MKDIR, None, ddir_dst
+            #linkpath = os.path.join(self.link_file_dir(drs.variable, next_version),
+            #                        filename)
+            #
+            ## Detect directories needing creation
+            #ddir_dst = os.path.dirname(linkpath)
+            #if not os.path.exists(ddir_dst):
+            #    yield self.CMD_MKDIR, None, ddir_dst
             # Make relative to source path ddir_dst
-            newpath = os.path.relpath(newpath, ddir_dst)
-
-            yield self.CMD_LINK, newpath, linkpath
-
-            done.add(filename)
+            #newpath = os.path.relpath(newpath, ddir_dst)
+            #
+            #yield self.CMD_LINK, newpath, linkpath
+            #
+            #done.add(filename)
 
         #!TODO: Handle deleted files!
 
         # Now scan through previous version to find files to update
+        for command in self._link_commands(next_version):
+            yield command
+
+        return
+        #!NOTE: go no further
         if self.latest != 0:
             for filepath, drs in self.versions[self.latest]:
                 filename = os.path.basename(filepath)
@@ -348,7 +352,9 @@ class PublisherTree(object):
 
     def repair(self):
         if self.has_failures():
+            log.debug('BEGIN repairs')
             self._repair_tree()
+            log.debug('END repairs')
             self._deduce_state(with_checks=True)
 
     #-------------------------------------------------------------------
@@ -368,6 +374,7 @@ class PublisherTree(object):
         """
         Return the expected dir containing the link to the file represented by drs.
         """
+
         
         return os.path.abspath(os.path.join(self.pub_dir, 'v%d' % version,
                                             variable))
@@ -380,15 +387,40 @@ class PublisherTree(object):
         """
         D = {}
 
+        for filepath, variable, version in self.iter_real_files():
+            D.setdefault(os.path.basename(filepath), (variable, []))[1].append(version)
+
+        return D
+
+    def iter_real_files(self):
+        """
+        Iterate over the real file paths.
+
+        :yield: filepath, variable, version
+
+        """
         path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        if not os.path.exists(path):
+            return
+
         for filedir in os.listdir(path):
             variable, version = filedir.split('_')
             version = int(version)
-                
-            for filename in os.listdir(os.path.join(path, filedir)):
-                D.setdefault(filename, (variable, []))[1].append(version)
+            filepath = os.path.join(path, filedir)
 
-        return D
+            for filename in os.listdir(filepath):
+                yield os.path.join(filepath, filename), variable, version
+
+    def prev_version(self, version):
+        """
+        Returns the version before `version` or None
+
+        """
+        pversions = [x for x in self.versions if x < version]
+        if pversions:
+            return max(pversions)
+        else:
+            return
 
     #-------------------------------------------------------------------
     
@@ -446,6 +478,53 @@ class PublisherTree(object):
             log.warning('Directory already exists %s' % ddir)
 
 
+    def _link_commands(self, version):
+        """
+        Functional replacement for part of todo_commands().  In order to
+        support rebuilding symbolic links for broken datasets the links
+        are deduced from the files branch.
+
+        :param version: the version we want to create symbolic links for.
+        :yield: as for todo_commands()
+
+        """
+
+        done = set()
+        for filepath, variable, fversion in self.iter_real_files():
+            if version == fversion:
+                link_dir = self.link_file_dir(variable, version)
+                filename = os.path.basename(filepath)
+
+                if not os.path.exists(link_dir):
+                    yield self.CMD_MKDIR, None, link_dir
+
+                # Make relative to dest
+                dest = os.path.join(link_dir, filename)
+                src = os.path.relpath(filepath, link_dir)
+
+                yield self.CMD_LINK, src, dest
+                done.add(filename)
+
+        #!TODO: Handle deleted files!
+        # Promote all files from the previous version
+        prev_version = self.prev_version(version)
+        if prev_version:
+            for filepath, variable, fversion in self.iter_real_files():
+                filename = os.path.basename(filepath)
+                if fversion == prev_version and filename not in done:
+                    link_dir = self.link_file_dir(variable, version)
+
+                    if not os.path.exists(link_dir):
+                        yield self.CMD_MKDIR, None, link_dir
+
+                    # Make relative to dest
+                    dest = os.path.join(link_dir, filename)
+                    src = os.path.relpath(filepath, link_dir)
+                    
+                    yield self.CMD_LINK, src, dest
+
+    #-------------------------------------------------------------------------
+    # Versioning internal methods
 
     def _setup_versioning(self):
         """
@@ -516,6 +595,8 @@ class PublisherTree(object):
                 vlist.append((filepath, drs))
         return vlist
 
+    #-------------------------------------------------------------------------
+
     def _deduce_todo(self):
         """
         Filter the drs_tree's incoming list to find new files in this
@@ -569,6 +650,9 @@ class PublisherTree(object):
 
         return diff_state
 
+    #-------------------------------------------------------------------------
+    # Tree checking methods
+
     def _check_tree(self):
         """
         Run a series of checker instances on the object to check for inconsistencies.
@@ -592,8 +676,9 @@ class PublisherTree(object):
 
         """
         for cname, checker in self._checker_failures.items():
-            log.debug('Repairing with %s' % cname)
+            log.debug('Considering repair with %s' % cname)
             if checker.is_fixable():
+                log.info('Repairing with %s' % cname)
                 try:
                     checker.repair(self)
                     log.info('Repaired with %s' % cname)
@@ -601,6 +686,7 @@ class PublisherTree(object):
                     log.exception('FAILED repairing with %s' % cname)
             else:
                 log.info('Unrepairable %s' % cname)
+
 
 
 def _get_tracking_id(filename):

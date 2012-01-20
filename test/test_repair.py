@@ -21,8 +21,6 @@ from drs_tree_shared import TestEg
 import gen_drs
 
 
-
-
 class TestRepair(TestEg):
     #__test__ = False
 
@@ -55,7 +53,9 @@ class TestRepair(TestEg):
         self.pt.deduce_state()
         if self.pt.has_failures():
             self.pt.repair()
-            assert self.pt.state != self.pt.STATE_BROKEN
+            if self.pt.state == self.pt.STATE_BROKEN:
+                print '\n'.join(self.pt.list_failures()), '\n'
+                raise AssertionError()
             
 # For tests that need 2 versions
 class TestRepair2(TestRepair):
