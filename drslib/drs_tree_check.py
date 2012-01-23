@@ -150,6 +150,7 @@ class CheckVersionLinks(TreeChecker):
         self.wrong_links = []
 
     def _check_hook(self, pt):
+        #!FIXME: I think this isn't working with relative links.
         for version in pt.versions:
             for filepath, drs in pt.versions[version]:
                 filepath = os.path.abspath(filepath)
@@ -165,7 +166,6 @@ class CheckVersionLinks(TreeChecker):
                     self.malformed_paths.append((filepath, linkdir))
                     self._state_unfixable('filepath %s does not match expected path %s' 
                                           % (filepath, linkdir))
-
 
                 if not os.path.exists(linkpath):
                     self.missing_links.append((drs.variable, drs.version, filename))
@@ -264,8 +264,12 @@ class CheckVersionFiles(TreeChecker):
 
             _repair_link(ldir, rdir, filename)
 
+        # Ensure the pub_tree's version list is up to date
+        pt._deduce_versions()
 
 
-default_checkers = [CheckLatest, CheckVersionLinks, 
+#!NOTE: order is important
+default_checkers = [CheckVersionLinks, 
                     CheckVersionFiles,
+                    CheckLatest, 
                     ]

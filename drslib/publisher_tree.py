@@ -108,7 +108,12 @@ class PublisherTree(object):
         already correct.
         """
         if not self.versions:
-            self.state = self.STATE_INITIAL
+            #!FIXME: this is a hack.  there must be a better way
+            # If the files directory is present assume broken rather than initial
+            if os.path.exists(os.path.join(self.pub_dir, VERSIONING_FILES_DIR)):
+                self.state = self.STATE_BROKEN
+            else:                                  
+                self.state = self.STATE_INITIAL
         elif self._todo:
             self.state = self.STATE_VERSIONED_TRANS
         else:

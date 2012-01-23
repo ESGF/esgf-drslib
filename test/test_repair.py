@@ -17,7 +17,7 @@ from glob import glob
 from drslib.publisher_tree import VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR
 from drslib.drs_tree import DRSTree
 
-from drs_tree_shared import TestEg
+from drs_tree_shared import TestEg, test_dir
 import gen_drs
 
 
@@ -127,3 +127,29 @@ class TestRepairVersionContents(TestRepair):
             print 'REMOVING %s' % path
             os.remove(path)
 
+
+
+class TestLsRepair(TestRepair):
+    """
+    Take a real example of a mult-version dataset that has no version directories,
+    only files/*.
+
+    """
+    __test__ = True
+
+    listing = 'multiversion_repair.ls'
+
+    def setUp(self):
+        super(TestLsRepair, self).setUp()
+
+        gen_drs.write_listing(self.tmpdir, os.path.join(test_dir, self.listing))
+
+        dt = DRSTree(self.tmpdir)
+        dt.discover(self.incoming, activity='cmip5',
+                    product='output1', institute='MOHC', model='HadGEM2-ES',
+                    frequency='mon', realm='ocnBgchem')
+        self.pt = dt.pub_trees.values()[0]
+
+    def breakme(self):
+        # Already setup and  broken
+        pass
