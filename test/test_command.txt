@@ -203,3 +203,33 @@ cmip5.output1.MOHC.NoModel.historical.mon.atmos.Amon.r1                 0:0 62:3
 1 datasets awaiting upgrade
 ------------------------------------------------------------------------------
 ==============================================================================
+
+
+>>> break_dir = os.path.join(tmpdir, 'output1/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1/v20100101')
+>>> assert os.path.exists(break_dir)
+>>> shutil.rmtree(break_dir)
+>>> do_drs_tool('list') # doctest:+ELLIPSIS
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0
+------------------------------------------------------------------------------
+1 datasets are broken
+------------------------------------------------------------------------------
+FAIL cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1              
+   CheckVersionLinks: Checks fail and can be fixed
+   CheckLatest: Checks fail and can be fixed
+==============================================================================
+
+>>> do_drs_tool('fix')
+FIXING cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1
+
+>>> do_drs_tool('list') # doctest:+ELLIPSIS
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
+------------------------------------------------------------------------------
+==============================================================================

@@ -35,7 +35,8 @@ command:
   mapfile         make a mapfile of the selected dataset
   history         list all versions of the selected dataset
   init            initialise CMIP5 data for product detection
-  diff            list differences between versions or between a version and the todo list 
+  diff            list differences between versions or between a version and the todo list
+  fix             Fix problems that are shown by the list command
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -203,6 +204,7 @@ class ListCommand(Command):
         self.print_header()
 
         to_upgrade = 0
+        broken = 0
         for k in sorted(self.drs_tree.pub_trees):
             pt = self.drs_tree.pub_trees[k]
             todo = pt.count_todo()
@@ -210,7 +212,9 @@ class ListCommand(Command):
                 state_msg = '%d:%d %d:%d' % (pt.count(), pt.size(), todo, pt.todo_size())
             else:
                 state_msg = '%d:%d' % (pt.count(), pt.size())
-            if pt.state != pt.STATE_VERSIONED:
+            if pt.state == pt.STATE_BROKEN:
+                broken += 1
+            elif pt.state != pt.STATE_VERSIONED:
                 to_upgrade += 1
             #!TODO: print update summary
             print '%-70s  %s' % (pt.version_drs().to_dataset_id(with_version=True), state_msg)
@@ -222,9 +226,12 @@ class ListCommand(Command):
             for dataset_id in sorted(self.drs_tree.incomplete_dataset_ids()):
                 print '%-70s' % dataset_id
 
-        if to_upgrade:
+        if to_upgrade or broken:
             self.print_sep()
-            print '%d datasets awaiting upgrade' % to_upgrade
+            if to_upgrade:
+                print '%d datasets awaiting upgrade' % to_upgrade
+            if broken:
+                print '%d datasets are broken' % broken
 
         self.print_sep()
         for pt in self.drs_tree.pub_trees.values():
@@ -348,6 +355,13 @@ class InitCommand(Command):
         print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
 
 
+class FixCommand(Command):
+    def do(self):
+        for drs_id, pt in self.drs_tree.pub_trees.items():
+            if pt.has_failures():
+                print 'FIXING %-70s' % drs_id
+                pt.list_failures()
+                pt.repair()
 
 class DiffCommand(Command):
     """
@@ -425,6 +439,8 @@ def run(op, command, opts, args):
         c = InitCommand(opts, args)
     elif command == 'diff':
         c = DiffCommand(opts, args)
+    elif command == 'fix':
+        c = FixCommand(opts, args)
     else:
         op.error("Unrecognised command %s" % command)
 

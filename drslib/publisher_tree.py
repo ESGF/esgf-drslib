@@ -458,6 +458,9 @@ class PublisherTree(object):
 
         """
 
+        #!FIXME: we look for files on the filesystem to generate link commands but
+        #        we don't account for files in incoming!
+
         done = set()
         for filepath, variable, fversion in self.iter_real_files():
             if version == fversion:
