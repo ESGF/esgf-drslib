@@ -527,14 +527,26 @@ class PublisherTree(object):
         # Bail out if pub_dir doesn't exist yet.
         if not os.path.exists(self.pub_dir):
             return
-        # Detect version paths and sort by date
-        for basename in os.listdir(self.pub_dir):
-            if not re.match(r'v\d+$', basename):
+
+        # Version directories may not exist so initially deduce
+        # versions from the files directory
+        fdir = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        versions = set()
+        for d in os.listdir(fdir):
+            try:
+                variable, version = d.split('_')
+            except ValueError:
                 continue
-            i = int(basename[1:])
-            self.latest = max(i, self.latest)
-            vpath = os.path.join(self.pub_dir, basename)
-            self.versions[i] = self._make_version_list(vpath)
+            versions.add(int(version))
+
+        for version in versions:
+            vpath = os.path.join(self.pub_dir, 'v%d' % version)
+            if os.path.exists(vpath):
+                self.latest = max(version, self.latest)
+                self.versions[version] = self._make_version_list(vpath)
+            else:
+                # Mark missing versions as None
+                self.versions[version] = None
 
 
     def _deduce_old_versions(self):

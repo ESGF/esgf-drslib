@@ -154,16 +154,7 @@ class CheckVersionLinks(TreeChecker):
             self._state_unfixable('Files directory %s does not exist' % fdir)
             return
 
-        # We can't trust pt.versions so deduce versions manually
-        versions = set()
-        for d in os.listdir(fdir):
-            try:
-                variable, version = d.split('_')
-            except ValueError:
-                continue
-            versions.add(int(version))
-
-        for version in versions:
+        for version in pt.versions.keys():
             for cmd, src, dest in pt._link_commands(version):
                 if cmd == pt.CMD_MKDIR:
                     if not os.path.isdir(dest):
