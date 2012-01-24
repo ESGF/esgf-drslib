@@ -301,48 +301,12 @@ class PublisherTree(object):
 
             yield self.CMD_MOVE, filepath, newpath
 
-            #linkpath = os.path.join(self.link_file_dir(drs.variable, next_version),
-            #                        filename)
-            #
-            ## Detect directories needing creation
-            #ddir_dst = os.path.dirname(linkpath)
-            #if not os.path.exists(ddir_dst):
-            #    yield self.CMD_MKDIR, None, ddir_dst
-            # Make relative to source path ddir_dst
-            #newpath = os.path.relpath(newpath, ddir_dst)
-            #
-            #yield self.CMD_LINK, newpath, linkpath
-            #
-            #done.add(filename)
-
         #!TODO: Handle deleted files!
 
         # Now scan through previous version to find files to update
         for command in self._link_commands(next_version):
             yield command
 
-        return
-        #!NOTE: go no further
-        if self.latest != 0:
-            for filepath, drs in self.versions[self.latest]:
-                filename = os.path.basename(filepath)
-                if filename not in done:
-                    # Find link target from previous version
-                    prevlink = os.path.abspath(os.path.join(self.link_file_dir(drs.variable, self.latest),
-                                                            filename))
-                    pfilepath = os.path.abspath(os.path.join(os.path.dirname(prevlink),
-                                                              os.readlink(prevlink)))
-
-                    linkpath = os.path.abspath(os.path.join(self.link_file_dir(drs.variable, next_version),
-                                                            filename))
-                    
-                    # Detect directories needing creation
-                    ddir = os.path.dirname(linkpath)
-                    if not os.path.exists(ddir):
-                        yield self.CMD_MKDIR, None, ddir
-                    pfilepath = os.path.relpath(pfilepath, ddir)
-                    yield self.CMD_LINK, pfilepath, linkpath
-                    
 
     def list_failures(self):
         """
