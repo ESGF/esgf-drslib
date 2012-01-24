@@ -75,7 +75,7 @@ class PublisherTree(object):
 
         from drslib.drs_tree_check import default_checkers
         self._checkers = default_checkers[:]
-        self._checker_failures = {}
+        self._checker_failures = []
 
         #!TODO: calling internal method.  Make this method public.
         ensemble = self.drs._encode_ensemble()
@@ -313,11 +313,11 @@ class PublisherTree(object):
         Iterate over a descriptions of check failures.
  
         """
-        for name in self._checker_failures:
-            yield '%s: %s' % (name, self._checker_failures[name].get_message())
+        for checker in self._checker_failures:
+            yield '%s: %s' % (checker.get_name(), checker.get_message())
 
     def has_failures(self):
-        return self._checker_failures != {}
+        return self._checker_failures != []
 
     def repair(self):
         if self.has_failures():
@@ -627,15 +627,17 @@ class PublisherTree(object):
         Run a series of checker instances on the object to check for inconsistencies.
 
         """
-        self._checker_failures = {}
+        self._checker_failures = []
         ret = True
         for Checker in self._checkers:
             checker = Checker()
+            log.debug('BEGIN Checking with %s' % checker.get_name())
             if not checker.check(self):
                 log.warning('Checker %s failed: %s' % (checker.get_name(), 
                                                        checker.get_message()))
-                self._checker_failures[checker.get_name()] = checker
+                self._checker_failures.append(checker)
                 ret = False
+            log.debug('END Checking with %s' % checker.get_name())
 
         return ret
 
@@ -644,7 +646,8 @@ class PublisherTree(object):
         Repair inconsistencies that are fixable.
 
         """
-        for cname, checker in self._checker_failures.items():
+        for checker in self._checker_failures:
+            cname = checker.get_name()
             log.debug('Considering repair with %s' % cname)
             if checker.is_fixable():
                 log.info('Repairing with %s' % cname)

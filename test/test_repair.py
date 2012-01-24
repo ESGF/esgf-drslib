@@ -140,7 +140,7 @@ class TestLsRepair(TestRepair):
     listing = 'multiversion_repair.ls'
 
     def setUp(self):
-        super(TestLsRepair, self).setUp()
+        super(TestRepair, self).setUp()
 
         gen_drs.write_listing(self.tmpdir, os.path.join(test_dir, self.listing))
 

@@ -6,7 +6,7 @@ This API adds consistency checking to PublishTrees without bloating the Publishe
 """
 
 import os, sys
-from drslib.publisher_tree import VERSIONING_LATEST_DIR
+from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR
 
 import logging
 log = logging.getLogger(__name__)
@@ -135,6 +135,7 @@ class CheckLatest(TreeChecker):
         latest_dir = os.path.join(pt.pub_dir, VERSIONING_LATEST_DIR)
         if os.path.islink(latest_dir):
             os.remove(latest_dir)
+        pt._deduce_versions()
         pt._do_latest()
 
 
@@ -145,131 +146,55 @@ class CheckVersionLinks(TreeChecker):
     """
     def __init__(self):
         super(self.__class__, self).__init__()
-        self.malformed_paths = []
-        self.missing_links = []
-        self.wrong_links = []
+        self._fix_commands = []
 
     def _check_hook(self, pt):
-        #!FIXME: I think this isn't working with relative links.
-        for version in pt.versions:
-            for filepath, drs in pt.versions[version]:
-                filepath = os.path.abspath(filepath)
+        fdir = os.path.join(pt.pub_dir, VERSIONING_FILES_DIR)
+        if not os.path.isdir(fdir):
+            self._state_unfixable('Files directory %s does not exist' % fdir)
+            return
 
-                realdir = pt.real_file_dir(drs.variable, drs.version)
-                linkdir = pt.link_file_dir(drs.variable, drs.version)
-                filename = os.path.basename(filepath)
-                realpath = os.path.join(realdir, filename)
-                linkpath = os.path.join(linkdir, filename)
+        # We can't trust pt.versions so deduce versions manually
+        versions = set()
+        for d in os.listdir(fdir):
+            try:
+                variable, version = d.split('_')
+            except ValueError:
+                continue
+            versions.add(int(version))
 
-                # filepath should be deducable from drs
-                if os.path.dirname(filepath) != linkdir:
-                    self.malformed_paths.append((filepath, linkdir))
-                    self._state_unfixable('filepath %s does not match expected path %s' 
-                                          % (filepath, linkdir))
+        for version in versions:
+            for cmd, src, dest in pt._link_commands(version):
+                if cmd == pt.CMD_MKDIR:
+                    if not os.path.isdir(dest):
+                        self._state_fixable('Directory %s does not exist' % dest)
+                        self._fix_commands.append((cmd, src, dest))
+                elif cmd == pt.CMD_LINK:
+                    if not os.path.isabs(src):
+                        realsrc = os.path.abspath(os.path.join(os.path.dirname(dest), src))
+                    else:
+                        realsrc = src
 
-                if not os.path.exists(linkpath):
-                    self.missing_links.append((drs.variable, drs.version, filename))
-                    self._state_fixable('linkpath %s does not exist' % linkpath)
-                    continue
-
-                link = os.readlink(linkpath)
-                if not os.path.isabs(link):
-                    link = os.path.abspath(os.path.join(linkdir, link))
-                linkfile = os.path.basename(link)
-
-                if linkfile != filename:
-                    self.wrong_links.append((linkpath, filename))
-                    self._state_unfixable('linkpath %s does not point to %s' 
-                                          % (linkpath, filename))
+                    if not os.path.exists(realsrc):
+                        self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
+                    elif not os.path.exists(dest):
+                        self._state_fixable('Link %s does not exist' % dest)
+                        self._fix_commands.append((cmd, src, dest))
+                    else:
+                        realdest = os.readlink(dest)
+                        if not os.path.isabs(realdest):
+                            realdest = os.path.abspath(os.path.join(os.path.dirname(dest), realdest))
+                        
+                        if realsrc != realdest:
+                            self._state_unfixable('Link %s does not point to the correct file %s' % (dest, src))
+                        
                     
     def _repair_hook(self, pt):
-        for variable, version, filename in self.missing_links:
-            ldir = pt.link_file_dir(variable, version)
-            rdir = pt.real_file_dir(variable, version)
+        pt._do_commands(self._fix_commands)
 
-            _repair_link(ldir, rdir, filename)
-
-
-
-def _repair_link(ldir, rdir, filename):
-    # Don't repair if already repaired
-    if os.path.exists(os.path.join(ldir, filename)):
-        return
-
-    if not os.path.exists(ldir):
-        log.info('Creating missing directory %s' % ldir)
-        os.makedirs(ldir)
-
-    src = os.path.join(rdir, filename)
-    dest = os.path.join(ldir, filename)
-
-    # Make relative to dest
-    src = os.path.relpath(src, ldir)
-
-    log.info('Relinking file %s -> %s' % (src, dest))
-    os.symlink(src, dest)
-                
-
-class CheckVersionFiles(TreeChecker):
-    """
-    Check all files in file_* are linked to a version directory.
-
-    """
-
-    def __init__(self):
-        super(self.__class__, self).__init__()
-        self.missing_realpaths = []
-        self.missing_links = []
-
-    def _check_hook(self, pt):
-        fv_map = pt.file_version_map()
-        versions = pt.versions.keys()
-
-        # for each file check a link exists from that version and all subsequent versions
-        #!TODO: this will need changing when file deletion is implemented
-
-        for filename in fv_map:
-            variable, fversions = fv_map[filename]
-
-            # deduce subsequent versions
-            max_fv = max(fversions)
-            later_versions = [v for v in versions if v > max_fv]
-
-            for version in fversions:
-                linkpath = os.path.join(pt.link_file_dir(variable, version),
-                                        filename)
-                realpath = os.path.join(pt.real_file_dir(variable, version),
-                                        filename)
-
-                # Check the files exists
-                if not os.path.exists(realpath):
-                    self.missing_realpaths.append((variable, version, filename))
-                    self._state_unfixable('realpath %s does not exist' % realpath)
-                if not os.path.exists(linkpath):
-                    self.missing_links.append((variable, version, filename))
-                    self._state_fixable('linkpath %s does not exist' % linkpath)
-
-            for version in later_versions:
-                # the link should exist but not necessarily the real path
-                linkpath = os.path.abspath(os.path.join(pt.link_file_dir(variable, version),
-                                                        filename))
-                if not os.path.exists(linkpath):
-                    self.missing_links.append((variable, version, filename))
-                    self._state_fixable('linkpath %s does not exist' % linkpath)
-
-    def _repair_hook(self, pt):
-        for variable, version, filename in self.missing_links:
-            ldir = pt.link_file_dir(variable, version)
-            rdir = pt.real_file_dir(variable, version)
-
-            _repair_link(ldir, rdir, filename)
-
-        # Ensure the pub_tree's version list is up to date
-        pt._deduce_versions()
 
 
 #!NOTE: order is important
-default_checkers = [CheckVersionLinks, 
-                    CheckVersionFiles,
+default_checkers = [CheckVersionLinks,
                     CheckLatest, 
                     ]
