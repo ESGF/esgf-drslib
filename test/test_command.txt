@@ -80,7 +80,7 @@ Publisher Tree ... todo for version 20100101
 mkdir -p .../r1i1p1/files/tas_20100101
 mv .../tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc .../r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2001123114-2004010104.nc
 ...
-ln -s .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
+ln -s ../../files/tas_20100101/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc .../output1/MOHC/HadCM3/1pctto4x/day/atmos/day/r1i1p1/v20100101/tas/tas_day_HadCM3_1pctto4x_r1i1p1_2000010100-2001123114.nc
 ==============================================================================
 
 Upgrade one PublisherTree
@@ -217,13 +217,15 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0
 ------------------------------------------------------------------------------
 1 datasets are broken
 ------------------------------------------------------------------------------
-FAIL cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1              
+FAIL cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1...
    CheckVersionLinks: Checks fail and can be fixed
    CheckLatest: Checks fail and can be fixed
 ==============================================================================
 
->>> do_drs_tool('fix')
-FIXING cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1
+>>> do_drs_tool('fix') # doctest:+ELLIPSIS
+FIXING cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1...
+   CheckVersionLinks: Checks fail and can be fixed
+   CheckLatest: Checks fail and can be fixed
 
 >>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================

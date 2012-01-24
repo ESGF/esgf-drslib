@@ -360,8 +360,10 @@ class FixCommand(Command):
         for drs_id, pt in self.drs_tree.pub_trees.items():
             if pt.has_failures():
                 print 'FIXING %-70s' % drs_id
-                pt.list_failures()
+                for line in pt.list_failures():
+                    print '  ', line
                 pt.repair()
+
 
 class DiffCommand(Command):
     """

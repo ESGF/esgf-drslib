@@ -9,6 +9,7 @@ import os, sys
 import stat
 import datetime
 import re
+import itertools
 
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
@@ -289,6 +290,7 @@ class PublisherTree(object):
             next_version = self._next_version()
         
         done = set()
+        todo_files = []
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
             newpath = os.path.join(self.real_file_dir(drs.variable, next_version),
@@ -300,11 +302,12 @@ class PublisherTree(object):
                 yield self.CMD_MKDIR, None, ddir_src
 
             yield self.CMD_MOVE, filepath, newpath
+            todo_files.append((newpath, drs.variable, next_version))
 
         #!TODO: Handle deleted files!
 
         # Now scan through previous version to find files to update
-        for command in self._link_commands(next_version):
+        for command in self._link_commands(next_version, todo_files):
             yield command
 
 
@@ -447,22 +450,25 @@ class PublisherTree(object):
             log.warning('Directory already exists %s' % ddir)
 
 
-    def _link_commands(self, version):
+    def _link_commands(self, version, from_seq=None):
         """
         Functional replacement for part of todo_commands().  In order to
         support rebuilding symbolic links for broken datasets the links
         are deduced from the files branch.
 
         :param version: the version we want to create symbolic links for.
+        :param from_seq: an iterable of (filepath, variable, fversion) to prepend to
+            the files found on the filesystem.  Used to show links in self.todo_commands()
         :yield: as for todo_commands()
 
         """
 
-        #!FIXME: we look for files on the filesystem to generate link commands but
-        #        we don't account for files in incoming!
+        if from_seq is None:
+            from_seq = []
 
         done = set()
-        for filepath, variable, fversion in self.iter_real_files():
+        for filepath, variable, fversion in itertools.chain(from_seq,
+                                                            self.iter_real_files()):
             if version == fversion:
                 link_dir = self.link_file_dir(variable, version)
                 filename = os.path.basename(filepath)
