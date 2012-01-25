@@ -204,6 +204,12 @@ class CheckFilesLinks(TreeChecker):
             # Last sanity check
             assert op.islink(filepath)
             os.remove(filepath)
+
+            # Remove directory if empty
+            fdir = op.dirname(filepath)
+            if os.listdir(fdir) == []:
+                log.info('Removing empty directory %s' % fdir)
+                os.rmdir(fdir)
         
 #!NOTE: order is important
 default_checkers = [
