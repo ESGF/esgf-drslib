@@ -15,6 +15,8 @@ from copy import copy
 from datetime import datetime
 import os, sys
 
+import os.path as op
+
 from drslib.drs import DRS
 from drslib import cmip5, config
 
@@ -148,7 +150,7 @@ def eg5_2():
 
 def write_eg_file(filepath):
     fh = open(filepath, 'w')
-    fh.write('I am %s\n' % os.path.basename(filepath))
+    fh.write('I am %s\n' % op.basename(filepath))
     fh.close()
 
 
@@ -162,10 +164,10 @@ def write_eg(prefix, seq):
     trans = cmip5.make_translator(prefix, with_version=False)
     for drs in seq:
         path = trans.drs_to_filepath(drs)
-        if not os.path.exists(os.path.dirname(path)):
-            os.makedirs(os.path.dirname(path))
+        if not op.exists(op.dirname(path)):
+            os.makedirs(op.dirname(path))
         else:
-            if os.path.exists(path):
+            if op.exists(path):
                 raise RuntimeError("%s exists" % path)
 
         write_eg_file(path)
@@ -189,17 +191,35 @@ def write_listing_seq(prefix, sequence):
     """
     Create a drs-tree from a sequence.
 
+    You can generate symbolically linked listings from real drs files with this:
+    
+      find $DIR_DATASET_DIR -type l -printf '%l --> %p\n' -or -type f -print
+
     """
     for filename in sequence:
-        if filename[0] == '/':
-            raise Exception("Absolute path in listing!")
+        # Detect symbolic link indicator
+        if '-->' in filename:
+            link_src, link_dest = (x.strip() for x in filename.split('-->'))
 
-        path = os.path.normpath(filename)
+            if link_src[0] == '/' or link_dest[0] == '/':
+                raise Exception("Absolute path in listing!")
 
-        filepath = os.path.join(prefix, filename)
-        if not os.path.exists(os.path.dirname(filepath)):
-            os.makedirs(os.path.dirname(filepath))
-        write_eg_file(filepath)
+            # link_src is assumed to be relative to link_dest
+            link_dpath = op.join(prefix, link_dest)
+            if not op.exists(op.dirname(link_dpath)):
+                os.makedirs(op.dirname(link_dpath))
+            os.symlink(link_src, link_dpath)
+
+        else:
+            if filename[0] == '/':
+                raise Exception("Absolute path in listing!")
+
+            path = op.normpath(filename)
+
+            filepath = op.join(prefix, filename)
+            if not op.exists(op.dirname(filepath)):
+                os.makedirs(op.dirname(filepath))
+            write_eg_file(filepath)
 
 
 def write_eg1(prefix):
@@ -228,7 +248,7 @@ def write_eg5_2(prefix):
 def main(argv=sys.argv):
     listing_file, outdir = sys.argv[1:]
 
-    if os.path.exists(outdir):
+    if op.exists(outdir):
         raise IOError("Directory %s already exists" % repr(outdir))
     
     write_listing(outdir, listing_file)

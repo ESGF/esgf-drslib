@@ -164,9 +164,8 @@ class TestLsRepair(TestRepair):
     only files/*.
 
     """
-    __test__ = True
-
-    listing = 'multiversion_repair.ls'
+    listing = NotImplemented
+    drs_components = {}
 
     def setUp(self):
         super(TestRepair, self).setUp()
@@ -174,11 +173,27 @@ class TestLsRepair(TestRepair):
         gen_drs.write_listing(self.tmpdir, op.join(test_dir, self.listing))
 
         dt = DRSTree(self.tmpdir)
-        dt.discover(self.incoming, activity='cmip5',
-                    product='output1', institute='MOHC', model='HadGEM2-ES',
-                    frequency='mon', realm='ocnBgchem')
+        dt.discover(self.incoming, **self.drs_components)
         self.pt = dt.pub_trees.values()[0]
 
     def breakme(self):
         # Already setup and  broken
         pass
+
+
+class TestLsRepair1(TestLsRepair):
+    __test__ = True
+    listing = 'multiversion_repair.ls'
+    drs_components = dict(activity='cmip5',
+                          product='output1', institute='MOHC', model='HadGEM2-ES',
+                          frequency='mon', realm='ocnBgchem',
+                          )
+
+class TestLsRepair2(TestLsRepair):
+    __test__ = True
+    listing = 'cmip5.output1.MOHC.HadGEM2-ES.rcp85.day.landIce.day.r1i1p1.ls'
+    drs_components = dict(activity='cmip5',
+                          product='output1', institute='MOHC', model='HadGEM2-ES',
+                          frequency='day', experiment='rcp85',
+                          )
+
