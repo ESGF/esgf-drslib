@@ -20,6 +20,7 @@ from drslib.drs_tree import DRSTree
 from drs_tree_shared import TestEg, test_dir
 import gen_drs
 
+import os.path as op
 
 class TestRepair(TestEg):
     #__test__ = False
@@ -59,6 +60,9 @@ class TestRepair(TestEg):
             
 # For tests that need 2 versions
 class TestRepair2(TestRepair):
+
+    genfuncs = (gen_drs.write_eg3_1, gen_drs.write_eg3_2)
+
     def setUp(self):
         TestEg.setUp(self)
 
@@ -72,7 +76,9 @@ class TestRepair2(TestRepair):
         self.breakme()
 
     def _cmor1(self):
-        gen_drs.write_eg3_1(self.tmpdir)
+        genfunc = self.genfuncs[0]
+        genfunc(self.tmpdir)
+
         self.dt = DRSTree(self.tmpdir)
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output1', institute='MOHC', model='HadCM3')
@@ -80,7 +86,9 @@ class TestRepair2(TestRepair):
         (self.pt, ) = self.dt.pub_trees.values()
 
     def _cmor2(self):
-        gen_drs.write_eg3_2(self.tmpdir)
+        genfunc = self.genfuncs[1]
+        genfunc(self.tmpdir)
+
         self.dt.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
 
@@ -90,18 +98,39 @@ class TestRepairLatestLink2(TestRepair2):
 
     def breakme(self):
         # Point latest at the wrong version
-        v = os.path.join(self.pt.pub_dir, VERSIONING_LATEST_DIR)
+        v = op.join(self.pt.pub_dir, VERSIONING_LATEST_DIR)
         prev_version = 20100101
         prev_dir = 'v%d' % prev_version
         os.remove(v)
         os.symlink(prev_dir, v)
+
+class TestRepairLatestLink2_2(TestRepairLatestLink2):
+    genfuncs = (gen_drs.write_eg4_1, gen_drs.write_eg4_2)
+
+class TestRepairBadLinks(TestRepair2):
+    # Test the case where symbolic links exist in the files directory
+    __test__ = True
+
+    genfuncs = (gen_drs.write_eg4_1, gen_drs.write_eg4_2)
+
+
+    def breakme(self):
+        # Link all files in files/tas_20100101 into files/tas_20100102
+        fv1 = op.join(self.pt.pub_dir, VERSIONING_FILES_DIR, 'tas_20100101')
+        fv2 = op.join(self.pt.pub_dir, VERSIONING_FILES_DIR, 'tas_20100102')
+
+        for ncpath in glob(op.join(fv1, '*')):
+            src = op.relpath(ncpath, fv2)
+            dest = op.join(fv2, op.basename(src))
+            os.symlink(src, dest)
+
 
 
 class TestRepairLatestLink(TestRepair):
     __test__ = True
 
     def breakme(self):
-        v = os.path.join(self.pt.pub_dir, VERSIONING_LATEST_DIR)
+        v = op.join(self.pt.pub_dir, VERSIONING_LATEST_DIR)
 
         os.remove(v)
 
@@ -109,7 +138,7 @@ class TestRepairLatestVersion(TestRepair):
     __test__ = True
     
     def breakme(self):
-        v = os.path.join(self.pt.pub_dir, 'v%d' % self.pt.latest)
+        v = op.join(self.pt.pub_dir, 'v%d' % self.pt.latest)
 
         shutil.rmtree(v)
 
@@ -120,7 +149,7 @@ class TestRepairVersionContents(TestRepair):
         version = self.pt.versions.keys()[0]
         variable = 'pr'
 
-        var_dir = os.path.join(self.pt.pub_dir, 'v%d/%s' % (version, variable))
+        var_dir = op.join(self.pt.pub_dir, 'v%d/%s' % (version, variable))
 
         # Delete every 3rd file
         for path in glob('%s/*.nc' % var_dir)[::3]:
@@ -142,7 +171,7 @@ class TestLsRepair(TestRepair):
     def setUp(self):
         super(TestRepair, self).setUp()
 
-        gen_drs.write_listing(self.tmpdir, os.path.join(test_dir, self.listing))
+        gen_drs.write_listing(self.tmpdir, op.join(test_dir, self.listing))
 
         dt = DRSTree(self.tmpdir)
         dt.discover(self.incoming, activity='cmip5',
