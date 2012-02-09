@@ -212,7 +212,7 @@ The drslib bugtracker is available on `esgf.org bugzilla`_.
 .. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _pip: http://pypi.python.org/pypi/pip
 .. _NoseXUnit: http://pypi.python.org/pypi/NoseXUnit
-.. _esgf-drslib.git: http://esgf.org/git/esgf-drslib.git
+.. _esgf-drslib.git: git://esgf.org/esgf-drslib.git
 .. _esgf-drslib.gitweb: http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary
 .. _CEDA: http://www.ceda.ac.uk
 .. _`Stephen Pascoe`: mailto:Stephen.Pascoe@stfc.ac.uk
