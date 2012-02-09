@@ -1,13 +1,14 @@
 
- * Check the product of existing PublisherTrees.  This will use the checker framework
+* Check the product of existing PublisherTrees.  This will use the checker framework
 
- * Check consistency of p_cmip5 with esgcet.  See branch check_product
-   for first steps.
+* Check consistency of p_cmip5 with esgcet.  See branch check_product for first steps.
 
- * Reconstruct symbolic links from structure only containing
+* Reconstruct symbolic links from structure only containing
    */files/*.  See branch drs-reconstruct.
    - Summarise checks better in drs_tool
    - switch on/off checks
    - Implement fixes for each check
 
-  
+* Fix for Python 2.5.2 (try/except "as" doesn't work)
+* Check support for non cmip5 activity (e.g. pmip3)
+ 
