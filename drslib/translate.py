@@ -500,6 +500,9 @@ class Translator(object):
 
 
 def _to_date(date_str):
+    if date_str is None:
+        return None
+
     mo = re.match(r'(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?', date_str)
     if not mo:
         raise ValueError()

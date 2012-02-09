@@ -182,3 +182,11 @@ def test_18():
     calculated_fn = translator.drs_to_file(drs)
 
     assert calculated_fn == fn
+
+def test_19():
+    # From Estani
+    fn = 'clmcalipso_cf3hr_MPI-ESM-LR_amip_r1i1p1_200810221030.nc'
+    drs = translator.filename_to_drs(fn)
+    calculated_fn = translator.drs_to_file(drs)
+
+    assert calculated_fn == fn
