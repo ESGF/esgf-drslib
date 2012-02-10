@@ -12,3 +12,7 @@
 * Fix for Python 2.5.2 (try/except "as" doesn't work)
 * Check support for non cmip5 activity (e.g. pmip3)
  
+* Update documentation
+  - Check drslib/config.py and add all new features to docs
+  - Add section on checksum calculation
+  - Add section on reconstruction

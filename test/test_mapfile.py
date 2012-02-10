@@ -42,7 +42,6 @@ class TestMapfile(TestEg):
             p = S.Popen('md5sum %s' % path, shell=True, stdout=S.PIPE)
             output = p.stdout.read()
             if not checksum in output:
-                print 'ARGS:', ds_id, path, checksum
                 print 'LINE:', line.strip()
                 print 'MD5: ', output.strip()
                 assert False
