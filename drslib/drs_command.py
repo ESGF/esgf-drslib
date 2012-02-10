@@ -319,7 +319,7 @@ class MapfileCommand(Command):
             log.warning("PublisherTree %s has no version %d, skipping" % (pt.drs.to_dataset_id(), version))
         else:
             #!TODO: Alternative to stdout?
-            pt.version_to_mapfile(version)
+            pt.version_to_mapfile(version, checksum_func=config.checksum_func)
 
 class HistoryCommand(Command):
     def do(self):

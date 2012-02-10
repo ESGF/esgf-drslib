@@ -104,13 +104,30 @@ except:
 # Default subdirectory of drs-root to scan for incoming files
 DEFAULT_INCOMING = 'output'
 DEFAULT_MOVE_CMD = 'mv'
+#!FIXME: s/move-cmd/move_cmd/
 try:
     move_cmd = config.get('DEFAULT', 'move-cmd')
 except:
     move_cmd = DEFAULT_MOVE_CMD
 
+##############################################################################
+# Mapfile generation checksum hook
+#
 
-
+try:
+    checksum_func_str = config.get('DEFAULT', 'checksum_func')
+except:
+    checksum_func = None
+else:
+    #!TODO: Move this into metaconfig
+    package_name, callable_name = checksum_func_str.split(':')
+    # This is the easiest way of looking inside a package
+    __import__(package_name)
+    module = sys.modules[package_name]
+    checksum_func = module.getattr(callable_name)
+    if not callable(checksum_func):
+        raise ValueError("checksum_func %s:%s is not callable" % (package_name, callable_name))
+    
 #
 # CMIP3 component to file/path position mapping
 #

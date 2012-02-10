@@ -33,10 +33,11 @@ def drs_to_id(drs):
                      drs.table,
                      'r%di%dp%d' % drs.ensemble])
 
-#!TODO: add callout to get parameters like checksum.
-def write_mapfile(stream, fh):
+def write_mapfile(stream, fh, checksum_func=None):
     """
     Write an esgpublish mapfile from a stream of tuples (filepath, drs).
+
+    :param checksum_func: A callable of one argument (path) which returns (checksum_type, checksum) or None
 
     """
 
@@ -45,5 +46,14 @@ def write_mapfile(stream, fh):
         size = file_stat[stat.ST_SIZE]
         mtime = file_stat[stat.ST_MTIME]
 
-        print >>fh, ' | '.join([drs_to_id(drs), path, str(size), "mod_time=%f"%float(mtime)])
+        params = [drs_to_id(drs), path, str(size), "mod_time=%f"%float(mtime)]
+
+        if checksum_func:
+            ret = checksum_func(path)
+            if ret is not None:
+                checksum_type, checksum = ret
+                params.append('checksum_type=%s' % checksum_type)
+                params.append('checksum=%s' % checksum)
+
+        print >>fh, ' | '.join(params)
         
