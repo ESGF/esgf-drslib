@@ -12,6 +12,8 @@ Generate mapfiles from streams of DRS objects
 
 #!TODO: check againsts similar code in datanode_admin and merge
 
+CHECKSUM_BLOCKSIZE = 2**20
+
 import stat, os
 
 
@@ -57,3 +59,27 @@ def write_mapfile(stream, fh, checksum_func=None):
 
         print >>fh, ' | '.join(params)
         
+
+
+def calc_md5(path):
+    """
+    Caluclate the md5 of a file by reading it.
+
+    This function is suitable for use as the checksum_func callout by adding this to metaconfig:
+
+    [DEFAULT]
+    checksum_func = drslib.mapfile:calc_md5
+
+    """
+    import hashlib
+
+    md5 = hashlib.md5()
+    fh = open(path, 'rb')
+    while True:
+        data = fh.read(CHECKSUM_BLOCKSIZE)
+        if not data:
+            break
+        md5.update(data)
+    fh.close()
+
+    return 'MD5', md5.hexdigest()
