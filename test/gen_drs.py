@@ -98,8 +98,8 @@ def subset_range(date1, date2, clim, n):
     for i in xrange(n):
         dt1 = date1 + t_delta*i
         dt2 = date1 + t_delta*(i+1)
-        N1 = (dt1.year, dt1.month, dt1.day, dt1.hour, None)
-        N2 = (dt2.year, dt2.month, dt2.day, dt2.hour, None)
+        N1 = (dt1.year, dt1.month, dt1.day, dt1.hour, None, None)
+        N2 = (dt2.year, dt2.month, dt2.day, dt2.hour, None, None)
         yield (N1, N2, clim)
 
 

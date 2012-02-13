@@ -503,15 +503,15 @@ def _to_date(date_str):
     if date_str is None:
         return None
 
-    mo = re.match(r'(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?', date_str)
+    mo = re.match(r'(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?', date_str)
     if not mo:
         raise ValueError()
 
-    (y, m, d, h, mn) = mo.groups()
-    return (int(y), _int_or_none(m), _int_or_none(d), _int_or_none(h), _int_or_none(mn))
+    (y, m, d, h, mn, sec) = mo.groups()
+    return (int(y), _int_or_none(m), _int_or_none(d), _int_or_none(h), _int_or_none(mn), _int_or_none(sec))
 
 def _from_date(date):
-    (y, m, d, h, mn) = date
+    (y, m, d, h, mn, sec) = date
 
     ret = ['%04d' % y]
     if m is not None:
@@ -522,6 +522,8 @@ def _from_date(date):
         ret.append('%02d' % h)
     if mn is not None:
         ret.append('%02d' % mn)
+    if sec is not None:
+        ret.append('%02d' % sec)
     return ''.join(ret)
     
 def _int_or_none(x):

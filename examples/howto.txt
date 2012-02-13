@@ -20,7 +20,7 @@ extract DRS components from a filename do:
 >>> drs.model
 'HadCM3'
 >>> drs.subset
-((1850, 1, None, None, None), (2005, 12, None, None, None), None)
+((1850, 1, None, None, None, None), (2005, 12, None, None, None, None), None)
 
 Some DRS components can be deduced from the filename by consulting the
 CMIP5 MIP tables or using internally configured tables.  These are
@@ -68,7 +68,7 @@ Extra information is needed to create the filename
 
 >>> cmip5_trans.drs_to_file(drs2)
 'tas_3hr_HadCM3_historicalNat_r1.nc'
->>> drs2.subset = ((2010, None, None, None, None), (2011, None, None, None, None), None)
+>>> drs2.subset = ((2010, None, None, None, None, None), (2011, None, None, None, None, None), None)
 >>> cmip5_trans.drs_to_file(drs2)
 'tas_3hr_HadCM3_historicalNat_r1_2010-2011.nc'
 

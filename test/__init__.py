@@ -190,3 +190,12 @@ def test_19():
     calculated_fn = translator.drs_to_file(drs)
 
     assert calculated_fn == fn
+
+def test_20():
+    # Adding seconds to a previous example
+    # ...                                    YYYYMMDDHHSS
+    fn = 'psl_6hrPlev_MPI-ESM-LR_amip_r1i1p1_197901010000-19791231180000.nc'
+    drs = translator.filename_to_drs(fn)
+    calculated_fn = translator.drs_to_file(drs)
+
+    assert calculated_fn == fn

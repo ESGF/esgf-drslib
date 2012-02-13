@@ -49,7 +49,7 @@ class DRS(dict):
     :ivar table: string of None
     :ivar ensemble: (r, i, p)
     :ivar version: integer
-    :ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h, mn) 
+    :ivar subset: (N1, N2, clim) where N1 and N2 are (y, m, d, h, mn, sec) 
         and clim is boolean
     :ivar extended: A string containing miscellaneous stuff.  Useful for
         representing irregular CMIP3 files
