@@ -8,6 +8,7 @@ This API adds consistency checking to PublishTrees without bloating the Publishe
 import os, sys
 from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR
 import os.path as op
+import shutil
 
 import logging
 log = logging.getLogger(__name__)
@@ -215,7 +216,7 @@ class CheckFilesLinks(TreeChecker):
                 os.rmdir(fdir)
 
         # Re-deduce versions
-        self.pt._deduce_versions()
+        pt._deduce_versions()
 
 
 def repair_version(pt, version):
@@ -233,14 +234,14 @@ def repair_version(pt, version):
         # First verify no real files exist in the version directory
         for dirpath, dirnames, filenames in os.walk(version_dir):
             for filename in filenames:
-                if op.isfile(op.join(dirpath, filename)):
+                if not op.islink(op.join(dirpath, filename)):
                     raise UnfixableInconsistency("Version directory %s contains real files" % version_dir)
 
         # Remove the verison directory
         shutil.rmtree(version_dir)
 
     # Do all commands to reconstruct the version
-    self.pt._do_commands(pt._link_commands(version))
+    pt._do_commands(pt._link_commands(version))
 
         
 #!NOTE: order is important
