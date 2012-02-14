@@ -532,6 +532,7 @@ class PublisherTree(object):
             
     def _deduce_date_versions(self):
         self.latest = 0
+        self.versions = {}
         # Bail out if pub_dir doesn't exist yet.
         if not os.path.exists(self.pub_dir):
             return
