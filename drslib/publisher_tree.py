@@ -12,7 +12,7 @@ import re
 import itertools
 
 from drslib.cmip5 import make_translator
-from drslib.translate import TranslationError
+from drslib.translate import TranslationError, drs_dates_overlap
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
 
@@ -465,7 +465,7 @@ class PublisherTree(object):
         if from_seq is None:
             from_seq = []
 
-        done = set()
+        done = {}
         for filepath, variable, fversion in itertools.chain(from_seq,
                                                             self.iter_real_files()):
             if version == fversion:
@@ -480,15 +480,27 @@ class PublisherTree(object):
                 src = os.path.relpath(filepath, link_dir)
 
                 yield self.CMD_LINK, src, dest
-                done.add(filename)
+
+                drs = self._vtrans.filename_to_drs(filename)
+                done[filename] = drs
 
         #!TODO: Handle deleted files!
-        # Promote all files from the previous version
+        # Promote all files from the previous version that do not overlap with the current set
         prev_version = self.prev_version(version)
         if prev_version:
             for filepath, variable, fversion in self.iter_real_files():
                 filename = os.path.basename(filepath)
-                if fversion == prev_version and filename not in done:
+
+                if fversion != prev_version:
+                    continue
+
+                old_drs = self._vtrans.filename_to_drs(filename)
+                #!TODO: could be more efficient
+                for done_filename, done_drs in done.items():
+                    if done_drs.variable == old_drs.variable and drs_dates_overlap(done_drs, old_drs):
+                        log.info("Not promoting %s as it overlaps with %s" % (filename, done_filename))
+                        break
+                else:
                     link_dir = self.link_file_dir(variable, version)
 
                     if not os.path.exists(link_dir):
