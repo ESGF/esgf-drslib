@@ -147,7 +147,7 @@ class CheckVersionLinks(TreeChecker):
     """
     def __init__(self):
         super(self.__class__, self).__init__()
-        self._fix_commands = []
+        self._fix_versions = set()
 
     def _check_hook(self, pt):
         fdir = op.join(pt.pub_dir, VERSIONING_FILES_DIR)
@@ -160,7 +160,8 @@ class CheckVersionLinks(TreeChecker):
                 if cmd == pt.CMD_MKDIR:
                     if not op.isdir(dest):
                         self._state_fixable('Directory %s does not exist' % dest)
-                        self._fix_commands.append((cmd, src, dest))
+                        self._fix_versions.add(version)
+                        break
                 elif cmd == pt.CMD_LINK:
                     if not op.isabs(src):
                         realsrc = op.abspath(op.join(op.dirname(dest), src))
@@ -171,7 +172,8 @@ class CheckVersionLinks(TreeChecker):
                         self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
                     elif not op.exists(dest):
                         self._state_fixable('Link %s does not exist' % dest)
-                        self._fix_commands.append((cmd, src, dest))
+                        self._fix_versions.add(version)
+                        break
                     else:
                         realdest = os.readlink(dest)
                         if not op.isabs(realdest):
@@ -182,7 +184,8 @@ class CheckVersionLinks(TreeChecker):
                         
                     
     def _repair_hook(self, pt):
-        pt._do_commands(self._fix_commands)
+        for version in self._fix_versions:
+            repair_version(pt, version)
 
 
 class CheckFilesLinks(TreeChecker):
@@ -210,6 +213,35 @@ class CheckFilesLinks(TreeChecker):
             if os.listdir(fdir) == []:
                 log.info('Removing empty directory %s' % fdir)
                 os.rmdir(fdir)
+
+        # Re-deduce versions
+        self.pt._deduce_versions()
+
+
+def repair_version(pt, version):
+    """
+    An 'all in one' repair function that removes the version directory
+    and reconstructs from scratch.
+
+    This function is guaranteed not to delete anything if real files
+    are detected in the version directory.
+
+    """
+
+    version_dir = op.join(pt.pub_dir, 'v%d' % version)
+    if op.isdir(version_dir):
+        # First verify no real files exist in the version directory
+        for dirpath, dirnames, filenames in os.walk(version_dir):
+            for filename in filenames:
+                if op.isfile(op.join(dirpath, filename)):
+                    raise UnfixableInconsistency("Version directory %s contains real files" % version_dir)
+
+        # Remove the verison directory
+        shutil.rmtree(version_dir)
+
+    # Do all commands to reconstruct the version
+    self.pt._do_commands(pt._link_commands(version))
+
         
 #!NOTE: order is important
 default_checkers = [
