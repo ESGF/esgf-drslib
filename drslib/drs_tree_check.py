@@ -203,6 +203,10 @@ class CheckVersionLinks(TreeChecker):
                     continue
                 for done_drs in done:
                     if drs_dates_overlap(drs, done_drs):
+                        #!FIXME: I think this could still be fooled
+                        if drs == done_drs:
+                            continue
+                        log.debug('%s overlaps %s' % (drs, done_drs))
                         return (False, 'Overlaping files in v%s' % version)
 
         return (True, None)
@@ -247,11 +251,13 @@ class CheckOrphanedVersions(TreeChecker):
     In some circumstances a version directory shouldn't be there because there
     are no corresponding files/<var>_<version> directories.
 
-    In this case we need to just duplicate the previous version.
+    In this case we flag the dataset as unfixable as manual intervention will
+    be required.  In most cases the best course of action will be to rename
+    a previous version as this new version in order to ensure latest versions
+    remain current.
     
     """
     def _check_hook(self, pt):
-        self._orphaned = []
         pt._deduce_versions()
 
         for vdir in os.listdir(pt.pub_dir):
@@ -263,19 +269,7 @@ class CheckOrphanedVersions(TreeChecker):
                 continue
 
             if version not in pt.versions.keys():
-                try:
-                    prev_version = max(x for x in pt.versions.keys() if x < version)
-                except ValueError:
-                    # No previous versions
-                    self._state_unfixable('Earliest version %s is orphaned' % version)
-                else:
-                    self._state_fixable('Version %s is orphaned and must duplicate %s' % (version, prev_version))
-                    self._orphaned.append((version, prev_version))
-
-    def _repair_hook(self, pt):
-        for version, prev_version in self._orphaned:
-            #!TODO: prev_version shouldn't be needed
-            repair_version(pt, version)
+                self._state_unfixable('Version %s is orphaned.  You should manually rename the previous version' % version)
 
 
 def repair_version(pt, version):
