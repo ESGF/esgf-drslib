@@ -10,6 +10,9 @@ from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR
 import os.path as op
 import shutil
 
+from drslib.translate import TranslationError, drs_dates_overlap
+
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -157,32 +160,52 @@ class CheckVersionLinks(TreeChecker):
             return
 
         for version in pt.versions.keys():
-            for cmd, src, dest in pt._link_commands(version):
-                if cmd == pt.CMD_MKDIR:
-                    if not op.isdir(dest):
-                        self._state_fixable('Directory %s does not exist' % dest)
-                        self._fix_versions.add(version)
-                        break
-                elif cmd == pt.CMD_LINK:
-                    if not op.isabs(src):
-                        realsrc = op.abspath(op.join(op.dirname(dest), src))
-                    else:
-                        realsrc = src
+            ok, message = self._scan_version(pt, version)
+            if not ok:
+                self._state_fixable(message)
+                self._fix_versions.add(version)
 
-                    if not op.exists(realsrc):
-                        self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
-                    elif not op.exists(dest):
-                        self._state_fixable('Link %s does not exist' % dest)
-                        self._fix_versions.add(version)
-                        break
-                    else:
-                        realdest = os.readlink(dest)
-                        if not op.isabs(realdest):
-                            realdest = op.abspath(op.join(op.dirname(dest), realdest))
-                        
-                        if realsrc != realdest:
-                            self._state_unfixable('Link %s does not point to the correct file %s' % (dest, src))
-                        
+
+    def _scan_version(self, pt, version):
+        done = []
+        for cmd, src, dest in pt._link_commands(version):
+            if cmd == pt.CMD_MKDIR:
+                if not op.isdir(dest):
+                    return (False, 'Directory %s does not exist' % dest)
+            elif cmd == pt.CMD_LINK:
+                if not op.isabs(src):
+                    realsrc = op.abspath(op.join(op.dirname(dest), src))
+                else:
+                    realsrc = src
+
+                if not op.exists(realsrc):
+                    self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
+                elif not op.exists(dest):
+                    return (False, 'Link %s does not exist' % dest)
+                else:
+                    realdest = os.readlink(dest)
+                    if not op.isabs(realdest):
+                        realdest = op.abspath(op.join(op.dirname(dest), realdest))
+
+                    if realsrc != realdest:
+                        return (False, 'Link %s does not point to the correct file %s' % (dest, src))
+
+                    drs = pt._vtrans.filename_to_drs(op.basename(realsrc))
+                    done.append(drs)
+
+        # Now scan filesystem for overlapping files
+        version_dir = op.join(pt.pub_dir, 'v%d' % version)
+        for dirpath, dirnames, filenames in os.walk(version_dir):
+            for filename in filenames:
+                try:
+                    drs = pt._vtrans.filename_to_drs(filename)
+                except TranslationError:
+                    continue
+                for done_drs in done:
+                    if drs_dates_overlap(drs, done_drs):
+                        return (False, 'Overlaping files in v%s' % version)
+
+        return (True, None)
                     
     def _repair_hook(self, pt):
         for version in self._fix_versions:
@@ -219,6 +242,42 @@ class CheckFilesLinks(TreeChecker):
         pt._deduce_versions()
 
 
+class CheckOrphanedVersions(TreeChecker):
+    """
+    In some circumstances a version directory shouldn't be there because there
+    are no corresponding files/<var>_<version> directories.
+
+    In this case we need to just duplicate the previous version.
+    
+    """
+    def _check_hook(self, pt):
+        self._orphaned = []
+        pt._deduce_versions()
+
+        for vdir in os.listdir(pt.pub_dir):
+            if vdir[0] != 'v':
+                continue
+            try:
+                version = int(vdir[1:])
+            except TypeError:
+                continue
+
+            if version not in pt.versions.keys():
+                try:
+                    prev_version = max(x for x in pt.versions.keys() if x < version)
+                except ValueError:
+                    # No previous versions
+                    self._state_unfixable('Earliest version %s is orphaned' % version)
+                else:
+                    self._state_fixable('Version %s is orphaned and must duplicate %s' % (version, prev_version))
+                    self._orphaned.append((version, prev_version))
+
+    def _repair_hook(self, pt):
+        for version, prev_version in self._orphaned:
+            #!TODO: prev_version shouldn't be needed
+            repair_version(pt, version)
+
+
 def repair_version(pt, version):
     """
     An 'all in one' repair function that removes the version directory
@@ -228,6 +287,8 @@ def repair_version(pt, version):
     are detected in the version directory.
 
     """
+
+    log.info('Reconstructing version %d' % version)
 
     version_dir = op.join(pt.pub_dir, 'v%d' % version)
     if op.isdir(version_dir):
@@ -248,5 +309,6 @@ def repair_version(pt, version):
 default_checkers = [
     CheckFilesLinks,
     CheckVersionLinks,
+    CheckOrphanedVersions,
     CheckLatest, 
     ]
