@@ -16,6 +16,7 @@ from glob import glob
 
 from drslib.publisher_tree import VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR
 from drslib.drs_tree import DRSTree
+from drslib.drs_tree_check import CheckOrphanedVersions, CheckLatest
 
 from drs_tree_shared import TestEg, test_dir
 import gen_drs
@@ -197,12 +198,14 @@ class TestLsRepair2(TestLsRepair):
                           frequency='day', experiment='rcp85',
                           )
 
-    # Trap for debugging
-    def setUp(self):
-        super(TestLsRepair2, self).setUp()
-        import pdb; pdb.set_trace()
+    def test_repair(self):
+        # repair should fail with orphanned version and incorrect latest
+        #!WARNING: gray-box test.
+        self.pt.deduce_state()
+        if self.pt.has_failures():
+            self.pt.repair()
+            assert self.pt.state == self.pt.STATE_BROKEN
+            assert len(self.pt._checker_failures) == 1
+            checker_class = self.pt._checker_failures[0].__class__
+            assert CheckOrphanedVersions == checker_class
 
-    def tearDown(self):
-        import pdb; pdb.set_trace()
-    
-        super(TestLsRepair2, self).tearDown()
