@@ -370,6 +370,7 @@ class PublisherTree(object):
         :yield: filepath, variable, version
 
         """
+        #!TODO: improve by taking a version argument
         path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
             return
@@ -465,7 +466,7 @@ class PublisherTree(object):
         if from_seq is None:
             from_seq = []
 
-        done = {}
+        done = []
         for filepath, variable, fversion in itertools.chain(from_seq,
                                                             self.iter_real_files()):
             if version == fversion:
@@ -482,12 +483,11 @@ class PublisherTree(object):
                 yield self.CMD_LINK, src, dest
 
                 drs = self._vtrans.filename_to_drs(filename)
-                done[filename] = drs
+                done.append((filename, drs))
 
         #!TODO: Handle deleted files!
-        # Promote all files from the previous version that do not overlap with the current set
-        prev_version = self.prev_version(version)
-        if prev_version:
+        # Promote all files from the previous versions that do not overlap with the current set
+        for prev_version in sorted((x for x in self.versions if x < version), reverse=True):
             for filepath, variable, fversion in self.iter_real_files():
                 filename = os.path.basename(filepath)
 
@@ -496,7 +496,7 @@ class PublisherTree(object):
 
                 old_drs = self._vtrans.filename_to_drs(filename)
                 #!TODO: could be more efficient
-                for done_filename, done_drs in done.items():
+                for done_filename, done_drs in done:
                     if done_drs.variable == old_drs.variable and drs_dates_overlap(done_drs, old_drs):
                         log.info("Not promoting %s as it overlaps with %s" % (filename, done_filename))
                         break
@@ -511,6 +511,8 @@ class PublisherTree(object):
                     src = os.path.relpath(filepath, link_dir)
                     
                     yield self.CMD_LINK, src, dest
+                    drs = self._vtrans.filename_to_drs(filename)
+                    done.append((filename, drs))
 
     #-------------------------------------------------------------------------
     # Versioning internal methods
@@ -655,13 +657,16 @@ class PublisherTree(object):
     #-------------------------------------------------------------------------
     # Tree checking methods
 
-    def _check_tree(self):
+    def _check_tree(self, fix_hook=None):
         """
         Run a series of checker instances on the object to check for inconsistencies.
 
+        If fix_hook is provided it is called for each failing checker to apply
+        any fixes possible.
+
         """
-        self._checker_failures = []
         ret = True
+        self._checker_failures = []
         for Checker in self._checkers:
             checker = Checker()
             log.debug('BEGIN Checking with %s' % checker.get_name())
@@ -669,6 +674,8 @@ class PublisherTree(object):
                 log.warning('Checker %s failed: %s' % (checker.get_name(), 
                                                        checker.get_message()))
                 self._checker_failures.append(checker)
+                if fix_hook:
+                    fix_hook(checker)
                 ret = False
             log.debug('END Checking with %s' % checker.get_name())
 
@@ -679,18 +686,20 @@ class PublisherTree(object):
         Repair inconsistencies that are fixable.
 
         """
-        for checker in self._checker_failures:
-            cname = checker.get_name()
-            log.debug('Considering repair with %s' % cname)
-            if checker.is_fixable():
-                log.info('Repairing with %s' % cname)
-                try:
-                    checker.repair(self)
-                    log.info('Repaired with %s' % cname)
-                except:
-                    log.exception('FAILED repairing with %s' % cname)
-            else:
-                log.info('Unrepairable %s' % cname)
+        self._check_tree(self._fix_hook)
+
+    def _fix_hook(self, checker):
+        cname = checker.get_name()
+        log.debug('Considering repair with %s' % cname)
+        if checker.is_fixable():
+            log.info('Repairing with %s' % cname)
+            try:
+                checker.repair(self)
+                log.info('Repaired with %s' % cname)
+            except:
+                log.exception('FAILED repairing with %s' % cname)
+        else:
+            log.info('Unrepairable %s' % cname)
 
 
 

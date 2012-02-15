@@ -197,3 +197,12 @@ class TestLsRepair2(TestLsRepair):
                           frequency='day', experiment='rcp85',
                           )
 
+    # Trap for debugging
+    def setUp(self):
+        super(TestLsRepair2, self).setUp()
+        import pdb; pdb.set_trace()
+
+    def tearDown(self):
+        import pdb; pdb.set_trace()
+    
+        super(TestLsRepair2, self).tearDown()
