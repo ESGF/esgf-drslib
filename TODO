@@ -16,3 +16,10 @@
   - Check drslib/config.py and add all new features to docs
   - Add section on checksum calculation
   - Add section on reconstruction
+
+* Clean up configuration of product detection
+
+We should be able to set the p_cmip5 handler in metaconfig.conf or
+turn on/off product detection there.
+
+* Clean up different project/activity options
