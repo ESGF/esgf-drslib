@@ -129,7 +129,7 @@ class DRS(dict):
             kws.append(self._encode_component(attr))
 
         # Remove trailing '%' from components
-        while kws[-1] == '%':
+        while kws and kws[-1] == '%':
             kws.pop(-1)
 
         return '<DRS %s>' % '.'.join(kws)

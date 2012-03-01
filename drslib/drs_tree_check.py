@@ -38,6 +38,7 @@ class TreeChecker(object):
 
     def __init__(self):
         self.state = self.STATE_INITIAL
+        self._messages = []
 
     def get_name(self):
         return getattr(self, 'name', self.__class__.__name__)
@@ -48,13 +49,17 @@ class TreeChecker(object):
             return 'Checks not run yet'
         elif self.state == self.STATE_PASS:
             return 'Checks pass'
-        elif self.state == self.STATE_FAIL_FIXABLE:
-            return 'Checks fail and can be fixed'
-        elif self.state == self.STATE_FAIL_UNFIXABLE:
-            return 'Checks fail and are unfixable'
-        elif self.state == self.STATE_EXCEPTION:
-            return 'Exception raised during checks'
-        
+        else:
+            if self.state == self.STATE_FAIL_FIXABLE:
+                messages = ['Checks fail and can be fixed']
+            elif self.state == self.STATE_FAIL_UNFIXABLE:
+                messages = ['Checks fail and are unfixable']
+            elif self.state == self.STATE_EXCEPTION:
+                messages = ['Exception raised during checks']
+
+            messages += self._messages
+            return ', '.join(messages)
+
     def has_passed(self):
         return self.state == self.STATE_PASS
 
@@ -98,12 +103,13 @@ class TreeChecker(object):
         if self.state != self.STATE_FAIL_UNFIXABLE:
             self.state = self.STATE_FAIL_FIXABLE
         if reason:
-            log.warning('Fixable failure: %s' % reason)
+            self._messages.append(reason)
 
     def _state_unfixable(self, reason=None):
         self.state = self.STATE_FAIL_UNFIXABLE
         if reason:
-            log.warning('Unfixable failure: %s' % reason)
+            self._messages.append(reason)
+
 
     def _state_pass(self):
         self.state = self.STATE_PASS
@@ -202,7 +208,7 @@ class CheckVersionLinks(TreeChecker):
                 except TranslationError:
                     continue
                 for done_drs in done:
-                    if drs_dates_overlap(drs, done_drs):
+                    if done_drs.variable == drs.variable and drs_dates_overlap(drs, done_drs):
                         #!FIXME: I think this could still be fooled
                         if drs == done_drs:
                             continue
