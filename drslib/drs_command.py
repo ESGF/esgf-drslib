@@ -36,7 +36,7 @@ command:
   history         list all versions of the selected dataset
   init            initialise CMIP5 data for product detection
   diff            list differences between versions or between a version and the todo list
-  fix             Fix problems that are shown by the list command
+  repair          Fix problems that are shown by the list command
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -355,7 +355,7 @@ class InitCommand(Command):
         print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
 
 
-class FixCommand(Command):
+class RepairCommand(Command):
     def do(self):
         for drs_id, pt in self.drs_tree.pub_trees.items():
             if pt.has_failures():
@@ -441,8 +441,8 @@ def run(op, command, opts, args):
         c = InitCommand(opts, args)
     elif command == 'diff':
         c = DiffCommand(opts, args)
-    elif command == 'fix':
-        c = FixCommand(opts, args)
+    elif command == 'repair':
+        c = RepairCommand(opts, args)
     else:
         op.error("Unrecognised command %s" % command)
 
