@@ -8,6 +8,7 @@
    - Summarise checks better in drs_tool
    - switch on/off checks
    - Implement fixes for each check
+   - Conservative datestamp overlaps: always promote a file if it contains some relevant data
 
 * Fix for Python 2.5.2 (try/except "as" doesn't work)
 * Check support for non cmip5 activity (e.g. pmip3)
