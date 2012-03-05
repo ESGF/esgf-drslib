@@ -115,6 +115,7 @@ class TreeChecker(object):
 class CheckLatest(TreeChecker):
     def __init__(self):
         super(self.__class__, self).__init__()
+        self._fix_to = None
 
     def _check_hook(self, pt):
         latest_dir = op.join(pt.pub_dir, VERSIONING_LATEST_DIR)
@@ -123,25 +124,29 @@ class CheckLatest(TreeChecker):
             self._state_fixable('latest directory missing or broken')
             return
 
+        latest_version = max(self._fs_versions(pt))
+
         # Link could be there but invalid
         link = op.join(pt.pub_dir, os.readlink(latest_dir))
-        if op.exists(link):
-            link_v = int(op.basename(link)[1:]) # remove leading "v"
+        if not op.exists(link):
+            self._state_fixable('Latest directory %s does not exist' % link)
+            self._fix_to = latest_version
+            return
+        link_v = int(op.basename(link)[1:]) # remove leading "v"
+        if link_v != latest_version:
+            self._state_fixable('Latest directory %s should point to v%d' % (link, latest_version))
+            self._fix_to = latest_version
+            return
 
-            #!FIXME: logic wrong.  pt.latest could be 0
-            # Work-arround
-            pt._deduce_versions()
-            if link_v != pt.latest:
-                self._state_fixable('latest directory not pointing to latest version')
-
-        
+    def _fs_versions(self, pt):
+        return [int(x[1:]) for x in os.listdir(pt.pub_dir) if x[0] == 'v']
         
     def _repair_hook(self, pt):
         latest_dir = op.join(pt.pub_dir, VERSIONING_LATEST_DIR)
         if op.islink(latest_dir):
             os.remove(latest_dir)
-        pt._deduce_versions()
-        pt._do_latest()
+        latest_link = op.join(pt.pub_dir, 'v%d' % self._fix_to)
+        os.symlink(latest_link, latest_dir)
 
 
 class CheckVersionLinks(TreeChecker):
@@ -245,30 +250,6 @@ class CheckFilesLinks(TreeChecker):
         pt._deduce_versions()
 
 
-class CheckOrphanedVersions(TreeChecker):
-    """
-    In some circumstances a version directory shouldn't be there because there
-    are no corresponding files/<var>_<version> directories.
-
-    In this case we flag the dataset as unfixable as manual intervention will
-    be required.  In most cases the best course of action will be to rename
-    a previous version as this new version in order to ensure latest versions
-    remain current.
-    
-    """
-    def _check_hook(self, pt):
-        pt._deduce_versions()
-
-        for vdir in os.listdir(pt.pub_dir):
-            if vdir[0] != 'v':
-                continue
-            try:
-                version = int(vdir[1:])
-            except TypeError:
-                continue
-
-            if version not in pt.versions.keys():
-                self._state_unfixable('Version %s is orphaned.  You should manually rename the previous version' % version)
 
 
 def repair_version(pt, version):
@@ -302,6 +283,5 @@ def repair_version(pt, version):
 default_checkers = [
     CheckFilesLinks,
     CheckVersionLinks,
-    CheckOrphanedVersions,
     CheckLatest, 
     ]
