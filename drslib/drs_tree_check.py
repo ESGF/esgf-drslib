@@ -6,12 +6,12 @@ This API adds consistency checking to PublishTrees without bloating the Publishe
 """
 
 import os, sys
-from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR
+from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR, IGNORE_FILES_REGEXP
 import os.path as op
 import shutil
+import re
 
 from drslib.translate import TranslationError, drs_dates_overlap
-
 
 import logging
 log = logging.getLogger(__name__)
@@ -269,6 +269,10 @@ def repair_version(pt, version):
         # First verify no real files exist in the version directory
         for dirpath, dirnames, filenames in os.walk(version_dir):
             for filename in filenames:
+                # ignore files matching this regexp
+                if re.match(IGNORE_FILES_REGEXP, filename):
+                    continue
+
                 if not op.islink(op.join(dirpath, filename)):
                     raise UnfixableInconsistency("Version directory %s contains real files" % version_dir)
 
