@@ -164,7 +164,7 @@ class Command(object):
 
         # Get the template DRS from args
         if self.args:
-            dataset_id = self.args.pop(0)
+            dataset_id = self.args[0]
             drs = DRS.from_dataset_id(dataset_id, **kwargs)
         else:
             drs = DRS(**kwargs)
@@ -360,9 +360,9 @@ class RepairCommand(Command):
         for drs_id, pt in self.drs_tree.pub_trees.items():
             if pt.has_failures():
                 print 'FIXING %-70s' % drs_id
+                pt.repair()
                 for line in pt.list_failures():
                     print '  ', line
-                pt.repair()
 
 
 class DiffCommand(Command):
@@ -427,26 +427,31 @@ class DiffCommand(Command):
         self.print_footer()
 
 def run(op, command, opts, args):
+    commands = []
+
     if command == 'list':
-        c = ListCommand(opts, args)
+        commands.append(ListCommand)
     elif command == 'todo':
-        c = TodoCommand(opts, args)
+        commands.append(TodoCommand)
     elif command == 'upgrade':
-        c = UpgradeCommand(opts, args)
+        commands.append(UpgradeCommand)
     elif command == 'mapfile':
-        c = MapfileCommand(opts, args)
+        commands.append(MapfileCommand)
     elif command == 'history':
-        c = HistoryCommand(opts, args)
+        commands.append(HistoryCommand)
     elif command == 'init':
-        c = InitCommand(opts, args)
+        commands.append(InitCommand)
     elif command == 'diff':
-        c = DiffCommand(opts, args)
+        commands.append(DiffCommand)
     elif command == 'repair':
-        c = RepairCommand(opts, args)
+        commands.append(RepairCommand)
+        commands.append(ListCommand)
     else:
         op.error("Unrecognised command %s" % command)
 
-    c.do()
+    for klass in commands:
+        c = klass(opts, args)
+        c.do()
 
 
 def main(argv=sys.argv):

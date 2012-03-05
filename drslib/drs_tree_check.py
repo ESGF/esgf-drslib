@@ -91,6 +91,9 @@ class TreeChecker(object):
         # Implement in subclasses
         raise NotImplementedError
 
+    def _fs_versions(self, pt):
+        return [int(x[1:]) for x in os.listdir(pt.pub_dir) if x[0] == 'v']
+        
 
     #-------------------------------------------------------------------------
     # State changes
@@ -138,9 +141,6 @@ class CheckLatest(TreeChecker):
             self._fix_to = latest_version
             return
 
-    def _fs_versions(self, pt):
-        return [int(x[1:]) for x in os.listdir(pt.pub_dir) if x[0] == 'v']
-        
     def _repair_hook(self, pt):
         latest_dir = op.join(pt.pub_dir, VERSIONING_LATEST_DIR)
         if op.islink(latest_dir):
@@ -164,7 +164,7 @@ class CheckVersionLinks(TreeChecker):
             self._state_unfixable('Files directory %s does not exist' % fdir)
             return
 
-        for version in pt.versions.keys():
+        for version in self._fs_versions(pt):
             ok, message = self._scan_version(pt, version)
             if not ok:
                 self._state_fixable(message)
