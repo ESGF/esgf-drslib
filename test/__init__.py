@@ -199,3 +199,13 @@ def test_20():
     calculated_fn = translator.drs_to_file(drs)
 
     assert calculated_fn == fn
+
+def test_21():
+    # As reported by Ag
+    fns = ['pfull_Amon_HadGEM2-ES_piControl_r1i1p1_186001-187912-clim.nc',
+           'phalf_Amon_HadGEM2-ES_piControl_r1i1p1_186001-187912-clim.nc',
+           ]
+    for fn in fns:
+        drs = translator.filename_to_drs(fn)
+        calculated_fn = translator.drs_to_file(drs)
+        assert calculated_fn == fn
