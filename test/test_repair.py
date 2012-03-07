@@ -16,7 +16,7 @@ from glob import glob
 
 from drslib.publisher_tree import VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR
 from drslib.drs_tree import DRSTree
-from drslib.drs_tree_check import CheckOrphanedVersions, CheckLatest
+from drslib.drs_tree_check import CheckLatest
 
 from drs_tree_shared import TestEg, test_dir
 import gen_drs
@@ -207,5 +207,4 @@ class TestLsRepair2(TestLsRepair):
             assert self.pt.state == self.pt.STATE_BROKEN
             assert len(self.pt._checker_failures) == 1
             checker_class = self.pt._checker_failures[0].__class__
-            assert CheckOrphanedVersions == checker_class
 
