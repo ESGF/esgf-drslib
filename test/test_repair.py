@@ -199,8 +199,6 @@ class TestLsRepair2(TestLsRepair):
                           )
 
     def test_repair(self):
-        # repair should fail with orphanned version and incorrect latest
-        #!WARNING: gray-box test.
         self.pt.deduce_state()
         if self.pt.has_failures():
             self.pt.repair()

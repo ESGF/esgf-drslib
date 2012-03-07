@@ -149,7 +149,8 @@ class CheckLatest(TreeChecker):
             latest_link = op.join(pt.pub_dir, 'v%d' % self._fix_to)
             os.symlink(latest_link, latest_dir)
         else:
-            pt.do_version()
+            pt._deduce_versions()
+            pt._do_latest()
 
 class CheckVersionLinks(TreeChecker):
     """
