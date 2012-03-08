@@ -198,11 +198,3 @@ class TestLsRepair2(TestLsRepair):
                           frequency='day', experiment='rcp85',
                           )
 
-    def test_repair(self):
-        self.pt.deduce_state()
-        if self.pt.has_failures():
-            self.pt.repair()
-            assert self.pt.state == self.pt.STATE_BROKEN
-            assert len(self.pt._checker_failures) == 1
-            checker_class = self.pt._checker_failures[0].__class__
-

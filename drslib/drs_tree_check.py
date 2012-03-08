@@ -167,7 +167,9 @@ class CheckVersionLinks(TreeChecker):
             self._state_unfixable('Files directory %s does not exist' % fdir)
             return
 
-        for version in self._fs_versions(pt):
+        # find all filesystem versions and versions from the files directory
+        versions = set(self._fs_versions(pt) + pt.versions.keys())
+        for version in versions:
             ok, message = self._scan_version(pt, version)
             if not ok:
                 self._state_fixable(message)
