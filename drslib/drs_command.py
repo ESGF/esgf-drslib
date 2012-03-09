@@ -310,7 +310,7 @@ class MapfileCommand(Command):
         pt = self.drs_tree.pub_trees.values()[0]
 
         #!TODO: better argument handling
-        if self.args > 1:
+        if len(self.args) > 1:
             version = int(self.args[1])
         else:
             version = pt.latest
