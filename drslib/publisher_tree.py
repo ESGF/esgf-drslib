@@ -374,12 +374,12 @@ class PublisherTree(object):
         if not os.path.exists(path):
             return
 
-        for filedir in os.listdir(path):
+        for filedir in [f for f in os.listdir(path) if not re.match(IGNORE_FILES_REGEXP, f)]:
             variable, version = filedir.split('_')
             version = int(version)
             filepath = os.path.join(path, filedir)
 
-            for filename in os.listdir(filepath):
+            for filename in [f for f in os.listdir(filepath) if not re.match(IGNORE_FILES_REGEXP, f)]:
                 yield os.path.join(filepath, filename), variable, version
 
     def prev_version(self, version):
