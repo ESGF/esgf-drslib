@@ -334,5 +334,5 @@ def check_listing(listing_file, output='output1'):
             assert pc1.product == output
 
 def test_regression_ncc():
-    for listing in ['ncc_rcp45.ls', 'ncc_piControl.ls', 'ncc_rcp45.ls']:
+    for listing in ['ncc_rcp45.ls', 'ncc_piControl.ls', 'ncc_sst2030.ls']:
         yield check_listing, listing

@@ -149,6 +149,8 @@ def eg5_2():
     return make_eg(variable=['tas'], subset=make_subset()[:2])
 
 def write_eg_file(filepath):
+    if os.path.exists(filepath):
+        raise Exception("test file exists: %s" % filepath)
     fh = open(filepath, 'w')
     fh.write('I am %s\n' % op.basename(filepath))
     fh.close()
@@ -248,9 +250,6 @@ def write_eg5_2(prefix):
 def main(argv=sys.argv):
     listing_file, outdir = sys.argv[1:]
 
-    if op.exists(outdir):
-        raise IOError("Directory %s already exists" % repr(outdir))
-    
     write_listing(outdir, listing_file)
 
 if __name__ == '__main__':
