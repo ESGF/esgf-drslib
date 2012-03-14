@@ -530,6 +530,8 @@ def _from_date(date):
     return ''.join(ret)
 
 def drs_dates_overlap(drs1, drs2):
+    if drs1.subset is None or drs2.subset is None:
+        return False
     range1, range2 = sorted((drs1.subset[:2], drs2.subset[:2]))
 
     d11, d12 = range1
