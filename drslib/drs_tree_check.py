@@ -186,21 +186,20 @@ class CheckVersionLinks(TreeChecker):
         # find all filesystem versions and versions from the files directory
         versions = set(self._fs_versions(pt) + pt.versions.keys())
         for version in versions:
-            ok, stat, message = self._scan_version(pt, version)
-            if not ok:
+            for stat, message in self._scan_version(pt, version):
                 self._state_fixable(stat, message)
                 self._fix_versions.add(version)
 
 
     def _scan_version(self, pt, version):
         """
-        :return: ok, stat, message
+        :return: stat, message
         """
         done = []
         for cmd, src, dest in pt._link_commands(version):
             if cmd == pt.CMD_MKDIR:
                 if not op.isdir(dest):
-                    return (False, 'Directory missing', '%s does not exist' % dest)
+                    yield ('Directory missing', '%s does not exist' % dest)
             elif cmd == pt.CMD_LINK:
                 if not op.isabs(src):
                     realsrc = op.abspath(op.join(op.dirname(dest), src))
@@ -210,14 +209,14 @@ class CheckVersionLinks(TreeChecker):
                 if not op.exists(realsrc):
                     self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
                 elif not op.exists(dest):
-                    return (False, 'Missing links', 'Link %s does not exist' % dest)
+                    yield ('Missing links', 'Link %s does not exist' % dest)
                 else:
                     realdest = os.readlink(dest)
                     if not op.isabs(realdest):
                         realdest = op.abspath(op.join(op.dirname(dest), realdest))
 
                     if realsrc != realdest:
-                        return (False, 'Links to wrong file', 'Link %s does not point to the correct file %s' % (dest, src))
+                        yield ('Links to wrong file', 'Link %s does not point to the correct file %s' % (dest, src))
 
                     drs = pt._vtrans.filename_to_drs(op.basename(realsrc))
                     done.append(drs)
@@ -235,10 +234,9 @@ class CheckVersionLinks(TreeChecker):
                         if drs == done_drs:
                             continue
                         log.debug('%s overlaps %s' % (drs, done_drs))
-                        return (False, 'Overlapping files in version', 
+                        yield ('Overlapping files in version', 
                                 'overlapping files in in v%s' % version)
 
-        return (True, None, None)
                     
     def _repair_hook(self, pt):
         for version in self._fix_versions:

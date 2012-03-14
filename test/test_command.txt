@@ -219,7 +219,8 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0
 ------------------------------------------------------------------------------
 FAIL cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1...
    CheckVersionLinks   : ======== Fixable failures ========
-   CheckVersionLinks   :              Directory missing = 1
+   CheckVersionLinks   :              Directory missing = 5
+   CheckVersionLinks   :                  Missing links = 5
    CheckLatest         : ======== Fixable failures ========
    CheckLatest         : latest directory missing or broken = 1
 ==============================================================================
