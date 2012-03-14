@@ -218,8 +218,10 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0
 1 datasets are broken
 ------------------------------------------------------------------------------
 FAIL cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1...
-   CheckVersionLinks: Checks fail and can be fixed...
-   CheckLatest: Checks fail and can be fixed...
+   CheckVersionLinks   : ======== Fixable failures ========
+   CheckVersionLinks   :              Directory missing = 1
+   CheckLatest         : ======== Fixable failures ========
+   CheckLatest         : latest directory missing or broken = 1
 ==============================================================================
 
 >>> do_drs_tool('repair') # doctest:+ELLIPSIS

@@ -316,7 +316,9 @@ class PublisherTree(object):
  
         """
         for checker in self._checker_failures:
-            yield '%s: %s' % (checker.get_name(), checker.get_message())
+            yield '%-20s: ======== %s ========' % (checker.get_name(), checker.get_message())
+            for stat, count in checker.get_stats().items():
+                yield '%-20s: %30s = %d' % (checker.get_name(), stat, count)
 
     def has_failures(self):
         return self._checker_failures != []

@@ -38,6 +38,7 @@ class TreeChecker(object):
 
     def __init__(self):
         self.state = self.STATE_INITIAL
+        self._repair_stats = {}
 
     def get_name(self):
         return getattr(self, 'name', self.__class__.__name__)
@@ -49,11 +50,15 @@ class TreeChecker(object):
         elif self.state == self.STATE_PASS:
             return 'Checks pass'
         elif self.state == self.STATE_FAIL_FIXABLE:
-            return 'Checks fail and can be fixed.  Enable logger drslib.drs_tree_check to see full diagnostics'
+            return 'Fixable failures'
         elif self.state == self.STATE_FAIL_UNFIXABLE:
-            return 'Checks fail and are unfixable  Enable logger drslib.drs_tree_check to see full diagnostics'
+            return 'Unfixable failures'
         elif self.state == self.STATE_EXCEPTION:
             return 'Exception raised during checks  Enable logger drslib.drs_tree_check to see full diagnostics'
+
+    def get_stats(self):
+        return self._repair_stats
+
         
     def has_passed(self):
         return self.state == self.STATE_PASS
@@ -97,22 +102,33 @@ class TreeChecker(object):
 
     #-------------------------------------------------------------------------
     # State changes
-    def _state_fixable(self, reason=None):
+    def _state_fixable(self, stat, reason=None):
         if self.state != self.STATE_FAIL_UNFIXABLE:
             self.state = self.STATE_FAIL_FIXABLE
-        if reason:
-            log.warning('Fixable failure: %s' % reason)
+        self._add_stat_count(stat)
+        if reason is None:
+            reason = ''
+        log.warning('Fixable failure: %s: %s' % (stat, reason))
 
     def _state_unfixable(self, reason=None):
         self.state = self.STATE_FAIL_UNFIXABLE
-        if reason:
-            log.warning('Unfixable failure: %s' % reason)
+        self._add_stat_count(stat)
+        if reason is None:
+            reason = ''
+        log.warning('Unfixable failure: %s: %s' % (stat, reason))
 
     def _state_pass(self):
         self.state = self.STATE_PASS
 
     def _state_exception(self):
         self.state = self.STATE_EXCEPTION
+
+    def _add_stat_count(self, stat):
+        try:
+            self._repair_stats[stat] += 1
+        except KeyError:
+            self._repair_stats[stat] = 1
+            
 
 
 class CheckLatest(TreeChecker):
@@ -132,12 +148,12 @@ class CheckLatest(TreeChecker):
         # Link could be there but invalid
         link = op.join(pt.pub_dir, os.readlink(latest_dir))
         if not op.exists(link):
-            self._state_fixable('Latest directory %s does not exist' % link)
+            self._state_fixable('Latest directory missing', '%s does not exist' % link)
             self._fix_to = latest_version
             return
         link_v = int(op.basename(link)[1:]) # remove leading "v"
         if link_v != latest_version:
-            self._state_fixable('Latest directory %s should point to v%d' % (link, latest_version))
+            self._state_fixable('Latest directory wrong', '%s should point to v%d' % (link, latest_version))
             self._fix_to = latest_version
             return
 
@@ -170,18 +186,21 @@ class CheckVersionLinks(TreeChecker):
         # find all filesystem versions and versions from the files directory
         versions = set(self._fs_versions(pt) + pt.versions.keys())
         for version in versions:
-            ok, message = self._scan_version(pt, version)
+            ok, stat, message = self._scan_version(pt, version)
             if not ok:
-                self._state_fixable(message)
+                self._state_fixable(stat, message)
                 self._fix_versions.add(version)
 
 
     def _scan_version(self, pt, version):
+        """
+        :return: ok, stat, message
+        """
         done = []
         for cmd, src, dest in pt._link_commands(version):
             if cmd == pt.CMD_MKDIR:
                 if not op.isdir(dest):
-                    return (False, 'Directory %s does not exist' % dest)
+                    return (False, 'Directory missing', '%s does not exist' % dest)
             elif cmd == pt.CMD_LINK:
                 if not op.isabs(src):
                     realsrc = op.abspath(op.join(op.dirname(dest), src))
@@ -191,14 +210,14 @@ class CheckVersionLinks(TreeChecker):
                 if not op.exists(realsrc):
                     self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
                 elif not op.exists(dest):
-                    return (False, 'Link %s does not exist' % dest)
+                    return (False, 'Missing links', 'Link %s does not exist' % dest)
                 else:
                     realdest = os.readlink(dest)
                     if not op.isabs(realdest):
                         realdest = op.abspath(op.join(op.dirname(dest), realdest))
 
                     if realsrc != realdest:
-                        return (False, 'Link %s does not point to the correct file %s' % (dest, src))
+                        return (False, 'Links to wrong file', 'Link %s does not point to the correct file %s' % (dest, src))
 
                     drs = pt._vtrans.filename_to_drs(op.basename(realsrc))
                     done.append(drs)
@@ -216,9 +235,10 @@ class CheckVersionLinks(TreeChecker):
                         if drs == done_drs:
                             continue
                         log.debug('%s overlaps %s' % (drs, done_drs))
-                        return (False, 'Overlaping files in v%s' % version)
+                        return (False, 'Overlapping files in version', 
+                                'overlapping files in in v%s' % version)
 
-        return (True, None)
+        return (True, None, None)
                     
     def _repair_hook(self, pt):
         for version in self._fix_versions:
@@ -236,7 +256,7 @@ class CheckFilesLinks(TreeChecker):
         for filepath, variable, version in pt.iter_real_files():
             if op.islink(filepath):
                 self._links.append((filepath, variable, version))
-                self._state_fixable('Path %s is a symbolic link' % filepath)
+                self._state_fixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
 
     def _repair_hook(self, pt):
         for filepath, variable, version in self._links:
