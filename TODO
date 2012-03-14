@@ -16,3 +16,5 @@
   - Check drslib/config.py and add all new features to docs
   - Add section on checksum calculation
   - Add section on reconstruction
+
+* Support gridspec (bug 163)
