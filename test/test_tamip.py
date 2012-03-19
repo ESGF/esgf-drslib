@@ -24,5 +24,7 @@ def do(filename):
     
     drs.version = 1
     drs.product = 'output'
+    drs.activity == 'tamip'
+
     print drs
     assert drs.is_complete()

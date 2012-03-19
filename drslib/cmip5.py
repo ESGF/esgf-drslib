@@ -263,7 +263,7 @@ class CMIP5Translator(T.Translator):
             drs = T.DRS()
 
         if drs.activity is None:
-            drs.activity = 'cmip5'
+            drs.activity = config.drs_defaults.get('activity', 'cmip5')
 
         return drs
 

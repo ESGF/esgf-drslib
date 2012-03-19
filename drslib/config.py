@@ -63,10 +63,15 @@ else:
 # Configure default values of the drs attributes
 #
 #!TODO: this should probably be drs_defaults.  Requires major version change. 
+drs_defaults = {}
 if config.has_section('drs'):
-    drs_defaults = dict(config.items('drs'))
-else:
-    drs_defaults = {}
+    for key, value in config.items('drs'):
+        if '_' in value:
+            #!TODO: expand to fully test for allowed characters
+            raise Exception('Forbidden character in drs default %s=%s' % (key, value))
+        drs_defaults[key] = value
+
+
 
 #
 # Configure the model table.  You shouldn't need to change this from the
