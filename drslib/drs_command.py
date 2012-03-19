@@ -231,7 +231,10 @@ class ListCommand(Command):
             if to_upgrade:
                 print '%d datasets awaiting upgrade' % to_upgrade
             if broken:
-                print '%d datasets are broken' % broken
+                if config.check_latest:
+                    print '%d datasets have broken latest versions' % broken
+                else:
+                    print '%d datasets are broken' % broken
 
         self.print_sep()
         for pt in self.drs_tree.pub_trees.values():

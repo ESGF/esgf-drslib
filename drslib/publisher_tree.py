@@ -497,6 +497,7 @@ class PublisherTree(object):
             for filepath, variable, fversion in self.iter_real_files():
                 filename = os.path.basename(filepath)
 
+
                 if fversion != prev_version:
                     continue
 

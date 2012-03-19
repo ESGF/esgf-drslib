@@ -12,6 +12,7 @@ import shutil
 import re
 
 from drslib.translate import TranslationError, drs_dates_overlap
+from drslib.config import check_latest
 
 import logging
 log = logging.getLogger(__name__)
@@ -97,8 +98,13 @@ class TreeChecker(object):
         raise NotImplementedError
 
     def _fs_versions(self, pt):
-        return [int(x[1:]) for x in os.listdir(pt.pub_dir) if x[0] == 'v']
+        return set(int(x[1:]) for x in os.listdir(pt.pub_dir) if x[0] == 'v')
+
+    def _all_versions(self, pt):
+        return self._fs_versions(pt).union(pt.versions.keys())
         
+    def _latest_version(self, pt):
+        return max(self._all_versions(pt))
 
     #-------------------------------------------------------------------------
     # State changes
@@ -143,7 +149,7 @@ class CheckLatest(TreeChecker):
             self._state_fixable('latest directory missing or broken')
             return
 
-        latest_version = max(self._fs_versions(pt))
+        latest_version = self._latest_version(pt)
 
         # Link could be there but invalid
         link = op.join(pt.pub_dir, os.readlink(latest_dir))
@@ -184,7 +190,12 @@ class CheckVersionLinks(TreeChecker):
             return
 
         # find all filesystem versions and versions from the files directory
-        versions = set(self._fs_versions(pt) + pt.versions.keys())
+        # Only check latest version
+        if check_latest == True:
+            versions = [self._latest_version(pt)]
+        else:
+            versions = set(self._all_versions(pt))
+        
         for version in versions:
             for stat, message in self._scan_version(pt, version):
                 self._state_fixable(stat, message)
@@ -251,7 +262,11 @@ class CheckFilesLinks(TreeChecker):
     def _check_hook(self, pt):
         self._links = []
 
+        latest_version = self._latest_version(pt)
         for filepath, variable, version in pt.iter_real_files():
+            if check_latest and version != latest_version:
+                continue
+
             if op.islink(filepath):
                 self._links.append((filepath, variable, version))
                 self._state_fixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
@@ -308,7 +323,7 @@ def repair_version(pt, version):
         
 #!NOTE: order is important
 default_checkers = [
-    CheckFilesLinks,
+    #CheckFilesLinks,
     CheckVersionLinks,
     CheckLatest, 
     ]
