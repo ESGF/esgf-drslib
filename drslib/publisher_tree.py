@@ -684,7 +684,9 @@ class PublisherTree(object):
 def _get_tracking_id(filename):
     import cdms2
     ds = cdms2.open(filename)
-    return ds.tracking_id
+    tracking_id = ds.tracking_id
+    ds.close()
+    return tracking_id
 
 def _get_size(filename):
     return os.stat(filename)[stat.ST_SIZE]
