@@ -537,7 +537,11 @@ def drs_dates_overlap(drs1, drs2):
     d11, d12 = range1
     d21, d22 = range2
 
-    return d21 != d12 and d21 < d12
+    # Special case
+    if d11 == d12 == d21 == d22:
+        return True
+
+    return d21 < d12
         
     
 def _int_or_none(x):

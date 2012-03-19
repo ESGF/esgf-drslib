@@ -10,6 +10,10 @@ repair them.
 
 """
 
+#!NOTE: These tests are deprecated as the fixes introduced further inconsistencies.
+#       Now most fixes are unrepairable without an upgrade.
+__test__ = False
+
 import os
 import shutil
 from glob import glob

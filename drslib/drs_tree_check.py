@@ -157,7 +157,7 @@ class CheckLatest(TreeChecker):
             self._state_fixable('Latest directory missing', '%s does not exist' % link)
             self._fix_to = latest_version
             return
-        link_v = int(op.basename(link)[1:]) # remove leading "v"
+        link_v = int(op.basename(op.normpath(link))[1:]) # remove leading "v"
         if link_v != latest_version:
             self._state_fixable('Latest directory wrong', '%s should point to v%d' % (link, latest_version))
             self._fix_to = latest_version
@@ -246,7 +246,7 @@ class CheckVersionLinks(TreeChecker):
                             continue
                         log.debug('%s overlaps %s' % (drs, done_drs))
                         yield ('Overlapping files in version', 
-                                'overlapping files in in v%s' % version)
+                                '%s, %s' % (done_drs, drs))
 
 
 

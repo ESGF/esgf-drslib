@@ -298,6 +298,7 @@ class PublisherTree(object):
             if not os.path.exists(ddir_src):
                 yield self.CMD_MKDIR, None, ddir_src
 
+
             yield self.CMD_MOVE, filepath, newpath
             todo_files.append((newpath, drs.variable, next_version))
 
@@ -305,6 +306,11 @@ class PublisherTree(object):
 
         # Now scan through previous version to find files to update
         for command in self._link_commands(next_version, todo_files):
+            # only yield commands that are required
+            cmd, src, dest = command
+            if os.path.exists(dest):
+                continue
+
             yield command
 
 
@@ -438,6 +444,7 @@ class PublisherTree(object):
 
     def _do_link(self, src, dest):
         if os.path.exists(dest):
+            
             log.warning('Moving symlink %s' % dest)
             os.remove(dest)
 
@@ -474,6 +481,7 @@ class PublisherTree(object):
         for filepath, variable, fversion in itertools.chain(from_seq,
                                                             self.iter_real_files()):
             if version == fversion:
+
                 link_dir = self.link_file_dir(variable, version)
                 filename = os.path.basename(filepath)
 
@@ -495,13 +503,14 @@ class PublisherTree(object):
             for filepath, variable, fversion in self.iter_real_files():
                 filename = os.path.basename(filepath)
 
-
                 if fversion != prev_version:
                     continue
+
 
                 old_drs = self._vtrans.filename_to_drs(filename)
                 #!TODO: could be more efficient
                 for done_filename, done_drs in done:
+
                     if done_drs.variable == old_drs.variable and drs_dates_overlap(done_drs, old_drs):
                         log.info("Not promoting %s as it overlaps with %s" % (filename, done_filename))
                         break
@@ -518,6 +527,7 @@ class PublisherTree(object):
                     yield self.CMD_LINK, src, dest
                     drs = self._vtrans.filename_to_drs(filename)
                     done.append((filename, drs))
+
 
     #-------------------------------------------------------------------------
     # Versioning internal methods
