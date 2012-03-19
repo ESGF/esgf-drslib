@@ -282,12 +282,10 @@ class PublisherTree(object):
 
         """
         
-        if not self._todo:
-            return
-
         if next_version is None:
             next_version = self._next_version()
         
+
         done = set()
         todo_files = []
         for filepath, drs in self._todo:
@@ -568,6 +566,9 @@ class PublisherTree(object):
             except ValueError:
                 continue
             versions.add(int(version))
+
+        # Also include versions without files/*_$VERSION
+        versions.update(int(x[1:]) for x in os.listdir(self.pub_dir) if x[0] == 'v')
 
         for version in versions:
             vpath = os.path.join(self.pub_dir, 'v%d' % version)

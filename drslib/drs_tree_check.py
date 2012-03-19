@@ -116,7 +116,7 @@ class TreeChecker(object):
             reason = ''
         log.warning('Fixable failure: %s: %s' % (stat, reason))
 
-    def _state_unfixable(self, reason=None):
+    def _state_unfixable(self, stat, reason=None):
         self.state = self.STATE_FAIL_UNFIXABLE
         self._add_stat_count(stat)
         if reason is None:
@@ -198,7 +198,7 @@ class CheckVersionLinks(TreeChecker):
         
         for version in versions:
             for stat, message in self._scan_version(pt, version):
-                self._state_fixable(stat, message)
+                self._state_unfixable(stat, message)
                 self._fix_versions.add(version)
 
 
@@ -248,15 +248,13 @@ class CheckVersionLinks(TreeChecker):
                         yield ('Overlapping files in version', 
                                 'overlapping files in in v%s' % version)
 
-                    
-    def _repair_hook(self, pt):
-        for version in self._fix_versions:
-            repair_version(pt, version)
 
 
 class CheckFilesLinks(TreeChecker):
     """
     Check to make sure the files directory doesn't contain symbolic links.
+
+    This problem is marked unfixable as to do so would dissrupt old versions.
 
     """
     def _check_hook(self, pt):
@@ -269,23 +267,8 @@ class CheckFilesLinks(TreeChecker):
 
             if op.islink(filepath):
                 self._links.append((filepath, variable, version))
-                self._state_fixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
+                self._state_unfixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
 
-    def _repair_hook(self, pt):
-        for filepath, variable, version in self._links:
-            log.info('Removing bad link %s' % filepath)
-            # Last sanity check
-            assert op.islink(filepath)
-            os.remove(filepath)
-
-            # Remove directory if empty
-            fdir = op.dirname(filepath)
-            if os.listdir(fdir) == []:
-                log.info('Removing empty directory %s' % fdir)
-                os.rmdir(fdir)
-
-        # Re-deduce versions
-        pt._deduce_versions()
 
 
 
