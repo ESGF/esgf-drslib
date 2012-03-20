@@ -205,27 +205,32 @@ cmip5.output1.MOHC.NoModel.historical.mon.atmos.Amon.r1                 0:0 62:3
 ==============================================================================
 
 
->>> break_dir = os.path.join(tmpdir, 'output1/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1/v20100101')
+>>> break_dir = os.path.join(tmpdir, 'output1/MOHC/HadCM3/1pctto4x/mon/ocean/Omon/r1i1p1/latest')
 >>> assert os.path.exists(break_dir)
->>> shutil.rmtree(break_dir)
+>>> os.remove(break_dir)
 >>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================
 DRS Tree at ...
 ------------------------------------------------------------------------------
 cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       5:305
-cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                0:0
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
 ------------------------------------------------------------------------------
-1 datasets are broken
+1 datasets have broken latest versions
 ------------------------------------------------------------------------------
 FAIL cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1...
-   CheckVersionLinks: Checks fail and can be fixed
-   CheckLatest: Checks fail and can be fixed
+   CheckLatest         : ======== Fixable failures ========
+   CheckLatest         : latest directory missing or broken = 1
 ==============================================================================
 
->>> do_drs_tool('fix') # doctest:+ELLIPSIS
+>>> do_drs_tool('repair') # doctest:+ELLIPSIS
 FIXING cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1...
-   CheckVersionLinks: Checks fail and can be fixed
-   CheckLatest: Checks fail and can be fixed
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       5:305
+cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
+------------------------------------------------------------------------------
+==============================================================================
 
 >>> do_drs_tool('list') # doctest:+ELLIPSIS
 ==============================================================================
@@ -235,3 +240,4 @@ cmip5.output1.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1.v20100102       5:305
 cmip5.output1.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1.v20100101      5:325
 ------------------------------------------------------------------------------
 ==============================================================================
+

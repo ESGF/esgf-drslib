@@ -12,7 +12,7 @@ import re
 import itertools
 
 from drslib.cmip5 import make_translator
-from drslib.translate import TranslationError
+from drslib.translate import TranslationError, drs_dates_overlap
 from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
 
@@ -282,12 +282,10 @@ class PublisherTree(object):
 
         """
         
-        if not self._todo:
-            return
-
         if next_version is None:
             next_version = self._next_version()
         
+
         done = set()
         todo_files = []
         for filepath, drs in self._todo:
@@ -300,6 +298,7 @@ class PublisherTree(object):
             if not os.path.exists(ddir_src):
                 yield self.CMD_MKDIR, None, ddir_src
 
+
             yield self.CMD_MOVE, filepath, newpath
             todo_files.append((newpath, drs.variable, next_version))
 
@@ -307,6 +306,11 @@ class PublisherTree(object):
 
         # Now scan through previous version to find files to update
         for command in self._link_commands(next_version, todo_files):
+            # only yield commands that are required
+            cmd, src, dest = command
+            if os.path.exists(dest):
+                continue
+
             yield command
 
 
@@ -316,7 +320,9 @@ class PublisherTree(object):
  
         """
         for checker in self._checker_failures:
-            yield '%s: %s' % (checker.get_name(), checker.get_message())
+            yield '%-20s: ======== %s ========' % (checker.get_name(), checker.get_message())
+            for stat, count in checker.get_stats().items():
+                yield '%-20s: %30s = %d' % (checker.get_name(), stat, count)
 
     def has_failures(self):
         return self._checker_failures != []
@@ -370,6 +376,7 @@ class PublisherTree(object):
         :yield: filepath, variable, version
 
         """
+        #!TODO: improve by taking a version argument
         path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
             return
@@ -433,6 +440,7 @@ class PublisherTree(object):
 
     def _do_link(self, src, dest):
         if os.path.exists(dest):
+            
             log.warning('Moving symlink %s' % dest)
             os.remove(dest)
 
@@ -465,10 +473,11 @@ class PublisherTree(object):
         if from_seq is None:
             from_seq = []
 
-        done = set()
+        done = []
         for filepath, variable, fversion in itertools.chain(from_seq,
                                                             self.iter_real_files()):
             if version == fversion:
+
                 link_dir = self.link_file_dir(variable, version)
                 filename = os.path.basename(filepath)
 
@@ -480,15 +489,28 @@ class PublisherTree(object):
                 src = os.path.relpath(filepath, link_dir)
 
                 yield self.CMD_LINK, src, dest
-                done.add(filename)
+
+                drs = self._vtrans.filename_to_drs(filename)
+                done.append((filename, drs))
 
         #!TODO: Handle deleted files!
-        # Promote all files from the previous version
-        prev_version = self.prev_version(version)
-        if prev_version:
+        # Promote all files from the previous versions that do not overlap with the current set
+        for prev_version in sorted((x for x in self.versions if x < version), reverse=True):
             for filepath, variable, fversion in self.iter_real_files():
                 filename = os.path.basename(filepath)
-                if fversion == prev_version and filename not in done:
+
+                if fversion != prev_version:
+                    continue
+
+
+                old_drs = self._vtrans.filename_to_drs(filename)
+                #!TODO: could be more efficient
+                for done_filename, done_drs in done:
+
+                    if done_drs.variable == old_drs.variable and drs_dates_overlap(done_drs, old_drs):
+                        log.info("Not promoting %s as it overlaps with %s" % (filename, done_filename))
+                        break
+                else:
                     link_dir = self.link_file_dir(variable, version)
 
                     if not os.path.exists(link_dir):
@@ -499,6 +521,9 @@ class PublisherTree(object):
                     src = os.path.relpath(filepath, link_dir)
                     
                     yield self.CMD_LINK, src, dest
+                    drs = self._vtrans.filename_to_drs(filename)
+                    done.append((filename, drs))
+
 
     #-------------------------------------------------------------------------
     # Versioning internal methods
@@ -532,6 +557,7 @@ class PublisherTree(object):
             
     def _deduce_date_versions(self):
         self.latest = 0
+        self.versions = {}
         # Bail out if pub_dir doesn't exist yet.
         if not os.path.exists(self.pub_dir):
             return
@@ -546,6 +572,9 @@ class PublisherTree(object):
             except ValueError:
                 continue
             versions.add(int(version))
+
+        # Also include versions without files/*_$VERSION
+        versions.update(int(x[1:]) for x in os.listdir(self.pub_dir) if x[0] == 'v')
 
         for version in versions:
             vpath = os.path.join(self.pub_dir, 'v%d' % version)
@@ -642,13 +671,16 @@ class PublisherTree(object):
     #-------------------------------------------------------------------------
     # Tree checking methods
 
-    def _check_tree(self):
+    def _check_tree(self, fix_hook=None):
         """
         Run a series of checker instances on the object to check for inconsistencies.
 
+        If fix_hook is provided it is called for each failing checker to apply
+        any fixes possible.
+
         """
-        self._checker_failures = []
         ret = True
+        self._checker_failures = []
         for Checker in self._checkers:
             checker = Checker()
             log.debug('BEGIN Checking with %s' % checker.get_name())
@@ -656,6 +688,8 @@ class PublisherTree(object):
                 log.warning('Checker %s failed: %s' % (checker.get_name(), 
                                                        checker.get_message()))
                 self._checker_failures.append(checker)
+                if fix_hook:
+                    fix_hook(checker)
                 ret = False
             log.debug('END Checking with %s' % checker.get_name())
 
@@ -666,18 +700,20 @@ class PublisherTree(object):
         Repair inconsistencies that are fixable.
 
         """
-        for checker in self._checker_failures:
-            cname = checker.get_name()
-            log.debug('Considering repair with %s' % cname)
-            if checker.is_fixable():
-                log.info('Repairing with %s' % cname)
-                try:
-                    checker.repair(self)
-                    log.info('Repaired with %s' % cname)
-                except:
-                    log.exception('FAILED repairing with %s' % cname)
-            else:
-                log.info('Unrepairable %s' % cname)
+        self._check_tree(self._fix_hook)
+
+    def _fix_hook(self, checker):
+        cname = checker.get_name()
+        log.debug('Considering repair with %s' % cname)
+        if checker.is_fixable():
+            log.info('Repairing with %s' % cname)
+            try:
+                checker.repair(self)
+                log.info('Repaired with %s' % cname)
+            except:
+                log.exception('FAILED repairing with %s' % cname)
+        else:
+            log.info('Unrepairable %s' % cname)
 
 
 

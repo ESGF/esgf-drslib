@@ -10,12 +10,17 @@ repair them.
 
 """
 
+#!NOTE: These tests are deprecated as the fixes introduced further inconsistencies.
+#       Now most fixes are unrepairable without an upgrade.
+__test__ = False
+
 import os
 import shutil
 from glob import glob
 
 from drslib.publisher_tree import VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR
 from drslib.drs_tree import DRSTree
+from drslib.drs_tree_check import CheckLatest
 
 from drs_tree_shared import TestEg, test_dir
 import gen_drs

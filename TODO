@@ -8,6 +8,7 @@
    - Summarise checks better in drs_tool
    - switch on/off checks
    - Implement fixes for each check
+   - Conservative datestamp overlaps: always promote a file if it contains some relevant data
 
 * Fix for Python 2.5.2 (try/except "as" doesn't work)
 * Check support for non cmip5 activity (e.g. pmip3)
@@ -18,3 +19,9 @@
   - Add section on reconstruction
 
 * Support gridspec (bug 163)
+* Clean up configuration of product detection
+
+We should be able to set the p_cmip5 handler in metaconfig.conf or
+turn on/off product detection there.
+
+* Clean up different project/activity options

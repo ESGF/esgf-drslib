@@ -133,6 +133,13 @@ else:
     if not callable(checksum_func):
         raise ValueError("checksum_func %s:%s is not callable" % (package_name, callable_name))
     
+##############################################################################
+# Check/repair options
+#
+
+# Should we only check the latest version?
+check_latest = True
+
 #
 # CMIP3 component to file/path position mapping
 #

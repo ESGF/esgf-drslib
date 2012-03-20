@@ -499,6 +499,9 @@ class Translator(object):
         raise NotImplementedError
 
 
+#-----------------------------------------------------------------------------
+# Date conversion and comparison functions
+
 def _to_date(date_str):
     if date_str is None:
         return None
@@ -525,6 +528,21 @@ def _from_date(date):
     if sec is not None:
         ret.append('%02d' % sec)
     return ''.join(ret)
+
+def drs_dates_overlap(drs1, drs2):
+    if drs1.subset is None or drs2.subset is None:
+        return False
+    range1, range2 = sorted((drs1.subset[:2], drs2.subset[:2]))
+
+    d11, d12 = range1
+    d21, d22 = range2
+
+    # Special case
+    if d11 == d12 == d21 == d22:
+        return True
+
+    return d21 < d12
+        
     
 def _int_or_none(x):
     if x is None:

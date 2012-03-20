@@ -6,8 +6,13 @@ This API adds consistency checking to PublishTrees without bloating the Publishe
 """
 
 import os, sys
-from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR
+from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR, IGNORE_FILES_REGEXP
 import os.path as op
+import shutil
+import re
+
+from drslib.translate import TranslationError, drs_dates_overlap
+from drslib.config import check_latest
 
 import logging
 log = logging.getLogger(__name__)
@@ -34,6 +39,7 @@ class TreeChecker(object):
 
     def __init__(self):
         self.state = self.STATE_INITIAL
+        self._repair_stats = {}
 
     def get_name(self):
         return getattr(self, 'name', self.__class__.__name__)
@@ -45,11 +51,15 @@ class TreeChecker(object):
         elif self.state == self.STATE_PASS:
             return 'Checks pass'
         elif self.state == self.STATE_FAIL_FIXABLE:
-            return 'Checks fail and can be fixed'
+            return 'Fixable failures'
         elif self.state == self.STATE_FAIL_UNFIXABLE:
-            return 'Checks fail and are unfixable'
+            return 'Unfixable failures'
         elif self.state == self.STATE_EXCEPTION:
-            return 'Exception raised during checks'
+            return 'Exception raised during checks  Enable logger drslib.drs_tree_check to see full diagnostics'
+
+    def get_stats(self):
+        return self._repair_stats
+
         
     def has_passed(self):
         return self.state == self.STATE_PASS
@@ -87,19 +97,31 @@ class TreeChecker(object):
         # Implement in subclasses
         raise NotImplementedError
 
+    def _fs_versions(self, pt):
+        return set(int(x[1:]) for x in os.listdir(pt.pub_dir) if x[0] == 'v')
+
+    def _all_versions(self, pt):
+        return self._fs_versions(pt).union(pt.versions.keys())
+        
+    def _latest_version(self, pt):
+        return max(self._all_versions(pt))
 
     #-------------------------------------------------------------------------
     # State changes
-    def _state_fixable(self, reason=None):
+    def _state_fixable(self, stat, reason=None):
         if self.state != self.STATE_FAIL_UNFIXABLE:
             self.state = self.STATE_FAIL_FIXABLE
-        if reason:
-            log.warning('Fixable failure: %s' % reason)
+        self._add_stat_count(stat)
+        if reason is None:
+            reason = ''
+        log.warning('Fixable failure: %s: %s' % (stat, reason))
 
-    def _state_unfixable(self, reason=None):
+    def _state_unfixable(self, stat, reason=None):
         self.state = self.STATE_FAIL_UNFIXABLE
-        if reason:
-            log.warning('Unfixable failure: %s' % reason)
+        self._add_stat_count(stat)
+        if reason is None:
+            reason = ''
+        log.warning('Unfixable failure: %s: %s' % (stat, reason))
 
     def _state_pass(self):
         self.state = self.STATE_PASS
@@ -107,10 +129,18 @@ class TreeChecker(object):
     def _state_exception(self):
         self.state = self.STATE_EXCEPTION
 
+    def _add_stat_count(self, stat):
+        try:
+            self._repair_stats[stat] += 1
+        except KeyError:
+            self._repair_stats[stat] = 1
+            
+
 
 class CheckLatest(TreeChecker):
     def __init__(self):
         super(self.__class__, self).__init__()
+        self._fix_to = None
 
     def _check_hook(self, pt):
         latest_dir = op.join(pt.pub_dir, VERSIONING_LATEST_DIR)
@@ -119,26 +149,30 @@ class CheckLatest(TreeChecker):
             self._state_fixable('latest directory missing or broken')
             return
 
+        latest_version = self._latest_version(pt)
+
         # Link could be there but invalid
         link = op.join(pt.pub_dir, os.readlink(latest_dir))
-        if op.exists(link):
-            link_v = int(op.basename(link)[1:]) # remove leading "v"
+        if not op.exists(link):
+            self._state_fixable('Latest directory missing', '%s does not exist' % link)
+            self._fix_to = latest_version
+            return
+        link_v = int(op.basename(op.normpath(link))[1:]) # remove leading "v"
+        if link_v != latest_version:
+            self._state_fixable('Latest directory wrong', '%s should point to v%d' % (link, latest_version))
+            self._fix_to = latest_version
+            return
 
-            #!FIXME: logic wrong.  pt.latest could be 0
-            # Work-arround
-            pt._deduce_versions()
-            if link_v != pt.latest:
-                self._state_fixable('latest directory not pointing to latest version')
-
-        
-        
     def _repair_hook(self, pt):
         latest_dir = op.join(pt.pub_dir, VERSIONING_LATEST_DIR)
         if op.islink(latest_dir):
             os.remove(latest_dir)
-        pt._deduce_versions()
-        pt._do_latest()
-
+        if self._fix_to:
+            latest_link = op.join(pt.pub_dir, 'v%d' % self._fix_to)
+            os.symlink(latest_link, latest_dir)
+        else:
+            pt._deduce_versions()
+            pt._do_latest()
 
 class CheckVersionLinks(TreeChecker):
     """
@@ -147,7 +181,7 @@ class CheckVersionLinks(TreeChecker):
     """
     def __init__(self):
         super(self.__class__, self).__init__()
-        self._fix_commands = []
+        self._fix_versions = set()
 
     def _check_hook(self, pt):
         fdir = op.join(pt.pub_dir, VERSIONING_FILES_DIR)
@@ -155,65 +189,124 @@ class CheckVersionLinks(TreeChecker):
             self._state_unfixable('Files directory %s does not exist' % fdir)
             return
 
-        for version in pt.versions.keys():
-            for cmd, src, dest in pt._link_commands(version):
-                if cmd == pt.CMD_MKDIR:
-                    if not op.isdir(dest):
-                        self._state_fixable('Directory %s does not exist' % dest)
-                        self._fix_commands.append((cmd, src, dest))
-                elif cmd == pt.CMD_LINK:
-                    if not op.isabs(src):
-                        realsrc = op.abspath(op.join(op.dirname(dest), src))
-                    else:
-                        realsrc = src
+        # find all filesystem versions and versions from the files directory
+        # Only check latest version
+        if check_latest == True:
+            versions = [self._latest_version(pt)]
+        else:
+            versions = set(self._all_versions(pt))
+        
+        for version in versions:
+            for stat, message in self._scan_version(pt, version):
+                self._state_unfixable(stat, message)
+                self._fix_versions.add(version)
 
-                    if not op.exists(realsrc):
-                        self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
-                    elif not op.exists(dest):
-                        self._state_fixable('Link %s does not exist' % dest)
-                        self._fix_commands.append((cmd, src, dest))
-                    else:
-                        realdest = os.readlink(dest)
-                        if not op.isabs(realdest):
-                            realdest = op.abspath(op.join(op.dirname(dest), realdest))
-                        
-                        if realsrc != realdest:
-                            self._state_unfixable('Link %s does not point to the correct file %s' % (dest, src))
-                        
-                    
-    def _repair_hook(self, pt):
-        pt._do_commands(self._fix_commands)
+
+    def _scan_version(self, pt, version):
+        """
+        :return: stat, message
+        """
+        done = []
+        for cmd, src, dest in pt._link_commands(version):
+            if cmd == pt.CMD_MKDIR:
+                if not op.isdir(dest):
+                    yield ('Directory missing', '%s does not exist' % dest)
+            elif cmd == pt.CMD_LINK:
+                if not op.isabs(src):
+                    realsrc = op.abspath(op.join(op.dirname(dest), src))
+                else:
+                    realsrc = src
+
+                if not op.exists(realsrc):
+                    self._state_unfixable('File %s source of link %s does not exist' % (realsrc, dest))
+                elif not op.exists(dest):
+                    yield ('Missing links', 'Link %s does not exist' % dest)
+                else:
+                    realdest = os.readlink(dest)
+                    if not op.isabs(realdest):
+                        realdest = op.abspath(op.join(op.dirname(dest), realdest))
+
+                    if realsrc != realdest:
+                        yield ('Links to wrong file', 'Link %s does not point to the correct file %s' % (dest, src))
+
+                    drs = pt._vtrans.filename_to_drs(op.basename(realsrc))
+                    done.append(drs)
+
+        # Now scan filesystem for overlapping files
+        version_dir = op.join(pt.pub_dir, 'v%d' % version)
+        for dirpath, dirnames, filenames in os.walk(version_dir):
+            for filename in filenames:
+                try:
+                    drs = pt._vtrans.filename_to_drs(filename)
+                except TranslationError:
+                    continue
+                for done_drs in done:
+                    if done_drs.variable == drs.variable and drs_dates_overlap(drs, done_drs):
+                        if drs == done_drs:
+                            continue
+                        log.debug('%s overlaps %s' % (drs, done_drs))
+                        yield ('Overlapping files in version', 
+                                '%s, %s' % (done_drs, drs))
+
 
 
 class CheckFilesLinks(TreeChecker):
     """
     Check to make sure the files directory doesn't contain symbolic links.
 
+    This problem is marked unfixable as to do so would dissrupt old versions.
+
     """
     def _check_hook(self, pt):
         self._links = []
 
+        latest_version = self._latest_version(pt)
         for filepath, variable, version in pt.iter_real_files():
+            if check_latest and version != latest_version:
+                continue
+
             if op.islink(filepath):
                 self._links.append((filepath, variable, version))
-                self._state_fixable('Path %s is a symbolic link' % filepath)
+                self._state_unfixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
 
-    def _repair_hook(self, pt):
-        for filepath, variable, version in self._links:
-            log.info('Removing bad link %s' % filepath)
-            # Last sanity check
-            assert op.islink(filepath)
-            os.remove(filepath)
 
-            # Remove directory if empty
-            fdir = op.dirname(filepath)
-            if os.listdir(fdir) == []:
-                log.info('Removing empty directory %s' % fdir)
-                os.rmdir(fdir)
+
+
+
+def repair_version(pt, version):
+    """
+    An 'all in one' repair function that removes the version directory
+    and reconstructs from scratch.
+
+    This function is guaranteed not to delete anything if real files
+    are detected in the version directory.
+
+    """
+
+    log.info('Reconstructing version %d' % version)
+
+    version_dir = op.join(pt.pub_dir, 'v%d' % version)
+    if op.isdir(version_dir):
+        # First verify no real files exist in the version directory
+        for dirpath, dirnames, filenames in os.walk(version_dir):
+            for filename in filenames:
+                # ignore files matching this regexp
+                if re.match(IGNORE_FILES_REGEXP, filename):
+                    continue
+
+                if not op.islink(op.join(dirpath, filename)):
+                    raise UnfixableInconsistency("Version directory %s contains real files" % version_dir)
+
+        # Remove the verison directory
+        shutil.rmtree(version_dir)
+
+    # Do all commands to reconstruct the version
+    pt._do_commands(pt._link_commands(version))
+
         
 #!NOTE: order is important
 default_checkers = [
-    CheckFilesLinks,
+    #CheckFilesLinks,
     CheckVersionLinks,
     CheckLatest, 
     ]

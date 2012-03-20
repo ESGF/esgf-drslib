@@ -36,7 +36,7 @@ command:
   history         list all versions of the selected dataset
   init            initialise CMIP5 data for product detection
   diff            list differences between versions or between a version and the todo list
-  fix             Fix problems that are shown by the list command
+  repair          Fix problems that are shown by the list command
 
 drs-pattern:
   A dataset identifier in '.'-separated notation using '%' for wildcards
@@ -164,7 +164,7 @@ class Command(object):
 
         # Get the template DRS from args
         if self.args:
-            dataset_id = self.args.pop(0)
+            dataset_id = self.args[0]
             drs = DRS.from_dataset_id(dataset_id, **kwargs)
         else:
             drs = DRS(**kwargs)
@@ -231,7 +231,10 @@ class ListCommand(Command):
             if to_upgrade:
                 print '%d datasets awaiting upgrade' % to_upgrade
             if broken:
-                print '%d datasets are broken' % broken
+                if config.check_latest:
+                    print '%d datasets have broken latest versions' % broken
+                else:
+                    print '%d datasets are broken' % broken
 
         self.print_sep()
         for pt in self.drs_tree.pub_trees.values():
@@ -355,14 +358,14 @@ class InitCommand(Command):
         print "CMIP5 configuration data written to %s" % repr(self.shelve_dir)
 
 
-class FixCommand(Command):
+class RepairCommand(Command):
     def do(self):
         for drs_id, pt in self.drs_tree.pub_trees.items():
             if pt.has_failures():
                 print 'FIXING %-70s' % drs_id
+                pt.repair()
                 for line in pt.list_failures():
                     print '  ', line
-                pt.repair()
 
 
 class DiffCommand(Command):
@@ -427,26 +430,31 @@ class DiffCommand(Command):
         self.print_footer()
 
 def run(op, command, opts, args):
+    commands = []
+
     if command == 'list':
-        c = ListCommand(opts, args)
+        commands.append(ListCommand)
     elif command == 'todo':
-        c = TodoCommand(opts, args)
+        commands.append(TodoCommand)
     elif command == 'upgrade':
-        c = UpgradeCommand(opts, args)
+        commands.append(UpgradeCommand)
     elif command == 'mapfile':
-        c = MapfileCommand(opts, args)
+        commands.append(MapfileCommand)
     elif command == 'history':
-        c = HistoryCommand(opts, args)
+        commands.append(HistoryCommand)
     elif command == 'init':
-        c = InitCommand(opts, args)
+        commands.append(InitCommand)
     elif command == 'diff':
-        c = DiffCommand(opts, args)
-    elif command == 'fix':
-        c = FixCommand(opts, args)
+        commands.append(DiffCommand)
+    elif command == 'repair':
+        commands.append(RepairCommand)
+        commands.append(ListCommand)
     else:
         op.error("Unrecognised command %s" % command)
 
-    c.do()
+    for klass in commands:
+        c = klass(opts, args)
+        c.do()
 
 
 def main(argv=sys.argv):
