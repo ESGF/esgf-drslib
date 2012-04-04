@@ -363,10 +363,11 @@ class PublisherTree(object):
 
         return D
 
-    def iter_real_files(self):
+    def iter_real_files(self, version=None):
         """
         Iterate over the real file paths.
 
+        :param version: iterate over a specific version or all versions if None
         :yield: filepath, variable, version
 
         """
@@ -375,12 +376,16 @@ class PublisherTree(object):
             return
 
         for filedir in os.listdir(path):
-            variable, version = filedir.split('_')
-            version = int(version)
+            variable, fversion = filedir.split('_')
+            fversion = int(fversion)
+            
+            if version is not None and version != fversion:
+                continue
+
             filepath = os.path.join(path, filedir)
 
             for filename in os.listdir(filepath):
-                yield os.path.join(filepath, filename), variable, version
+                yield os.path.join(filepath, filename), variable, fversion
 
     def prev_version(self, version):
         """
@@ -467,10 +472,31 @@ class PublisherTree(object):
 
         done = set()
         for filepath, variable, fversion in itertools.chain(from_seq,
-                                                            self.iter_real_files()):
-            if version == fversion:
-                link_dir = self.link_file_dir(variable, version)
+                                                            self.iter_real_files(version)):
+            link_dir = self.link_file_dir(variable, version)
+            filename = os.path.basename(filepath)
+
+            if not os.path.exists(link_dir):
+                yield self.CMD_MKDIR, None, link_dir
+
+            # Make relative to dest
+            dest = os.path.join(link_dir, filename)
+            src = os.path.relpath(filepath, link_dir)
+
+            yield self.CMD_LINK, src, dest
+            done.add(filename)
+
+        #!TODO: Handle deleted files!
+        # Promote all files from the previous version
+        prev_version = self.prev_version(version)
+        if prev_version:
+            for filepath, variable, fversion in self.iter_real_files(prev_version):
                 filename = os.path.basename(filepath)
+
+                if filename in done:
+                    continue
+
+                link_dir = self.link_file_dir(variable, version)
 
                 if not os.path.exists(link_dir):
                     yield self.CMD_MKDIR, None, link_dir
@@ -480,25 +506,6 @@ class PublisherTree(object):
                 src = os.path.relpath(filepath, link_dir)
 
                 yield self.CMD_LINK, src, dest
-                done.add(filename)
-
-        #!TODO: Handle deleted files!
-        # Promote all files from the previous version
-        prev_version = self.prev_version(version)
-        if prev_version:
-            for filepath, variable, fversion in self.iter_real_files():
-                filename = os.path.basename(filepath)
-                if fversion == prev_version and filename not in done:
-                    link_dir = self.link_file_dir(variable, version)
-
-                    if not os.path.exists(link_dir):
-                        yield self.CMD_MKDIR, None, link_dir
-
-                    # Make relative to dest
-                    dest = os.path.join(link_dir, filename)
-                    src = os.path.relpath(filepath, link_dir)
-                    
-                    yield self.CMD_LINK, src, dest
 
     #-------------------------------------------------------------------------
     # Versioning internal methods
