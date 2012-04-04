@@ -387,16 +387,13 @@ class PublisherTree(object):
             for filename in os.listdir(filepath):
                 yield os.path.join(filepath, filename), variable, fversion
 
-    def prev_version(self, version):
+    def prev_versions(self, version):
         """
-        Returns the version before `version` or None
+        Returns the versions before `version` sorted in descending order
 
         """
         pversions = [x for x in self.versions if x < version]
-        if pversions:
-            return max(pversions)
-        else:
-            return
+        return sorted(pversions, reverse=True)
 
     #-------------------------------------------------------------------
     
@@ -488,8 +485,8 @@ class PublisherTree(object):
 
         #!TODO: Handle deleted files!
         # Promote all files from the previous version
-        prev_version = self.prev_version(version)
-        if prev_version:
+
+        for prev_version in self.prev_versions(version):
             for filepath, variable, fversion in self.iter_real_files(prev_version):
                 filename = os.path.basename(filepath)
 
