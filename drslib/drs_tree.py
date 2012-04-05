@@ -195,11 +195,11 @@ class DRSTree(object):
 
         for path, drs in self.incoming:
             drs_id = drs.to_dataset_id()
-            if drs_id in self.pub_trees:
-                self.pub_trees[drs_id].deduce_state()
-            else:
+            if drs_id not in self.pub_trees:
                 self.pub_trees[drs_id] = PublisherTree(drs, self)
 
+        for pt in self.pub_trees.values():
+            pt.deduce_state()
 
             
     def remove_incoming(self, path):
