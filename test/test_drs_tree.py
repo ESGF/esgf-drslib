@@ -12,6 +12,7 @@ import sys, os
 from glob import glob
 from StringIO import StringIO
 import datetime
+import os.path as op
 
 from unittest import TestCase
 
@@ -21,6 +22,8 @@ from drslib.drs import path_to_drs, drs_to_path, DRS
 from drslib import config
 
 from drs_tree_shared import TestEg, TestListing
+
+
 
 class TestEg1(TestEg):
     __test__ = True
@@ -450,6 +453,49 @@ class TestSymlinks(TestEg):
         for path, drs in pt.versions[pt.latest]:
             lnk = os.readlink(path)
             assert not os.path.isabs(lnk)
+
+
+class TestEg6(TestEg):
+    __test__ = True
+
+    deliveries = [
+        ['clt_day_HadGEM2-ES_rcp26_r1i1p1_20051201-20151130.nc', 
+         'clt_day_HadGEM2-ES_rcp26_r1i1p1_20151201-20251130.nc'],
+        ['huss_day_HadGEM2-ES_rcp26_r1i1p1_20991201-21091130.nc'],
+        ['hur_day_HadGEM2-ES_rcp26_r1i1p1_20991201-20991230.nc', 
+         'hus_day_HadGEM2-ES_rcp26_r1i1p1_20991201-20991230.nc'],
+        ]
+
+    def setUp(self):
+        super(TestEg6, self).setUp()
+        
+        self.setupIncoming()
+
+        self.dt = DRSTree(self.tmpdir)
+
+        for i, delivery in enumerate(self.deliveries):
+            self.dt.discover_incoming(op.join(self.incoming, str(i)),
+                                      activity='cmip5', product='output1', institute='MOHC')
+            for drs_id, pt in self.dt.pub_trees.items():
+                pt.do_version(i)
+
+    def setupIncoming(self):
+        # Create incoming files
+        self.incoming =  op.join(self.tmpdir, 'incoming')
+        os.mkdir(self.incoming)
+        for i, delivery in enumerate(self.deliveries):
+            os.mkdir(op.join(self.incoming, str(i)))
+            for filename in delivery:
+                gen_drs.write_eg_file(op.join(self.incoming, str(i), filename))
+
+    def test_1(self):
+        assert len(self.dt.pub_trees) == 1
+        pt = self.dt.pub_trees.values()[0]
+
+        file_counts = set((k, len(v)) for (k, v) in pt.versions.items())
+
+        print file_counts
+        assert file_counts == set([(0, 2), (1, 3), (2, 5)])
 
 
 #----------------------------------------------------------------------------

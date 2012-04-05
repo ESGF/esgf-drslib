@@ -369,10 +369,11 @@ class PublisherTree(object):
 
         return D
 
-    def iter_real_files(self):
+    def iter_real_files(self, version=None):
         """
         Iterate over the real file paths.
 
+        :param version: iterate over a specific version or all versions if None
         :yield: filepath, variable, version
 
         """
@@ -382,23 +383,24 @@ class PublisherTree(object):
             return
 
         for filedir in [f for f in os.listdir(path) if not re.match(IGNORE_FILES_REGEXP, f)]:
-            variable, version = filedir.split('_')
-            version = int(version)
+            variable, fversion = filedir.split('_')
+            fversion = int(fversion)
+            
+            if version is not None and version != fversion:
+                continue
+
             filepath = os.path.join(path, filedir)
 
             for filename in [f for f in os.listdir(filepath) if not re.match(IGNORE_FILES_REGEXP, f)]:
-                yield os.path.join(filepath, filename), variable, version
+                yield os.path.join(filepath, filename), variable, fversion
 
-    def prev_version(self, version):
+    def prev_versions(self, version):
         """
-        Returns the version before `version` or None
+        Returns the versions before `version` sorted in descending order
 
         """
         pversions = [x for x in self.versions if x < version]
-        if pversions:
-            return max(pversions)
-        else:
-            return
+        return sorted(pversions, reverse=True)
 
     #-------------------------------------------------------------------
     
@@ -473,13 +475,34 @@ class PublisherTree(object):
         if from_seq is None:
             from_seq = []
 
-        done = []
+        done = set()
         for filepath, variable, fversion in itertools.chain(from_seq,
-                                                            self.iter_real_files()):
-            if version == fversion:
+                                                            self.iter_real_files(version)):
+            link_dir = self.link_file_dir(variable, version)
+            filename = os.path.basename(filepath)
+
+            if not os.path.exists(link_dir):
+                yield self.CMD_MKDIR, None, link_dir
+
+            # Make relative to dest
+            dest = os.path.join(link_dir, filename)
+            src = os.path.relpath(filepath, link_dir)
+
+            yield self.CMD_LINK, src, dest
+            done.add(filename)
+
+        #!TODO: Handle deleted files!
+        # Promote all files from the previous version
+
+        #!TODO: overlap detection removed.  See tag 0.3.0a6 for old implementation.
+        for prev_version in self.prev_versions(version):
+            for filepath, variable, fversion in self.iter_real_files(prev_version):
+                filename = os.path.basename(filepath)
+
+                if filename in done:
+                    continue
 
                 link_dir = self.link_file_dir(variable, version)
-                filename = os.path.basename(filepath)
 
                 if not os.path.exists(link_dir):
                     yield self.CMD_MKDIR, None, link_dir
@@ -489,41 +512,6 @@ class PublisherTree(object):
                 src = os.path.relpath(filepath, link_dir)
 
                 yield self.CMD_LINK, src, dest
-
-                drs = self._vtrans.filename_to_drs(filename)
-                done.append((filename, drs))
-
-        #!TODO: Handle deleted files!
-        # Promote all files from the previous versions that do not overlap with the current set
-        for prev_version in sorted((x for x in self.versions if x < version), reverse=True):
-            for filepath, variable, fversion in self.iter_real_files():
-                filename = os.path.basename(filepath)
-
-                if fversion != prev_version:
-                    continue
-
-
-                old_drs = self._vtrans.filename_to_drs(filename)
-                #!TODO: could be more efficient
-                for done_filename, done_drs in done:
-
-                    if done_drs.variable == old_drs.variable and drs_dates_overlap(done_drs, old_drs):
-                        log.info("Not promoting %s as it overlaps with %s" % (filename, done_filename))
-                        break
-                else:
-                    link_dir = self.link_file_dir(variable, version)
-
-                    if not os.path.exists(link_dir):
-                        yield self.CMD_MKDIR, None, link_dir
-
-                    # Make relative to dest
-                    dest = os.path.join(link_dir, filename)
-                    src = os.path.relpath(filepath, link_dir)
-                    
-                    yield self.CMD_LINK, src, dest
-                    drs = self._vtrans.filename_to_drs(filename)
-                    done.append((filename, drs))
-
 
     #-------------------------------------------------------------------------
     # Versioning internal methods
