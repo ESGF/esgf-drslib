@@ -56,18 +56,28 @@ class TranslatorContext(object):
 
         self.table_store = table_store
 
-    def set_drs_component(self, drs_component, value):
+        # Set of components that have been set to override
+        self._override = set()
+
+    def set_drs_component(self, drs_component, value, override=False):
         """
         Set a DRS component checking that the value doesn't conflict
         with any current value.
 
+        If override is True the component is marked as overriden and future
+        attempts to set it will be ignored
+
         """
+        if override:
+            self._override.add(drs_component)
+
         v = self.drs[drs_component]
         if v is None:
             setattr(self.drs, drs_component, value)
         else:
-            if v != value:
+            if v != value and drs_component not in self._override:
                 raise TranslationError('Conflicting value of DRS component %s' % drs_component)
+
 
     def path_to_string(self):
         self._trim_parts()
@@ -188,6 +198,47 @@ class GenericComponentTranslator(BaseComponentTranslator):
         return s
 
 
+class GridspecTranslator(BaseComponentTranslator):
+    """
+    Gridspec files don't fit into drslib's architecture very well
+    so this is a work-around.  variable is set to "gridspec".
+    """
+    component = None
+
+    def filename_to_drs(self, context):
+        if context.file_parts[0] == 'gridspec':
+            assert context.file_parts[2] == 'fx'
+            realm = context.file_parts[1]
+            model = context.file_parts[3]
+            experiment = context.file_parts[4]
+            ensemble = (0, 0, 0)
+
+            context.set_drs_component('variable', 'gridspec', override=True)
+            context.set_drs_component('realm', realm, override=True)
+            context.set_drs_component('model', model, override=True)
+            context.set_drs_component('experiment', experiment, override=True)
+            context.set_drs_component('ensemble', ensemble, override=True)
+            context.set_drs_component('frequency', 'fx', override=True)
+            context.set_drs_component('table', 'fx', override=True)
+            #!FIXME: Hack
+            context._override.add('subset')
+
+    def path_to_drs(self, context):
+        pass
+    
+    def drs_to_filepath(self, context):
+        if context.drs.variable != 'gridspec':
+            return
+
+        context.file_parts[0] = 'gridspec'
+        context.file_parts[1] = context.drs.realm
+        context.file_parts[2] = context.drs.frequency
+        context.file_parts[3] = context.drs.model
+        context.file_parts[4] = context.drs.experiment
+        #!FIXME: Hack
+        context._override.union(['variable', 'realm', 'frequency', 'model', 
+                                 'experiment', 'table', 'ensemble'])
+
 
 
 
@@ -211,6 +262,7 @@ class CMORVarTranslator(BaseComponentTranslator):
     file_var_i = CMIP5_CMOR_DRS.FILE_VARIABLE
     file_table_i = CMIP5_CMOR_DRS.FILE_TABLE
     path_var_i = CMIP5_CMOR_DRS.PATH_VARIABLE
+    component = 'variable'
 
     def filename_to_drs(self, context):
         varname = context.file_parts[self.file_var_i]
@@ -242,6 +294,7 @@ class VersionedVarTranslator(CMORVarTranslator):
     file_table_i = CMIP5_DRS.FILE_TABLE
     path_var_i = CMIP5_DRS.PATH_VARIABLE
     path_table_i = CMIP5_DRS.PATH_TABLE
+    component = 'variable'
 
     def path_to_drs(self, context):
         super(VersionedVarTranslator, self).path_to_drs(context)
@@ -258,6 +311,7 @@ class VersionedVarTranslator(CMORVarTranslator):
 class EnsembleTranslator(BaseComponentTranslator):
     file_i = CMIP5_CMOR_DRS.FILE_ENSEMBLE
     path_i = CMIP5_CMOR_DRS.PATH_ENSEMBLE
+    component = 'ensemble'
 
     def filename_to_drs(self, context):
         context.drs.ensemble = self._convert(context.file_parts[self.file_i])
@@ -293,9 +347,10 @@ class EnsembleTranslator(BaseComponentTranslator):
 class VersionedEnsembleTranslator(EnsembleTranslator):
     file_i = CMIP5_DRS.FILE_ENSEMBLE
     path_i = CMIP5_DRS.PATH_ENSEMBLE
-
+    component = 'ensemble'
 
 class VersionTranslator(BaseComponentTranslator):
+    component = 'version'
 
     def filename_to_drs(self, context):
         pass
@@ -334,6 +389,7 @@ class SubsetTranslator(BaseComponentTranslator):
     """
 
     allow_missing_subset = True
+    component = 'subset'
 
     def filename_to_drs(self, context):
         try:
@@ -410,6 +466,9 @@ class Translator(object):
             context = self.ContextClass(filename=filename, drs=self.init_drs(),
                                         table_store = self.table_store)
         for t in self.translators:
+            if t.component in context._override:
+                continue
+
             t.filename_to_drs(context)
 
         return context.drs
@@ -426,6 +485,8 @@ class Translator(object):
             context = self.ContextClass(path=self._split_prefix(path), drs=self.init_drs(),
                                         table_store = self.table_store)
         for t in self.translators:
+            if t.component in context._override:
+                continue
             t.path_to_drs(context)
 
         return context.drs
@@ -449,6 +510,8 @@ class Translator(object):
     def drs_to_context(self, drs):
         context = self.ContextClass(drs=self.init_drs(drs), table_store = self.table_store)
         for t in self.translators:
+            if t.component in context._override:
+                continue
             t.drs_to_filepath(context)
 
         return context

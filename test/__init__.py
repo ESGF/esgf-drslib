@@ -216,3 +216,9 @@ def test_22():
     drs = translator.filename_to_drs(fn)
     calculated_fn = translator.drs_to_file(drs)
     assert calculated_fn == fn
+
+    assert drs.frequency == 'fx'
+    assert drs.mip_table == 'fx'
+    assert drs.realm == 'ocean'
+    assert drs.model == 'GFDL-ESM2G'
+    assert drs.experiment == 'historical'

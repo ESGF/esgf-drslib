@@ -245,6 +245,8 @@ class ExtendedTranslator(T.BaseComponentTranslator):
     It is needed for CMIP3 conversions.
     
     """
+    component = None
+
     def drs_to_filepath(self, context):
         context.file_parts[T.CMIP5_DRS.FILE_EXTENDED] = context.drs.extended
         
@@ -304,6 +306,7 @@ def make_translator(prefix, with_version=True, table_store=None):
 
     t = CMIP5Translator(prefix, table_store)
     t.translators = [
+        T.GridspecTranslator(table_store),
         ProductTranslator(table_store),
         ModelTranslator(table_store),
 

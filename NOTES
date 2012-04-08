@@ -27,3 +27,20 @@ publication-level dataset.  A PublisherTree can be in one of several states:
  2. VersionedPrepublished
  3. VersionedPublished
  4. VersionedTransition
+
+
+gridspec support
+----------------
+
+Gridspec files have a different syntax to DRS data files.  They are of
+the form:
+    
+    gridspec_<realm>_fx_<model>_<experiment>_r0i0p0.nc'
+
+drslib has not been designed to deal with this syntax therefore a work-around is in place to map these files to the following DRS components:
+
+ - activity, product, institute: as configured
+ - model, experiment, realm: as above
+ - frequency: "fx"
+ - mip_table: "fx"
+ - variable: "gridspec"
