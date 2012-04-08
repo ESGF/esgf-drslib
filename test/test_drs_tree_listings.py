@@ -115,6 +115,22 @@ class TestMapfile(TestListing):
         assert 'output1/MPI-M/ECHAM6-MPIOM-HR/rcp45/mon/ocean/Omon/r1i1p1/v%s'%self.today in mapfile
 
 
+class TestGridspecListing(TestListing):
+    __test__ = True
+
+    listing_file = 'gridspec.ls'
+
+    def test_1(self):
+        self._discover('NOAA-GFDL', 'GFDL-ESM2G')
+        assert len(self.dt.pub_trees) == 1
+        drs_id, pt = self.dt.pub_trees.items()[0]
+        assert drs_id == 'cmip5.output1.NOAA-GFDL.GFDL-ESM2G.historical.fx.ocean.fx.r0i0p0'
+
+        self._do_version(pt)
+        pt.deduce_state()
+        assert len(pt.versions.values()[0]) == 5
+        
+
 class TestThreeway(TestEg):
     __test__ = True
 

@@ -220,6 +220,7 @@ class GridspecTranslator(BaseComponentTranslator):
             context.set_drs_component('ensemble', ensemble, override=True)
             context.set_drs_component('frequency', 'fx', override=True)
             context.set_drs_component('table', 'fx', override=True)
+            context.set_drs_component('ensemble', (0, 0, 0), override=True)
             #!FIXME: Hack
             context._override.add('subset')
 
@@ -235,9 +236,10 @@ class GridspecTranslator(BaseComponentTranslator):
         context.file_parts[2] = context.drs.frequency
         context.file_parts[3] = context.drs.model
         context.file_parts[4] = context.drs.experiment
+        context.file_parts[5] = _ensemble_to_rip(context.drs.ensemble)
         #!FIXME: Hack
-        context._override.union(['variable', 'realm', 'frequency', 'model', 
-                                 'experiment', 'table', 'ensemble'])
+        context._override.update(['variable', 'realm', 'frequency', 'model', 
+                                  'experiment', 'table', 'ensemble'])
 
 
 
@@ -337,12 +339,7 @@ class EnsembleTranslator(BaseComponentTranslator):
     #----
 
     def _convert(self, component):
-        mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', component)
-        if not mo:
-            raise TranslationError('Unrecognised ensemble syntax %s' % component)
-
-        (r, i, p) = mo.groups()
-        return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
+        return _rip_to_ensemble(component)
 
 class VersionedEnsembleTranslator(EnsembleTranslator):
     file_i = CMIP5_DRS.FILE_ENSEMBLE
@@ -502,6 +499,9 @@ class Translator(object):
             context = self.ContextClass(filename=filename, path=path, drs=self.init_drs(),
                                         table_store = self.table_store)
         for t in self.translators:
+            if t.component in context._override:
+                continue
+            
             t.path_to_drs(context)
             t.filename_to_drs(context)
             
@@ -561,6 +561,19 @@ class Translator(object):
         """
         raise NotImplementedError
 
+
+
+def _rip_to_ensemble(rip_str):
+    mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', rip_str)
+    if not mo:
+        raise TranslationError('Unrecognised ensemble syntax %s' % rip_str)
+    
+    (r, i, p) = mo.groups()
+    return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
+
+def _ensemble_to_rip(ensemble):
+    r, i, p = ensemble
+    return 'r%di%dp%d' % (r, i, p)
 
 #-----------------------------------------------------------------------------
 # Date conversion and comparison functions

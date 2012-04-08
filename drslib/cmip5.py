@@ -32,7 +32,6 @@ class ProductTranslator(T.GenericComponentTranslator):
 # CCSR, CNRM, CSIRO, GFDL, INM, IPSL, LASG, MOHC, MPI-M, MRI, NCAR, NCC, NIMR
 
 
-#!TODO: make this configurable with metaconfig
 model_institute_map = read_model_table(config.model_table)        
 cmip3_models = {
     'BCC-CM1': 'CMA',
@@ -72,6 +71,11 @@ for k in cmip3_models:
     if k in model_institute_map:
         raise Exception("Duplicate model %s" % k)
     model_institute_map[k] = cmip3_models[k]
+# Add overrides from the config file
+for institute, models in config.institutes.items():
+    for model in models:
+        model_institute_map[model] = institute
+ 
 
 class InstituteTranslator(T.GenericComponentTranslator):
     path_i = T.CMIP5_DRS.PATH_INSTITUTE

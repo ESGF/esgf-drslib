@@ -1,0 +1,5 @@
+output/areacello_fx_GFDL-ESM2G_historical_r0i0p0.nc
+output/basin_fx_GFDL-ESM2G_historical_r0i0p0.nc
+output/deptho_fx_GFDL-ESM2G_historical_r0i0p0.nc
+output/gridspec_ocean_fx_GFDL-ESM2G_historical_r0i0p0.nc
+output/sftof_fx_GFDL-ESM2G_historical_r0i0p0.nc

@@ -215,10 +215,14 @@ def test_22():
     fn = 'gridspec_ocean_fx_GFDL-ESM2G_historical_r0i0p0.nc'
     drs = translator.filename_to_drs(fn)
     calculated_fn = translator.drs_to_file(drs)
+
+    print fn
+    print calculated_fn
+    
     assert calculated_fn == fn
 
     assert drs.frequency == 'fx'
-    assert drs.mip_table == 'fx'
+    assert drs.table == 'fx'
     assert drs.realm == 'ocean'
     assert drs.model == 'GFDL-ESM2G'
     assert drs.experiment == 'historical'

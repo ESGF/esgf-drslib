@@ -102,6 +102,22 @@ try:
 except:
     experiments = []
 
+#
+# Allow override of institute and model names
+#
+institutes = {}
+try:
+    institute_map = config.get('vocabularies', 'institutes')
+except:
+    pass
+else:
+    for line in institute_map.split('\n'):
+        line = line.strip()
+        if line:
+            institute, models = line.split(':')
+            institutes[institute] = models.strip().split()
+
+
 ##############################################################################
 # drs_tree command defaults
 #
