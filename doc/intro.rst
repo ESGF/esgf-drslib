@@ -103,6 +103,45 @@ the ``drs`` section:
 It is usually convenient to set at least ``root`` and ``activity`` in
 the configuration file.
 
+Overriding DRS vocabularies
+----------------------
+
+Drslib ships with reasonable defaults for the DRS vocabularies,
+however sometimes you will want to override or extend the defaults
+supplied.  At this time drslib supports extending the vocabularies of
+institutes, models and experiments.
+
+To define all CMIP5 experiments including individual decadal
+experiments you can define the ``drslib:vocabularies`` section as follows:
+
+.. code-block:: ini
+
+  [drslib:vocabularies]
+  experiments = 
+    1pctto2x 2xco2 pdcntrl sresa1b 1pctto4x amip picntrl sresa2 20c3m commit 
+    slabcntl sresb1
+    decadal1960 decadal1961 decadal1962 decadal1963 decadal1964 decadal1965 
+    decadal1966 decadal1967 decadal1968 decadal1969 decadal1970 decadal1971 
+    decadal1972 decadal1973 decadal1974 decadal1975 decadal1976 decadal1977 
+    decadal1978 decadal1979 decadal1980 decadal1981 decadal1982 decadal1983 
+    decadal1984 decadal1985 decadal1986 decadal1987 decadal1988 decadal1989 
+    decadal1990 decadal1991 decadal1992 decadal1993 decadal1994 decadal1995 
+    decadal1996 decadal1997 decadal1998 decadal1999 decadal2000 decadal2001 
+    decadal2002 decadal2003 decadal2004 decadal2005 decadal2006 decadal2007 
+    decadal2008 decadal2009
+
+Institutes and models can be defined with the ``institutes`` option.
+This is interpreted as a newline separated list of lines, each line
+being the institute name a colon then space separated list of models.
+
+.. code-block:: ini
+
+  institutes =
+    NOAA-GFDL:GFDL-ESM2G
+    MOHC:HadGEM2-ES HadCM3 HadGEM2-CC
+
+
+
 Logging
 =======
 
