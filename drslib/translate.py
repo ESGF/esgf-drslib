@@ -118,6 +118,7 @@ class BaseComponentTranslator(object):
     Each component is translated by a separate IComponentTranslator object.
 
     """
+    component = None
 
     def __init__(self, table_store=None):
         self.table_store = table_store

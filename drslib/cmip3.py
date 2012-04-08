@@ -60,6 +60,9 @@ instmodel_map = {
 }
 
 class InstituteModelTranslator(T.BaseComponentTranslator):
+    # Dummy value to keep override logic happy.
+    component = None
+
     def path_to_drs(self, context):
         instmodel = context.path_parts[CMIP3_DRS.PATH_INSTMODEL]
         
@@ -252,6 +255,7 @@ class CMIP3TranslatorContext(T.TranslatorContext):
     #        names.  Unfortunately CMIP3 has them.
     _fnrexp = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9]+)(?:[._-](.*))?.nc$')
     
+    _override = set()
 
     def __init__(self, filename=None, path=None, drs=None, table_store=None):
         assert table_store is None
