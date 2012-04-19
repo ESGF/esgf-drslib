@@ -547,12 +547,12 @@ class PublisherTree(object):
         self.latest = 0
         self.versions = {}
         # Bail out if pub_dir doesn't exist yet.
-        if not os.path.exists(self.pub_dir):
+        fdir = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        if not os.path.exists(fdir):
             return
 
         # Version directories may not exist so initially deduce
         # versions from the files directory
-        fdir = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         versions = set()
         for d in os.listdir(fdir):
             try:
