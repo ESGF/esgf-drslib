@@ -104,7 +104,11 @@ class TreeChecker(object):
         return self._fs_versions(pt).union(pt.versions.keys())
         
     def _latest_version(self, pt):
-        return max(self._all_versions(pt))
+        versions = self._all_versions(pt)
+        if versions:
+            return max(self._all_versions(pt))
+        else:
+            raise ValueError('No latest version')
 
     #-------------------------------------------------------------------------
     # State changes
@@ -149,7 +153,10 @@ class CheckLatest(TreeChecker):
             self._state_fixable('latest directory missing or broken')
             return
 
-        latest_version = self._latest_version(pt)
+        try:
+            latest_version = self._latest_version(pt)
+        except ValueError:
+            return
 
         # Link could be there but invalid
         link = op.join(pt.pub_dir, os.readlink(latest_dir))
@@ -192,7 +199,10 @@ class CheckVersionLinks(TreeChecker):
         # find all filesystem versions and versions from the files directory
         # Only check latest version
         if check_latest == True:
-            versions = [self._latest_version(pt)]
+            try:
+                versions = [self._latest_version(pt)]
+            except ValueError:
+                return
         else:
             versions = set(self._all_versions(pt))
         
