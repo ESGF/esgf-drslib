@@ -498,6 +498,22 @@ class TestEg6(TestEg):
         assert file_counts == set([(0, 2), (1, 3), (2, 5)])
 
 
+
+class TestEmptyPubdir(TestEg):
+    # Regression for bug where drs_tool crashes if the PublishTree directory 
+    # exists but is empty
+    __test__ = True
+    def setUp(self):
+        super(TestEmptyPubdir, self).setUp()
+        pubdir = op.join(self.tmpdir,
+                         'output2/MOHC/HadGEM2-ES/esmControl/day/seaIce/day/r1i1p1')
+        os.makedirs(pubdir)
+
+        self.dt = DRSTree(self.tmpdir)
+
+    def test_1(self):
+        self.dt.discover()
+
 #----------------------------------------------------------------------------
 
 def test_1():
@@ -534,3 +550,5 @@ def test_5():
     path = drs_to_path('/cmip5', drs)
 
     assert path == '/cmip5/output1/TEST/HadCM3/*/day/*/*/*'
+
+    
