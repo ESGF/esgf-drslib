@@ -238,6 +238,14 @@ class GridspecTranslator(BaseComponentTranslator):
         context.file_parts[3] = context.drs.model
         context.file_parts[4] = context.drs.experiment
         context.file_parts[5] = _ensemble_to_rip(context.drs.ensemble)
+
+        context.path_parts[2] = context.drs.model
+        context.path_parts[3] = context.drs.experiment
+        context.path_parts[4] = context.drs.frequency
+        context.path_parts[5] = context.drs.realm
+        context.path_parts[6] = context.drs.table
+        context.path_parts[7] = _ensemble_to_rip(context.drs.ensemble)
+        context.path_parts[9] = context.drs.variable
         #!FIXME: Hack
         context._override.update(['variable', 'realm', 'frequency', 'model', 
                                   'experiment', 'table', 'ensemble'])
