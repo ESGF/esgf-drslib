@@ -12,6 +12,11 @@ This module is very object-heavy and over engineered.  However, it does the job.
 
 """
 
+#!TODO: CORDEX.  Completely reimplement translation in a more flexible manner
+#       Maybe use the Python logic programming library used by IRIS.  We should
+#       keep this implementation for cmip5 only and try to reimplement CMIP5 logic
+#       in the new interface when possible.
+
 import re, os
 
 import logging
@@ -571,7 +576,7 @@ class Translator(object):
         raise NotImplementedError
 
 
-
+#!TODO: CORDEX.  use DRS.decode_component()
 def _rip_to_ensemble(rip_str):
     mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', rip_str)
     if not mo:
@@ -580,6 +585,7 @@ def _rip_to_ensemble(rip_str):
     (r, i, p) = mo.groups()
     return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
 
+#!TODO: CORDEX.  user DRS._encode_component()
 def _ensemble_to_rip(ensemble):
     r, i, p = ensemble
     return 'r%di%dp%d' % (r, i, p)
@@ -587,6 +593,7 @@ def _ensemble_to_rip(ensemble):
 #-----------------------------------------------------------------------------
 # Date conversion and comparison functions
 
+#!TODO: CORDEX.  Move into DRS class.  Maybe implement within DRS._encode_component()
 def _to_date(date_str):
     if date_str is None:
         return None
@@ -598,6 +605,7 @@ def _to_date(date_str):
     (y, m, d, h, mn, sec) = mo.groups()
     return (int(y), _int_or_none(m), _int_or_none(d), _int_or_none(h), _int_or_none(mn), _int_or_none(sec))
 
+#!TODO: CORDEX. As above.
 def _from_date(date):
     (y, m, d, h, mn, sec) = date
 

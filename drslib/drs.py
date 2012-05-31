@@ -19,17 +19,187 @@ More sophisticated conversions can be done with the
 import os
 import itertools
 import re
+from abc import ABCMeta
 
 import logging
 log = logging.getLogger(__name__)
 
-DRS_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-             'realm', 'table', 'ensemble', 'version', 'variable', 'subset', 'extended']
-PUB_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment', 'frequency', 
-             'realm', 'table', 'ensemble', ]
 
 
-class DRS(dict):
+class BaseDRS(dict):
+    """
+    Base class of classes representing DRS entries.
+    
+    This class provides an interface to:
+    1. Define and expose the components of the DRS and their order
+    2. Convert components in and out of serialised form
+    3. Determine whether a DRS entry is complete
+    4. Define the publishing level of datasets represented by this DRS
+    
+    This class provides default implementations of:
+    1. serialisation to dataset-id with or without version
+    
+    Subclasses decide what components make up the DRS.
+    
+    :cvar DRS_ATTRS: a sequence of component names in the order they appear in the
+                     DRS identifier.
+    :cvar PUBLISH_LEVEL: the last component name which is part of the published
+                         dataset-id.
+
+    """
+    __metaclass__ = ABCMeta
+
+    DRS_ATTRS = NotImplemented
+    PUBLISH_LEVEL = NotImplementedError
+    VERSION_COMPONENT = 'version'
+
+    def __init__(self, *argv, **kwargs):
+        """
+        Instantiate a DRS object with a set of DRS component values.
+
+        >>> mydrs = DRS(activity='cmip5', product='output', model='HadGEM1',
+        ...             experiment='1pctto4x', variable='tas')
+        <DRS activity="cmip5" product="output" model="HadGEM1" ...>
+
+        :param argv: If not () should be a DRS object to instantiate from
+        :param kwargs: DRS component values.
+
+        """
+
+        # Initialise all components as None
+        for attr in self._iter_components(with_version=True):
+            self[attr] = None
+
+        # Check only DRS components are used
+        for kw in kwargs:
+            if kw not in self._iter_components(with_version=True):
+                raise KeyError("Keyword %s is not a DRS component" % repr(kw))
+
+        # Use dict flexible instantiation
+        super(BaseDRS, self).__init__(*argv, **kwargs)
+
+
+    def __getattr__(self, attr):
+        if attr in self._iter_components(with_version=True):
+            return self[attr]
+        else:
+            raise AttributeError('%s object has no attribute %s' % 
+                                 (repr(type(self).__name__), repr(attr)))
+
+    def __setattr__(self, attr, value):
+        if attr in self._iter_components(with_version=True):
+            self[attr] = value
+        else:
+            raise AttributeError('%s is not a DRS component' % repr(attr))
+
+    @classmethod
+    def _iter_components(klass, with_version=True, to_publish_level=False):
+        """
+        Iterate component names including version at the correct point in the
+        sequence for publication.
+
+        """
+        for attr in klass.DRS_ATTRS:
+            yield attr
+            if attr == klass.PUBLISH_LEVEL:
+                if with_version:
+                    yield klass.VERSION_COMPONENT
+                if to_publish_level:
+                    return
+
+    def _encode_component(self, component):
+        raise NotImplementedError
+
+    def _decode_component(self, component, value):
+        raise NotImplementedError
+
+    #-------------------------------------------------------------------------
+    # Public implemented interfaces
+
+    def is_complete(self):
+        """Returns boolean to indicate if all components are specified.
+        
+        Returns ``True`` if all components except ``extended`` have a value.
+
+        """
+
+        for attr in self._iter_components(with_version=True):
+            #!TODO: investigate and fix.  Why do we need extended exemption?
+            if attr is 'extended':
+                continue
+            if self.get(attr, None) is None:
+                return False
+
+        return True
+
+    def is_publish_level(self):
+        """Returns boolian to indicate if the all publish-level components are
+        specified.
+
+        """
+        for attr in self._iter_components(to_publish_level=True, with_version=True):
+            if self.get(attr, None) is None:
+                return False
+            
+        return True
+    
+    def __repr__(self):
+        kws = []
+        for attr in self._iter_components(with_version=True):
+            kws.append(self._encode_component(attr))
+
+        # Remove trailing '%' from components
+        while kws and kws[-1] == '%':
+            kws.pop(-1)
+
+        return '<DRS %s>' % '.'.join(kws)
+
+    def to_dataset_id(self, with_version=False):
+        """
+        Return the esgpublish dataset_id for this drs object.
+        
+        If version is not None and with_version=True the version is included.
+
+        """
+        parts = [self._encode_component(x) for x in
+                 self._iter_components(with_version=False, to_publish_level=True)]
+        if self.version and with_version:
+            parts.append(self._encode_component('version'))
+        return '.'.join(parts)
+
+    @classmethod
+    def from_dataset_id(klass, dataset_id, **components):
+        """
+        Return a DRS object fro a ESG Publisher dataset_id.
+
+        If the dataset_id contains less than 10 components all trailing
+        components are set to None.  Any component of value '%' is set to None
+
+        E.g.
+        >>> drs = DRS.from_dataset_id('cmip5.output.MOHC.%.rpc45')
+        >>> drs.institute, drs.model, drs.experiment, drs.realm
+        ('MOHC', None, 'rpc45', None)
+
+        """
+
+        parts = dataset_id.split('.')
+        for attr, val in itertools.izip(klass._iter_components(with_version=True, to_publish_level=True), parts):
+            if val is '%':
+                continue
+            #!TODO: use _decode_component()
+            if attr is 'ensemble':
+                r, i, p = re.match(r'r(\d+)i(\d+)p(\d+)', val).groups()
+                components[attr] = (int(r), int(i), int(p))
+            elif attr is 'version':
+                v = re.match(r'v(\d+)', val).group(1)
+                components[attr] = int(v)
+            else:
+                components[attr] = val
+                   
+        return klass(**components)
+
+
+class DRS(BaseDRS):
     """
     Represents a DRS entry.  DRS objects are dictionaries where DRS
     components are also exposed as attributes.  Therefore you can get/set
@@ -56,83 +226,16 @@ class DRS(dict):
 
     """
 
-    
+    #!TODO: CORDEX.  Abstract DRS class with external methods and
+    #       create project-specific DRS subclasses.  Maybe use ABCs
+    #       Subclasses will have their own list of components and publish level.
 
-    def __init__(self, *argv, **kwargs):
-        """
-        Instantiate a DRS object with a set of DRS component values.
+    #!TODO: version needs factoring out
+    DRS_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment',
+                 'frequency', 'realm', 'table', 'ensemble', 'version',
+                 'variable', 'subset', 'extended']
+    PUBLISH_LEVEL = 'ensemble'
 
-        >>> mydrs = DRS(activity='cmip5', product='output', model='HadGEM1',
-        ...             experiment='1pctto4x', variable='tas')
-        <DRS activity="cmip5" product="output" model="HadGEM1" ...>
-
-        :param argv: If not () should be a DRS object to instantiate from
-        :param kwargs: DRS component values.
-
-        """
-
-        # Initialise all components as None
-        for attr in DRS_ATTRS:
-            self[attr] = None
-
-        # Check only DRS components are used
-        for kw in kwargs:
-            if kw not in DRS_ATTRS:
-                raise KeyError("Keyword %s is not a DRS component" % repr(kw))
-
-        # Use dict flexible instantiation
-        super(DRS, self).__init__(*argv, **kwargs)
-
-
-    def __getattr__(self, attr):
-        if attr in DRS_ATTRS:
-            return self[attr]
-        else:
-            raise AttributeError('%s object has no attribute %s' % 
-                                 (repr(type(self).__name__), repr(attr)))
-
-    def __setattr__(self, attr, value):
-        if attr in DRS_ATTRS:
-            self[attr] = value
-        else:
-            raise AttributeError('%s is not a DRS component' % repr(attr))
-
-    def is_complete(self):
-        """Returns boolean to indicate if all components are specified.
-        
-        Returns ``True`` if all components except ``extended`` have a value.
-
-        """
-
-        for attr in DRS_ATTRS:
-            if attr is 'extended':
-                continue
-            if self.get(attr, None) is None:
-                return False
-
-        return True
-
-    def is_publish_level(self):
-        """Returns boolian to indicate if the all publish-level components are
-        specified.
-
-        """
-        for attr in PUB_ATTRS:
-            if self.get(attr, None) is None:
-                return False
-
-        return True
-
-    def __repr__(self):
-        kws = []
-        for attr in DRS_ATTRS:
-            kws.append(self._encode_component(attr))
-
-        # Remove trailing '%' from components
-        while kws and kws[-1] == '%':
-            kws.pop(-1)
-
-        return '<DRS %s>' % '.'.join(kws)
 
     def _encode_component(self, attr):
         """
@@ -140,7 +243,7 @@ class DRS(dict):
         are encoded as '%'.
 
         """
-        from drslib.translate import _to_date, _from_date
+        from drslib.translate import _from_date
 
         #!TODO: this code overlaps serialisation code in translate.py
         if self[attr] is None:
@@ -160,6 +263,8 @@ class DRS(dict):
 
         return val
 
+    #!TODO: CORDEX.  implement _decode_component(self, attr, component)
+
     def _encode_ensemble(self):
         r, i, p = self.ensemble
         ret = 'r%d' % r
@@ -170,49 +275,6 @@ class DRS(dict):
 
         return ret
 
-    def to_dataset_id(self, with_version=False):
-        """
-        Return the esgpublish dataset_id for this drs object.
-        
-        If version is not None and with_version=True the version is included.
-
-        """
-        parts = [self._encode_component(x) for x in PUB_ATTRS]
-        if self.version and with_version:
-            parts.append(self._encode_component('version'))
-        return '.'.join(parts)
-
-    @classmethod
-    def from_dataset_id(klass, dataset_id, **components):
-        """
-        Return a DRS object fro a ESG Publisher dataset_id.
-
-        If the dataset_id contains less than 10 components all trailing
-        components are set to None.  Any component of value '%' is set to None
-
-        E.g.
-        >>> drs = DRS.from_dataset_id('cmip5.output.MOHC.%.rpc45')
-        >>> drs.institute, drs.model, drs.experiment, drs.realm
-        ('MOHC', None, 'rpc45', None)
-
-        """
-
-        parts = dataset_id.split('.')
-        for attr, val in itertools.izip(DRS_ATTRS, parts):
-            if val is '%':
-                continue
-            if attr is 'ensemble':
-                r, i, p = re.match(r'r(\d+)i(\d+)p(\d+)', val).groups()
-                components[attr] = (int(r), int(i), int(p))
-            elif attr is 'version':
-                v = re.match(r'v(\d+)', val).group(1)
-                components[attr] = int(v)
-                # Don't process after version
-                break
-            else:
-                components[attr] = val
-                   
-        return klass(**components)
             
 
 
@@ -222,14 +284,17 @@ class DRS(dict):
 # or parse the filename
 #
 
+#!TODO: CORDEX.  These functions could be a facade into a DRS
+#       subclass-specific interface.
+
 def path_to_drs(drs_root, path, activity=None):
     """
     Create a :class:`DRS` object from a filesystem path.
-
+    
     This function is more lightweight than using :mod:`drslib.translator`
     but only works for the parts of the DRS explicitly represented in
     a path.
-
+    
     :param drs_root: The root of the DRS tree.  
         This should point to the *activity* directory
 
@@ -242,9 +307,11 @@ def path_to_drs(drs_root, path, activity=None):
     relpath = os.path.normpath(path[len(nroot):])
 
     p = relpath.split('/')
+    #!TODO: CORDEX.  get `attrs` from DRS class interface.
     attrs = ['product', 'institute', 'model', 'experiment',
              'frequency', 'realm', 'table', 'ensemble'] 
     drs = DRS(activity=activity)
+    #!TODO: CORDEX. use DRS._decode_component()
     for val, attr in itertools.izip(p, attrs):
         if attr == 'ensemble':
             mo = re.match(r'r(\d+)i(\d+)p(\d+)', val)
@@ -270,6 +337,7 @@ def drs_to_path(drs_root, drs):
     :param drs: The :class:`DRS` object from which to generate the path
 
     """
+    #!TODO: CORDEX.  Use DRS class interface
     attrs = ['product', 'institute', 'model', 'experiment',
              'frequency', 'realm', 'table', 'ensemble'] 
     path = [drs_root]
@@ -277,6 +345,7 @@ def drs_to_path(drs_root, drs):
         if drs[attr] is None:
             val = '*'
         else:
+            #!TODO: CORDEX.  use DRS._encode_component()
             if attr == 'ensemble':
                 val = 'r%di%dp%d' % drs.ensemble
             else:
