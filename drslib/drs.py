@@ -20,6 +20,7 @@ import os
 import itertools
 import re
 from abc import ABCMeta
+from drslib.exceptions import TranslationError
 
 import logging
 log = logging.getLogger(__name__)
@@ -111,7 +112,8 @@ class BaseDRS(dict):
     def _encode_component(self, component):
         raise NotImplementedError
 
-    def _decode_component(self, component, value):
+    @classmethod
+    def _decode_component(klass, component, value):
         raise NotImplementedError
 
     #-------------------------------------------------------------------------
@@ -187,15 +189,7 @@ class BaseDRS(dict):
         for attr, val in itertools.izip(klass._iter_components(with_version=True, to_publish_level=True), parts):
             if val is '%':
                 continue
-            #!TODO: use _decode_component()
-            if attr is 'ensemble':
-                r, i, p = re.match(r'r(\d+)i(\d+)p(\d+)', val).groups()
-                components[attr] = (int(r), int(i), int(p))
-            elif attr is 'version':
-                v = re.match(r'v(\d+)', val).group(1)
-                components[attr] = int(v)
-            else:
-                components[attr] = val
+            components[attr] = klass._decode_component(attr, val)
                    
         return klass(**components)
 
@@ -246,6 +240,8 @@ class DRS(BaseDRS):
             val = '%'
         elif attr is 'ensemble':
             val = _ensemble_to_rip(self.ensemble)
+            if val == '':
+                val = '%'
         elif attr is 'version':
             val = 'v%d' % self.version
         elif attr is 'subset':
@@ -259,14 +255,17 @@ class DRS(BaseDRS):
 
         return val
 
-    #!TODO: CORDEX.  implement _decode_component(self, attr, component)
-    def _decode_component(self, attr, val):
+    @classmethod
+    def _decode_component(klass, attr, val):
         from drslib.translate import _to_date
         
         if val == '%':
             ret = None
         elif attr is 'ensemble':
-            ret = _rip_to_ensemble(val)
+            if val == (None, None, None):
+                ret = None
+            else:
+                ret = _rip_to_ensemble(val)
         elif attr is 'version':
             val = int(val[1:])
         elif attr is 'subset':
@@ -297,8 +296,14 @@ def _rip_to_ensemble(rip_str):
     return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
 
 def _ensemble_to_rip(ensemble):
-    r, i, p = ensemble
-    return 'r%di%dp%d' % (r, i, p)
+    parts = []
+    for prefix, val in zip(['r', 'i', 'p'], ensemble):
+        if val is None:
+            continue
+        parts.append('%s%d' % (prefix, val))
+
+    return ''.join(parts)
+
 
 def _int_or_none(x):
     if x is None:
@@ -312,9 +317,6 @@ def _int_or_none(x):
 # This is effective for the path part of a DRS path but doesn't verify
 # or parse the filename
 #
-
-#!TODO: CORDEX.  These functions could be a facade into a DRS
-#       subclass-specific interface.
 
 def path_to_drs(drs_root, path, activity=None):
     """
@@ -335,18 +337,10 @@ def path_to_drs(drs_root, path, activity=None):
     nroot = drs_root.rstrip('/') + '/'
     relpath = os.path.normpath(path[len(nroot):])
 
-    p = relpath.split('/')
-    #!TODO: CORDEX.  get `attrs` from DRS class interface.
-    attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'table', 'ensemble'] 
-    drs = DRS(activity=activity)
-    #!TODO: CORDEX. use DRS._decode_component()
-    for val, attr in itertools.izip(p, attrs):
-        if attr == 'ensemble':
-            mo = re.match(r'r(\d+)i(\d+)p(\d+)', val)
-            drs[attr] = tuple(int(x) for x in mo.groups())
-        else:
-            drs[attr] = val
+    p = [activity] + relpath.split('/')
+    drs = DRS()
+    for val, attr in itertools.izip(p, drs._iter_components(with_version=False, to_publish_level=True)):
+        drs[attr] = drs._decode_component(attr, val)
 
     log.debug('%s => %s' % (repr(path), drs))
 
@@ -366,19 +360,15 @@ def drs_to_path(drs_root, drs):
     :param drs: The :class:`DRS` object from which to generate the path
 
     """
-    #!TODO: CORDEX.  Use DRS class interface
-    attrs = ['product', 'institute', 'model', 'experiment',
-             'frequency', 'realm', 'table', 'ensemble'] 
+    #!TODO: resolve activity ambiguity!  This will not work for CORDEX
+    attrs = list(drs._iter_components(with_version=False, to_publish_level=True))
+    attrs = attrs[1:]
+
     path = [drs_root]
     for attr in attrs:
-        if drs[attr] is None:
+        val = drs._encode_component(attr)
+        if val == '%':
             val = '*'
-        else:
-            #!TODO: CORDEX.  use DRS._encode_component()
-            if attr == 'ensemble':
-                val = 'r%di%dp%d' % drs.ensemble
-            else:
-                val = drs[attr]
         if val is None:
             break
         path.append(val)

@@ -16,7 +16,9 @@ class TrivialDRS(BaseDRS):
         if component == 'version':
             return 'v%s' % self.version
         return str(self[component])
-    def _decode_component(self, component, value):
+
+    @classmethod
+    def _decode_component(klass, component, value):
         return value
 
 def test_1():

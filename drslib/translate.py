@@ -24,10 +24,7 @@ log = logging.getLogger(__name__)
 
 from drslib.drs import DRS, _rip_to_ensemble, _ensemble_to_rip, _int_or_none
 from drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
-
-class TranslationError(Exception):
-    pass
-
+from drslib.exceptions import TranslationError
 
 class TranslatorContext(object):
     """
