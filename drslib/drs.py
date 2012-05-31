@@ -137,7 +137,7 @@ class BaseDRS(dict):
         specified.
 
         """
-        for attr in self._iter_components(to_publish_level=True, with_version=True):
+        for attr in self._iter_components(to_publish_level=True, with_version=False):
             if self.get(attr, None) is None:
                 return False
             
@@ -145,7 +145,7 @@ class BaseDRS(dict):
     
     def __repr__(self):
         kws = []
-        for attr in self._iter_components(with_version=True):
+        for attr in self._iter_components(with_version=True, to_publish_level=True):
             kws.append(self._encode_component(attr))
 
         # Remove trailing '%' from components
@@ -226,13 +226,9 @@ class DRS(BaseDRS):
 
     """
 
-    #!TODO: CORDEX.  Abstract DRS class with external methods and
-    #       create project-specific DRS subclasses.  Maybe use ABCs
-    #       Subclasses will have their own list of components and publish level.
-
     #!TODO: version needs factoring out
     DRS_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment',
-                 'frequency', 'realm', 'table', 'ensemble', 'version',
+                 'frequency', 'realm', 'table', 'ensemble', 
                  'variable', 'subset', 'extended']
     PUBLISH_LEVEL = 'ensemble'
 
