@@ -245,7 +245,7 @@ class DRS(BaseDRS):
         if self[attr] is None:
             val = '%'
         elif attr is 'ensemble':
-            val = self._encode_ensemble()
+            val = _ensemble_to_rip(self.ensemble)
         elif attr is 'version':
             val = 'v%d' % self.version
         elif attr is 'subset':
@@ -260,18 +260,51 @@ class DRS(BaseDRS):
         return val
 
     #!TODO: CORDEX.  implement _decode_component(self, attr, component)
-
-    def _encode_ensemble(self):
-        r, i, p = self.ensemble
-        ret = 'r%d' % r
-        if i is not None:
-            ret += 'i%d' % i
-            if p is not None:
-                ret += 'p%d' % p
-
+    def _decode_component(self, attr, val):
+        from drslib.translate import _to_date
+        
+        if val == '%':
+            ret = None
+        elif attr is 'ensemble':
+            ret = _rip_to_ensemble(val)
+        elif attr is 'version':
+            val = int(val[1:])
+        elif attr is 'subset':
+            parts = val.split('-')
+            if len(parts) > 3:
+                raise ValueError('cannot parse extended component %s' % repr(val))
+                N1, N2 = _to_date(parts[0]), _to_date(parts[1])
+            if len(parts) == 3:
+                clim = parts[2]
+                if clim != 'clim':
+                    raise ValueError('unsupported extended component %s' % repr(val))
+            else:
+                clim = None
+            val = (N1, N2, clim)
+        else:
+            ret = val
+                
         return ret
+        
 
             
+def _rip_to_ensemble(rip_str):
+    mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', rip_str)
+    if not mo:
+        raise TranslationError('Unrecognised ensemble syntax %s' % rip_str)
+    
+    (r, i, p) = mo.groups()
+    return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
+
+def _ensemble_to_rip(ensemble):
+    r, i, p = ensemble
+    return 'r%di%dp%d' % (r, i, p)
+
+def _int_or_none(x):
+    if x is None:
+        return None
+    else:
+        return int(x)
 
 
 #--------------------------------------------------------------------------

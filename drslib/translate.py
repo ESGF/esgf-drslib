@@ -22,7 +22,7 @@ import re, os
 import logging
 log = logging.getLogger(__name__)
 
-from drslib.drs import DRS
+from drslib.drs import DRS, _rip_to_ensemble, _ensemble_to_rip, _int_or_none
 from drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
 
 class TranslationError(Exception):
@@ -576,19 +576,6 @@ class Translator(object):
         raise NotImplementedError
 
 
-#!TODO: CORDEX.  use DRS.decode_component()
-def _rip_to_ensemble(rip_str):
-    mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', rip_str)
-    if not mo:
-        raise TranslationError('Unrecognised ensemble syntax %s' % rip_str)
-    
-    (r, i, p) = mo.groups()
-    return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
-
-#!TODO: CORDEX.  user DRS._encode_component()
-def _ensemble_to_rip(ensemble):
-    r, i, p = ensemble
-    return 'r%di%dp%d' % (r, i, p)
 
 #-----------------------------------------------------------------------------
 # Date conversion and comparison functions
@@ -637,8 +624,3 @@ def drs_dates_overlap(drs1, drs2):
     return d21 < d12
         
     
-def _int_or_none(x):
-    if x is None:
-        return None
-    else:
-        return int(x)
