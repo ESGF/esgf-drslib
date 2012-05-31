@@ -50,8 +50,9 @@ class BaseDRS(dict):
     __metaclass__ = ABCMeta
 
     DRS_ATTRS = NotImplemented
-    PUBLISH_LEVEL = NotImplementedError
+    PUBLISH_LEVEL = NotImplemented
     VERSION_COMPONENT = 'version'
+    OPTIONAL_ATTRS = NotImplemented
 
     def __init__(self, *argv, **kwargs):
         """
@@ -119,13 +120,13 @@ class BaseDRS(dict):
     def is_complete(self):
         """Returns boolean to indicate if all components are specified.
         
-        Returns ``True`` if all components except ``extended`` have a value.
+        Returns ``True`` if all components excluding those in self.OPTIONAL_ATTRS
+        have a value.
 
         """
 
         for attr in self._iter_components(with_version=True):
-            #!TODO: investigate and fix.  Why do we need extended exemption?
-            if attr is 'extended':
+            if attr in self.OPTIONAL_ATTRS:
                 continue
             if self.get(attr, None) is None:
                 return False
@@ -226,12 +227,11 @@ class DRS(BaseDRS):
 
     """
 
-    #!TODO: version needs factoring out
     DRS_ATTRS = ['activity', 'product', 'institute', 'model', 'experiment',
                  'frequency', 'realm', 'table', 'ensemble', 
                  'variable', 'subset', 'extended']
     PUBLISH_LEVEL = 'ensemble'
-
+    OPTIONAL_ATTRS = ['extended']
 
     def _encode_component(self, attr):
         """

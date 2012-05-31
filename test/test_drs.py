@@ -10,6 +10,7 @@ from drslib.drs import DRS, BaseDRS
 class TrivialDRS(BaseDRS):
     DRS_ATTRS = ['foo', 'bar', 'baz']
     PUBLISH_LEVEL = 'bar'
+    OPTIONAL_ATTRS = []
 
     def _encode_component(self, component):
         if component == 'version':
