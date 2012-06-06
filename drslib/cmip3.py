@@ -59,7 +59,7 @@ instmodel_map = {
     'ingv_echam4': ('INGV','ECHAM4'), 
 }
 
-class InstituteModelTranslator(T.BaseComponentTranslator):
+class InstituteModelHandler(T.BaseComponentHandler):
     # Dummy value to keep override logic happy.
     component = None
 
@@ -77,10 +77,10 @@ class InstituteModelTranslator(T.BaseComponentTranslator):
     def filename_to_drs(self, context):
         pass
     
-instmodel_t = InstituteModelTranslator()
+instmodel_t = InstituteModelHandler()
 
 
-class ExperimentTranslator(T.GenericComponentTranslator):
+class ExperimentHandler(T.GenericComponentHandler):
     path_i = CMIP3_DRS.PATH_EXPERIMENT
     file_i = None
     component = 'experiment'
@@ -91,9 +91,9 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         """
         return s
 
-experiment_t = ExperimentTranslator()
+experiment_t = ExperimentHandler()
 
-class FrequencyTranslator(T.BaseComponentTranslator):
+class FrequencyHandler(T.BaseComponentHandler):
     vocab = {'yr': 'yr', 'mo': 'mon', 'da': 'day', '3h': '3hr',
              'fixed': 'fx'}
     
@@ -110,10 +110,10 @@ class FrequencyTranslator(T.BaseComponentTranslator):
         pass
     
         
-frequency_t = FrequencyTranslator()
+frequency_t = FrequencyHandler()
 
 
-class RealmTranslator(T.GenericComponentTranslator):
+class RealmHandler(T.GenericComponentHandler):
     path_i = CMIP5_DRS.PATH_REALM
     file_i = None
     component = 'realm'
@@ -158,9 +158,9 @@ class RealmTranslator(T.GenericComponentTranslator):
 
         context.set_drs_component('realm', realm)
 
-realm_t = RealmTranslator()
+realm_t = RealmHandler()
 
-class EnsembleTranslator(T.BaseComponentTranslator):
+class EnsembleHandler(T.BaseComponentHandler):
     def path_to_drs(self, context):
         r_str = context.path_parts[CMIP3_DRS.PATH_ENSEMBLE]
         mo = re.match(r'run(\d+)', r_str)
@@ -173,10 +173,10 @@ class EnsembleTranslator(T.BaseComponentTranslator):
     def filename_to_drs(self, context):
         pass
             
-ensemble_t = EnsembleTranslator()
+ensemble_t = EnsembleHandler()
 
 
-class VariableTranslator(T.GenericComponentTranslator):
+class VariableHandler(T.GenericComponentHandler):
     path_i = CMIP3_DRS.PATH_VARIABLE
     file_i = None
     component = 'variable'
@@ -191,14 +191,14 @@ class VariableTranslator(T.GenericComponentTranslator):
         """
         return s
 
-variable_t = VariableTranslator()
+variable_t = VariableHandler()
 
 
 #!NOTE: No version in CMIP3
 
 #!TODO: Subset translator
 
-class SubsetTranslator(T.BaseComponentTranslator):
+class SubsetHandler(T.BaseComponentHandler):
     """
     Subsets are irregular in CMIP3 so we just extract the irregular bit
     and put it in DRS.extended.
@@ -211,9 +211,9 @@ class SubsetTranslator(T.BaseComponentTranslator):
     def path_to_drs(self, context):
         pass
     
-subset_t = SubsetTranslator()
+subset_t = SubsetHandler()
 
-class FnFixTranslator(T.BaseComponentTranslator):
+class FnFixHandler(T.BaseComponentHandler):
     """
     Fix problem filenames in the DRS structure.
 
@@ -240,7 +240,7 @@ class FnFixTranslator(T.BaseComponentTranslator):
                         context.drs.extended))
                      
 
-fnfix_t = FnFixTranslator()
+fnfix_t = FnFixHandler()
 
 class CMIP3TranslatorContext(T.TranslatorContext):
     """
@@ -284,19 +284,19 @@ class CMIP3Translator(T.Translator):
     
     ContextClass = CMIP3TranslatorContext
 
-    translators = [instmodel_t,
-                   experiment_t,
-                   ensemble_t,
-                   variable_t,
-                   
-                   # Must be processed after variable
-                   realm_t,
-                   frequency_t,
-                   subset_t,
-
-                   # Fix some unusual CMIP3 filenames
-                   fnfix_t,
-                   ]
+    handlers = [instmodel_t,
+                experiment_t,
+                ensemble_t,
+                variable_t,
+                
+                # Must be processed after variable
+                realm_t,
+                frequency_t,
+                subset_t,
+                
+                # Fix some unusual CMIP3 filenames
+                fnfix_t,
+                ]
 
     def init_drs(self, drs=None):
         if drs is None:
