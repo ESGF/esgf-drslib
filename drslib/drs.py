@@ -109,11 +109,21 @@ class BaseDRS(dict):
                 if to_publish_level:
                     return
 
-    def _encode_component(self, component):
+    @classmethod
+    def _encode_component(klass, component, value):
+        """
+        Encode the value of component named `component` as a string and return.
+
+        """
         raise NotImplementedError
 
     @classmethod
     def _decode_component(klass, component, value):
+        """
+        Decode the value of component named `component` from a string and 
+        return the Python value.
+
+        """
         raise NotImplementedError
 
     #-------------------------------------------------------------------------
@@ -149,7 +159,7 @@ class BaseDRS(dict):
     def __repr__(self):
         kws = []
         for attr in self._iter_components(with_version=True, to_publish_level=True):
-            kws.append(self._encode_component(attr))
+            kws.append(self._encode_component(attr, self[attr]))
 
         # Remove trailing '%' from components
         while kws and kws[-1] == '%':
@@ -164,10 +174,10 @@ class BaseDRS(dict):
         If version is not None and with_version=True the version is included.
 
         """
-        parts = [self._encode_component(x) for x in
+        parts = [self._encode_component(x, self[x]) for x in
                  self._iter_components(with_version=False, to_publish_level=True)]
         if self.version and with_version:
-            parts.append(self._encode_component('version'))
+            parts.append(self._encode_component('version', self['version']))
         return '.'.join(parts)
 
     @classmethod
@@ -227,7 +237,8 @@ class DRS(BaseDRS):
     PUBLISH_LEVEL = 'ensemble'
     OPTIONAL_ATTRS = ['extended']
 
-    def _encode_component(self, attr):
+    @classmethod
+    def _encode_component(klass, attr, value):
         """
         Encode a DRS component as a string.  Components that are None
         are encoded as '%'.
@@ -236,22 +247,22 @@ class DRS(BaseDRS):
         from drslib.translate import _from_date
 
         #!TODO: this code overlaps serialisation code in translate.py
-        if self[attr] is None:
+        if value is None:
             val = '%'
         elif attr is 'ensemble':
-            val = _ensemble_to_rip(self.ensemble)
+            val = _ensemble_to_rip(value)
             if val == '':
                 val = '%'
         elif attr is 'version':
-            val = 'v%d' % self.version
+            val = 'v%d' % value
         elif attr is 'subset':
-            N1, N2, clim = self.subset
+            N1, N2, clim = value
             if clim:
                 val = '%s-%s-clim' % (_from_date(N1), _from_date(N2))
             else:
                 val = '%s-%s' % (_from_date(N1), _from_date(N2))
         else:
-            val = self[attr]
+            val = value
 
         return val
 
@@ -366,7 +377,7 @@ def drs_to_path(drs_root, drs):
 
     path = [drs_root]
     for attr in attrs:
-        val = drs._encode_component(attr)
+        val = drs._encode_component(attr, drs[attr])
         if val == '%':
             val = '*'
         if val is None:
