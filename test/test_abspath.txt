@@ -1,0 +1,45 @@
+This test uncovers a problem with relative vs. absolute paths in drs_root and incoming.
+
+
+Test Prerequisites
+==================
+
+Import modules required to for this test.
+
+>>> import sys, os, shutil
+>>> sys.path.append(os.path.dirname(__file__))
+>>> from drslib.drs_command import main as drs_tool_main
+>>> import gen_drs
+
+Create a directory and build a drs-tree in it called './drs_tool_example/cmip5'
+
+>>> tmpdir = './drs_tool_example'
+>>> drs_root = tmpdir
+>>> incoming = os.path.abspath(os.path.join(tmpdir, 'output'))
+>>> if os.path.exists(tmpdir): shutil.rmtree(tmpdir)
+>>> os.mkdir(tmpdir)
+>>> gen_drs.write_eg2(tmpdir)
+>>> gen_drs.write_listing(incoming, os.path.dirname(__file__)+'/cmip5_nomodel_test_ls')
+
+Create a function to run the drs_tool command.
+
+>>> def do_drs_tool(subcommand, args='', pattern="cmip5.output1.MOHC.HadCM3"):
+... 	cmd = "drs_tool %s --root=%s --incoming=%s --version=20100101 \
+...                     %s %s" % (subcommand, drs_root, incoming, pattern, args)
+...     drs_tool_main(cmd.split())
+ 
+List the realm-trees
+
+>>> do_drs_tool('list', pattern='cmip5.%.MOHC.HadCM3') #doctest:+ELLIPSIS
+==============================================================================
+DRS Tree at ...
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+Incompletely specified incoming datasets
+------------------------------------------------------------------------------
+cmip5.%.MOHC.HadCM3.1pctto4x.day.atmos.day.r1i1p1                     
+cmip5.%.MOHC.HadCM3.1pctto4x.mon.ocean.Omon.r1i1p1                    
+------------------------------------------------------------------------------
+==============================================================================
+
+
