@@ -6,3 +6,4 @@ as follows (requires sphinx):
 
   $ cd doc
   $ make html
+
