@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ESGF: esgf-drslib</title>
+    
+    <link rel="stylesheet" href="_static/esgf.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="drslib v0.3.0 documentation" href="index.html" />
+    <link rel="next" title="drslib API HowTo" href="howto.html" />
+    <link rel="prev" title="esgf-drslib documentation" href="index.html" />
+    <!-- the syle sheet link  -->
+    <!-- favuorite icon - needs to have the http://full_path link  -->
+    <link rel="icon" type="image/png" href="http://esgf.org/images/esgf-favicon.png">
+    <!-- keywords for search  engines  -->
+    <meta name="keywords" content="earth systems grid, go-essp, esgf, distributed computing, distributed storage, climage science">
+    <meta name="description" content="A distributed database for structured data.">		
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'> 
+    
+  </head>
+  <body>
+      <!-- header starts here -->
+      <div id="header" style="overflow: hidden">
+        <!-- image floats tot the right -->
+        <div style='float: right; margin-right: 20px'> 
+	  <img src='_static/images/logo.png' width="70" height="70" >	 
+        </div>
+        
+	<div id='logo' style='float: left; margin-right: 20px; margin-left: -10px'>
+	  <a href="http://esgf.org/"><img src='http://esgf.org/images/esgf-logo.png' width="70" height="70" border="0"></a>
+        </div>
+	
+	<div>  <!-- inside header -->   
+	  <div class="title">ESGF</div>
+	  <div class="subtitle">Earth System Grid Federation</div>
+          <!-- projects top navigation -->  
+	  
+<div class="projects">  <!-- projects -->
+      <a href="http://esgf.org/esgf-installer-site/">installer</a>
+      <a href="http://esgf.org/esg-node-site/">node-manager</a>
+      <a href="http://esgf.org/esg-publisher-site/">publisher</a>
+      <a href="http://esgf.org/esgf-idp-site/">idp</a>
+      <a href="http://esgf.org/esg-orp-site">orp</a>
+      <a href="http://esgf.org/esgf-security-site">security</a>
+      <a href="http://esgf.org/esg-search-site">search</a>
+      <a href="http://esgf.org/esg-script-gen-site">script-gen</a>
+      <b>drslib</b> &middot;
+      <a href="http://esgf.org/esgf-stager-site">stager</a>
+      <a href="http://esgf.org/projects.html">...</a></div> <!-- projects -->    
+
+	  
+        </div>  <!-- inside header -->
+      </div>  <!-- header -->
+      <!-- left side navigation bar starts here -->
+      
+      
+      
+<div class="lsidebar">  <!-- lsidebar -->
+  <ul>      
+      <li><a href="http://esgf.org/">esgf</a></li>
+      <li class="missing">design</li>      
+      <li><a href="http://pypi.python.org/pypi/drslib">download</a></li>      
+      <li><a href="intro.html#quick-start">quickstart</a></li>
+      <li class="missing">developer&nbsp;info</li>
+      <li class="missing">performance</li>      
+      <li><a href="http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary">repo</a></li>      
+      <li><a href="modules.html">code docs</a></li>
+      <li class="missing">dep-report</li>      
+      <li><a href="intro.html#testing">unit tests</a></li>
+      <li class="missing">coverage</li>
+      <li class="missing">ci</li>
+      <li class="missing">faq</li>
+      <li class="missing">mailing list</li>
+      <li class="missing">bugs</li>
+      <li class="missing">wiki</li>
+      <li class="missing">blog</li></ul>
+</div> <!-- lsidebar -->
+
+      
+      
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="howto.html" title="drslib API HowTo"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="esgf-drslib documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">drslib v0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div> 
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#installing-for-development">Installing for development</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#overriding-drs-vocabularies">Overriding DRS vocabularies</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logging">Logging</a></li>
+<li><a class="reference internal" href="#testing">Testing</a></li>
+<li><a class="reference internal" href="#reporting-bugs">Reporting Bugs</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">esgf-drslib documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="howto.html"
+                        title="next chapter">drslib API HowTo</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div> 
+      
+      <div class="document">
+	<div class='content'>
+	  
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h2>
+<p>The design of the library has been driven by the following requirements:</p>
+<ol class="arabic simple">
+<li>Deduce the DRS directory structure a DRS-compliant filename.</li>
+<li>Validate filenames and directory paths against the DRS.</li>
+<li>Convert the CMIP3 directory structure into a DRS-compliant form.</li>
+<li>Manage multiple versions of DRS publication-level datasets on the filesystem.</li>
+<li>Detect the CMIP5 product DRS component during data publication.</li>
+</ol>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>drslib is written in <a class="reference external" href="http://www.python.org">Python</a>.  It requires one of the installation
+tools <a class="reference external" href="http://pypi.python.org/pypi/setuptools">setuptools</a> or <a class="reference external" href="http://pypi.python.org/pypi/pip">pip</a>.  Other requirements are downloaded
+automatically during installation.  Download and install with:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Using pip</span>
+<span class="nv">$ </span>pip install drslib
+
+<span class="c"># OR using setuptools</span>
+<span class="nv">$ </span>easy_install drslib
+</pre></div>
+</div>
+<p>If you are upgrading drslib you will need to add the &#8220;-U&#8221; option to
+either pip or easy_install.</p>
+<blockquote class="pull-quote">
+<strong>Note:</strong> To install onto an ESG datanode you can use use the
+<tt class="docutils literal"><span class="pre">easy_install</span></tt> in <tt class="docutils literal"><span class="pre">/usr/local/cdat/bin</span></tt>.  This will install
+<tt class="docutils literal"><span class="pre">drslib</span></tt> into <tt class="docutils literal"><span class="pre">/usr/local/cdat/bin/python</span></tt> and install
+<tt class="docutils literal"><span class="pre">drs_tool</span></tt> as <tt class="docutils literal"><span class="pre">/usr/local/cdat/bin/drs_tool</span></tt>.</blockquote>
+<div class="section" id="installing-for-development">
+<h3>Installing for development<a class="headerlink" href="#installing-for-development" title="Permalink to this headline">¶</a></h3>
+<p>If you want to inspect the code you will need to get the source
+distribution. Either visit drslib&#8217;s <a class="reference external" href="http://pypi.python.org/pypi/drslib">PyPI page</a> and follow the download link or
+clone the git repository <a class="reference external" href="git://esgf.org/esgf-drslib.git">esgf-drslib.git</a>.  You can also view the
+evolution of the project on esgf&#8217;s <a class="reference external" href="http://esgf.org/gitweb/?p=esgf-drslib.git;a=summary">gitweb</a>.</p>
+<p>Once you have unpacked the tarball you must activate the distribution
+in <cite>develop</cite> mode.  To do this execute the following using a python
+interpreter with <a class="reference external" href="http://pypi.python.org/pypi/setuptools">setuptools</a> installed:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python setup.py develop
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">drslib</span></tt> requires the CMIP5 MIP tables to be available in
+order to run.  You can point to your MIP table location using the
+environment variable <tt class="docutils literal"><span class="pre">MIP_TABLE_PATH</span></tt>.  All tables should be named
+<tt class="docutils literal"><span class="pre">CMIP5_*</span></tt>.</p>
+<p>Alternatively you can use <a class="reference external" href="http://pypi.python.org/pypi/metaconfig">metaconfig</a> to configure the location of
+your MIP tables.  Create the following in your <tt class="docutils literal"><span class="pre">$HOME/.metaconfig.conf</span></tt> file:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="k">[metaconfig]</span>
+<span class="na">configs</span> <span class="o">=</span> <span class="s">drslib</span>
+
+<span class="k">[drslib:tables]</span>
+<span class="na">path</span> <span class="o">=</span> <span class="s">/path/to/mip/tables</span>
+<span class="na">model_table</span> <span class="o">=</span> <span class="s">/path/to/model_table</span>
+</pre></div>
+</div>
+<p>The option <tt class="docutils literal"><span class="pre">model_table</span></tt> is optional and if specified should point
+to the &#8220;CMIP5 Modelling Group&#8221; spreadsheet in CSV format.  This table
+is used to map model names to institute names.  The drslib package is
+distributed with a recent version of this file.</p>
+<p>Default DRS attributes used by the <tt class="docutils literal"><span class="pre">drs_tool</span></tt> command can be set in
+the <tt class="docutils literal"><span class="pre">drs</span></tt> section:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="k">[drslib:drs]</span>
+<span class="na">root</span> <span class="o">=</span> <span class="s">/path/to/drs/activity</span>
+<span class="na">institute</span> <span class="o">=</span> <span class="s">MOHC</span>
+<span class="na">model</span> <span class="o">=</span> <span class="s">HadCM3</span>
+</pre></div>
+</div>
+<p>It is usually convenient to set at least <tt class="docutils literal"><span class="pre">root</span></tt> and <tt class="docutils literal"><span class="pre">activity</span></tt> in
+the configuration file.</p>
+<div class="section" id="overriding-drs-vocabularies">
+<h3>Overriding DRS vocabularies<a class="headerlink" href="#overriding-drs-vocabularies" title="Permalink to this headline">¶</a></h3>
+<p>Drslib ships with reasonable defaults for the DRS vocabularies,
+however sometimes you will want to override or extend the defaults
+supplied.  At this time drslib supports extending the vocabularies of
+institutes, models and experiments.</p>
+<p>To define all CMIP5 experiments including individual decadal
+experiments you can define the <tt class="docutils literal"><span class="pre">drslib:vocabularies</span></tt> section as follows:</p>
+<div class="highlight-ini"><pre>[drslib:vocabularies]
+experiments =
+  1pctto2x 2xco2 pdcntrl sresa1b 1pctto4x amip picntrl sresa2 20c3m commit
+  slabcntl sresb1
+  decadal1960 decadal1961 decadal1962 decadal1963 decadal1964 decadal1965
+  decadal1966 decadal1967 decadal1968 decadal1969 decadal1970 decadal1971
+  decadal1972 decadal1973 decadal1974 decadal1975 decadal1976 decadal1977
+  decadal1978 decadal1979 decadal1980 decadal1981 decadal1982 decadal1983
+  decadal1984 decadal1985 decadal1986 decadal1987 decadal1988 decadal1989
+  decadal1990 decadal1991 decadal1992 decadal1993 decadal1994 decadal1995
+  decadal1996 decadal1997 decadal1998 decadal1999 decadal2000 decadal2001
+  decadal2002 decadal2003 decadal2004 decadal2005 decadal2006 decadal2007
+  decadal2008 decadal2009</pre>
+</div>
+<p>Institutes and models can be defined with the <tt class="docutils literal"><span class="pre">institutes</span></tt> option.
+This is interpreted as a newline separated list of lines, each line
+being the institute name a colon then space separated list of models.</p>
+<div class="highlight-ini"><pre>institutes =
+  NOAA-GFDL:GFDL-ESM2G
+  MOHC:HadGEM2-ES HadCM3 HadGEM2-CC</pre>
+</div>
+</div>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">drslib</span></tt> uses Python&#8217;s standard logging infrastructure to give
+details of it&#8217;s operation.  Messages are sent to loggers under the
+<tt class="docutils literal"><span class="pre">drslib</span></tt> logger.  You can configure logging via metaconfig by
+pointing to a separate logging configuration file:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="k">[metaconfig]</span>
+<span class="na">configs</span> <span class="o">=</span> <span class="s">drslib</span>
+<span class="na">logging</span> <span class="o">=</span> <span class="s">/path/to/logging.conf</span>
+</pre></div>
+</div>
+<p>The format of <tt class="docutils literal"><span class="pre">logging.conf</span></tt> should conform to the Python logging
+<a class="reference external" href="http://docs.python.org/library/logging.html#configuration-file-format">configuration file format</a>.  An example logging configuration is
+given below which will log product detection decisions separately from
+general drslib warnings:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="c">#</span>
+<span class="c"># Basic logging configuration for drs_tool</span>
+<span class="c">#</span>
+<span class="c"># This configuration prints product detection decisions to STDERR and logs</span>
+<span class="c"># warnings to ./drs_tool.log</span>
+<span class="c">#</span>
+
+<span class="k">[loggers]</span>
+<span class="na">keys</span><span class="o">=</span><span class="s">root,drslib,p_cmip5</span>
+
+<span class="k">[handlers]</span>
+<span class="na">keys</span><span class="o">=</span><span class="s">drslib_h,p_cmip5_h</span>
+
+<span class="k">[formatters]</span>
+<span class="na">keys</span><span class="o">=</span><span class="s">f1,f2</span>
+
+<span class="c">#---------------------------------------------------------------------------</span>
+<span class="c"># Loggers</span>
+
+<span class="c"># No catch-all logging</span>
+<span class="k">[logger_root]</span>
+<span class="na">handlers</span><span class="o">=</span>
+<span class="na">level</span><span class="o">=</span><span class="s">NOTSET</span>
+
+<span class="k">[logger_drslib]</span>
+<span class="na">qualname</span><span class="o">=</span><span class="s">drslib</span>
+<span class="na">handlers</span><span class="o">=</span><span class="s">drslib_h</span>
+
+<span class="k">[logger_p_cmip5]</span>
+<span class="na">qualname</span><span class="o">=</span><span class="s">drslib.p_cmip5</span>
+<span class="na">handlers</span><span class="o">=</span><span class="s">p_cmip5_h</span>
+<span class="na">propagate</span><span class="o">=</span><span class="s">0</span>
+
+<span class="c">#---------------------------------------------------------------------------</span>
+<span class="c"># Handlers &amp; Formatters</span>
+
+<span class="k">[handler_drslib_h]</span>
+<span class="na">class</span><span class="o">=</span><span class="s">FileHandler</span>
+<span class="na">args</span><span class="o">=</span><span class="s">(&#39;./drs_tool.log&#39;, )</span>
+<span class="na">formatter</span><span class="o">=</span><span class="s">f1</span>
+<span class="na">level</span><span class="o">=</span><span class="s">INFO</span>
+
+<span class="k">[handler_p_cmip5_h]</span>
+<span class="na">class</span><span class="o">=</span><span class="s">StreamHandler</span>
+<span class="na">args</span><span class="o">=</span><span class="s">(sys.stderr, )</span>
+<span class="na">formatter</span><span class="o">=</span><span class="s">f2</span>
+<span class="na">level</span><span class="o">=</span><span class="s">INFO</span>
+
+<span class="k">[formatter_f1]</span>
+<span class="na">format</span><span class="o">=</span><span class="s">%(asctime)s [%(levelname)s] %(name)s: %(message)s</span>
+<span class="na">datefmt</span><span class="o">=</span>
+
+<span class="k">[formatter_f2]</span>
+<span class="na">format</span><span class="o">=</span><span class="s">[%(levelname)s] %(name)s: %(message)s</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>drslib ships with a test suite compliant with <a class="reference external" href="http://somethingaboutorange.com/mrl/projects/nose">nose</a>.  The suite can be
+run in various ways.  The test suite uses the extension <a class="reference external" href="http://pypi.python.org/pypi/NoseXUnit">NoseXUnit</a> to
+produce XML reports of the test results.  NoseXUnit will be
+automatically installed if you run the tests via <tt class="docutils literal"><span class="pre">setup.py</span></tt>:</p>
+<div class="highlight-python"><pre>$ python setup.py test</pre>
+</div>
+<p>Or if the depencencies are satisfied you can run all tests with:</p>
+<div class="highlight-python"><pre>$ nosetests</pre>
+</div>
+</div>
+<div class="section" id="reporting-bugs">
+<h2>Reporting Bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this headline">¶</a></h2>
+<p>The drslib bugtracker is available on <a class="reference external" href="http://esgf.org/bugzilla/enter_bug.cgi?product=drslib">esgf.org bugzilla</a>.</p>
+<ul class="simple">
+<li><a class="reference external" href="http://esgf.org/bugzilla/enter_bug.cgi?product=drslib">Submit a bug here</a>.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+	</div> <!-- content -->
+	<div class="clearer"></div>
+      </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="howto.html" title="drslib API HowTo"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="esgf-drslib documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">drslib v0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <!-- footer section here -->
+      <div id="footer"> 
+	<div >  
+	  <div class="projects"> 
+	    <a href="http://www-pcmdi.llnl.gov" target="_other">PCMDI</a> &middot;
+	    <a href="http://cmip-pcmdi.llnl.gov/cmip5/" target="_other">CMIP5</a> &middot; 
+	    <a href="http://www.llnl.gov" target="_other">LLNL</a> &middot;
+            <a href="https://www.llnl.gov/disclaimer.html" target="_other">Privacy &amp; Legal Notice</a> &middot;
+            <a  > LLNL-WEB-460643 &nbsp;&nbsp;&nbsp; </a &middot;></div>
+	</div>
+      </div>    <!-- footer -->      
+      
+  </body>
+</html>
