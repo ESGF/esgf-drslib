@@ -352,20 +352,6 @@ class PublisherTree(object):
                                             drs.variable))
 
 
-    def file_version_map(self):
-        """
-        Return a dictionary D[filename] = (variable, versions)
-
-        """
-        D = {}
-
-        for filepath, link_dir in self.iter_files_with_links():
-            #!FIXME: reimplement
-            raise NotImplementedError
-            #D.setdefault(os.path.basename(filepath), (variable, []))[1].append(version)
-
-        return D
-
     def iter_files_with_links(self, version=None):
         """
         Iterate over files of a particular version also returning it's respective link.
