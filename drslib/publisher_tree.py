@@ -78,7 +78,7 @@ class PublisherTree(object):
         self._checker_failures = []
 
         #!TODO: calling internal method.  Make this method public.
-        ensemble = self.drs._encode_component('ensemble')
+        ensemble = self.drs._encode_component('ensemble', drs['ensemble'])
         self.pub_dir = os.path.join(self.drs_tree.drs_root,
                                       self.drs.product,
                                       self.drs.institute,

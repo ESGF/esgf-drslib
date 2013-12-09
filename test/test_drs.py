@@ -12,10 +12,11 @@ class TrivialDRS(BaseDRS):
     PUBLISH_LEVEL = 'bar'
     OPTIONAL_ATTRS = []
 
-    def _encode_component(self, component):
+    @classmethod
+    def _encode_component(self, component, value):
         if component == 'version':
-            return 'v%s' % self.version
-        return str(self[component])
+            return 'v%s' % value
+        return str(value)
 
     @classmethod
     def _decode_component(klass, component, value):
