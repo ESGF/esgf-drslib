@@ -77,17 +77,8 @@ class PublisherTree(object):
         self._checkers = default_checkers[:]
         self._checker_failures = []
 
-        #!TODO: calling internal method.  Make this method public.
-        ensemble = self.drs._encode_component('ensemble', drs['ensemble'])
-        self.pub_dir = os.path.join(self.drs_tree.drs_root,
-                                      self.drs.product,
-                                      self.drs.institute,
-                                      self.drs.model,
-                                      self.drs.experiment,
-                                      self.drs.frequency,
-                                      self.drs.realm,
-                                      self.drs.table,
-                                      ensemble)
+        self.pub_dir = drs_to_path(self.drs_tree.drs_root, self.drs)
+
         self.deduce_state()
 
     def deduce_state(self):
