@@ -32,7 +32,7 @@ import re
 
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError
-from drslib.drs import DRS, path_to_drs, drs_to_path
+from drslib.drs import DRS, CMIP5FileSystem
 from drslib import config, mapfile
 from drslib.p_cmip5 import ProductException
 from drslib.publisher_tree import PublisherTree
@@ -78,6 +78,8 @@ class DRSTree(object):
 
         self._move_cmd = config.move_cmd
 
+        self.drs_fs = CMIP5FileSystem(self.drs_root)
+
         if not os.path.isdir(self.drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
@@ -103,7 +105,7 @@ class DRSTree(object):
         drs_t = DRS(**components)
 
         # NOTE: None components are converted to wildcards
-        pt_glob = drs_to_path(self.drs_root, drs_t)
+        pt_glob = self.drs_fs.drs_to_publication_path(drs_t)
         pub_trees = glob(pt_glob)
 
         for pt_path in pub_trees:
@@ -112,7 +114,7 @@ class DRSTree(object):
                 log.warning("PublisherTree path %s is inside incoming, ignoring" % pt_path)
                 continue
 
-            drs = path_to_drs(self.drs_root, pt_path, activity=drs_t.activity)
+            drs = self.drs_fs.publication_path_to_drs(pt_path, activity=drs_t.activity)
             drs_id = drs.to_dataset_id()
             if drs_id in self.pub_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)

@@ -17,7 +17,7 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import path_to_drs, drs_to_path, DRS
+from drslib.drs import DRS
 from drslib import config
 
 test_dir = os.path.dirname(__file__)

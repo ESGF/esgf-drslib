@@ -323,72 +323,131 @@ def _int_or_none(x):
         return int(x)
 
 
-#--------------------------------------------------------------------------
-# A more lightweight way of getting the DRS attributes from a path.
-# This is effective for the path part of a DRS path but doesn't verify
-# or parse the filename
-#
 
-def path_to_drs(drs_root, path, activity=None):
+
+class DRSFileSystem(object):
     """
-    Create a :class:`DRS` object from a filesystem path.
-    
-    This function is more lightweight than using :mod:`drslib.translator`
-    but only works for the parts of the DRS explicitly represented in
-    a path.
-    
-    :param drs_root: The root of the DRS tree.  
-        This should point to the *activity* directory
+    Represents the mapping scheme between :class:`DRS` objects and
+    a filesystem.
 
-    :param path: The path to convert.  This is either an absolute path
+    Instances of this class deal with how DRS objects are partitioned into
+    Publicaiton-level datasets and how files within a DRS are mapped to
+    the filesystem.
+
+    :cvar drs_cls: The subclass of :class:`BaseDRS` used in this filesystem.
+
+    :cvar publish_level: the last component name which is part of the published
+        dataset-id.
+
+    :ivar drs_root: The path to the root directory of a DRS filesystem.
+        This path represents the activity level of the DRS.
+
+
+    """
+
+    drs_cls = NotImplemented
+
+    def __init__(self, drs_root):
+        self.drs_root = drs_root
+
+    def publication_path_to_drs(self, path):
+        """
+        Create a :class:`DRS` object from a filesystem path.
+
+        """
+        raise NotImplementedError
+
+    def drs_to_publication_path(self, drs):
+        """
+        Returns a directory path from a :class:`DRS` object.  Any DRS component
+        that is set to None will result in a wildcard '*' element in the path.
+
+        """
+        raise NotImplementedError
+
+    def drs_to_publication_subpath(self, drs):
+        """
+        Return the subpath within the versioning directory for this 
+        :class:`DRS` instance.
+
+        """
+        raise NotImplementedError
+
+    def publication_subpath_to_drs(self, subpath):
+        """
+        Return a :class:`DRS` instance representing the DRS components
+        deducible from `subpath`.
+
+        """
+        raise NotImplementedError
+
+class CMIP5FileSystem(DRSFileSystem):
+    drs_cls = DRS
+
+    def publication_path_to_drs(self, path, activity=None):
+        """
+        Create a :class:`DRS` object from a filesystem path.
+    
+        This function is more lightweight than using :mod:`drslib.translator`
+        but only works for the parts of the DRS explicitly represented in
+        a path.
+        
+        :param path: The path to convert.  This is either an absolute path
         or is relative to the current working directory.
 
-    """
+        """
 
-    nroot = drs_root.rstrip('/') + '/'
-    relpath = os.path.normpath(path[len(nroot):])
+        nroot = self.drs_root.rstrip('/') + '/'
+        relpath = os.path.normpath(path[len(nroot):])
 
-    p = [activity] + relpath.split('/')
-    drs = DRS()
-    for val, attr in itertools.izip(p, drs._iter_components(with_version=False, to_publish_level=True)):
-        drs[attr] = drs._decode_component(attr, val)
+        p = [activity] + relpath.split('/')
+        drs = self.drs_cls()
+        for val, attr in itertools.izip(p, drs._iter_components(with_version=False, to_publish_level=True)):
+            drs[attr] = drs._decode_component(attr, val)
 
-    log.debug('%s => %s' % (repr(path), drs))
+        log.debug('%s => %s' % (repr(path), drs))
 
-    return drs
+        return drs
     
     
-def drs_to_path(drs_root, drs):
-    """
-    Returns a directory path from a :class:`DRS` object.  Any DRS component
-    that is set to None will result in a wildcard '*' element in the path.
+    def drs_to_publication_path(self, drs):
+        """
+        Returns a directory path from a :class:`DRS` object.  Any DRS component
+        that is set to None will result in a wildcard '*' element in the path.
 
-    This function does not take into account of MIP tables of filenames.
-    
-    :param drs_root: The root of the DRS tree.  This should point to
-        the *activity* directory
-    
-    :param drs: The :class:`DRS` object from which to generate the path
+        This function does not take into account of MIP tables of filenames.
 
-    """
-    #!TODO: resolve activity ambiguity!  This will not work for CORDEX
-    attrs = list(drs._iter_components(with_version=False, to_publish_level=True))
-    attrs = attrs[1:]
+        :param drs: The :class:`DRS` object from which to generate the path
 
-    path = [drs_root]
-    for attr in attrs:
-        val = drs._encode_component(attr, drs[attr])
-        if val == '%':
-            val = '*'
-        if val is None:
-            break
-        path.append(val)
+        """
+        #!TODO: resolve activity ambiguity!  This will not work for CORDEX
+        attrs = list(drs._iter_components(with_version=False, to_publish_level=True))
+        attrs = attrs[1:]
+
+        path = [self.drs_root]
+        for attr in attrs:
+            val = drs._encode_component(attr, drs[attr])
+            if val == '%':
+                val = '*'
+            if val is None:
+                break
+            path.append(val)
 
 
-    #!DEBUG
-    assert len(path) == len(attrs)+1
+        #!DEBUG
+        assert len(path) == len(attrs)+1
 
-    path = os.path.join(*path)
-    log.debug('%s => %s' % (drs, repr(path)))
-    return path
+        path = os.path.join(*path)
+        log.debug('%s => %s' % (drs, repr(path)))
+        return path
 
+    def drs_to_publication_subpath(self, drs):
+        return '_'.join(drs.variable, drs.version)
+
+    def publication_subpath_to_drs(self, subpath):
+        variable_str, version_str = subpath.split('_')
+
+        variable = self.drs_cls._decode_component('variable', variable_str)
+        version = self.drs_cls._decode_component('version', version_str)
+
+        return self.drs_cls(variable=variable, version=version)

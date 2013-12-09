@@ -15,7 +15,7 @@ import datetime
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import path_to_drs, drs_to_path, DRS
+from drslib.drs import DRS
 from drslib import config
 
 from drs_tree_shared import TestEg, TestListing, test_dir

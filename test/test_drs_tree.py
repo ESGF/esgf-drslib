@@ -18,7 +18,7 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import path_to_drs, drs_to_path, DRS
+from drslib.drs import DRS, CMIP5FileSystem
 from drslib import config
 
 from drs_tree_shared import TestEg, TestListing
@@ -516,13 +516,15 @@ class TestEmptyPubdir(TestEg):
 
 #----------------------------------------------------------------------------
 
+drs_fs = CMIP5FileSystem('/cmip5')
+
 def test_1():
-    drs = path_to_drs('/cmip5', '/cmip5/output1')
+    drs = drs_fs.publication_path_to_drs('/cmip5/output1')
     assert drs.product == 'output1'
     assert drs.institute == None
 
 def test_2():
-    drs = path_to_drs('/cmip5/', '/cmip5/output1/TEST/HadCM3/1pctto4x/day/atmos/day/r1i1p2/foo')
+    drs = drs_fs.publication_path_to_drs('/cmip5/output1/TEST/HadCM3/1pctto4x/day/atmos/day/r1i1p2/foo')
                       
     assert drs.institute == 'TEST'
     assert drs.experiment == '1pctto4x'
@@ -532,14 +534,14 @@ def test_2():
 def test_3():
     drs = DRS(product='output1', institute='TEST')
 
-    path = drs_to_path('/cmip5', drs)
+    path = drs_fs.drs_to_publication_path(drs)
 
     assert path == '/cmip5/output1/TEST/*/*/*/*/*/*'
 
 def test_4():
     drs = DRS(product='output1', institute='TEST', ensemble=(1,2,3))
 
-    path = drs_to_path('/cmip5/', drs)
+    path = drs_fs.drs_to_publication_path(drs)
 
     assert path == '/cmip5/output1/TEST/*/*/*/*/*/r1i2p3'
 
@@ -547,7 +549,7 @@ def test_5():
     drs = DRS(product='output1', institute='TEST', model='HadCM3',
               frequency='day')
 
-    path = drs_to_path('/cmip5', drs)
+    path = drs_fs.drs_to_publication_path(drs)
 
     assert path == '/cmip5/output1/TEST/HadCM3/*/day/*/*/*'
 

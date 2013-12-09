@@ -13,7 +13,7 @@ import itertools
 
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError, drs_dates_overlap
-from drslib.drs import DRS, path_to_drs, drs_to_path
+from drslib.drs import DRS
 from drslib import config, mapfile
 
 import logging
@@ -77,7 +77,8 @@ class PublisherTree(object):
         self._checkers = default_checkers[:]
         self._checker_failures = []
 
-        self.pub_dir = drs_to_path(self.drs_tree.drs_root, self.drs)
+        drs_fs = self.drs_tree.drs_fs
+        self.pub_dir = drs_fs.drs_to_publication_path(self.drs)
 
         self.deduce_state()
 
