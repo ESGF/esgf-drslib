@@ -271,12 +271,12 @@ class CheckFilesLinks(TreeChecker):
         self._links = []
 
         latest_version = self._latest_version(pt)
-        for filepath, variable, version in pt.iter_real_files():
+        for filepath, link_dir in pt.iter_real_files():
             if check_latest and version != latest_version:
                 continue
 
             if op.islink(filepath):
-                self._links.append((filepath, variable, version))
+                self._links.append((filepath, link_dir))
                 self._state_unfixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
 
 

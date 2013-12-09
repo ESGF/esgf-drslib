@@ -281,7 +281,7 @@ class PublisherTree(object):
         todo_files = []
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
-            newpath = os.path.join(self.real_file_dir(drs.variable, next_version),
+            newpath = os.path.join(self.real_file_dir(drs, next_version),
                                    filename)
 
             # Detect directories needing creation
@@ -291,7 +291,7 @@ class PublisherTree(object):
 
 
             yield self.CMD_MOVE, filepath, newpath
-            todo_files.append((newpath, drs.variable, next_version))
+            todo_files.append((newpath, self.link_file_dir(drs, next_version)))
 
         #!TODO: Handle deleted files!
 
@@ -329,24 +329,27 @@ class PublisherTree(object):
     # These methods could be considered protected.  They are designed
     # for use by drs_check_tree.py
 
-    def real_file_dir(self, variable, version):
+    def real_file_dir(self, drs, version=None):
         """
         Return the expected dir containing the real file represented by drs.
         """
         #!TODO: needs revisiting for CORDEX
+        if version is None:
+            version = drs.version
 
-        fdir = '%s_%d' % (variable, version)
+        fdir = '%s_%d' % (drs.variable, version)
         return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                fdir))
 
-    def link_file_dir(self, variable, version):
+    def link_file_dir(self, drs, version=None):
         """
         Return the expected dir containing the link to the file represented by drs.
         """
-
+        if version is None:
+            version = drs.version
         
         return os.path.abspath(os.path.join(self.pub_dir, 'v%d' % version,
-                                            variable))
+                                            drs.variable))
 
 
     def file_version_map(self):
@@ -356,17 +359,19 @@ class PublisherTree(object):
         """
         D = {}
 
-        for filepath, variable, version in self.iter_real_files():
-            D.setdefault(os.path.basename(filepath), (variable, []))[1].append(version)
+        for filepath, link_dir in self.iter_files_with_links():
+            #!FIXME: reimplement
+            raise NotImplementedError
+            #D.setdefault(os.path.basename(filepath), (variable, []))[1].append(version)
 
         return D
 
-    def iter_real_files(self, version=None):
+    def iter_files_with_links(self, version=None):
         """
-        Iterate over the real file paths.
+        Iterate over files of a particular version also returning it's respective link.
 
         :param version: iterate over a specific version or all versions if None
-        :yield: filepath, variable, version
+        :yield: filepath, linkpath
 
         """
         #!TODO: needs revisiting for CORDEX
@@ -384,7 +389,9 @@ class PublisherTree(object):
             filepath = os.path.join(path, filedir)
 
             for filename in [f for f in os.listdir(filepath) if not re.match(IGNORE_FILES_REGEXP, f)]:
-                yield os.path.join(filepath, filename), variable, fversion
+                #!FIXME: quick hack, remove when CORDEX refactoring resolved
+                drs = DRS(variable=variable)
+                yield os.path.join(filepath, filename), self.link_file_dir(drs, fversion)
 
     def prev_versions(self, version):
         """
@@ -468,9 +475,8 @@ class PublisherTree(object):
             from_seq = []
 
         done = set()
-        for filepath, variable, fversion in itertools.chain(from_seq,
-                                                            self.iter_real_files(version)):
-            link_dir = self.link_file_dir(variable, version)
+        for filepath, link_dir in itertools.chain(from_seq,
+                                                  self.iter_files_with_links(version)):
             filename = os.path.basename(filepath)
 
             if not os.path.exists(link_dir):
@@ -488,13 +494,11 @@ class PublisherTree(object):
 
         #!TODO: overlap detection removed.  See tag 0.3.0a6 for old implementation.
         for prev_version in self.prev_versions(version):
-            for filepath, variable, fversion in self.iter_real_files(prev_version):
+            for filepath, link_dir in self.iter_files_with_links(prev_version):
                 filename = os.path.basename(filepath)
 
                 if filename in done:
                     continue
-
-                link_dir = self.link_file_dir(variable, version)
 
                 if not os.path.exists(link_dir):
                     yield self.CMD_MKDIR, None, link_dir
