@@ -72,6 +72,8 @@ class DRSTree(object):
         self._vtrans = make_translator(self.drs_root, table_store=table_store)
         self.incoming = DRSList()
         self.incomplete = DRSList()
+
+        #!TODO: generalise output specification callback
         self._p_cmip5 = None
 
         self._move_cmd = config.move_cmd
@@ -104,12 +106,6 @@ class DRSTree(object):
         pt_glob = drs_to_path(self.drs_root, drs_t)
         pub_trees = glob(pt_glob)
 
-        # NOTE: must check if any of these pubtrees are within incoming
-        if incoming_dir:
-            incoming_dir = os.path.normpath(os.path.abspath(incoming_dir))
-            pub_trees = [x for x in pub_trees
-                         if not x.startswith(incoming_dir+'/')]
-
         for pt_path in pub_trees:
             # Detect whether pt_path is inside incoming.  If so ignore.
             if incoming_dir and (os.path.commonprefix((pt_path+'/', incoming_dir+'/')) == incoming_dir+'/'):
@@ -135,7 +131,7 @@ class DRSTree(object):
         Scan the filesystem for incoming DRS files.
 
         This method can be repeatedly called to discover incoming
-        files independently of :meth:`DRSTree.discover` repeatedly .
+        files independently of :meth:`DRSTree.discover`.
 
         :incoming_dir: A directory to recursively scan for files.
 
