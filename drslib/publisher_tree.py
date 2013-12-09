@@ -333,6 +333,7 @@ class PublisherTree(object):
         """
         Return the expected dir containing the real file represented by drs.
         """
+        #!TODO: needs revisiting for CORDEX
 
         fdir = '%s_%d' % (variable, version)
         return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
@@ -368,7 +369,7 @@ class PublisherTree(object):
         :yield: filepath, variable, version
 
         """
-        #!TODO: improve by taking a version argument
+        #!TODO: needs revisiting for CORDEX
         path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
             return
@@ -544,6 +545,7 @@ class PublisherTree(object):
 
         # Version directories may not exist so initially deduce
         # versions from the files directory
+        #!TODO: Revise for CORDEX
         versions = set()
         for d in os.listdir(fdir):
             try:
@@ -601,6 +603,7 @@ class PublisherTree(object):
 
         """
 
+        #!TODO: Revise for CORDEX
         FILTER_COMPONENTS = ['institution', 'model', 'experiment',
                              'frequency', 'realm', 'table',
                              'ensemble', 'product',
