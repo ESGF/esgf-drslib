@@ -67,16 +67,16 @@ class DRSTree(object):
             to select the TAMIP tables.
 
         """
-        self.drs_root = drs_root
+        self.drs_root = os.path.normpath(os.path.abspath(drs_root))
         self.pub_trees = {}
-        self._vtrans = make_translator(drs_root, table_store=table_store)
+        self._vtrans = make_translator(self.drs_root, table_store=table_store)
         self.incoming = DRSList()
         self.incomplete = DRSList()
         self._p_cmip5 = None
 
         self._move_cmd = config.move_cmd
 
-        if not os.path.isdir(drs_root):
+        if not os.path.isdir(self.drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
 
     def discover(self, incoming_dir=None, **components):
@@ -97,12 +97,19 @@ class DRSTree(object):
             files are detected
 
         """
-        
+
         drs_t = DRS(**components)
 
         # NOTE: None components are converted to wildcards
         pt_glob = drs_to_path(self.drs_root, drs_t)
         pub_trees = glob(pt_glob)
+
+        # NOTE: must check if any of these pubtrees are within incoming
+        if incoming_dir:
+            incoming_dir = os.path.normpath(os.path.abspath(incoming_dir))
+            pub_trees = [x for x in pub_trees
+                         if not x.startswith(incoming_dir+'/')]
+
         for pt_path in pub_trees:
             # Detect whether pt_path is inside incoming.  If so ignore.
             if incoming_dir and (os.path.commonprefix((pt_path+'/', incoming_dir+'/')) == incoming_dir+'/'):
