@@ -54,6 +54,7 @@ def make_parser():
                   help='Root directory of the DRS tree')
     op.add_option('-I', '--incoming', action='store',
                   help='Incoming directory for DRS files.  Defaults to <root>/%s' % config.DEFAULT_INCOMING)
+    #!TODO: needs revisiting for CORDEX
     for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
         op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
@@ -65,6 +66,9 @@ def make_parser():
     op.add_option('-P', '--profile', action='store',
                   metavar='FILE',
                   help='Profile the script exectuion into FILE')
+
+    op.add_option('-s', '--scheme', action='store',
+                  help='Select the DRS scheme to use')
 
     # p_cmip5 options
     op.add_option('--detect-product', action='store_true', 
@@ -145,7 +149,18 @@ class Command(object):
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
         drs_root = os.path.normpath(os.path.abspath(self.drs_root))
-        self.drs_fs = CMIP5FileSystem(drs_root)
+
+        if self.opts.scheme:
+            scheme = self.opts.scheme
+        else:
+            scheme = config.default_drs_scheme
+
+        try:
+            fs_cls = config.get_drs_scheme(scheme)
+        except KeyError:
+            raise ValueError('Unrecognised DRS scheme %s' % scheme)
+    
+        self.drs_fs = fs_cls(drs_root)
         self.drs_tree = DRSTree(self.drs_fs)
 
         if self.opts.move_cmd:
