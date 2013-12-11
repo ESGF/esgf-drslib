@@ -353,32 +353,41 @@ class PublisherTree(object):
                                             drs.variable))
 
 
-    def iter_files_with_links(self, version=None):
+    def iter_files_with_links(self, version=None, into_version=None):
         """
-        Iterate over files of a particular version also returning it's respective link.
+        Iterate over files of a particular version also returning it's respective link
+        into the latest version.
 
         :param version: iterate over a specific version or all versions if None
+        :param into_version: the version into which symbolic links will be made, if None
+            same as version, if both are None same as self.latest
         :yield: filepath, linkpath
 
         """
+
         #!TODO: needs revisiting for CORDEX
         path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
         if not os.path.exists(path):
             return
 
+        if into_version is None:
+            if version is None:
+                into_version = self.latest
+            else:
+                into_version = version
+
         for filedir in [f for f in os.listdir(path) if not re.match(IGNORE_FILES_REGEXP, f)]:
-            variable, fversion = filedir.split('_')
-            fversion = int(fversion)
+            subdrs = self.drs_tree.drs_fs.publication_subpath_to_drs(filedir)
             
-            if version is not None and version != fversion:
+            if version is not None and version != subdrs.version:
                 continue
 
             filepath = os.path.join(path, filedir)
 
             for filename in [f for f in os.listdir(filepath) if not re.match(IGNORE_FILES_REGEXP, f)]:
                 #!FIXME: quick hack, remove when CORDEX refactoring resolved
-                drs = DRS(variable=variable)
-                yield os.path.join(filepath, filename), self.link_file_dir(drs, fversion)
+                drs = DRS(variable=subdrs.variable)
+                yield os.path.join(filepath, filename), self.link_file_dir(drs, into_version)
 
     def prev_versions(self, version):
         """
@@ -481,7 +490,7 @@ class PublisherTree(object):
 
         #!TODO: overlap detection removed.  See tag 0.3.0a6 for old implementation.
         for prev_version in self.prev_versions(version):
-            for filepath, link_dir in self.iter_files_with_links(prev_version):
+            for filepath, link_dir in self.iter_files_with_links(prev_version, version):
                 filename = os.path.basename(filepath)
 
                 if filename in done:
@@ -539,11 +548,11 @@ class PublisherTree(object):
         #!TODO: Revise for CORDEX
         versions = set()
         for d in os.listdir(fdir):
-            try:
-                variable, version = d.split('_')
-            except ValueError:
-                continue
-            versions.add(int(version))
+            subdrs = self.drs_tree.drs_fs.publication_subpath_to_drs(d)
+            
+            assert subdrs.version is not None
+
+            versions.add(subdrs.version)
 
         # Also include versions without files/*_$VERSION
         versions.update(int(x[1:]) for x in os.listdir(self.pub_dir) if x[0] == 'v')

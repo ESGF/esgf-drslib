@@ -278,7 +278,10 @@ class DRS(BaseDRS):
             else:
                 ret = _rip_to_ensemble(val)
         elif attr is 'version':
-            val = int(val[1:])
+            if val[0] == 'v':
+                ret = int(val[1:])
+            else:
+                ret = int(val)
         elif attr is 'subset':
             parts = val.split('-')
             if len(parts) > 3:
