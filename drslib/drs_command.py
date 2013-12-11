@@ -145,8 +145,8 @@ class Command(object):
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
         drs_root = os.path.normpath(os.path.abspath(self.drs_root))
-        drs_fs = CMIP5FileSystem(drs_root)
-        self.drs_tree = DRSTree(drs_fs)
+        self.drs_fs = CMIP5FileSystem(drs_root)
+        self.drs_tree = DRSTree(self.drs_fs)
 
         if self.opts.move_cmd:
             self.drs_tree.set_move_cmd(self.opts.move_cmd)
@@ -168,9 +168,9 @@ class Command(object):
         # Get the template DRS from args
         if self.args:
             dataset_id = self.args[0]
-            drs = CmipDRS.from_dataset_id(dataset_id, **kwargs)
+            drs = self.drs_fs.drs_cls.from_dataset_id(dataset_id, **kwargs)
         else:
-            drs = CmipDRS(**kwargs)
+            drs = self.drs_fs.drs_cls(**kwargs)
 
         # Product detection
         if self.opts.detect_product:
@@ -341,7 +341,7 @@ class HistoryCommand(Command):
         print "History of %s" % pt.drs.to_dataset_id()
         self.print_sep()
         for version in sorted(pt.versions, reverse=True):
-            vdrs = CmipDRS(pt.drs, version=version)
+            vdrs = self.drs_fs.drs_cls(pt.drs, version=version)
             print vdrs.to_dataset_id(with_version=True)
         self.print_footer()
             
