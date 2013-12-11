@@ -18,7 +18,8 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import DRS, CMIP5FileSystem
+from drslib.drs import DRS
+from drslib.cmip5 import CMIP5FileSystem
 from drslib import config
 
 from drs_tree_shared import TestEg, TestListing
@@ -33,8 +34,10 @@ class TestEg1(TestEg):
 
         gen_drs.write_eg1(self.tmpdir)
 
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
+
     def test_1(self):
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3', 
                     experiment='1pctto4x', realm='atmos')
@@ -51,7 +54,7 @@ class TestEg1(TestEg):
         assert pt.state == pt.STATE_INITIAL
     
     def test_2(self):
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3')
 
@@ -60,7 +63,7 @@ class TestEg1(TestEg):
         assert pt.drs.realm == 'atmos'
 
     def test_3(self):
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3')
         
@@ -80,9 +83,10 @@ class TestEg2(TestEg):
         super(TestEg2, self).setUp()
 
         gen_drs.write_eg2(self.tmpdir)
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
 
     def test_1(self):
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3')
 
@@ -94,7 +98,7 @@ class TestEg2_1(TestEg2):
 
     def test_1(self):
         """Test incremental discovery"""
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         components = dict(activity='cmip5',
                           product='output1', institute='MOHC', model='HadCM3')
         # Call discover without incoming_dir
@@ -113,7 +117,7 @@ class TestEg2_1(TestEg2):
 
     def test_2(self):
         """Test incremental discovery without calling discover() first."""
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         components = dict(activity='cmip5',
                           product='output1', institute='MOHC', model='HadCM3')
         assert len(dt.pub_trees) == 0
@@ -139,9 +143,13 @@ class TestEg2_1(TestEg2):
 class TestEg3(TestEg):
     __test__ = True
 
+    def setUp(self):
+        super(TestEg3, self).setUp()
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
+
     def _cmor1(self):
         gen_drs.write_eg3_1(self.tmpdir)
-        self.dt = DRSTree(self.tmpdir)
+        self.dt = DRSTree(self.drs_fs)
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output1', institute='MOHC', model='HadCM3')
 
@@ -263,7 +271,7 @@ class TestEg3_1(TestEg3):
 
     def _cmor2(self):
         gen_drs.write_eg3_2(self.tmpdir)
-        self.dt2 = DRSTree(self.tmpdir)
+        self.dt2 = DRSTree(self.drs_fs)
         self.dt2.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
         (self.pt, ) = self.dt2.pub_trees.values()
@@ -278,7 +286,7 @@ class TestEg4(TestEg3):
 
     def _cmor1(self):
         gen_drs.write_eg4_1(self.tmpdir)
-        self.dt = DRSTree(self.tmpdir)
+        self.dt = DRSTree(self.drs_fs)
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output1', institute='MOHC', model='HadCM3')
 
@@ -340,7 +348,7 @@ class TestEg4_1(TestEg4):
 
     def _cmor2(self):
         gen_drs.write_eg4_2(self.tmpdir)
-        self.dt2 = DRSTree(self.tmpdir)
+        self.dt2 = DRSTree(self.drs_fs)
         self.dt2.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
 
@@ -357,7 +365,7 @@ class TestEg5(TestEg4):
 
     def _cmor1(self):
         gen_drs.write_eg5_1(self.tmpdir)
-        self.dt = DRSTree(self.tmpdir)
+        self.dt = DRSTree(self.drs_fs)
         self.dt.discover(self.incoming, activity='cmip5',
                          product='output1', institute='MOHC', model='HadCM3')
 
@@ -418,7 +426,7 @@ class TestEg5_1(TestEg5):
 
     def _cmor2(self):
         gen_drs.write_eg5_2(self.tmpdir)
-        self.dt2 = DRSTree(self.tmpdir)
+        self.dt2 = DRSTree(self.drs_fs)
         self.dt2.discover_incoming(self.incoming, activity='cmip5',
                                   product='output1')
         (self.pt, ) = self.dt2.pub_trees.values()
@@ -439,9 +447,10 @@ class TestSymlinks(TestEg):
         super(TestSymlinks, self).setUp()
 
         gen_drs.write_eg1(self.tmpdir)
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
 
     def test_1(self):
-        dt = DRSTree(self.tmpdir)
+        dt = DRSTree(self.drs_fs)
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3')
         
@@ -471,7 +480,8 @@ class TestEg6(TestEg):
         
         self.setupIncoming()
 
-        self.dt = DRSTree(self.tmpdir)
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
+        self.dt = DRSTree(self.drs_fs)
 
         for i, delivery in enumerate(self.deliveries):
             self.dt.discover_incoming(op.join(self.incoming, str(i)),
@@ -509,7 +519,8 @@ class TestEmptyPubdir(TestEg):
                          'output2/MOHC/HadGEM2-ES/esmControl/day/seaIce/day/r1i1p1')
         os.makedirs(pubdir)
 
-        self.dt = DRSTree(self.tmpdir)
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
+        self.dt = DRSTree(self.drs_fs)
 
     def test_1(self):
         self.dt.discover()

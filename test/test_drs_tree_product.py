@@ -6,7 +6,7 @@
 # the full license text.
 
 
-from drslib.cmip5 import make_translator
+from drslib.cmip5 import CMIP5FileSystem
 from drslib import p_cmip5
 from drslib import drs_tree
 import gen_drs
@@ -19,8 +19,6 @@ LISTING = 'multi_product.ls'
 
 config = metaconfig.get_config('drslib')
 shelve_dir = config.get('p_cmip5', 'shelve-dir')
-drs_root = '/cmip5'
-vtrans = make_translator(drs_root)
 
 def setup_module():
     global p_cmip5, listing, tmpdir, dt
@@ -39,8 +37,8 @@ def setup_module():
                                             stdo=shelves['stdo'],
                                             config=config_file,
                                             not_ok_excpt=True)
-
-    dt = drs_tree.DRSTree(tmpdir)
+    drs_fs = CMIP5FileSystem(tmpdir)
+    dt = drs_tree.DRSTree(drs_fs)
     dt.set_p_cmip5(p_cmip5)
 
 

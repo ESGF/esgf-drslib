@@ -356,7 +356,7 @@ def make_translator(prefix, with_version=True, table_store=None):
 class CMIP5FileSystem(DRSFileSystem):
     drs_cls = DRS
 
-    def __init__(self, drs_root, table_store):
+    def __init__(self, drs_root, table_store=None):
         super(CMIP5FileSystem, self).__init__(drs_root)
 
         self._vtrans = make_translator(self.drs_root, table_store=table_store)

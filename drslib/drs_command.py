@@ -20,6 +20,7 @@ from drslib import config
 from drslib.drs import DRS
 
 from drslib import p_cmip5
+from drslib.cmip5 import CMIP5FileSystem
 
 import logging
 log = logging.getLogger(__name__)
@@ -143,7 +144,9 @@ class Command(object):
             except KeyError:
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
-        self.drs_tree = DRSTree(self.drs_root)
+        drs_root = os.path.normpath(os.path.abspath(self.drs_root))
+        drs_fs = CMIP5FileSystem(drs_root)
+        self.drs_tree = DRSTree(drs_fs)
 
         if self.opts.move_cmd:
             self.drs_tree.set_move_cmd(self.opts.move_cmd)

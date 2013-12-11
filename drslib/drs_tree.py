@@ -60,14 +60,15 @@ class DRSTree(object):
 
     """
 
-    def __init__(self, drs_root, table_store=None):
+    def __init__(self, drs_fs):
         """
         :param drs_root: The path to the DRS *activity* directory.
         :param table_store: Override the default table store.  This can be used
             to select the TAMIP tables.
 
         """
-        self.drs_root = os.path.normpath(os.path.abspath(drs_root))
+        self.drs_fs = drs_fs
+
         self.pub_trees = {}
         self.incoming = DRSList()
         self.incomplete = DRSList()
@@ -77,10 +78,9 @@ class DRSTree(object):
 
         self._move_cmd = config.move_cmd
 
-        self.drs_fs = CMIP5FileSystem(self.drs_root, table_store)
 
-        if not os.path.isdir(self.drs_root):
-            raise Exception('DRS root "%s" is not a directory' % self.drs_root)
+        if not os.path.isdir(self.drs_fs.drs_root):
+            raise Exception('DRS root "%s" is not a directory' % self.drs_fs.drs_root)
 
     def discover(self, incoming_dir=None, **components):
         """
