@@ -353,6 +353,20 @@ class DRSFileSystem(object):
     def __init__(self, drs_root):
         self.drs_root = drs_root
 
+    def filename_to_drs(self, filename):
+        """
+        Return a DRS instance deduced from a filename.
+
+        """
+        raise NotImplementedError
+
+    def filepath_to_drs(self, filepath):
+        """
+        Return a DRS instance deduced from a full path.
+
+        """
+        raise NotImplementedError
+
     def publication_path_to_drs(self, path):
         """
         Create a :class:`DRS` object from a filesystem path.

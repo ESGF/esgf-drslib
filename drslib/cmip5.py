@@ -356,6 +356,17 @@ def make_translator(prefix, with_version=True, table_store=None):
 class CMIP5FileSystem(DRSFileSystem):
     drs_cls = DRS
 
+    def __init__(self, drs_root, table_store):
+        super(CMIP5FileSystem, self).__init__(drs_root)
+
+        self._vtrans = make_translator(self.drs_root, table_store=table_store)
+
+    def filename_to_drs(self, filename):
+        return self._vtrans.filename_to_drs(filename)
+
+    def filepath_to_drs(self, filepath):
+        return self._vtrans.filepath_to_drs(filepath)
+
     def publication_path_to_drs(self, path, activity=None):
         """
         Create a :class:`DRS` object from a filesystem path.

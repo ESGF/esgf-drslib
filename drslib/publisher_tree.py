@@ -588,7 +588,7 @@ class PublisherTree(object):
                     continue
 
                 filepath = os.path.join(dirpath, filename)
-                drs = self.drs_tree._vtrans.filepath_to_drs(filepath)
+                drs = self.drs_tree.drs_fs.filepath_to_drs(filepath)
                 vlist.append((filepath, drs))
         return vlist
 

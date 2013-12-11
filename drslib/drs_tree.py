@@ -30,7 +30,7 @@ import stat
 import datetime
 import re
 
-from drslib.cmip5 import CMIP5FileSystem, make_translator
+from drslib.cmip5 import CMIP5FileSystem
 from drslib.translate import TranslationError
 from drslib.drs import DRS
 from drslib import config, mapfile
@@ -69,7 +69,6 @@ class DRSTree(object):
         """
         self.drs_root = os.path.normpath(os.path.abspath(drs_root))
         self.pub_trees = {}
-        self._vtrans = make_translator(self.drs_root, table_store=table_store)
         self.incoming = DRSList()
         self.incomplete = DRSList()
 
@@ -78,7 +77,7 @@ class DRSTree(object):
 
         self._move_cmd = config.move_cmd
 
-        self.drs_fs = CMIP5FileSystem(self.drs_root)
+        self.drs_fs = CMIP5FileSystem(self.drs_root, table_store)
 
         if not os.path.isdir(self.drs_root):
             raise Exception('DRS root "%s" is not a directory' % self.drs_root)
@@ -162,7 +161,7 @@ class DRSTree(object):
         for filename, dirpath in files_iter:
             log.debug('Processing %s' % filename)
             try:
-                drs = self._vtrans.filename_to_drs(filename)
+                drs = self.drs_fs.filename_to_drs(filename)
             except TranslationError:
                 # File doesn't match
                 log.warn('File %s is not a DRS file' % filename)
