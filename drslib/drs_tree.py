@@ -32,7 +32,7 @@ import re
 
 from drslib.cmip5 import CMIP5FileSystem
 from drslib.translate import TranslationError
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 from drslib import config, mapfile
 from drslib.p_cmip5 import ProductException
 from drslib.publisher_tree import PublisherTree
@@ -101,7 +101,7 @@ class DRSTree(object):
 
         """
 
-        drs_t = DRS(**components)
+        drs_t = CmipDRS(**components)
 
         # NOTE: None components are converted to wildcards
         pt_glob = self.drs_fs.drs_to_publication_path(drs_t)

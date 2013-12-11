@@ -13,7 +13,7 @@ import itertools
 
 from drslib.cmip5 import make_translator
 from drslib.translate import TranslationError, drs_dates_overlap
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 from drslib import config, mapfile
 
 import logging
@@ -252,7 +252,7 @@ class PublisherTree(object):
         if version not in self.versions:
             raise Exception("Version %d not present in PublsherTree %s" % (version, self.pub_dir))
 
-        return DRS(self.drs, version=version)
+        return CmipDRS(self.drs, version=version)
 
     def todo_commands(self, next_version=None):
         """
@@ -384,7 +384,7 @@ class PublisherTree(object):
 
             for filename in [f for f in os.listdir(filepath) if not re.match(IGNORE_FILES_REGEXP, f)]:
                 #!FIXME: quick hack, remove when CORDEX refactoring resolved
-                drs = DRS(variable=subdrs.variable)
+                drs = CmipDRS(variable=subdrs.variable)
                 yield os.path.join(filepath, filename), self.link_file_dir(drs, into_version)
 
     def prev_versions(self, version):

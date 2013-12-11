@@ -17,7 +17,7 @@ from ConfigParser import NoSectionError, NoOptionError
 
 from drslib.drs_tree import DRSTree
 from drslib import config
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 
 from drslib import p_cmip5
 from drslib.cmip5 import CMIP5FileSystem
@@ -168,9 +168,9 @@ class Command(object):
         # Get the template DRS from args
         if self.args:
             dataset_id = self.args[0]
-            drs = DRS.from_dataset_id(dataset_id, **kwargs)
+            drs = CmipDRS.from_dataset_id(dataset_id, **kwargs)
         else:
-            drs = DRS(**kwargs)
+            drs = CmipDRS(**kwargs)
 
         # Product detection
         if self.opts.detect_product:
@@ -341,7 +341,7 @@ class HistoryCommand(Command):
         print "History of %s" % pt.drs.to_dataset_id()
         self.print_sep()
         for version in sorted(pt.versions, reverse=True):
-            vdrs = DRS(pt.drs, version=version)
+            vdrs = CmipDRS(pt.drs, version=version)
             print vdrs.to_dataset_id(with_version=True)
         self.print_footer()
             

@@ -18,7 +18,7 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 from drslib.cmip5 import CMIP5FileSystem
 from drslib import config
 
@@ -543,21 +543,21 @@ def test_2():
     assert drs.ensemble == (1,1,2)
 
 def test_3():
-    drs = DRS(product='output1', institute='TEST')
+    drs = CmipDRS(product='output1', institute='TEST')
 
     path = drs_fs.drs_to_publication_path(drs)
 
     assert path == '/cmip5/output1/TEST/*/*/*/*/*/*'
 
 def test_4():
-    drs = DRS(product='output1', institute='TEST', ensemble=(1,2,3))
+    drs = CmipDRS(product='output1', institute='TEST', ensemble=(1,2,3))
 
     path = drs_fs.drs_to_publication_path(drs)
 
     assert path == '/cmip5/output1/TEST/*/*/*/*/*/r1i2p3'
 
 def test_5():
-    drs = DRS(product='output1', institute='TEST', model='HadCM3',
+    drs = CmipDRS(product='output1', institute='TEST', model='HadCM3',
               frequency='day')
 
     path = drs_fs.drs_to_publication_path(drs)

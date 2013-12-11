@@ -5,7 +5,7 @@ This module has been started as part of the refactoring to create drslib.drs.Bas
 
 """
 
-from drslib.drs import DRS, BaseDRS
+from drslib.drs import BaseDRS
 
 class TrivialDRS(BaseDRS):
     DRS_ATTRS = ['foo', 'bar', 'baz']

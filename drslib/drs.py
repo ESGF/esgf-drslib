@@ -204,7 +204,7 @@ class BaseDRS(dict):
         return klass(**components)
 
 
-class DRS(BaseDRS):
+class CmipDRS(BaseDRS):
     """
     Represents a DRS entry.  DRS objects are dictionaries where DRS
     components are also exposed as attributes.  Therefore you can get/set

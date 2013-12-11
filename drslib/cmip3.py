@@ -22,7 +22,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import drslib.translate as T
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 from drslib.config import CMIP5_DRS, CMIP3_DRS
 
 TranslationError = T.TranslationError
@@ -276,7 +276,7 @@ class CMIP3TranslatorContext(T.TranslatorContext):
             self.file_parts[CMIP3_DRS.FILE_EXTENDED] = mo.group(3)
             
         if drs is None:
-            self.drs = DRS()
+            self.drs = CmipDRS()
         else:
             self.drs = drs
 
@@ -300,7 +300,7 @@ class CMIP3Translator(T.Translator):
 
     def init_drs(self, drs=None):
         if drs is None:
-            drs = DRS()
+            drs = CmipDRS()
 
         drs.activity = 'cmip3'
         drs.version = 1

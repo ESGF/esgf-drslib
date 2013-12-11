@@ -17,7 +17,6 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import DRS
 from drslib import config
 from drslib.cmip5 import CMIP5FileSystem
 

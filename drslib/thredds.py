@@ -20,7 +20,7 @@ import os
 import re
 
 from lxml import etree as ET
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 from drslib.cmip5 import make_translator
 import urlparse
 from optparse import OptionParser
@@ -158,7 +158,7 @@ class DRSPropCheck(ThreddsCheck):
 
             props[drs_prop_map[prop_name]] = prop
 
-        drs = DRS(**props)
+        drs = CmipDRS(**props)
 
         # If present in environ check against drs_id
         if 'drs_id' in self.environ:

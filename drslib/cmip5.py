@@ -19,7 +19,7 @@ import itertools
 import drslib.translate as T
 from drslib import config
 from drslib.mip_table import read_model_table
-from drslib.drs import DRS, DRSFileSystem
+from drslib.drs import CmipDRS, DRSFileSystem
 
 import logging
 log = logging.getLogger(__name__)
@@ -270,7 +270,7 @@ class ExtendedHandler(T.BaseComponentHandler):
 class CMIP5Translator(T.Translator):
     def init_drs(self, drs=None):
         if drs is None:
-            drs = T.DRS()
+            drs = T.CmipDRS()
 
         if drs.activity is None:
             drs.activity = config.drs_defaults.get('activity', 'cmip5')
@@ -354,7 +354,7 @@ def make_translator(prefix, with_version=True, table_store=None):
 
 
 class CMIP5FileSystem(DRSFileSystem):
-    drs_cls = DRS
+    drs_cls = CmipDRS
 
     def __init__(self, drs_root, table_store=None):
         super(CMIP5FileSystem, self).__init__(drs_root)

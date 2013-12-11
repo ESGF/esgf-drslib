@@ -55,8 +55,8 @@ Generating DRS paths and filenames
 
 The DRS class can be used to constructed from scratch like:
 
->>> from drslib.drs import DRS
->>> drs2 = DRS(activity='cmip5', product='requested', model='HadCM3', 
+>>> from drslib.drs import CmipDRS
+>>> drs2 = CmipDRS(activity='cmip5', product='requested', model='HadCM3', 
 ...            experiment='historicalNat', variable='tas', 
 ...	       ensemble=(1, None, None), version=4,
 ...            table='3hr', frequency='3hr')

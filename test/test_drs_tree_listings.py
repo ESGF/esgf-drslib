@@ -15,8 +15,8 @@ import datetime
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import DRS
 from drslib import config
+from drslib.cmip5 import CMIP5FileSystem
 
 from drs_tree_shared import TestEg, TestListing, test_dir
 
@@ -139,7 +139,8 @@ class TestThreeway(TestEg):
     def setUp(self):
         super(TestThreeway, self).setUp()
 
-        self.dt = DRSTree(self.tmpdir)
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
+        self.dt = DRSTree(self.drs_fs)
         self.listing_iter = self._iterSetUpListings()
 
     def _iterSetUpListings(self):

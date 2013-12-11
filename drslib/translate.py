@@ -22,7 +22,7 @@ import re, os
 import logging
 log = logging.getLogger(__name__)
 
-from drslib.drs import DRS, _rip_to_ensemble, _ensemble_to_rip, _int_or_none
+from drslib.drs import CmipDRS, _rip_to_ensemble, _ensemble_to_rip, _int_or_none
 from drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
 from drslib.exceptions import TranslationError
 from drslib.translate_iface import BaseTranslator
@@ -65,7 +65,7 @@ class TranslatorContext(object):
             self.file_parts[-2:] = [self.file_parts[-2] + '-clim']
 
         if drs is None:
-            self.drs = DRS()
+            self.drs = CmipDRS()
         else:
             self.drs = drs
 
