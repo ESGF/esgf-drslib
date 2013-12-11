@@ -239,7 +239,7 @@ class CheckVersionLinks(TreeChecker):
                     if realsrc != realdest:
                         yield ('Links to wrong file', 'Link %s does not point to the correct file %s' % (dest, src))
 
-                    drs = pt._vtrans.filename_to_drs(op.basename(realsrc))
+                    drs = pt.drs_tree._vtrans.filename_to_drs(op.basename(realsrc))
                     done.append(drs)
 
         # Now scan filesystem for overlapping files
@@ -247,7 +247,7 @@ class CheckVersionLinks(TreeChecker):
         for dirpath, dirnames, filenames in os.walk(version_dir):
             for filename in filenames:
                 try:
-                    drs = pt._vtrans.filename_to_drs(filename)
+                    drs = pt.drs_tree._vtrans.filename_to_drs(filename)
                 except TranslationError:
                     continue
                 for done_drs in done:
