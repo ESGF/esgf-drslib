@@ -30,9 +30,9 @@ import stat
 import datetime
 import re
 
-from drslib.cmip5 import make_translator
+from drslib.cmip5 import CMIP5FileSystem, make_translator
 from drslib.translate import TranslationError
-from drslib.drs import DRS, CMIP5FileSystem
+from drslib.drs import DRS
 from drslib import config, mapfile
 from drslib.p_cmip5 import ProductException
 from drslib.publisher_tree import PublisherTree
