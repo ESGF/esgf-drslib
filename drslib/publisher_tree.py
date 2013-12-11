@@ -70,7 +70,6 @@ class PublisherTree(object):
         self._todo = []
         self.versions = {}
         self.latest = 0
-        self._cmortrans = make_translator(drs_tree.drs_root, with_version=False)
 
         from drslib.drs_tree_check import default_checkers
         self._checkers = default_checkers[:]
