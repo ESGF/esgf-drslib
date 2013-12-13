@@ -3,16 +3,19 @@ Implement CORDEX specific DRS scheme.
 
 """
 
+import re
+
 from drslib.drs import BaseDRS, DRSFileSystem, _ensemble_to_rip, _rip_to_ensemble
 from drslib import config
 
 
 
 
-class CordexDRS(DRS):
+class CordexDRS(BaseDRS):
     DRS_ATTRS = [
-        'activity', 'domain', 'institute', 'gcm_model', 'experiment', 'ensemble', 
-        'rcm_model', 'rcm_version', 'frequency', 'variable', 'subset', 'extended',
+        'activity', 'product', 'domain', 'institute', 'gcm_model', 'experiment', 
+        'ensemble', 'rcm_model', 'rcm_version', 'frequency', 'variable', 'subset', 
+        'extended',
         ]
     PUBLISH_LEVEL = 'variable'
     OPTIONAL_ATTRS = ['extended']
@@ -42,32 +45,32 @@ class CordexDRS(DRS):
     def _decode_component(cls, component, value):
         from drslib.translate import _to_date
         
-        if val == '%':
+        if value == '%':
             ret = None
-        elif attr is 'ensemble':
-            if val == (None, None, None):
+        elif component is 'ensemble':
+            if value == (None, None, None):
                 ret = None
             else:
-                ret = _rip_to_ensemble(val)
-        elif attr is 'version':
-            if val[0] == 'v':
-                ret = int(val[1:])
+                ret = _rip_to_ensemble(value)
+        elif component is 'version':
+            if value[0] == 'v':
+                ret = int(value[1:])
             else:
-                ret = int(val)
-        elif attr is 'subset':
-            parts = val.split('-')
+                ret = int(value)
+        elif component is 'subset':
+            parts = value.split('-')
             if len(parts) > 3:
-                raise ValueError('cannot parse extended component %s' % repr(val))
+                raise ValueError('cannot parse extended component %s' % repr(value))
                 N1, N2 = _to_date(parts[0]), _to_date(parts[1])
             if len(parts) == 3:
                 clim = parts[2]
                 if clim != 'clim':
-                    raise ValueError('unsupported extended component %s' % repr(val))
+                    raise ValueError('unsupported extended component %s' % repr(value))
             else:
                 clim = None
-            val = (N1, N2, clim)
+            ret = (N1, N2, clim)
         else:
-            ret = val
+            ret = value
                 
         return ret
 
@@ -81,7 +84,7 @@ class CordexFileSystem(DRSFileSystem):
 
         """
         # VariableName_Domain_GCMModelName_CMIP5ExperimentName_CMIP5EnsembleMember_RCMModelName_RCMVersionID_Frequency_StartTime-EndTime.nc 
-        m = re.match(r'(?P<variable>.*)_(?P<domain>.*)_(?P<gcm_model>.*)_(?P<experiment>.*)_(?P<ensemble>.*)_(?P<rcm_model>.*)_(?P<rcm_version>.*)_(?P<frequency>.*)_(?P<subset>.*)\.nc', filename)
+        m = re.match(r'(?P<variable>.*)_(?P<domain>.*)_(?P<gcm_model>.*)_(?P<experiment>.*)_(?P<ensemble>.*)_(?P<rcm_model>.*)_(?P<rcm_version>.*)_(?P<frequency>.*)(?:_(?P<subset>.*))?\.nc', filename)
         
         assert m
         comp_dict = m.groupdict()
@@ -90,7 +93,9 @@ class CordexFileSystem(DRSFileSystem):
         for component in ['variable', 'domain', 'gcm_model', 'experiment',
                           'ensemble', 'rcm_model', 'rcm_version', 'frequency', 
                           'subset']:
-            drs[component] = drs._encode_component(component, comp_dict[component])
+            comp_val = comp_dict[component]
+            if comp_val is not None:
+                drs[component] = drs._decode_component(component, comp_val)
 
         return drs
 
@@ -100,7 +105,18 @@ class CordexFileSystem(DRSFileSystem):
         Return a DRS instance deduced from a full path.
 
         """
-        raise NotImplementedError
+        # Split off the variable and version directory then pass
+        # the results to other functions
+        parts = filepath.split('/')
+
+        version_str, filename = parts[-2:]
+
+        drs = self.filename_to_drs(filename)
+        drs.version = drs._decode_component('version', version_str)
+        drs.update(self.publication_path_to_drs('/'.join(parts[:-2])))
+
+        return drs
+
 
 
     def drs_to_storage(self, drs):
