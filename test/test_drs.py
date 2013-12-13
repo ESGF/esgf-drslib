@@ -42,4 +42,13 @@ def test_5():
     drs = TrivialDRS(foo='a', bar='b', baz='c', version=12)    
     assert repr(drs) == '<DRS a.b.v12>'
     
-#def test_5
+def test_6():
+    # Test drs update
+    drs1 = TrivialDRS(foo='a')
+    drs2 = TrivialDRS(bar='b')
+
+    drs1.update(drs2)
+
+    assert drs1.foo == 'a'
+    assert drs1.bar == 'b'
+
