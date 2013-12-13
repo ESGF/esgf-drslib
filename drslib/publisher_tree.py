@@ -374,7 +374,7 @@ class PublisherTree(object):
                 into_version = version
 
         for filedir in [f for f in os.listdir(path) if not re.match(IGNORE_FILES_REGEXP, f)]:
-            subdrs = self.drs_tree.drs_fs.publication_subpath_to_drs(filedir)
+            subdrs = self.drs_tree.drs_fs.storage_to_drs(filedir)
             
             if version is not None and version != subdrs.version:
                 continue
@@ -546,7 +546,7 @@ class PublisherTree(object):
         #!TODO: Revise for CORDEX
         versions = set()
         for d in os.listdir(fdir):
-            subdrs = self.drs_tree.drs_fs.publication_subpath_to_drs(d)
+            subdrs = self.drs_tree.drs_fs.storage_to_drs(d)
             
             assert subdrs.version is not None
 

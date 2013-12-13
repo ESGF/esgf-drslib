@@ -367,33 +367,78 @@ class DRSFileSystem(object):
         """
         raise NotImplementedError
 
-    def publication_path_to_drs(self, path):
+
+    def publication_path_to_drs(self, path, activity=None):
         """
         Create a :class:`DRS` object from a filesystem path.
+    
+        This function is more lightweight than using :mod:`drslib.translator`
+        but only works for the parts of the DRS explicitly represented in
+        a path.
+        
+        :param path: The path to convert.  This is either an absolute path
+        or is relative to the current working directory.
 
         """
-        raise NotImplementedError
 
+        nroot = self.drs_root.rstrip('/') + '/'
+        relpath = os.path.normpath(path[len(nroot):])
+
+        p = [activity] + relpath.split('/')
+        drs = self.drs_cls()
+        for val, attr in itertools.izip(p, drs._iter_components(with_version=False, to_publish_level=True)):
+            drs[attr] = drs._decode_component(attr, val)
+
+        log.debug('%s => %s' % (repr(path), drs))
+
+        return drs
+    
+
+    
     def drs_to_publication_path(self, drs):
         """
         Returns a directory path from a :class:`DRS` object.  Any DRS component
         that is set to None will result in a wildcard '*' element in the path.
 
-        """
-        raise NotImplementedError
+        This function does not take into account of MIP tables of filenames.
 
-    def drs_to_publication_subpath(self, drs):
+        :param drs: The :class:`DRS` object from which to generate the path
+
         """
-        Return the subpath within the versioning directory for this 
+        #!TODO: resolve activity ambiguity!  This will not work for CORDEX
+        attrs = list(drs._iter_components(with_version=False, to_publish_level=True))
+        attrs = attrs[1:]
+
+        path = [self.drs_root]
+        for attr in attrs:
+            val = drs._encode_component(attr, drs[attr])
+            if val == '%':
+                val = '*'
+            if val is None:
+                break
+            path.append(val)
+
+
+        #!DEBUG
+        assert len(path) == len(attrs)+1
+
+        path = os.path.join(*path)
+        log.debug('%s => %s' % (drs, repr(path)))
+        return path
+
+
+    def drs_to_storage(self, drs):
+        """
+        Return the subpath within the files directory for this 
         :class:`DRS` instance.
 
         """
         raise NotImplementedError
 
-    def publication_subpath_to_drs(self, subpath):
+    def storage_to_drs(self, subpath):
         """
         Return a :class:`DRS` instance representing the DRS components
-        deducible from `subpath`.
+        deducible from its subpath within the files directory.
 
         """
         raise NotImplementedError
