@@ -80,6 +80,15 @@ class BaseDRS(dict):
         # Use dict flexible instantiation
         super(BaseDRS, self).__init__(*argv, **kwargs)
 
+    def update(self, *argv, **kwargs):
+        # If passed a DRS only set non-None components
+        if argv:
+            assert len(argv) == 1
+
+            comps = {k: v for (k, v) in argv[0].items() if v is not None}
+            super(BaseDRS, self).update(comps)
+        else:
+            super(BaseDRS, self).update(**kwargs)
 
     def __getattr__(self, attr):
         if attr in self._iter_components(with_version=True):
