@@ -36,9 +36,10 @@ def test_3():
 
 def test_4():
     drs = TrivialDRS(foo='a', bar='b', baz='c', version=12)    
-    assert drs.to_dataset_id(with_version=True) == 'foo.bar.v12'
+    assert drs.to_dataset_id(with_version=True) == 'a.b.v12'
 
-def test_4():
+def test_5():
     drs = TrivialDRS(foo='a', bar='b', baz='c', version=12)    
     assert repr(drs) == '<DRS a.b.v12>'
     
+#def test_5
