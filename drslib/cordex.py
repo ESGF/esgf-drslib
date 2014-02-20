@@ -69,6 +69,10 @@ class CordexDRS(BaseDRS):
             else:
                 clim = None
             ret = (N1, N2, clim)
+        elif component is 'rcm_model':
+            # We remove the institution prefix from the rcm model name
+            model_institution, model_name = value.split('-')
+            ret = model_name
         else:
             ret = value
                 
