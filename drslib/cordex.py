@@ -58,6 +58,7 @@ class CordexDRS(BaseDRS):
             else:
                 ret = int(value)
         elif component is 'subset':
+            N1 = N2 = None
             parts = value.split('-')
             if len(parts) > 3:
                 raise ValueError('cannot parse extended component %s' % repr(value))
@@ -88,7 +89,7 @@ class CordexFileSystem(DRSFileSystem):
 
         """
         # VariableName_Domain_GCMModelName_CMIP5ExperimentName_CMIP5EnsembleMember_RCMModelName_RCMVersionID_Frequency_StartTime-EndTime.nc 
-        m = re.match(r'(?P<variable>.*)_(?P<domain>.*)_(?P<gcm_model>.*)_(?P<experiment>.*)_(?P<ensemble>.*)_(?P<rcm_model>.*)_(?P<rcm_version>.*)_(?P<frequency>.*)(?:_(?P<subset>.*))?\.nc', filename)
+        m = re.match(r'(?P<variable>.*?)_(?P<domain>.*?)_(?P<gcm_model>.*?)_(?P<experiment>.*?)_(?P<ensemble>.*?)_(?P<rcm_model>.*?)_(?P<rcm_version>.*?)_(?P<frequency>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
         
         assert m
         comp_dict = m.groupdict()

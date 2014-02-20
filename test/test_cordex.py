@@ -60,3 +60,11 @@ def test_3():
     assert drs.frequency == 'fx'
     assert drs.variable == 'areacella'
     assert drs.subset == None
+
+def test_4():
+    filename = 'snw_AUS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-HadRM3P_v1_sem_199001-199010.nc'
+
+    drs = cordex_fs.filename_to_drs(filename)
+
+    assert drs.domain == 'AUS-44i'
+    assert drs.rcm_model == 'HadRM3P'
