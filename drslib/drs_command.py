@@ -68,7 +68,7 @@ def make_parser():
                   help='Profile the script exectuion into FILE')
 
     op.add_option('-s', '--scheme', action='store',
-                  help='Select the DRS scheme to use')
+                  help='Select the DRS scheme to use.  Available schemes are %s' % ', '.join(config.drs_schemes))
 
     # p_cmip5 options
     op.add_option('--detect-product', action='store_true', 

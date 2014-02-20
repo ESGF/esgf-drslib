@@ -157,14 +157,17 @@ else:
 #!TODO: it would probably be better not to have to do the local import here.
 def get_drs_scheme(key):
     from drslib.cmip5 import CMIP5FileSystem
+    from drslib.cordex import CordexFileSystem
 
     drs_schemes = {
         'cmip': CMIP5FileSystem,
+        'cordex': CordexFileSystem,
         }
 
     return drs_schemes[key]
 
 default_drs_scheme = 'cmip'
+drs_schemes = ['cmip', 'cordex']
     
 ##############################################################################
 # Check/repair options
