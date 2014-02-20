@@ -94,7 +94,7 @@ class CordexFileSystem(DRSFileSystem):
         assert m
         comp_dict = m.groupdict()
 
-        drs = self.drs_cls()
+        drs = self.drs_cls(activity='cordex')
         for component in ['variable', 'domain', 'gcm_model', 'experiment',
                           'ensemble', 'rcm_model', 'rcm_version', 'frequency', 
                           'subset']:

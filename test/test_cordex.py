@@ -5,7 +5,7 @@ Test CORDEX DRS structure.
 
 from drslib.cordex import CordexFileSystem
 
-cordex_fs = CordexFileSystem('/CORDEX')
+cordex_fs = CordexFileSystem('/cordex')
 
 def test_1():
     path = '/cordex/output/AFR-44/MOHC/ECMWF-ERAINT/evaluation/r0i0p0/MOHC-HadRM3P/v1/fx/areacella/v20010101/areacella_AFR-44_ECMWF-ERAINT_evaluation_r0i0p0_MOHC-HadRM3P_v1_fx.nc'
@@ -51,6 +51,7 @@ def test_3():
 
     drs = cordex_fs.filename_to_drs(filename)
 
+    assert drs.activity == 'cordex'
     assert drs.domain == 'AFR-44'
     assert drs.gcm_model == 'ECMWF-ERAINT'
     assert drs.experiment == 'evaluation'
@@ -66,5 +67,6 @@ def test_4():
 
     drs = cordex_fs.filename_to_drs(filename)
 
+    assert drs.activity == 'cordex'
     assert drs.domain == 'AUS-44i'
     assert drs.rcm_model == 'HadRM3P'
