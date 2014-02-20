@@ -70,3 +70,4 @@ def test_4():
     assert drs.activity == 'cordex'
     assert drs.domain == 'AUS-44i'
     assert drs.rcm_model == 'HadRM3P'
+    assert drs.institute == 'MOHC'

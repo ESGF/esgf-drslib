@@ -71,9 +71,13 @@ class CordexDRS(BaseDRS):
                 clim = None
             ret = (N1, N2, clim)
         elif component is 'rcm_model':
-            # We remove the institution prefix from the rcm model name
-            model_institution, model_name = value.split('-')
-            ret = model_name
+            # This is a little hacky.  If the rcm_model component contains '-' take the part
+            # after the '-'.
+            try:
+                model_institution, model_name = value.split('-')
+                ret = model_name
+            except ValueError:
+                ret = value
         else:
             ret = value
                 
@@ -89,14 +93,14 @@ class CordexFileSystem(DRSFileSystem):
 
         """
         # VariableName_Domain_GCMModelName_CMIP5ExperimentName_CMIP5EnsembleMember_RCMModelName_RCMVersionID_Frequency_StartTime-EndTime.nc 
-        m = re.match(r'(?P<variable>.*?)_(?P<domain>.*?)_(?P<gcm_model>.*?)_(?P<experiment>.*?)_(?P<ensemble>.*?)_(?P<rcm_model>.*?)_(?P<rcm_version>.*?)_(?P<frequency>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
+        m = re.match(r'(?P<variable>.*?)_(?P<domain>.*?)_(?P<gcm_model>.*?)_(?P<experiment>.*?)_(?P<ensemble>.*?)_(?P<institute>.*?)-(?P<rcm_model>.*?)_(?P<rcm_version>.*?)_(?P<frequency>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
         
         assert m
         comp_dict = m.groupdict()
 
         drs = self.drs_cls(activity='cordex')
         for component in ['variable', 'domain', 'gcm_model', 'experiment',
-                          'ensemble', 'rcm_model', 'rcm_version', 'frequency', 
+                          'ensemble', 'institute', 'rcm_model', 'rcm_version', 'frequency', 
                           'subset']:
             comp_val = comp_dict[component]
             if comp_val is not None:
