@@ -368,7 +368,8 @@ class CMIP5FileSystem(DRSFileSystem):
         return self._vtrans.filepath_to_drs(filepath)
 
     def drs_to_storage(self, drs):
-        return '_'.join(drs.variable, drs.version)
+        return '%s_%s' % (self.drs_cls._encode_component('variable', drs.variable),
+                          self.drs_cls._encode_component('version', drs.version))
 
     def storage_to_drs(self, subpath):
         variable_str, version_str = subpath.split('_')
