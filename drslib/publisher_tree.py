@@ -334,8 +334,10 @@ class PublisherTree(object):
         #!TODO: needs revisiting for CORDEX
         if version is None:
             version = drs.version
+        elif drs.version is None:
+            drs.version = version
 
-        fdir = '%s_%d' % (drs.variable, version)
+        fdir = self.drs_tree.drs_fs.drs_to_storage(drs)
         return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                fdir))
 
