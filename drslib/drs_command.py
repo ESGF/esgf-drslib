@@ -61,7 +61,6 @@ def make_parser():
         op.add_option('--%s'% attr, action='store',
                       help='DEPRECATED, use --component instead')
 
-    #!TODO: function setter
     def component_cb(option, opt_str, value, parser):
         component, cvalue = value.split('=')
         try:
@@ -69,10 +68,10 @@ def make_parser():
         except AttributeError:
             component_dict = parser.values.component_dict = {}
 
-        compoent_dict[component] = cvalue            
+        component_dict[component] = cvalue            
 
     op.add_option('-c', '--component', action='callback', 
-                  callback=component_cb,
+                  callback=component_cb, type='str',
                   help='Set DRS components for dataset discovery')
 
     op.add_option('-v', '--version', action='store',
@@ -203,7 +202,6 @@ class Command(object):
                 log.info('Setting DRS component %s=%s' % (attr, val))
                 kwargs[attr] = val
 
-        #!TODO: implement --component
         try:
             component_dict = self.opts.component_dict
         except AttributeError:
@@ -211,7 +209,7 @@ class Command(object):
 
         for component in self.drs_fs.drs_cls._iter_components(to_publish_level=True):
             if component in component_dict:
-                val = self.opts.component.get(component)
+                val = component_dict.get(component)
                 log.info('Setting DRS component %s=%s' % (component, val))
                 kwargs[component] = val
                 del component_dict[component]
