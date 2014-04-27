@@ -279,7 +279,8 @@ class PublisherTree(object):
         todo_files = []
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
-            newpath = os.path.join(self.real_file_dir(drs, next_version),
+            drs.version = next_version
+            newpath = os.path.join(self.real_file_dir(drs),
                                    filename)
 
             # Detect directories needing creation
@@ -289,7 +290,7 @@ class PublisherTree(object):
 
 
             yield self.CMD_MOVE, filepath, newpath
-            todo_files.append((newpath, self.link_file_dir(drs, next_version)))
+            todo_files.append((newpath, self.link_file_dir(drs)))
 
         #!TODO: Handle deleted files!
 
@@ -327,16 +328,14 @@ class PublisherTree(object):
     # These methods could be considered protected.  They are designed
     # for use by drs_check_tree.py
 
-    def real_file_dir(self, drs, version=None):
+    def real_file_dir(self, drs):
         """
         Return the expected dir containing the real file represented by drs.
-        """
-        #!TODO: needs revisiting for CORDEX
-        if version is None:
-            version = drs.version
-        elif drs.version is None:
-            drs.version = version
 
+        :warning: `drs.version` must refer to the earliest version in which
+            the file appears.
+
+        """
         fdir = self.drs_tree.drs_fs.drs_to_storage(drs)
         return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
                                                fdir))
