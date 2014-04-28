@@ -97,13 +97,27 @@ class TestCordexListing1(TestListing):
         print len(self.dt.pub_trees)
         assert len(self.dt.pub_trees) == 168
 
-    def test_1(self):
+    def test_2(self):
         self.dt.discover(self.incoming, activity='cordex',
                          product='output',
                          frequency='day')
 
         print len(self.dt.pub_trees)
         assert len(self.dt.pub_trees) == 50
+
+    def test_3(self):
+        self.dt.discover(self.incoming, activity='cordex',
+                         product='output',
+                         frequency='day',
+                         variable='vas')
+
+        print len(self.dt.pub_trees)
+        assert len(self.dt.pub_trees) == 1
+
+        pt = self.dt.pub_trees.values()[0]
+        self._do_version(pt)
+
+
 
 
         
