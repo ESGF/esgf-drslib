@@ -3,7 +3,9 @@ Test CORDEX DRS structure.
 
 """
 
-from drslib.cordex import CordexFileSystem
+from drslib.cordex import CordexFileSystem, CordexDRS
+
+from drs_tree_shared import TestEg, TestListing
 
 cordex_fs = CordexFileSystem('/cordex')
 
@@ -71,3 +73,37 @@ def test_4():
     assert drs.domain == 'AUS-44i'
     assert drs.rcm_model == 'HadRM3P'
     assert drs.institute == 'MOHC'
+
+
+
+class TestCordexListing1(TestListing):
+    __test__ = True
+
+    listing_file = 'cordex_test_EUR-44.ls'
+
+    def setUp(self):
+        super(TestCordexListing1, self).setUp()
+
+        # incoming is not tmpdir/output.
+        self.incoming = self.tmpdir
+
+    def _init_drs_fs(self):
+        self.drs_fs = CordexFileSystem(self.tmpdir)
+
+    def test_1(self):
+        self.dt.discover(self.incoming, activity='cordex',
+                         product='output')
+
+        print len(self.dt.pub_trees)
+        assert len(self.dt.pub_trees) == 168
+
+    def test_1(self):
+        self.dt.discover(self.incoming, activity='cordex',
+                         product='output',
+                         frequency='day')
+
+        print len(self.dt.pub_trees)
+        assert len(self.dt.pub_trees) == 50
+
+
+        

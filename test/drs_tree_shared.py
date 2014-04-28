@@ -45,8 +45,11 @@ class TestListing(TestEg):
         listing_path = os.path.join(test_dir, self.listing_file)
         gen_drs.write_listing(self.tmpdir, listing_path)
 
-        self.drs_fs = CMIP5FileSystem(self.tmpdir)
+        self._init_drs_fs()
         self.dt = DRSTree(self.drs_fs)
+
+    def _init_drs_fs(self):
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
 
     def _discover(self, institute, model):
         self.dt.discover(self.incoming, activity='cmip5',
