@@ -18,14 +18,6 @@ from drslib import config, mapfile
 import logging
 log = logging.getLogger(__name__)
 
-#---------------------------------------------------------------------------
-# DRY definitions
-
-VERSIONING_FILES_DIR = 'files'
-VERSIONING_LATEST_DIR = 'latest'
-IGNORE_FILES_REGEXP = r'^\..*'
-
-#---------------------------------------------------------------------------
 
 class PublisherTree(object):
     """
@@ -99,7 +91,7 @@ class PublisherTree(object):
         if not self.versions:
             #!FIXME: this is a hack.  there must be a better way
             # If the files directory is present assume broken rather than initial
-            if os.path.exists(os.path.join(self.pub_dir, VERSIONING_FILES_DIR)):
+            if os.path.exists(os.path.join(self.pub_dir, self.drs_tree.drs_fs.VERSIONING_FILES_DIR)):
                 self.state = self.STATE_BROKEN
             else:                                  
                 self.state = self.STATE_INITIAL
@@ -280,7 +272,7 @@ class PublisherTree(object):
         for filepath, drs in self._todo:
             filename = os.path.basename(filepath)
             drs.version = next_version
-            newpath = os.path.join(self.real_file_dir(drs),
+            newpath = os.path.join(self.drs_tree.drs_fs.drs_to_realpath(drs),
                                    filename)
 
             # Detect directories needing creation
@@ -290,7 +282,7 @@ class PublisherTree(object):
 
 
             yield self.CMD_MOVE, filepath, newpath
-            todo_files.append((newpath, self.link_file_dir(drs)))
+            todo_files.append((newpath, self.drs_tree.drs_fs.drs_to_linkpath(drs)))
 
         #!TODO: Handle deleted files!
 
@@ -328,65 +320,7 @@ class PublisherTree(object):
     # These methods could be considered protected.  They are designed
     # for use by drs_check_tree.py
 
-    def real_file_dir(self, drs):
-        """
-        Return the expected dir containing the real file represented by drs.
 
-        :warning: `drs.version` must refer to the earliest version in which
-            the file appears.
-
-        """
-        fdir = self.drs_tree.drs_fs.drs_to_storage(drs)
-        return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
-                                               fdir))
-
-    def link_file_dir(self, drs, version=None):
-        """
-        Return the expected dir containing the link to the file represented by drs.
-        """
-        if version is None:
-            version = drs.version
-        
-        return os.path.abspath(os.path.join(self.pub_dir, 'v%d' % version,
-                                            drs.variable))
-
-
-    def iter_files_with_links(self, version=None, into_version=None):
-        """
-        Iterate over files of a particular version also returning it's respective link
-        into the latest version.
-
-        :param version: iterate over a specific version or all versions if None
-        :param into_version: the version into which symbolic links will be made, if None
-            same as version, if both are None same as self.latest
-        :yield: filepath, linkpath
-
-        """
-
-        #!TODO: needs revisiting for CORDEX
-        path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
-        if not os.path.exists(path):
-            return
-
-        if into_version is None:
-            if version is None:
-                into_version = self.latest
-            else:
-                into_version = version
-
-        for filedir in [f for f in os.listdir(path) if not re.match(IGNORE_FILES_REGEXP, f)]:
-            subdrs = self.drs_tree.drs_fs.storage_to_drs(filedir)
-            
-            if version is not None and version != subdrs.version:
-                continue
-
-            filepath = os.path.join(path, filedir)
-
-            for filename in [f for f in os.listdir(filepath) if not re.match(IGNORE_FILES_REGEXP, f)]:
-                #!FIXME: quick hack, remove when CORDEX refactoring resolved
-                drs_cls = self.drs_tree.drs_fs.drs_cls
-                drs = drs_cls(variable=subdrs.variable)
-                yield os.path.join(filepath, filename), self.link_file_dir(drs, into_version)
 
     def prev_versions(self, version):
         """
@@ -402,7 +336,7 @@ class PublisherTree(object):
         version = max(self.versions.keys())
         latest_dir = 'v%d' % version
         log.info('Setting latest to %s' % latest_dir)
-        latest_lnk = os.path.join(self.pub_dir, VERSIONING_LATEST_DIR)
+        latest_lnk = os.path.join(self.pub_dir, self.drs_tree.drs_fs.VERSIONING_LATEST_DIR)
 
         if os.path.exists(latest_lnk):
             os.remove(latest_lnk)
@@ -471,7 +405,7 @@ class PublisherTree(object):
 
         done = set()
         for filepath, link_dir in itertools.chain(from_seq,
-                                                  self.iter_files_with_links(version)):
+                                                  self.drs_tree.drs_fs.iter_files_with_links(self.pub_dir, version)):
             filename = os.path.basename(filepath)
 
             if not os.path.exists(link_dir):
@@ -489,7 +423,7 @@ class PublisherTree(object):
 
         #!TODO: overlap detection removed.  See tag 0.3.0a6 for old implementation.
         for prev_version in self.prev_versions(version):
-            for filepath, link_dir in self.iter_files_with_links(prev_version, version):
+            for filepath, link_dir in self.drs_tree.drs_fs.iter_files_with_links(self.pub_dir, prev_version, version):
                 filename = os.path.basename(filepath)
 
                 if filename in done:
@@ -516,7 +450,7 @@ class PublisherTree(object):
             log.info("New PublisherTree being created at %s" % self.pub_dir)
             os.makedirs(self.pub_dir)
 
-        path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        path = os.path.join(self.pub_dir, self.drs_tree.drs_fs.VERSIONING_FILES_DIR)
         if not os.path.exists(path):
             log.info('Initialising %s for versioning.' % self.pub_dir)
             os.mkdir(path)
@@ -538,7 +472,7 @@ class PublisherTree(object):
         self.latest = 0
         self.versions = {}
         # Bail out if pub_dir doesn't exist yet.
-        fdir = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        fdir = os.path.join(self.pub_dir, self.drs_tree.drs_fs.VERSIONING_FILES_DIR)
         if not os.path.exists(fdir):
             return
 
@@ -547,7 +481,7 @@ class PublisherTree(object):
         #!TODO: Revise for CORDEX
         versions = set()
         for d in os.listdir(fdir):
-            subdrs = self.drs_tree.drs_fs.storage_to_drs(d)
+            subdrs = self.drs_tree.drs_fs.storage_to_drs(os.path.join(self.drs_tree.drs_fs.VERSIONING_FILES_DIR, d))
             
             assert subdrs.version is not None
 
@@ -585,7 +519,7 @@ class PublisherTree(object):
                                                     topdown=False):
             for filename in filenames:
                 # Ignore files matching a regexp
-                if re.match(IGNORE_FILES_REGEXP, filename):
+                if re.match(self.drs_tree.drs_fs.IGNORE_FILES_REGEXP, filename):
                     continue
 
                 filepath = os.path.join(dirpath, filename)

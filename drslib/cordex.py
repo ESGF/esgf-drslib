@@ -4,6 +4,7 @@ Implement CORDEX specific DRS scheme.
 """
 
 import re
+import os
 
 from drslib.drs import BaseDRS, DRSFileSystem, _ensemble_to_rip, _rip_to_ensemble
 from drslib import config
@@ -126,15 +127,23 @@ class CordexFileSystem(DRSFileSystem):
 
         return drs
 
-
-
     def drs_to_storage(self, drs):
-        return 'd%d' % drs.version
+        return '%s/d%d' % (self.VERSIONING_FILES_DIR, drs.version)
 
     def storage_to_drs(self, subpath):
-        assert subpath[0] == 'd'
+        files_dir, subpath2 = subpath.split('/')
+        assert subpath2[0] == 'd'
 
-        version = int(subpath[1:])
+        version = int(subpath2[1:])
         return self.drs_cls(version=version)
 
+
+    # drs_to_realpath(self, drs): defined in superclass
+
+    def drs_to_linkpath(self, drs, version=None):
+        if version is None:
+            version = drs.version
+
+        pubpath = self.drs_to_publication_path(drs)
+        return os.path.abspath(os.path.join(pubpath, 'v%d' % version))
 

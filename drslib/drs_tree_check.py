@@ -6,7 +6,13 @@ This API adds consistency checking to PublishTrees without bloating the Publishe
 """
 
 import os, sys
-from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR, IGNORE_FILES_REGEXP
+
+#!FIXME: DRSFileSystem should hide this now
+from drslib.drs import DRSFileSystem
+VERSIONING_LATEST_DIR = DRSFileSystem.VERSIONING_LATEST_DIR
+VERSIONING_FILES_DIR = DRSFileSystem.VERSIONING_FILES_DIR
+IGNORE_FILES_REGEXP = DRSFileSystem.IGNORE_FILES_REGEXP
+
 import os.path as op
 import shutil
 import re

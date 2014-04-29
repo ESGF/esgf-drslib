@@ -357,6 +357,10 @@ class DRSFileSystem(object):
 
     """
 
+    VERSIONING_FILES_DIR = 'files'
+    VERSIONING_LATEST_DIR = 'latest'
+    IGNORE_FILES_REGEXP = r'^\..*'
+
     drs_cls = NotImplemented
 
     def __init__(self, drs_root):
@@ -452,3 +456,59 @@ class DRSFileSystem(object):
         """
         raise NotImplementedError
 
+    def drs_to_realpath(self, drs):
+        """
+        Return the full path to the real file for `drs` (as oposed to the symbolic link).
+
+        """
+        pubpath = self.drs_to_publication_path(drs)
+
+        fdir = self.drs_to_storage(drs)
+        return os.path.join(pubpath, fdir)
+
+
+    def drs_to_linkpath(self, drs, version=None):
+        """
+        Return the full path of the symbolic link for this drs
+
+        """
+        raise NotImplementedError
+
+
+    def iter_files_with_links(self, pub_dir, version=None, into_version=None):
+        """
+        Iterate over files of a particular version also returning it's respective link
+        into the latest version.
+
+        :param version: iterate over a specific version or all versions if None
+        :param into_version: the version into which symbolic links will be made, if None
+            same as version, if both are None same as self.latest
+        :yield: filepath, linkpath
+
+        """
+
+        #!TODO: needs revisiting for CORDEX
+        path = os.path.join(pub_dir, self.VERSIONING_FILES_DIR)
+        if not os.path.exists(path):
+            return
+
+        if into_version is None:
+            if version is None:
+                into_version = self.latest
+            else:
+                into_version = version
+
+        for filedir in [f for f in os.listdir(path) if not re.match(self.IGNORE_FILES_REGEXP, f)]:
+            subdrs = self.storage_to_drs(os.path.join(self.VERSIONING_FILES_DIR, filedir))
+            
+            if version is not None and version != subdrs.version:
+                continue
+
+            filepath = os.path.join(path, filedir)
+
+            for filename in [f for f in os.listdir(filepath) if not re.match(self.IGNORE_FILES_REGEXP, f)]:
+                drs = self.publication_path_to_drs(path)
+                drs.update(subdrs)
+
+                yield os.path.join(filepath, filename), self.drs_to_linkpath(drs, into_version)
+        

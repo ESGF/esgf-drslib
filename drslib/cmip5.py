@@ -368,14 +368,25 @@ class CMIP5FileSystem(DRSFileSystem):
         return self._vtrans.filepath_to_drs(filepath)
 
     def drs_to_storage(self, drs):
-        return '%s_%s' % (self.drs_cls._encode_component('variable', drs.variable),
-                          #!NOTE: _encode_component would add "v" to the beginning
-                          drs.version)
+        return '%s/%s_%s' % (self.VERSIONING_FILES_DIR,
+            self.drs_cls._encode_component('variable', drs.variable),
+            #!NOTE: _encode_component would add "v" to the beginning
+            drs.version)
 
     def storage_to_drs(self, subpath):
-        variable_str, version_str = subpath.split('_')
+        filesdir, subpath2 = subpath.split('/')
+        variable_str, version_str = subpath2.split('_')
 
         variable = self.drs_cls._decode_component('variable', variable_str)
         version = self.drs_cls._decode_component('version', version_str)
 
         return self.drs_cls(variable=variable, version=version)
+
+    def drs_to_linkpath(self, drs, version=None):
+        if version is None:
+            version = drs.version
+
+        pubpath = self.drs_to_publication_path(drs)
+        return os.path.abspath(os.path.join(pubpath, 'v%d' % version,
+                                            drs.variable))
+
