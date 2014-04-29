@@ -320,6 +320,61 @@ class PublisherTree(object):
     # These methods could be considered protected.  They are designed
     # for use by drs_check_tree.py
 
+    def real_file_dir(self, drs, version=None):
+        """
+        Return the expected dir containing the real file represented by drs.
+        """
+        #!TODO: needs revisiting for CORDEX
+        if version is None:
+            version = drs.version
+        elif drs.version is None:
+            drs.version = version
+
+        fdir = self.drs_tree.drs_fs.drs_to_storage(drs)
+        return os.path.abspath(os.path.join(self.pub_dir, VERSIONING_FILES_DIR,
+                                               fdir))
+
+    def link_file_dir(self, drs, version=None):
+        """
+        Return the expected dir containing the link to the file represented by drs.
+        """
+        if version is None:
+            version = drs.version
+        
+        return os.path.abspath(os.path.join(self.pub_dir, 'v%d' % version,
+                                            drs.variable))
+
+
+    def iter_files_with_links(self, version=None, into_version=None):
+        """
+        Iterate over files of a particular version also returning it's respective link
+        into the latest version.
+
+        :param version: iterate over a specific version or all versions if None
+        :param into_version: the version into which symbolic links will be made, if None
+            same as version, if both are None same as self.latest
+        :yield: filepath, linkpath
+
+        """
+
+        #!TODO: needs revisiting for CORDEX
+        path = os.path.join(self.pub_dir, VERSIONING_FILES_DIR)
+        if not os.path.exists(path):
+            return
+
+        if into_version is None:
+            if version is None:
+                into_version = self.latest
+            else:
+                into_version = version
+
+        for filedir in [f for f in os.listdir(path) if not re.match(IGNORE_FILES_REGEXP, f)]:
+            subdrs = self.drs_tree.drs_fs.storage_to_drs(filedir)
+            
+            if version is not None and version != subdrs.version:
+                continue
+
+            filepath = os.path.join(path, filedir)
 
 
     def prev_versions(self, version):
