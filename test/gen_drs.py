@@ -17,7 +17,7 @@ import os, sys
 
 import os.path as op
 
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 from drslib import cmip5, config
 
 from itertools import izip
@@ -104,10 +104,10 @@ def subset_range(date1, date2, clim, n):
 
 
 def make_eg(**iter_template):
-    template = DRS(activity='cmip5', product='output', institute='MOHC',
-                   model='HadCM3', experiment='1pctto4x', 
-                   frequency='day', realm='atmos', table='day',
-                   )
+    template = CmipDRS(activity='cmip5', product='output', institute='MOHC',
+                       model='HadCM3', experiment='1pctto4x', 
+                       frequency='day', realm='atmos', table='day',
+                       )
     d = dict(ensemble=emember_range(1), subset=make_subset())
     d.update(iter_template)
 

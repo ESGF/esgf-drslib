@@ -17,8 +17,8 @@ from unittest import TestCase
 
 import gen_drs
 from drslib.drs_tree import DRSTree
-from drslib.drs import path_to_drs, drs_to_path, DRS
 from drslib import config
+from drslib.cmip5 import CMIP5FileSystem
 
 test_dir = os.path.dirname(__file__)
 
@@ -45,7 +45,11 @@ class TestListing(TestEg):
         listing_path = os.path.join(test_dir, self.listing_file)
         gen_drs.write_listing(self.tmpdir, listing_path)
 
-        self.dt = DRSTree(self.tmpdir)
+        self._init_drs_fs()
+        self.dt = DRSTree(self.drs_fs)
+
+    def _init_drs_fs(self):
+        self.drs_fs = CMIP5FileSystem(self.tmpdir)
 
     def _discover(self, institute, model):
         self.dt.discover(self.incoming, activity='cmip5',

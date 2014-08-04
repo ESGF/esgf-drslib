@@ -30,9 +30,8 @@ import stat
 import datetime
 import re
 
-from drslib.cmip5 import make_translator
+from drslib.cmip5 import CMIP5FileSystem
 from drslib.translate import TranslationError
-from drslib.drs import DRS, path_to_drs, drs_to_path
 from drslib import config, mapfile
 from drslib.p_cmip5 import ProductException
 from drslib.publisher_tree import PublisherTree
@@ -60,24 +59,27 @@ class DRSTree(object):
 
     """
 
-    def __init__(self, drs_root, table_store=None):
+    def __init__(self, drs_fs):
         """
         :param drs_root: The path to the DRS *activity* directory.
         :param table_store: Override the default table store.  This can be used
             to select the TAMIP tables.
 
         """
-        self.drs_root = os.path.normpath(os.path.abspath(drs_root))
+        self.drs_fs = drs_fs
+
         self.pub_trees = {}
-        self._vtrans = make_translator(self.drs_root, table_store=table_store)
         self.incoming = DRSList()
         self.incomplete = DRSList()
+
+        #!TODO: generalise output specification callback
         self._p_cmip5 = None
 
         self._move_cmd = config.move_cmd
 
-        if not os.path.isdir(self.drs_root):
-            raise Exception('DRS root "%s" is not a directory' % self.drs_root)
+
+        if not os.path.isdir(self.drs_fs.drs_root):
+            raise Exception('DRS root "%s" is not a directory' % self.drs_fs.drs_root)
 
     def discover(self, incoming_dir=None, **components):
         """
@@ -98,17 +100,11 @@ class DRSTree(object):
 
         """
 
-        drs_t = DRS(**components)
+        drs_t = self.drs_fs.drs_cls(**components)
 
         # NOTE: None components are converted to wildcards
-        pt_glob = drs_to_path(self.drs_root, drs_t)
+        pt_glob = self.drs_fs.drs_to_publication_path(drs_t)
         pub_trees = glob(pt_glob)
-
-        # NOTE: must check if any of these pubtrees are within incoming
-        if incoming_dir:
-            incoming_dir = os.path.normpath(os.path.abspath(incoming_dir))
-            pub_trees = [x for x in pub_trees
-                         if not x.startswith(incoming_dir+'/')]
 
         for pt_path in pub_trees:
             # Detect whether pt_path is inside incoming.  If so ignore.
@@ -116,7 +112,7 @@ class DRSTree(object):
                 log.warning("PublisherTree path %s is inside incoming, ignoring" % pt_path)
                 continue
 
-            drs = path_to_drs(self.drs_root, pt_path, activity=drs_t.activity)
+            drs = self.drs_fs.publication_path_to_drs(pt_path, activity=drs_t.activity)
             drs_id = drs.to_dataset_id()
             if drs_id in self.pub_trees:
                 raise Exception("Duplicate PublisherTree %s" % drs_id)
@@ -135,7 +131,7 @@ class DRSTree(object):
         Scan the filesystem for incoming DRS files.
 
         This method can be repeatedly called to discover incoming
-        files independently of :meth:`DRSTree.discover` repeatedly .
+        files independently of :meth:`DRSTree.discover`.
 
         :incoming_dir: A directory to recursively scan for files.
 
@@ -164,7 +160,7 @@ class DRSTree(object):
         for filename, dirpath in files_iter:
             log.debug('Processing %s' % filename)
             try:
-                drs = self._vtrans.filename_to_drs(filename)
+                drs = self.drs_fs.filename_to_drs(filename)
             except TranslationError:
                 # File doesn't match
                 log.warn('File %s is not a DRS file' % filename)
@@ -198,8 +194,8 @@ class DRSTree(object):
                 else:
                     log.debug('Rejected %s as incomplete %s' % (filename, drs))
                     self.incomplete.append((os.path.join(dirpath, filename), drs))
-                # Instantiate a PublisherTree for each unique publication-level dataset
 
+        # Instantiate a PublisherTree for each unique publication-level dataset
         for path, drs in self.incoming:
             drs_id = drs.to_dataset_id()
             if drs_id not in self.pub_trees:

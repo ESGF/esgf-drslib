@@ -148,6 +148,26 @@ else:
     checksum_func = module.getattr(callable_name)
     if not callable(checksum_func):
         raise ValueError("checksum_func %s:%s is not callable" % (package_name, callable_name))
+
+
+##############################################################################
+# DRS Schemes
+# Each scheme maps a scheme name to a DRSFileSystem instance
+
+#!TODO: it would probably be better not to have to do the local import here.
+def get_drs_scheme(key):
+    from drslib.cmip5 import CMIP5FileSystem
+    from drslib.cordex import CordexFileSystem
+
+    drs_schemes = {
+        'cmip': CMIP5FileSystem,
+        'cordex': CordexFileSystem,
+        }
+
+    return drs_schemes[key]
+
+default_drs_scheme = 'cmip'
+drs_schemes = ['cmip', 'cordex']
     
 ##############################################################################
 # Check/repair options

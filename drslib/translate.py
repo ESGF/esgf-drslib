@@ -12,17 +12,32 @@ This module is very object-heavy and over engineered.  However, it does the job.
 
 """
 
+#!TODO: CORDEX.  Completely reimplement translation in a more flexible manner
+#       Maybe use the Python logic programming library used by IRIS.  We should
+#       keep this implementation for cmip5 only and try to reimplement CMIP5 logic
+#       in the new interface when possible.
+
 import re, os
 
 import logging
 log = logging.getLogger(__name__)
 
-from drslib.drs import DRS
+from drslib.drs import CmipDRS, _rip_to_ensemble, _ensemble_to_rip, _int_or_none
 from drslib.config import CMIP5_DRS, CMIP5_CMOR_DRS
+from drslib.exceptions import TranslationError
+from drslib.translate_iface import BaseTranslator
 
-class TranslationError(Exception):
-    pass
 
+#-----------------------------------------------------------------------------
+# Legacy implementation of BaseTranslator
+#
+# This implementation of BaseTranslator uses individual
+# ComponentHandler classes to handle each DRS component and a
+# TranslatorContext class to hold the state of the translation.
+#
+# NOTE: ComponentHandler classes were originally called
+#       ComponentTranslator classes.  This was confusing thus
+#       the rename.
 
 class TranslatorContext(object):
     """
@@ -50,7 +65,7 @@ class TranslatorContext(object):
             self.file_parts[-2:] = [self.file_parts[-2] + '-clim']
 
         if drs is None:
-            self.drs = DRS()
+            self.drs = CmipDRS()
         else:
             self.drs = drs
 
@@ -113,9 +128,146 @@ class TranslatorContext(object):
             self.file_parts.pop()
 
 
-class BaseComponentTranslator(object):
+class Translator(BaseTranslator):
     """
-    Each component is translated by a separate IComponentTranslator object.
+    An abstract class for translating between filepaths and
+    :class:`drslib.drs.DRS` objects.
+
+    Concrete subclasses are returned by factory functions such as
+    :mod:`drslib.cmip5.make_translator`.
+
+    :property prefix: The prefix for all DRS paths including the
+        activity.  All paths are interpreted as relative to this
+        prefix.  Generated paths have this prefix added.
+
+    :property table_store: A :class:`drslib.mip_table.MIPTableStore`
+        object containing all MIP tables being used.
+    
+    """
+
+    ContextClass = TranslatorContext
+
+    def __init__(self, prefix='', table_store=None):
+        self.prefix = prefix
+        self.table_store = table_store
+
+    def filename_to_drs(self, filename, context=None):
+        """
+        Translate a filename into a :class:`drslib.drs.DRS` object.
+
+        Only those DRS components known from the filename will be set.
+
+        """
+
+        if context is None:
+            context = self.ContextClass(filename=filename, drs=self.init_drs(),
+                                        table_store = self.table_store)
+        for t in self.handlers:
+            if t.component in context._override:
+                continue
+
+            t.filename_to_drs(context)
+
+        return context.drs
+
+    def path_to_drs(self, path, context=None):
+        """
+        Translate a directory path into a :class:`drslib.drs.DRS`
+        object.
+        
+        Only those DRS components known from the path will be set.
+
+        """
+        if context is None:
+            context = self.ContextClass(path=self._split_prefix(path), drs=self.init_drs(),
+                                        table_store = self.table_store)
+        for t in self.handlers:
+            if t.component in context._override:
+                continue
+            t.path_to_drs(context)
+
+        return context.drs
+
+    def filepath_to_drs(self, filepath, context=None):
+        """
+        Translate a full filepath to a :class:`drslib.drs.DRS` object.
+
+        """
+        filepath = self._split_prefix(filepath)
+        path, filename = os.path.split(filepath)
+        if context is None:
+            context = self.ContextClass(filename=filename, path=path, drs=self.init_drs(),
+                                        table_store = self.table_store)
+        for t in self.handlers:
+            if t.component in context._override:
+                continue
+            
+            t.path_to_drs(context)
+            t.filename_to_drs(context)
+            
+        return context.drs
+            
+    def drs_to_context(self, drs):
+        context = self.ContextClass(drs=self.init_drs(drs), table_store = self.table_store)
+        for t in self.handlers:
+            if t.component in context._override:
+                continue
+            t.drs_to_filepath(context)
+
+        return context
+
+    def drs_to_filepath(self, drs):
+        """
+        Translate a :class:`drslib.drs.DRS` object into a full filepath.
+
+        """
+        context = self.drs_to_context(drs)
+
+        return os.path.join(self.prefix, context.to_string())
+
+    def drs_to_path(self, drs):
+        """
+        Translate a :class:`drslib.drs.DRS` object into a directory path.
+
+        """
+        context = self.drs_to_context(drs)
+        
+        return os.path.join(self.prefix, context.path_to_string())
+
+    def drs_to_file(self, drs):
+        """
+        Translate a :class:`drslib.drs.DRS` object into a filename.
+
+        """
+        context = self.drs_to_context(drs)
+        
+        return context.file_to_string()
+
+    
+    def _split_prefix(self, path):
+        n = len(self.prefix)
+        if path[:n] == self.prefix:
+            return path[n:].lstrip('/')
+        else:
+            log.warn('Path %s does not have prefix %s' % (path, self.prefix))
+            return path
+
+    def init_drs(self):
+        """
+        Returns an empty DRS instance initialised for this translator.
+
+        This class must be overloaded in subclasses.
+
+        """
+        raise NotImplementedError
+
+
+#-----------------------------------------------------------------------------
+# Component handlers
+
+class BaseComponentHandler(object):
+    """
+    Each component is translated by a separate IComponentHandler object.
 
     """
     component = None
@@ -153,7 +305,7 @@ class BaseComponentTranslator(object):
         """
         raise NotImplementedError
 
-class GenericComponentTranslator(BaseComponentTranslator):
+class GenericComponentHandler(BaseComponentHandler):
     """
     The simplest type of translator just validating strings
 
@@ -199,7 +351,7 @@ class GenericComponentTranslator(BaseComponentTranslator):
         return s
 
 
-class GridspecTranslator(BaseComponentTranslator):
+class GridspecHandler(BaseComponentHandler):
     """
     Gridspec files don't fit into drslib's architecture very well
     so this is a work-around.  variable is set to "gridspec".
@@ -253,7 +405,7 @@ class GridspecTranslator(BaseComponentTranslator):
 
 
 
-class CMORVarTranslator(BaseComponentTranslator):
+class CMORVarHandler(BaseComponentHandler):
     """
     CMIP Variable translator
 
@@ -300,7 +452,7 @@ class CMORVarTranslator(BaseComponentTranslator):
 
     #----
 
-class VersionedVarTranslator(CMORVarTranslator):
+class VersionedVarHandler(CMORVarHandler):
     file_var_i = CMIP5_DRS.FILE_VARIABLE
     file_table_i = CMIP5_DRS.FILE_TABLE
     path_var_i = CMIP5_DRS.PATH_VARIABLE
@@ -308,18 +460,18 @@ class VersionedVarTranslator(CMORVarTranslator):
     component = 'variable'
 
     def path_to_drs(self, context):
-        super(VersionedVarTranslator, self).path_to_drs(context)
+        super(VersionedVarHandler, self).path_to_drs(context)
 
         tablename = context.path_parts[self.path_table_i]
 
         context.set_drs_component('table', tablename)
 
     def drs_to_filepath(self, context):
-        super(VersionedVarTranslator, self).drs_to_filepath(context)
+        super(VersionedVarHandler, self).drs_to_filepath(context)
 
         context.path_parts[self.path_table_i] = context.drs.table
 
-class EnsembleTranslator(BaseComponentTranslator):
+class EnsembleHandler(BaseComponentHandler):
     file_i = CMIP5_CMOR_DRS.FILE_ENSEMBLE
     path_i = CMIP5_CMOR_DRS.PATH_ENSEMBLE
     component = 'ensemble'
@@ -350,12 +502,12 @@ class EnsembleTranslator(BaseComponentTranslator):
     def _convert(self, component):
         return _rip_to_ensemble(component)
 
-class VersionedEnsembleTranslator(EnsembleTranslator):
+class VersionedEnsembleHandler(EnsembleHandler):
     file_i = CMIP5_DRS.FILE_ENSEMBLE
     path_i = CMIP5_DRS.PATH_ENSEMBLE
     component = 'ensemble'
 
-class VersionTranslator(BaseComponentTranslator):
+class VersionHandler(BaseComponentHandler):
     component = 'version'
 
     def filename_to_drs(self, context):
@@ -385,7 +537,7 @@ class VersionTranslator(BaseComponentTranslator):
 
     
 
-class SubsetTranslator(BaseComponentTranslator):
+class SubsetHandler(BaseComponentHandler):
     """
     Currently just temporal subsets
 
@@ -437,156 +589,13 @@ class SubsetTranslator(BaseComponentTranslator):
         context.file_parts[CMIP5_DRS.FILE_SUBSET] = '-'.join(parts)
 
 
-class Translator(object):
-    """
-    An abstract class for translating between filepaths and
-    :class:`drslib.drs.DRS` objects.
-
-    Concrete subclasses are returned by factory functions such as
-    :mod:`drslib.cmip5.make_translator`.
-
-    :property prefix: The prefix for all DRS paths including the
-        activity.  All paths are interpreted as relative to this
-        prefix.  Generated paths have this prefix added.
-
-    :property table_store: A :class:`drslib.mip_table.MIPTableStore`
-        object containing all MIP tables being used.
-    
-    """
-
-    ContextClass = TranslatorContext
-
-    def __init__(self, prefix='', table_store=None):
-        self.prefix = prefix
-        self.table_store = table_store
-
-    def filename_to_drs(self, filename, context=None):
-        """
-        Translate a filename into a :class:`drslib.drs.DRS` object.
-
-        Only those DRS components known from the filename will be set.
-
-        """
-
-        if context is None:
-            context = self.ContextClass(filename=filename, drs=self.init_drs(),
-                                        table_store = self.table_store)
-        for t in self.translators:
-            if t.component in context._override:
-                continue
-
-            t.filename_to_drs(context)
-
-        return context.drs
-
-    def path_to_drs(self, path, context=None):
-        """
-        Translate a directory path into a :class:`drslib.drs.DRS`
-        object.
-        
-        Only those DRS components known from the path will be set.
-
-        """
-        if context is None:
-            context = self.ContextClass(path=self._split_prefix(path), drs=self.init_drs(),
-                                        table_store = self.table_store)
-        for t in self.translators:
-            if t.component in context._override:
-                continue
-            t.path_to_drs(context)
-
-        return context.drs
-
-    def filepath_to_drs(self, filepath, context=None):
-        """
-        Translate a full filepath to a :class:`drslib.drs.DRS` object.
-
-        """
-        filepath = self._split_prefix(filepath)
-        path, filename = os.path.split(filepath)
-        if context is None:
-            context = self.ContextClass(filename=filename, path=path, drs=self.init_drs(),
-                                        table_store = self.table_store)
-        for t in self.translators:
-            if t.component in context._override:
-                continue
-            
-            t.path_to_drs(context)
-            t.filename_to_drs(context)
-            
-        return context.drs
-            
-    def drs_to_context(self, drs):
-        context = self.ContextClass(drs=self.init_drs(drs), table_store = self.table_store)
-        for t in self.translators:
-            if t.component in context._override:
-                continue
-            t.drs_to_filepath(context)
-
-        return context
-
-    def drs_to_filepath(self, drs):
-        """
-        Translate a :class:`drslib.drs.DRS` object into a full filepath.
-
-        """
-        context = self.drs_to_context(drs)
-
-        return os.path.join(self.prefix, context.to_string())
-
-    def drs_to_path(self, drs):
-        """
-        Translate a :class:`drslib.drs.DRS` object into a directory path.
-
-        """
-        context = self.drs_to_context(drs)
-        
-        return os.path.join(self.prefix, context.path_to_string())
-
-    def drs_to_file(self, drs):
-        """
-        Translate a :class:`drslib.drs.DRS` object into a filename.
-
-        """
-        context = self.drs_to_context(drs)
-        
-        return context.file_to_string()
-
-    
-    def _split_prefix(self, path):
-        n = len(self.prefix)
-        if path[:n] == self.prefix:
-            return path[n:].lstrip('/')
-        else:
-            log.warn('Path %s does not have prefix %s' % (path, self.prefix))
-            return path
-
-    def init_drs(self):
-        """
-        Returns an empty DRS instance initialised for this translator.
-
-        This class must be overloaded in subclasses.
-
-        """
-        raise NotImplementedError
 
 
-
-def _rip_to_ensemble(rip_str):
-    mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', rip_str)
-    if not mo:
-        raise TranslationError('Unrecognised ensemble syntax %s' % rip_str)
-    
-    (r, i, p) = mo.groups()
-    return (_int_or_none(r), _int_or_none(i), _int_or_none(p))
-
-def _ensemble_to_rip(ensemble):
-    r, i, p = ensemble
-    return 'r%di%dp%d' % (r, i, p)
 
 #-----------------------------------------------------------------------------
 # Date conversion and comparison functions
 
+#!TODO: CORDEX.  Move into DRS class.  Maybe implement within DRS._encode_component()
 def _to_date(date_str):
     if date_str is None:
         return None
@@ -598,6 +607,7 @@ def _to_date(date_str):
     (y, m, d, h, mn, sec) = mo.groups()
     return (int(y), _int_or_none(m), _int_or_none(d), _int_or_none(h), _int_or_none(mn), _int_or_none(sec))
 
+#!TODO: CORDEX. As above.
 def _from_date(date):
     (y, m, d, h, mn, sec) = date
 
@@ -629,8 +639,3 @@ def drs_dates_overlap(drs1, drs2):
     return d21 < d12
         
     
-def _int_or_none(x):
-    if x is None:
-        return None
-    else:
-        return int(x)

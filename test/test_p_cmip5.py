@@ -8,7 +8,7 @@ import zipfile
 
 import drslib.p_cmip5.product as p
 from drslib.p_cmip5 import init
-from drslib.cmip5 import make_translator
+from drslib.cmip5 import make_translator, CMIP5FileSystem
 from test.gen_drs import write_listing_seq, write_listing
 from drslib import config
 
@@ -268,7 +268,8 @@ def test_drs_tree():
     from drslib import drs_tree
 
     # Point drs_root at /tmp since we won't be making any upgrades.
-    dt = drs_tree.DRSTree('/tmp')
+    drs_fs = CMIP5FileSystem('/tmp')
+    dt = drs_tree.DRSTree(drs_fs)
     dt.set_p_cmip5(pc1)
     dt.discover(os.path.join(tmpdir, 'tmp/tas'), activity='cmip5', institute='UKMO')
 

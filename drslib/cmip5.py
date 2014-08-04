@@ -13,14 +13,18 @@ and path portions of filepaths.
 
 """
 
+import os
+import itertools
+
 import drslib.translate as T
 from drslib import config
 from drslib.mip_table import read_model_table
+from drslib.drs import CmipDRS, DRSFileSystem
 
 import logging
 log = logging.getLogger(__name__)
 
-class ProductTranslator(T.GenericComponentTranslator):
+class ProductHandler(T.GenericComponentHandler):
     path_i = T.CMIP5_DRS.PATH_PRODUCT
     file_i = None
     component = 'product'
@@ -77,7 +81,7 @@ for institute, models in config.institutes.items():
         model_institute_map[model] = institute
  
 
-class InstituteTranslator(T.GenericComponentTranslator):
+class InstituteHandler(T.GenericComponentHandler):
     path_i = T.CMIP5_DRS.PATH_INSTITUTE
     file_i = None
     component = 'institute'
@@ -90,7 +94,7 @@ class InstituteTranslator(T.GenericComponentTranslator):
         if context.drs.institute is None:
             context.drs.institute = self._deduce_institute(context)
 
-        super(InstituteTranslator, self).drs_to_filepath(context)        
+        super(InstituteHandler, self).drs_to_filepath(context)        
 
     #----
 
@@ -111,7 +115,7 @@ class InstituteTranslator(T.GenericComponentTranslator):
 
 
 #!TODO: Not official identifiers
-class ModelTranslator(T.GenericComponentTranslator):
+class ModelHandler(T.GenericComponentHandler):
     path_i = T.CMIP5_DRS.PATH_MODEL
     file_i = T.CMIP5_DRS.FILE_MODEL
     component = 'model'
@@ -120,14 +124,14 @@ class ModelTranslator(T.GenericComponentTranslator):
     def _validate(self, s):
         # Demote validation errors to a warning.
         try:
-            return super(ModelTranslator, self)._validate(s)
+            return super(ModelHandler, self)._validate(s)
         except T.TranslationError, e:
             log.warning('Model validation error: %s', e)
         return s
 
-model_t = ModelTranslator()
+model_t = ModelHandler()
 
-class ExperimentTranslator(T.GenericComponentTranslator):
+class ExperimentHandler(T.GenericComponentHandler):
     path_i = T.CMIP5_DRS.PATH_EXPERIMENT
     file_i = T.CMIP5_DRS.FILE_EXPERIMENT
     component = 'experiment'
@@ -135,7 +139,7 @@ class ExperimentTranslator(T.GenericComponentTranslator):
     vocab = set()
 
     def __init__(self, table_store):
-        super(ExperimentTranslator, self).__init__(table_store)
+        super(ExperimentHandler, self).__init__(table_store)
 
         # Get valid experiment ids from MIP tables
         for table in self.table_store.tables.values():
@@ -144,13 +148,13 @@ class ExperimentTranslator(T.GenericComponentTranslator):
         # Get valid experiment ids from metaconfig
         self.vocab.update(config.experiments)
 
-class FrequencyTranslator(T.GenericComponentTranslator):
+class FrequencyHandler(T.GenericComponentHandler):
     path_i = T.CMIP5_DRS.PATH_FREQUENCY
     file_i = None
     component = 'frequency'
 
     def __init__(self, table_store):
-        super(FrequencyTranslator, self).__init__(table_store)
+        super(FrequencyHandler, self).__init__(table_store)
 
         self.vocab = set()
         for table in self.table_store.tables.values():
@@ -167,7 +171,7 @@ class FrequencyTranslator(T.GenericComponentTranslator):
         if context.drs.frequency is None:
             context.drs.frequncy = self._deduce_freq(context)
 
-        return super(FrequencyTranslator, self).drs_to_filepath(context)
+        return super(FrequencyHandler, self).drs_to_filepath(context)
             
     #----
 
@@ -182,13 +186,13 @@ class FrequencyTranslator(T.GenericComponentTranslator):
         
 
 #!TODO: Get this information from CMIP tables
-class RealmTranslator(T.GenericComponentTranslator):
+class RealmHandler(T.GenericComponentHandler):
     path_i = T.CMIP5_DRS.PATH_REALM
     file_i = None
     component = 'realm'
 
     def __init__(self, table_store):
-        super(RealmTranslator, self).__init__(table_store)
+        super(RealmHandler, self).__init__(table_store)
 
         # Extract valid realms from the MIP tables
         self.vocab = set()
@@ -209,7 +213,7 @@ class RealmTranslator(T.GenericComponentTranslator):
         if ' ' in s:
             s = s.split(' ')[0]
 
-        return super(RealmTranslator, self)._validate(s)
+        return super(RealmHandler, self)._validate(s)
 
     def filename_to_drs(self, context):
         try:
@@ -222,7 +226,7 @@ class RealmTranslator(T.GenericComponentTranslator):
         if context.drs.realm is None:
             context.drs.realm = self._deduce_realm(context)
 
-        return super(RealmTranslator, self).drs_to_filepath(context)
+        return super(RealmHandler, self).drs_to_filepath(context)
 
 
     #----
@@ -243,7 +247,7 @@ class RealmTranslator(T.GenericComponentTranslator):
 
 
 
-class ExtendedTranslator(T.BaseComponentTranslator):
+class ExtendedHandler(T.BaseComponentHandler):
     """
     The extended DRS component is only used when converting DRS->filename.
     It is needed for CMIP3 conversions.
@@ -266,7 +270,7 @@ class ExtendedTranslator(T.BaseComponentTranslator):
 class CMIP5Translator(T.Translator):
     def init_drs(self, drs=None):
         if drs is None:
-            drs = T.DRS()
+            drs = T.CmipDRS()
 
         if drs.activity is None:
             drs.activity = config.drs_defaults.get('activity', 'cmip5')
@@ -309,43 +313,80 @@ def make_translator(prefix, with_version=True, table_store=None):
         table_store = get_table_store()
 
     t = CMIP5Translator(prefix, table_store)
-    t.translators = [
-        T.GridspecTranslator(table_store),
-        ProductTranslator(table_store),
-        ModelTranslator(table_store),
+    t.handlers = [
+        T.GridspecHandler(table_store),
+        ProductHandler(table_store),
+        ModelHandler(table_store),
 
         # Must follow model_t
-        InstituteTranslator(table_store),
-        ExperimentTranslator(table_store),
+        InstituteHandler(table_store),
+        ExperimentHandler(table_store),
         ]
 
     if with_version:
-        t.translators += [
-            T.VersionedEnsembleTranslator(table_store),
-            T.VersionedVarTranslator(table_store),
+        t.handlers += [
+            T.VersionedEnsembleHandler(table_store),
+            T.VersionedVarHandler(table_store),
             ]
     else:
-        t.translators += [
-            T.EnsembleTranslator(table_store),
-            T.CMORVarTranslator(table_store),
+        t.handlers += [
+            T.EnsembleHandler(table_store),
+            T.CMORVarHandler(table_store),
             ]
         
-    t.translators += [
+    t.handlers += [
         # Must be processed after variable
-        RealmTranslator(table_store),
-        FrequencyTranslator(table_store),
+        RealmHandler(table_store),
+        FrequencyHandler(table_store),
         ]
 
     if with_version:
-        t.translators.append(T.VersionTranslator(table_store))
+        t.handlers.append(T.VersionHandler(table_store))
 
-    t.translators += [
-        T.SubsetTranslator(table_store),
-        ExtendedTranslator(table_store),
+    t.handlers += [
+        T.SubsetHandler(table_store),
+        ExtendedHandler(table_store),
         ]
 
 
     return t
 
 
+
+class CMIP5FileSystem(DRSFileSystem):
+    drs_cls = CmipDRS
+
+    def __init__(self, drs_root, table_store=None):
+        super(CMIP5FileSystem, self).__init__(drs_root)
+
+        self._vtrans = make_translator(self.drs_root, table_store=table_store)
+
+    def filename_to_drs(self, filename):
+        return self._vtrans.filename_to_drs(filename)
+
+    def filepath_to_drs(self, filepath):
+        return self._vtrans.filepath_to_drs(filepath)
+
+    def drs_to_storage(self, drs):
+        return '%s/%s_%s' % (self.VERSIONING_FILES_DIR,
+            self.drs_cls._encode_component('variable', drs.variable),
+            #!NOTE: _encode_component would add "v" to the beginning
+            drs.version)
+
+    def storage_to_drs(self, subpath):
+        filesdir, subpath2 = subpath.split('/')
+        variable_str, version_str = subpath2.split('_')
+
+        variable = self.drs_cls._decode_component('variable', variable_str)
+        version = self.drs_cls._decode_component('version', version_str)
+
+        return self.drs_cls(variable=variable, version=version)
+
+    def drs_to_linkpath(self, drs, version=None):
+        if version is None:
+            version = drs.version
+
+        pubpath = self.drs_to_publication_path(drs)
+        return os.path.abspath(os.path.join(pubpath, 'v%d' % version,
+                                            drs.variable))
 

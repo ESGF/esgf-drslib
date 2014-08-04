@@ -12,6 +12,7 @@ from drslib.drs_tree import DRSTree
 
 from drs_tree_shared import TestEg, test_dir
 import gen_drs
+from drslib.cmip5 import CMIP5FileSystem
 
 from drslib.mapfile import calc_md5
 import StringIO
@@ -24,7 +25,8 @@ class TestMapfile(TestEg):
 
         gen_drs.write_eg1(self.tmpdir)
 
-        dt = DRSTree(self.tmpdir)
+        drs_fs = CMIP5FileSystem(self.tmpdir)
+        dt = DRSTree(drs_fs)
         dt.discover(self.incoming, activity='cmip5',
                     product='output1', institute='MOHC', model='HadCM3')
         self.pt = dt.pub_trees.values()[0]

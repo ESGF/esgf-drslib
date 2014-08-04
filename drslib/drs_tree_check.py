@@ -6,7 +6,13 @@ This API adds consistency checking to PublishTrees without bloating the Publishe
 """
 
 import os, sys
-from drslib.publisher_tree import VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR, IGNORE_FILES_REGEXP
+
+#!FIXME: DRSFileSystem should hide this now
+from drslib.drs import DRSFileSystem
+VERSIONING_LATEST_DIR = DRSFileSystem.VERSIONING_LATEST_DIR
+VERSIONING_FILES_DIR = DRSFileSystem.VERSIONING_FILES_DIR
+IGNORE_FILES_REGEXP = DRSFileSystem.IGNORE_FILES_REGEXP
+
 import os.path as op
 import shutil
 import re
@@ -239,7 +245,7 @@ class CheckVersionLinks(TreeChecker):
                     if realsrc != realdest:
                         yield ('Links to wrong file', 'Link %s does not point to the correct file %s' % (dest, src))
 
-                    drs = pt._vtrans.filename_to_drs(op.basename(realsrc))
+                    drs = pt.drs_tree.drs_fs.filename_to_drs(op.basename(realsrc))
                     done.append(drs)
 
         # Now scan filesystem for overlapping files
@@ -247,7 +253,7 @@ class CheckVersionLinks(TreeChecker):
         for dirpath, dirnames, filenames in os.walk(version_dir):
             for filename in filenames:
                 try:
-                    drs = pt._vtrans.filename_to_drs(filename)
+                    drs = pt.drs_tree.drs_fs.filename_to_drs(filename)
                 except TranslationError:
                     continue
                 for done_drs in done:
@@ -271,12 +277,12 @@ class CheckFilesLinks(TreeChecker):
         self._links = []
 
         latest_version = self._latest_version(pt)
-        for filepath, variable, version in pt.iter_real_files():
+        for filepath, link_dir in pt.iter_real_files():
             if check_latest and version != latest_version:
                 continue
 
             if op.islink(filepath):
-                self._links.append((filepath, variable, version))
+                self._links.append((filepath, link_dir))
                 self._state_unfixable('Links in files dir', 'Path %s is a symbolic link' % filepath)
 
 

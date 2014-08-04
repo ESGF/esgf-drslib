@@ -17,11 +17,13 @@ from ConfigParser import NoSectionError, NoOptionError
 
 from drslib.drs_tree import DRSTree
 from drslib import config
-from drslib.drs import DRS
+from drslib.drs import CmipDRS
 
 from drslib import p_cmip5
+from drslib.cmip5 import CMIP5FileSystem
 
 import logging
+from warnings import warn
 log = logging.getLogger(__name__)
 
 usage = """\
@@ -53,10 +55,24 @@ def make_parser():
                   help='Root directory of the DRS tree')
     op.add_option('-I', '--incoming', action='store',
                   help='Incoming directory for DRS files.  Defaults to <root>/%s' % config.DEFAULT_INCOMING)
+    #!TODO: Warn on all these options
     for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                  'frequency', 'realm']:
-        op.add_option('-%s'%attr[0], '--%s'% attr, action='store',
-                      help='Set DRS attribute %s for dataset discovery'%attr)
+        op.add_option('--%s'% attr, action='store',
+                      help='DEPRECATED, use --component instead')
+
+    def component_cb(option, opt_str, value, parser):
+        component, cvalue = value.split('=')
+        try:
+            component_dict = parser.values.component_dict
+        except AttributeError:
+            component_dict = parser.values.component_dict = {}
+
+        component_dict[component] = cvalue            
+
+    op.add_option('-c', '--component', action='callback', 
+                  callback=component_cb, type='str',
+                  help='Set DRS components for dataset discovery')
 
     op.add_option('-v', '--version', action='store',
                   help='Force version upgrades to this version')
@@ -64,6 +80,9 @@ def make_parser():
     op.add_option('-P', '--profile', action='store',
                   metavar='FILE',
                   help='Profile the script exectuion into FILE')
+
+    op.add_option('-s', '--scheme', action='store',
+                  help='Select the DRS scheme to use.  Available schemes are %s' % ', '.join(config.drs_schemes))
 
     # p_cmip5 options
     op.add_option('--detect-product', action='store_true', 
@@ -79,7 +98,8 @@ def make_parser():
     return op
 
 class Command(object):
-    def __init__(self, opts, args):
+    def __init__(self, op, opts, args):
+        self.op = op
         self.opts = opts
         self.args = args
         self.shelve_dir = None
@@ -143,12 +163,27 @@ class Command(object):
             except KeyError:
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
 
-        self.drs_tree = DRSTree(self.drs_root)
+        drs_root = os.path.normpath(os.path.abspath(self.drs_root))
+
+        if self.opts.scheme:
+            scheme = self.opts.scheme
+        else:
+            scheme = config.default_drs_scheme
+
+        try:
+            fs_cls = config.get_drs_scheme(scheme)
+        except KeyError:
+            raise ValueError('Unrecognised DRS scheme %s' % scheme)
+    
+        self.drs_fs = fs_cls(drs_root)
+        self.drs_tree = DRSTree(self.drs_fs)
 
         if self.opts.move_cmd:
             self.drs_tree.set_move_cmd(self.opts.move_cmd)
 
 
+        # This code is specifically for the deprecated DRS setting options
+        # Generic DRS component setting is handled below
         kwargs = {}
         for attr in ['activity', 'product', 'institute', 'model', 'experiment', 
                      'frequency', 'realm', 'ensemble']:
@@ -157,17 +192,40 @@ class Command(object):
                 # val may be there but None
                 if val is None:
                     raise AttributeError
+                warn('Option --%s is deprecated.  Use --component instead' % attr)
+
             except AttributeError:
                 val = config.drs_defaults.get(attr)
 
-            kwargs[attr] = val
+            # Only add this component if it is valid for the DRS scheme
+            if attr in self.drs_fs.drs_cls.DRS_ATTRS:
+                log.info('Setting DRS component %s=%s' % (attr, val))
+                kwargs[attr] = val
+
+        try:
+            component_dict = self.opts.component_dict
+        except AttributeError:
+            component_dict = {}
+
+        for component in self.drs_fs.drs_cls._iter_components(to_publish_level=True):
+            if component in component_dict:
+                val = component_dict.get(component)
+                log.info('Setting DRS component %s=%s' % (component, val))
+                kwargs[component] = val
+                del component_dict[component]
+
+        # Error for any components not valid
+        for component in component_dict:
+            op.error('Unrecognised component %s for scheme %s' % (component,
+                                                                  scheme))
+
 
         # Get the template DRS from args
         if self.args:
             dataset_id = self.args[0]
-            drs = DRS.from_dataset_id(dataset_id, **kwargs)
+            drs = self.drs_fs.drs_cls.from_dataset_id(dataset_id, **kwargs)
         else:
-            drs = DRS(**kwargs)
+            drs = self.drs_fs.drs_cls(**kwargs)
 
         # Product detection
         if self.opts.detect_product:
@@ -338,7 +396,7 @@ class HistoryCommand(Command):
         print "History of %s" % pt.drs.to_dataset_id()
         self.print_sep()
         for version in sorted(pt.versions, reverse=True):
-            vdrs = DRS(pt.drs, version=version)
+            vdrs = self.drs_fs.drs_cls(pt.drs, version=version)
             print vdrs.to_dataset_id(with_version=True)
         self.print_footer()
             
@@ -453,7 +511,7 @@ def run(op, command, opts, args):
         op.error("Unrecognised command %s" % command)
 
     for klass in commands:
-        c = klass(opts, args)
+        c = klass(op, opts, args)
         c.do()
 
 
