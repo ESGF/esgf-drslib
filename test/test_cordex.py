@@ -22,7 +22,7 @@ def test_1():
     assert drs.gcm_model == 'ECMWF-ERAINT'
     assert drs.experiment == 'evaluation'
     assert drs.ensemble == (0,0,0)
-    assert drs.rcm_model == 'HadRM3P'
+    assert drs.rcm_model == 'MOHC-HadRM3P'
     assert drs.rcm_version == 'v1'
     assert drs.frequency == 'fx'
     assert drs.variable == 'areacella'
@@ -41,7 +41,7 @@ def test_2():
     assert drs.gcm_model == 'ECMWF-ERAINT'
     assert drs.experiment == 'evaluation'
     assert drs.ensemble == (0,0,0)
-    assert drs.rcm_model == 'HadRM3P'
+    assert drs.rcm_model == 'MOHC-HadRM3P'
     assert drs.rcm_version == 'v1'
     assert drs.frequency == 'fx'
     assert drs.variable == 'areacella'
@@ -58,7 +58,7 @@ def test_3():
     assert drs.gcm_model == 'ECMWF-ERAINT'
     assert drs.experiment == 'evaluation'
     assert drs.ensemble == (0,0,0)
-    assert drs.rcm_model == 'HadRM3P'
+    assert drs.rcm_model == 'MOHC-HadRM3P'
     assert drs.rcm_version == 'v1'
     assert drs.frequency == 'fx'
     assert drs.variable == 'areacella'
@@ -71,7 +71,7 @@ def test_4():
 
     assert drs.activity == 'cordex'
     assert drs.domain == 'AUS-44i'
-    assert drs.rcm_model == 'HadRM3P'
+    assert drs.rcm_model == 'MOHC-HadRM3P'
     assert drs.institute == 'MOHC'
 
 
