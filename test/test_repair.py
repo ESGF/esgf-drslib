@@ -18,9 +18,8 @@ import os
 import shutil
 from glob import glob
 
-from drslib.publisher_tree import VERSIONING_FILES_DIR, VERSIONING_LATEST_DIR
 from drslib.drs_tree import DRSTree
-from drslib.drs_tree_check import CheckLatest
+from drslib.drs_tree_check import CheckLatest, VERSIONING_LATEST_DIR, VERSIONING_FILES_DIR
 
 from drs_tree_shared import TestEg, test_dir
 import gen_drs
