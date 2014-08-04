@@ -85,7 +85,9 @@ class BaseDRS(dict):
         if argv:
             assert len(argv) == 1
 
-            comps = {k: v for (k, v) in argv[0].items() if v is not None}
+            comps = {}
+            for (k, v) in argv[0].items():
+                if v is not None: comps[k] = v
             super(BaseDRS, self).update(comps)
         else:
             super(BaseDRS, self).update(**kwargs)

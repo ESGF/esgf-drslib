@@ -194,8 +194,8 @@ class DRSTree(object):
                 else:
                     log.debug('Rejected %s as incomplete %s' % (filename, drs))
                     self.incomplete.append((os.path.join(dirpath, filename), drs))
-                # Instantiate a PublisherTree for each unique publication-level dataset
 
+        # Instantiate a PublisherTree for each unique publication-level dataset
         for path, drs in self.incoming:
             drs_id = drs.to_dataset_id()
             if drs_id not in self.pub_trees:

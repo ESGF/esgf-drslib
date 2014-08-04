@@ -63,7 +63,8 @@ class CordexDRS(BaseDRS):
             parts = value.split('-')
             if len(parts) > 3:
                 raise ValueError('cannot parse extended component %s' % repr(value))
-                N1, N2 = _to_date(parts[0]), _to_date(parts[1])
+
+            N1, N2 = _to_date(parts[0]), _to_date(parts[1])
             if len(parts) == 3:
                 clim = parts[2]
                 if clim != 'clim':
@@ -71,14 +72,6 @@ class CordexDRS(BaseDRS):
             else:
                 clim = None
             ret = (N1, N2, clim)
-        elif component is 'rcm_model':
-            # This is a little hacky.  If the rcm_model component contains '-' take the part
-            # after the '-'.
-            try:
-                model_institution, model_name = value.split('-')
-                ret = model_name
-            except ValueError:
-                ret = value
         else:
             ret = value
                 
@@ -104,7 +97,10 @@ class CordexFileSystem(DRSFileSystem):
                           'ensemble', 'institute', 'rcm_model', 'rcm_version', 'frequency', 
                           'subset']:
             comp_val = comp_dict[component]
-            if comp_val is not None:
+            
+            if component is 'rcm_model' and comp_val is not None:
+                drs[component] = "%s-%s" % (comp_dict['institute'], comp_dict['rcm_model'])
+            elif comp_val is not None:
                 drs[component] = drs._decode_component(component, comp_val)
 
         return drs
@@ -137,6 +133,8 @@ class CordexFileSystem(DRSFileSystem):
         version = int(subpath2[1:])
         return self.drs_cls(version=version)
 
+    def drs_to_ingest_cache_path(self, drs):
+        return os.path.abspath(self.drs_to_publication_path(drs))
 
     # drs_to_realpath(self, drs): defined in superclass
 
