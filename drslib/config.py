@@ -158,16 +158,18 @@ else:
 def get_drs_scheme(key):
     from drslib.cmip5 import CMIP5FileSystem
     from drslib.cordex import CordexFileSystem
+    from drslib.specs import SpecsFileSystem
 
     drs_schemes = {
         'cmip': CMIP5FileSystem,
         'cordex': CordexFileSystem,
+        'specs': SpecsFileSystem,
         }
 
     return drs_schemes[key]
 
 default_drs_scheme = 'cmip'
-drs_schemes = ['cmip', 'cordex']
+drs_schemes = ['cmip', 'cordex', 'specs']
     
 ##############################################################################
 # Check/repair options
