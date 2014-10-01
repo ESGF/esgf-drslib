@@ -95,6 +95,9 @@ def make_parser():
     op.add_option('-M', '--move-cmd', action='store',
                   help='Set the command used to move files into the DRS structure')
 
+    op.add_option('-j', '--json-drs', action='store',
+                  help='Obtain DRS information from the json file FILE instead of deducing it from file paths')
+
     return op
 
 class Command(object):
@@ -162,6 +165,11 @@ class Command(object):
                 incoming = config.drs_defaults['incoming']
             except KeyError:
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
+
+        if self.opts.json_drs:
+            json_drs = self.opts.json_drs
+        else:
+            json_drs = None
 
         drs_root = os.path.normpath(os.path.abspath(self.drs_root))
 
