@@ -334,6 +334,7 @@ class TodoCommand(Command):
 
 class UpgradeCommand(Command):
     def do(self):
+
         self.print_header()
 
         for k in sorted(self.drs_tree.pub_trees):

@@ -14,8 +14,8 @@ from drslib import config
 
 class SpecsDRS(BaseDRS):
     DRS_ATTRS = [
-        'activity', 'product', 'institute', 'model', 'experiment', 'experiment_series', 
-        'start_date', 'frequency', 'realm', 'table', 'variable', 'ensemble', 'subset',
+        'activity', 'product', 'institute', 'model', 'experiment', 'start_date', 
+        'frequency', 'realm', 'table', 'variable', 'ensemble', 'subset',
         'extended',
         ]
     PUBLISH_LEVEL = 'ensemble'
@@ -95,16 +95,16 @@ class SpecsFileSystem(DRSFileSystem):
         Return a DRS instance deduced from a filename.
 
         """
-        # var_table_model_exptfamily_series_startdate_ensemble_subset
+        # var_table_model_exptfamily_startdate_ensemble_subset
         # E.g. pr_day_MPI-ESM-LR_decadal_series1_S19610101_r1i1p1_19610101-19701231.nc 
 
-        m = re.match(r'(?P<variable>.*?)_(?P<frequency>.*?)_(?P<model>.*?)_(?P<experiment>.*?)_(?P<experiment_series>.*?)_(?P<start_date>.*?)_(?P<ensemble>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
+        m = re.match(r'(?P<variable>.*?)_(?P<table>.*?)_(?P<model>.*?)_(?P<experiment>.*?)_(?P<start_date>S\d{8}?)_(?P<ensemble>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
         
         assert m
         comp_dict = m.groupdict()
 
         drs = self.drs_cls(activity='specs')
-        for component in ['variable', 'frequency', 'model', 'experiment', 'experiment_series',
+        for component in ['variable', 'table', 'model', 'experiment', 'start_date',
                           'ensemble', 'subset']:
             comp_val = comp_dict[component]
             drs[component] = drs._decode_component(component, comp_val)

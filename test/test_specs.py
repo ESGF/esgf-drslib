@@ -12,7 +12,7 @@ from drs_tree_shared import TestEg, TestListing
 specs_fs = SpecsFileSystem('/specs')
 
 def test_1():
-    path = '/SPECS/output/MPI-M/MPI-ESM-LR/decadal/series1/S19610101/day/atmos/day/pr/r1i1p1/v20010112/pr_day_MPI-ESM-LR_decadal_series1_S19610101_r1i1p1_19610101-19701231.nc'
+    path = '/SPECS/output/MPI-M/MPI-ESM-LR/decadal/S19610101/day/atmos/day/pr/r1i1p1/v20010112/pr_day_MPI-ESM-LR_decadal_S19610101_r1i1p1_19610101-19701231.nc'
 
     drs = specs_fs.filepath_to_drs(path)
     drs.activity = 'specs'
@@ -34,7 +34,7 @@ def test_1():
 
 
 def test_2():
-    drs_id = 'specs.output.MPI-M.MPI-ESM-LR.decadal.series1.S19610101.day.atmos.day.pr.r1i1p1.v20010112'
+    drs_id = 'specs.output.MPI-M.MPI-ESM-LR.decadal.S19610101.day.atmos.day.pr.r1i1p1.v20010112'
 
     drs = specs_fs.drs_cls.from_dataset_id(drs_id)
 
@@ -53,22 +53,34 @@ def test_2():
     assert drs.subset == None
 
 def test_3():
-    filename = 'pr_day_MPI-ESM-LR_decadal_series1_S19610101_r1i1p1_19610101-19701231.nc'
+    filename = 'pr_day_MPI-ESM-LR_decadal_S19610101_r1i1p1_19610101-19701231.nc'
 
     drs = specs_fs.filename_to_drs(filename)
 
     assert drs.activity == 'specs'    
     assert drs.experiment == 'decadal'
-    assert drs.experiment_series == 'series1'
     assert drs.ensemble == (1,1,1)
     assert drs.model == 'MPI-ESM-LR'
-    assert drs.start_date == None
-    assert drs.frequency == 'day'
+    assert drs.start_date[:3] == (1961, 1, 1)
+    assert drs.table == 'day'
     assert drs.variable == 'pr'
     assert drs.subset[0][:3] == (1961, 1, 1)
     assert drs.subset[1][:3] == (1970, 12, 31)
 
+def test_4():
+    filename = 'msftmyzba_Omon_IPSL-CM5A-LR_decadal_S19620101_r3i1p1_196201-197112.nc'
 
+    drs = specs_fs.filename_to_drs(filename)
+
+    assert drs.activity == 'specs'
+    assert drs.variable == 'msftmyzba'
+    assert drs.table == 'Omon'
+    assert drs.model == 'IPSL-CM5A-LR'
+    assert drs.experiment == 'decadal'
+    assert drs.start_date[:3] == (1962, 1, 1)
+    assert drs.ensemble == (3,1,1)
+    assert drs.subset[0][:2] == (1962, 01)
+    assert drs.subset[1][:2] == (1971, 12)
 
 # class TestSpecsListing1(TestListing):
 #     __test__ = True
