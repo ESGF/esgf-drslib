@@ -240,7 +240,14 @@ class Command(object):
             self._config_p_cmip5()
             self._setup_p_cmip5()
 
-        self.drs_tree.discover(incoming, **drs)
+        # If JSON file selected use that, otherwise discover from filesystem
+        if json_drs:
+            with open(json_drs) as fh:
+                json_obj = json.load(fh)
+            self.drs_tree.discover_incoming_fromjson(json_obj, **drs)
+        else:
+            self.drs_tree.discover(incoming, **drs)
+
 
     def do(self):
         raise NotImplementedError("Unimplemented command")

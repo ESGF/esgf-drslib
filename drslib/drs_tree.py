@@ -245,11 +245,17 @@ class DRSTree(object):
             path = d['path']
             filename = os.path.basename(path)
             dirpath = os.path.dirname(path)
+            drs_cls = self.drs_fs.drs_cls
 
-            # Select only drs keys that are valid for this DRS scheme
-            drs_attrs = {k: v for (k, v) in d['drs'].items() if k in self.drs_cls.DRS_ATTRS}
-            drs_attrs.update(components)
-            drs = self.drs_cls(**drs_attrs)
+            # Construct the DRS object from the json dictionary
+            #!TODO: move this into DRS class or DRSFileSystem class? json_to_drs() method?
+            drs = drs_cls()
+            for k in d['drs']:
+                if k not in drs_cls.DRS_ATTRS:
+                    # Select only drs keys that are valid for this DRS scheme
+                    continue
+
+                drs[k] = drs._decode_component(k, d['drs'][k])
 
             yield (filename, dirpath, drs)
             
