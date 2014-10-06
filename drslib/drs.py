@@ -54,6 +54,7 @@ class BaseDRS(dict):
     PUBLISH_LEVEL = NotImplemented
     VERSION_COMPONENT = 'version'
     OPTIONAL_ATTRS = NotImplemented
+    DRS_JSON_MAP = None
 
     def __init__(self, *argv, **kwargs):
         """
@@ -214,6 +215,31 @@ class BaseDRS(dict):
                    
         return klass(**components)
 
+    @classmethod
+    def from_json(klass, json_obj, **components):
+        """
+        Create a DRS object from a ceda-cc compatible json object.
+
+        ceda-cc may use different keys than the DRS terms used internally so these should be mapped here.
+
+        :json_obj: A dictionary containing a ceda-cc representation of the drs terms as exported in json.
+
+        """
+        drs = klass(**components)
+        for k in json_obj:
+            if k not in klass.DRS_ATTRS:
+                # Select only drs keys that are valid for this DRS scheme
+                continue
+
+            # Map ceda-cc keys to drslib keys
+            if klass.DRS_JSON_MAP:
+                k_mapped = klass.DRS_JSON_MAP.get(k, k)
+            else:
+                k_mapped = k
+
+            drs[k_mapped] = drs._decode_component(k_mapped, json_obj[k])
+
+        return drs
 
 class CmipDRS(BaseDRS):
     """

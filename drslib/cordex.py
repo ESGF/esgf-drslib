@@ -20,6 +20,11 @@ class CordexDRS(BaseDRS):
         ]
     PUBLISH_LEVEL = 'variable'
     OPTIONAL_ATTRS = ['extended']
+    DRS_JSON_MAP = {
+        'driving_model': 'gcm_model',
+        'model_version': 'rcm_version',
+        'model': 'rcm_model',
+        }
 
     @classmethod
     def _encode_component(klass, component, value):
