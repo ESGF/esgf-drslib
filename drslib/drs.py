@@ -232,15 +232,10 @@ class BaseDRS(dict):
                 continue
 
             # Map ceda-cc keys to drslib keys
-            #!TODO: Make drslib properly unicode.  This str(k) is a work-around.
             if klass.DRS_JSON_MAP:
                 k_mapped = klass.DRS_JSON_MAP.get(k, k)
             else:
                 k_mapped = k
-
-            #!DEBUG
-            #if k_mapped == 'ensemble':
-            #    import pdb; pdb.set_trace()
 
             drs[k_mapped] = drs._decode_component(k_mapped, json_obj[k])
 
