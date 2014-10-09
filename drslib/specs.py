@@ -50,17 +50,17 @@ class SpecsDRS(BaseDRS):
         
         if value == '%':
             ret = None
-        elif component is 'ensemble':
+        elif component == 'ensemble':
             if value == (None, None, None):
                 ret = None
             else:
                 ret = _rip_to_ensemble(value)
-        elif component is 'version':
+        elif component == 'version':
             if value[0] == 'v':
                 ret = int(value[1:])
             else:
                 ret = int(value)
-        elif component is 'subset':
+        elif component == 'subset':
             N1 = N2 = None
             parts = value.split('-')
             if len(parts) > 3:
@@ -74,7 +74,7 @@ class SpecsDRS(BaseDRS):
             else:
                 clim = None
             ret = (N1, N2, clim)
-        elif component is 'start_date':
+        elif component == 'start_date':
             mo = re.match(r'S(\d{8})', value)
             if not mo:
                 raise ValueError('Unrecognised start_date %s' % repr(value))
