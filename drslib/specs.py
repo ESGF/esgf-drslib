@@ -27,6 +27,8 @@ class SpecsDRS(BaseDRS):
 
         if value is None:
             return '%'
+        elif component == 'realm':
+            return value.split(' ')[0]
         elif component == 'ensemble':
             return _ensemble_to_rip(value)
         elif component == 'version':
@@ -75,7 +77,7 @@ class SpecsDRS(BaseDRS):
                 clim = None
             ret = (N1, N2, clim)
         elif component == 'start_date':
-            mo = re.match(r'S(\d{8})', value)
+            mo = re.match(r'S?(\d{8})', value)
             if not mo:
                 raise ValueError('Unrecognised start_date %s' % repr(value))
 
