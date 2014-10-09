@@ -244,7 +244,19 @@ class Command(object):
         # If JSON file selected use that, otherwise discover from filesystem
         if json_drs:
             with open(json_drs) as fh:
-                json_obj = json.load(fh)
+                #!TODO: Remove json-array case
+                # This is a work-around until we have a stable json format
+                # The file might be a json array or it might be a series
+                # of json files, 1 per line
+                json_str = fh.readline()
+                if json_str[0] == '[':
+                    json_obj = json.loads(json_str)
+                else:
+                    json_obj = []
+                    while json_str:
+                        json_obj.append(json.loads(json_str))
+                        json_str = fh.readline()
+
             self.drs_tree.discover_incoming_fromjson(json_obj, **drs)
         else:
             self.drs_tree.discover(incoming, **drs)

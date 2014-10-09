@@ -28,8 +28,9 @@ class TestJson(TestEg):
     def test_2(self):
         drs_fs = SpecsFileSystem(self.tmpdir)
         drs_tree = DRSTree(drs_fs)
-        json_obj = json.load(open(op.join(test_dir, 'specs_cedacc.json')))
-        
+        with open(op.join(test_dir, 'specs_cedacc.json')) as fh:
+            json_obj = [json.loads(line) for line in fh]
+
         drs_tree.discover_incoming_fromjson(json_obj, activity='specs')
         
         # This id will not be present if realm is not correctly split on space
