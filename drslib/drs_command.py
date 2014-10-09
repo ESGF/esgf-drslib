@@ -14,6 +14,7 @@ import sys, os
 
 from optparse import OptionParser
 from ConfigParser import NoSectionError, NoOptionError
+import json
 
 from drslib.drs_tree import DRSTree
 from drslib import config
