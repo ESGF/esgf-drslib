@@ -25,4 +25,4 @@ class TestJson(TestEg):
         #       model_version vs. rcm_version.  
         #!TODO: table is not in the json so need to look at filename too.
 
-        assert False #!TODO
+        assert len(drs_tree.pub_trees) == 3

@@ -247,8 +247,13 @@ class DRSTree(object):
             dirpath = os.path.dirname(path)
             drs_cls = self.drs_fs.drs_cls
 
+            # construct a drs from the filename
+            drs = self.drs_fs.filename_to_drs(os.path.basename(path))
+
             # Construct the DRS object from the json dictionary
-            drs = drs_cls.from_json(d['drs'], **components)            
+            drs2 = drs_cls.from_json(d['drs'], **components)            
+            
+            drs.update(drs2)
 
             yield (filename, dirpath, drs)
             
