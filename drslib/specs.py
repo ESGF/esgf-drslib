@@ -109,7 +109,10 @@ class SpecsFileSystem(DRSFileSystem):
         for component in ['variable', 'table', 'model', 'experiment', 'start_date',
                           'ensemble', 'subset']:
             comp_val = comp_dict[component]
-            drs[component] = drs._decode_component(component, comp_val)
+            if comp_val is not None:
+                drs[component] = drs._decode_component(component, comp_val)
+            else:
+                drs[component] = None
 
         return drs
 
