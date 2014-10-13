@@ -36,3 +36,10 @@ class TestJson(TestEg):
         # This id will not be present if realm is not correctly split on space
         drs_id = 'specs.output.IPSL.IPSL-CM5A-LR.decadal.S20130101.mon.seaIce.OImon.sic.r3i1p1'
         assert drs_id in drs_tree.pub_trees
+
+        p = drs_tree.pub_trees.values()[0]
+        p_vars = set(drs.variable for (drs_str, drs) in p._todo)
+
+        # All DRS objects should be for the same variable
+        assert len(p_vars) == 1
+
