@@ -561,15 +561,14 @@ class PublisherTree(object):
 
         """
 
-        #!TODO: Revise for CORDEX
-        FILTER_COMPONENTS = ['institution', 'model', 'experiment',
-                             'frequency', 'realm', 'table',
-                             'ensemble', 'product',
-                             ]
+        drs_cls = self.drs_tree.drs_fs.drs_cls
+        filter_components = drs_cls.DRS_ATTRS
+        # Remove non-publish-level components
+        filter_components = filter_components[:filter_components.index(drs_cls.PUBLISH_LEVEL)+1]
 
         # Gather DRS components from the template drs instance to filter
         filter = {}
-        for comp in FILTER_COMPONENTS:
+        for comp in filter_components:
             val = self.drs.get(comp, None)
             if val is not None:
                 filter[comp] = val
