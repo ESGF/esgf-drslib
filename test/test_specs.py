@@ -82,6 +82,18 @@ def test_4():
     assert drs.subset[0][:2] == (1962, 01)
     assert drs.subset[1][:2] == (1971, 12)
 
+def test_5():
+    filename = 'goro_fx_IPSL-CM5A-LR_decadal_S19820101_r0i0p0.nc'
+
+    drs = specs_fs.filename_to_drs(filename)
+
+    assert drs.activity == 'specs'
+    assert drs.variable == 'goro'
+    assert drs.table == 'fx'
+    assert drs.model == 'IPSL-CM5A-LR'
+    assert drs.ensemble == (0,0,0)
+    assert drs.start_date[:3] == (1982, 1, 1)
+
 class TestSpecsListing1(TestListing):
     __test__ = True
 

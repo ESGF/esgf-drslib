@@ -145,18 +145,7 @@ class DRSTree(object):
         self.discover_incoming_fromfiles(_iter_incoming(), **components)
 
 
-    def discover_incoming_fromfiles(self, files_iter, **components):
-        """
-        Process a stream of files into the incoming list from an
-        iterable.
-
-        This method is useful as a low-level hook for integrating
-        with processing pipelines.
-
-        :files_iter: An iterable of (filename, path) for
-            each file to process into incoming.
-
-        """
+    def iter_drspaths_fromfiles(self, files_iter, **components):
         for filename, dirpath in files_iter:
             log.debug('Processing %s' % filename)
             try:
@@ -188,12 +177,23 @@ class DRSTree(object):
                 if self._p_cmip5:
                     self._detect_product(dirpath, drs)
 
-                if drs.is_publish_level():
-                    log.debug('Discovered %s as %s' % (filename, drs))
-                    self.incoming.append((os.path.join(dirpath, filename), drs))
-                else:
-                    log.debug('Rejected %s as incomplete %s' % (filename, drs))
-                    self.incomplete.append((os.path.join(dirpath, filename), drs))
+                yield (filename, dirpath, drs)
+
+
+    def discover_incoming_fromdrspaths(self, drspaths_iter):
+        """
+        Process a stream of files into the incoming list from an
+        iterable of (filename, dirpath, drs)
+
+        """
+
+        for (filename, dirpath, drs) in drspaths_iter:
+            if drs.is_publish_level():
+                log.debug('Discovered %s as %s' % (filename, drs))
+                self.incoming.append((os.path.join(dirpath, filename), drs))
+            else:
+                log.debug('Rejected %s as incomplete %s' % (filename, drs))
+                self.incomplete.append((os.path.join(dirpath, filename), drs))
 
         # Instantiate a PublisherTree for each unique publication-level dataset
         for path, drs in self.incoming:
@@ -204,7 +204,60 @@ class DRSTree(object):
         for pt in self.pub_trees.values():
             pt.deduce_state()
 
+    def discover_incoming_fromfiles(self, files_iter, **components):
+        """
+        Process a stream of files into the incoming list from an
+        iterable.
+
+        This method is useful as a low-level hook for integrating
+        with processing pipelines.
+
+        :files_iter: An iterable of (filename, path) for
+            each file to process into incoming.
+
+        """
+        return self.discover_incoming_fromdrspaths(
+            self.iter_drspaths_fromfiles(files_iter, **components))
+
+    def discover_incoming_fromjson(self, json_obj, **components):
+        """
+        Process a stream of files into the incoming list from a
+        json object.
+
+        This method is useful as a low-level hook for integrating
+        with processing pipelines.
+
+        :json_obj: A list of dictionaries {'path': path, 'drs': drs} where drs is
+           a dictionary of drs terms.
+
+        """
+        return self.discover_incoming_fromdrspaths(
+            self.iter_drspaths_fromjson(json_obj, **components))
+
+
+    def iter_drspaths_fromjson(self, json_obj, **components):
+        """
+
+        :json_obj: A list of dictionaries {'path': path, 'drs': drs}
+
+        """
+        for d in json_obj:
+            path = d['path']
+            filename = os.path.basename(path)
+            dirpath = os.path.dirname(path)
+            drs_cls = self.drs_fs.drs_cls
+
+            # construct a drs from the filename
+            drs = self.drs_fs.filename_to_drs(os.path.basename(path))
+
+            # Construct the DRS object from the json dictionary
+            drs2 = drs_cls.from_json(d['drs'], **components)            
             
+            drs.update(drs2)
+
+            yield (filename, dirpath, drs)
+            
+
     def remove_incoming(self, path):
         # Remove path from incoming
         #!TODO: This isn't efficient.  Refactoring of incoming or _todo required.

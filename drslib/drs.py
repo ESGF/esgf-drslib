@@ -54,6 +54,7 @@ class BaseDRS(dict):
     PUBLISH_LEVEL = NotImplemented
     VERSION_COMPONENT = 'version'
     OPTIONAL_ATTRS = NotImplemented
+    DRS_JSON_MAP = None
 
     def __init__(self, *argv, **kwargs):
         """
@@ -208,12 +209,37 @@ class BaseDRS(dict):
 
         parts = dataset_id.split('.')
         for attr, val in itertools.izip(klass._iter_components(with_version=True, to_publish_level=True), parts):
-            if val is '%':
+            if val == '%':
                 continue
             components[attr] = klass._decode_component(attr, val)
                    
         return klass(**components)
 
+    @classmethod
+    def from_json(klass, json_obj, **components):
+        """
+        Create a DRS object from a ceda-cc compatible json object.
+
+        ceda-cc may use different keys than the DRS terms used internally so these should be mapped here.
+
+        :json_obj: A dictionary containing a ceda-cc representation of the drs terms as exported in json.
+
+        """
+        drs = klass(**components)
+        for k in json_obj:
+            if k not in klass.DRS_ATTRS:
+                # Select only drs keys that are valid for this DRS scheme
+                continue
+
+            # Map ceda-cc keys to drslib keys
+            if klass.DRS_JSON_MAP:
+                k_mapped = klass.DRS_JSON_MAP.get(k, k)
+            else:
+                k_mapped = k
+
+            drs[k_mapped] = drs._decode_component(k_mapped, json_obj[k])
+
+        return drs
 
 class CmipDRS(BaseDRS):
     """
@@ -260,13 +286,13 @@ class CmipDRS(BaseDRS):
         #!TODO: this code overlaps serialisation code in translate.py
         if value is None:
             val = '%'
-        elif attr is 'ensemble':
+        elif attr == 'ensemble':
             val = _ensemble_to_rip(value)
             if val == '':
                 val = '%'
-        elif attr is 'version':
+        elif attr == 'version':
             val = 'v%d' % value
-        elif attr is 'subset':
+        elif attr == 'subset':
             N1, N2, clim = value
             if clim:
                 val = '%s-%s-clim' % (_from_date(N1), _from_date(N2))
@@ -283,17 +309,17 @@ class CmipDRS(BaseDRS):
         
         if val == '%':
             ret = None
-        elif attr is 'ensemble':
+        elif attr == 'ensemble':
             if val == (None, None, None):
                 ret = None
             else:
                 ret = _rip_to_ensemble(val)
-        elif attr is 'version':
+        elif attr == 'version':
             if val[0] == 'v':
                 ret = int(val[1:])
             else:
                 ret = int(val)
-        elif attr is 'subset':
+        elif attr == 'subset':
             parts = val.split('-')
             if len(parts) > 3:
                 raise ValueError('cannot parse extended component %s' % repr(val))

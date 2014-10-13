@@ -27,6 +27,8 @@ class SpecsDRS(BaseDRS):
 
         if value is None:
             return '%'
+        elif component == 'realm':
+            return value.split(' ')[0]
         elif component == 'ensemble':
             return _ensemble_to_rip(value)
         elif component == 'version':
@@ -50,17 +52,17 @@ class SpecsDRS(BaseDRS):
         
         if value == '%':
             ret = None
-        elif component is 'ensemble':
+        elif component == 'ensemble':
             if value == (None, None, None):
                 ret = None
             else:
                 ret = _rip_to_ensemble(value)
-        elif component is 'version':
+        elif component == 'version':
             if value[0] == 'v':
                 ret = int(value[1:])
             else:
                 ret = int(value)
-        elif component is 'subset':
+        elif component == 'subset':
             N1 = N2 = None
             parts = value.split('-')
             if len(parts) > 3:
@@ -74,8 +76,8 @@ class SpecsDRS(BaseDRS):
             else:
                 clim = None
             ret = (N1, N2, clim)
-        elif component is 'start_date':
-            mo = re.match(r'S(\d{8})', value)
+        elif component == 'start_date':
+            mo = re.match(r'S?(\d{8})', value)
             if not mo:
                 raise ValueError('Unrecognised start_date %s' % repr(value))
 
@@ -107,7 +109,10 @@ class SpecsFileSystem(DRSFileSystem):
         for component in ['variable', 'table', 'model', 'experiment', 'start_date',
                           'ensemble', 'subset']:
             comp_val = comp_dict[component]
-            drs[component] = drs._decode_component(component, comp_val)
+            if comp_val is not None:
+                drs[component] = drs._decode_component(component, comp_val)
+            else:
+                drs[component] = None
 
         return drs
 
