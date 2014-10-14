@@ -2,7 +2,6 @@
 Introduction
 ============
 
-
 Use Cases
 =========
 
@@ -36,9 +35,9 @@ either pip or easy_install.
 .. pull-quote::
 
   **Note:** To install onto an ESG datanode you can use use the
-  ``easy_install`` in ``/usr/local/cdat/bin``.  This will install
-  ``drslib`` into ``/usr/local/cdat/bin/python`` and install
-  ``drs_tool`` as ``/usr/local/cdat/bin/drs_tool``.
+  ``easy_install`` in ``/usr/local/uv-cdat/bin``.  This will install
+  ``drslib`` into ``/usr/local/uv-cdat/bin/python`` and install
+  ``drs_tool`` as ``/usr/local/uv-cdat/bin/drs_tool``.
 
 
 
@@ -46,13 +45,9 @@ either pip or easy_install.
 Installing for development
 --------------------------
 
-If you want to inspect the code you will need to get the source
-distribution. Either visit drslib's `PyPI page
-<http://pypi.python.org/pypi/drslib>`_ and follow the download link or
-clone the git repository esgf-drslib.git_.  You can also view the
-evolution of the project on esgf's gitweb__.
+The source of drslib is available on github from the ESGF `github repo`_.
 
-Once you have unpacked the tarball you must activate the distribution
+Once you have the code you must activate the distribution
 in `develop` mode.  To do this execute the following using a python
 interpreter with setuptools_ installed:
 
@@ -60,16 +55,18 @@ interpreter with setuptools_ installed:
 
   $ python setup.py develop
 
+
 __ esgf-drslib.gitweb_
 
 
 Configuration
 =============
 
-``drslib`` requires the CMIP5 MIP tables to be available in
-order to run.  You can point to your MIP table location using the
-environment variable ``MIP_TABLE_PATH``.  All tables should be named
-``CMIP5_*``.
+``drslib`` will use CMIP5 MIP tables to deduce realm and other
+metadata.  MIP tables are not required for other projects as selected
+with the ``-s`` scheme switch.  You can point to your MIP table location
+using the environment variable ``MIP_TABLE_PATH``.  All tables should
+be named ``CMIP5_*``.
 
 Alternatively you can use metaconfig_ to configure the location of
 your MIP tables.  Create the following in your ``$HOME/.metaconfig.conf`` file:
@@ -241,9 +238,7 @@ Or if the depencencies are satisfied you can run all tests with::
 Reporting Bugs
 ==============
 
-The drslib bugtracker is available on `esgf.org bugzilla`_.
-
-* `Submit a bug here <http://esgf.org/bugzilla/enter_bug.cgi?product=drslib>`_.
+Please report bugs to the `github repo`_.
 
 .. _CMIP5: http://cmip-pcmdi.llnl.gov/cmip5/
 .. _DRS: http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
@@ -257,3 +252,4 @@ The drslib bugtracker is available on `esgf.org bugzilla`_.
 .. _`Stephen Pascoe`: mailto:Stephen.Pascoe@stfc.ac.uk
 .. _Python: http://www.python.org
 .. _`esgf.org bugzilla`: http://esgf.org/bugzilla/enter_bug.cgi?product=drslib
+.. _`github repo`: http://github.com/ESGF/esgf-drslib
