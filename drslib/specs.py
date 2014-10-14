@@ -14,8 +14,8 @@ from drslib import config
 
 class SpecsDRS(BaseDRS):
     DRS_ATTRS = [
-        'activity', 'product', 'institute', 'model', 'experiment', 'experiment_series', 
-        'start_date', 'frequency', 'realm', 'table', 'variable', 'ensemble', 'subset',
+        'activity', 'product', 'institute', 'model', 'experiment', 'start_date', 
+        'frequency', 'realm', 'table', 'variable', 'ensemble', 'subset',
         'extended',
         ]
     PUBLISH_LEVEL = 'ensemble'
@@ -27,6 +27,8 @@ class SpecsDRS(BaseDRS):
 
         if value is None:
             return '%'
+        elif component == 'realm':
+            return value.split(' ')[0]
         elif component == 'ensemble':
             return _ensemble_to_rip(value)
         elif component == 'version':
@@ -50,17 +52,17 @@ class SpecsDRS(BaseDRS):
         
         if value == '%':
             ret = None
-        elif component is 'ensemble':
+        elif component == 'ensemble':
             if value == (None, None, None):
                 ret = None
             else:
                 ret = _rip_to_ensemble(value)
-        elif component is 'version':
+        elif component == 'version':
             if value[0] == 'v':
                 ret = int(value[1:])
             else:
                 ret = int(value)
-        elif component is 'subset':
+        elif component == 'subset':
             N1 = N2 = None
             parts = value.split('-')
             if len(parts) > 3:
@@ -74,8 +76,8 @@ class SpecsDRS(BaseDRS):
             else:
                 clim = None
             ret = (N1, N2, clim)
-        elif component is 'start_date':
-            mo = re.match(r'S(\d{8})', value)
+        elif component == 'start_date':
+            mo = re.match(r'S?(\d{8})', value)
             if not mo:
                 raise ValueError('Unrecognised start_date %s' % repr(value))
 
@@ -95,19 +97,22 @@ class SpecsFileSystem(DRSFileSystem):
         Return a DRS instance deduced from a filename.
 
         """
-        # var_table_model_exptfamily_series_startdate_ensemble_subset
+        # var_table_model_exptfamily_startdate_ensemble_subset
         # E.g. pr_day_MPI-ESM-LR_decadal_series1_S19610101_r1i1p1_19610101-19701231.nc 
 
-        m = re.match(r'(?P<variable>.*?)_(?P<frequency>.*?)_(?P<model>.*?)_(?P<experiment>.*?)_(?P<experiment_series>.*?)_(?P<start_date>.*?)_(?P<ensemble>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
+        m = re.match(r'(?P<variable>.*?)_(?P<table>.*?)_(?P<model>.*?)_(?P<experiment>.*?)_(?P<start_date>S\d{8}?)_(?P<ensemble>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
         
         assert m
         comp_dict = m.groupdict()
 
         drs = self.drs_cls(activity='specs')
-        for component in ['variable', 'frequency', 'model', 'experiment', 'experiment_series',
+        for component in ['variable', 'table', 'model', 'experiment', 'start_date',
                           'ensemble', 'subset']:
             comp_val = comp_dict[component]
-            drs[component] = drs._decode_component(component, comp_val)
+            if comp_val is not None:
+                drs[component] = drs._decode_component(component, comp_val)
+            else:
+                drs[component] = None
 
         return drs
 

@@ -14,6 +14,7 @@ import sys, os
 
 from optparse import OptionParser
 from ConfigParser import NoSectionError, NoOptionError
+import json
 
 from drslib.drs_tree import DRSTree
 from drslib import config
@@ -95,6 +96,9 @@ def make_parser():
     op.add_option('-M', '--move-cmd', action='store',
                   help='Set the command used to move files into the DRS structure')
 
+    op.add_option('-j', '--json-drs', action='store',
+                  help='Obtain DRS information from the json file FILE instead of deducing it from file paths')
+
     return op
 
 class Command(object):
@@ -162,6 +166,11 @@ class Command(object):
                 incoming = config.drs_defaults['incoming']
             except KeyError:
                 incoming = os.path.join(self.drs_root, config.DEFAULT_INCOMING)
+
+        if self.opts.json_drs:
+            json_drs = self.opts.json_drs
+        else:
+            json_drs = None
 
         drs_root = os.path.normpath(os.path.abspath(self.drs_root))
 
@@ -232,7 +241,26 @@ class Command(object):
             self._config_p_cmip5()
             self._setup_p_cmip5()
 
-        self.drs_tree.discover(incoming, **drs)
+        # If JSON file selected use that, otherwise discover from filesystem
+        if json_drs:
+            with open(json_drs) as fh:
+                #!TODO: Remove json-array case
+                # This is a work-around until we have a stable json format
+                # The file might be a json array or it might be a series
+                # of json files, 1 per line
+                json_str = fh.readline()
+                if json_str[0] == '[':
+                    json_obj = json.loads(json_str)
+                else:
+                    json_obj = []
+                    while json_str:
+                        json_obj.append(json.loads(json_str))
+                        json_str = fh.readline()
+
+            self.drs_tree.discover_incoming_fromjson(json_obj, **drs)
+        else:
+            self.drs_tree.discover(incoming, **drs)
+
 
     def do(self):
         raise NotImplementedError("Unimplemented command")
@@ -334,6 +362,7 @@ class TodoCommand(Command):
 
 class UpgradeCommand(Command):
     def do(self):
+
         self.print_header()
 
         for k in sorted(self.drs_tree.pub_trees):

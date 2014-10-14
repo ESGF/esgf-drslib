@@ -20,6 +20,11 @@ class CordexDRS(BaseDRS):
         ]
     PUBLISH_LEVEL = 'variable'
     OPTIONAL_ATTRS = ['extended']
+    DRS_JSON_MAP = {
+        'driving_model': 'gcm_model',
+        'model_version': 'rcm_version',
+        'model': 'rcm_model',
+        }
 
     @classmethod
     def _encode_component(klass, component, value):
@@ -48,17 +53,17 @@ class CordexDRS(BaseDRS):
         
         if value == '%':
             ret = None
-        elif component is 'ensemble':
+        elif component == 'ensemble':
             if value == (None, None, None):
                 ret = None
             else:
                 ret = _rip_to_ensemble(value)
-        elif component is 'version':
+        elif component == 'version':
             if value[0] == 'v':
                 ret = int(value[1:])
             else:
                 ret = int(value)
-        elif component is 'subset':
+        elif component == 'subset':
             N1 = N2 = None
             parts = value.split('-')
             if len(parts) > 3:
@@ -98,7 +103,7 @@ class CordexFileSystem(DRSFileSystem):
                           'subset']:
             comp_val = comp_dict[component]
             
-            if component is 'rcm_model' and comp_val is not None:
+            if component == 'rcm_model' and comp_val is not None:
                 drs[component] = "%s-%s" % (comp_dict['institute'], comp_dict['rcm_model'])
             elif comp_val is not None:
                 drs[component] = drs._decode_component(component, comp_val)

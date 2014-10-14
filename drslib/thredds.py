@@ -145,9 +145,9 @@ class DRSPropCheck(ThreddsCheck):
         props = {}
         for prop_name in drs_prop_map:
             prop = get_property(dataset, prop_name)
-            if prop_name is 'dataset_version':
+            if prop_name == 'dataset_version':
                 prop = int(prop)
-            elif prop_name is 'ensemble':
+            elif prop_name == 'ensemble':
                 #!TODO: refactor this to share code with drslib.translate
                 mo = re.match(r'(?:r(\d+))?(?:i(\d+))?(?:p(\d+))?', prop)
                 if not mo:
