@@ -80,6 +80,9 @@ Options:
                         Profile the script exectuion into FILE
   --detect-product      Automatically detect the DRS product of incoming data
 
+  -j JSON_DRS, --json-drs=JSON_DRS
+                        Use the JSON output from the `ceda-cc` quality control tool
+			to define the incoming set of files and their associated DRS terms.
 
 An Example
 ----------

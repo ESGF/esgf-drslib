@@ -8,7 +8,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.3.0'
+version = '0.3.1'
 drs_version = '0.28'
 
 setup(name='drslib',

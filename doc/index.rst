@@ -8,17 +8,24 @@ esgf-drslib documentation
 =========================
 
 
-Drslib is a Python library for processing the 5th Climate Model
-Intercomparison Project (CMIP5_) Data Reference Syntax (DRS_).  It
-includes API-level code for working with DRS components, algorithms
-for decuding DRS components from incomplete information and a
-command-line tool for manipulating data files into the recommended DRS
-directory structure.It has been developed by the `Centre for
-Environmental Data Archival <http://ceda.ac.uk>`_ as part of the ESG
-Federation.
+Drslib is a Python library for processing data intended for publishing
+into the Earth System Grid Federation (`ESGF`_).  It was first
+designed for the 5th Climate Model Intercomparison Project (CMIP5_)
+Data Reference Syntax (DRS_).  It has subsequently been extended to
+support the SPECS_ and CORDEX_ projects and provides an internal API
+for future extension.  Drslib API-level code for working with DRS
+components, algorithms for decuding DRS components from incomplete
+information and a command-line tool for manipulating data files into
+the recommended DRS directory structure.It has been developed by the
+`Centre for Environmental Data Archival <http://ceda.ac.uk>`_ as part
+of the ESG Federation.
 
 .. _CMIP5: http://cmip-pcmdi.llnl.gov/cmip5/
 .. _DRS: http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf
+.. _ESGF: http://esgf.org/
+.. _CORDEX: http://wcrp-cordex.ipsl.jussieu.fr/
+.. _SPECS: http://www.specs-fp7.eu/
+
 
 User Guide
 ----------
@@ -30,6 +37,7 @@ User Guide
    howto.rst
    command.rst
    product.rst
+   schemes.rst
 
 Reference
 ---------
