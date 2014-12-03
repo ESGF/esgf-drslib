@@ -220,6 +220,8 @@ class Command(object):
             if component in component_dict:
                 val = component_dict.get(component)
                 log.info('Setting DRS component %s=%s' % (component, val))
+
+                #!FIXME: only works with string components!
                 kwargs[component] = val
                 del component_dict[component]
 
