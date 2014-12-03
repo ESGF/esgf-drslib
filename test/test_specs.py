@@ -142,3 +142,13 @@ class TestSpecsListing2(TestSpecsListing1):
     # Test avoiding .ftpaccess files.
 
     listing_file = 'specs_2.ls'
+
+
+
+#-----------------------------------------------------------------------------
+# drs_tool tests
+from drslib.drs_command import main as drstool_main
+
+def test_componentparse1():
+    # Test that non-string components are parsed correctly, e.g. start_date
+    drstool_main('drs-tool list --scheme=specs --component=start_date=S20100101 -R drs_tool_example'.split())

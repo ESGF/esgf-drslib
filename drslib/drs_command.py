@@ -220,13 +220,14 @@ class Command(object):
             if component in component_dict:
                 val = component_dict.get(component)
                 log.info('Setting DRS component %s=%s' % (component, val))
-                kwargs[component] = val
+
+                kwargs[component] = self.drs_fs.drs_cls._decode_component(component, val)
                 del component_dict[component]
 
         # Error for any components not valid
         for component in component_dict:
-            op.error('Unrecognised component %s for scheme %s' % (component,
-                                                                  scheme))
+            self.op.error('Unrecognised component %s for scheme %s' % (component,
+                                                                       scheme))
 
 
         # Get the template DRS from args
