@@ -138,5 +138,7 @@ class TestSpecsListing1(TestListing):
         assert len(pt.versions.values()[0]) == 1
 
 
+class TestSpecsListing2(TestSpecsListing1):
+    # Test avoiding .ftpaccess files.
 
-        
+    listing_file = 'specs_2.ls'
