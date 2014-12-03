@@ -225,8 +225,8 @@ class Command(object):
 
         # Error for any components not valid
         for component in component_dict:
-            op.error('Unrecognised component %s for scheme %s' % (component,
-                                                                  scheme))
+            self.op.error('Unrecognised component %s for scheme %s' % (component,
+                                                                       scheme))
 
 
         # Get the template DRS from args
