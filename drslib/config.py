@@ -13,6 +13,7 @@
 #!TODO: tidy this up and review what needs documenting.
 
 import os
+import sys
 
 import metaconfig
 config = metaconfig.get_config('drslib')
@@ -136,16 +137,17 @@ except:
 #
 
 try:
-    checksum_func_str = config.get('DEFAULT', 'checksum_func')
+    checksum_func_str = config.get('hooks', 'checksum_func')
 except:
-    checksum_func = None
+    import mapfile
+    checksum_func = mapfile.calc_md5
 else:
     #!TODO: Move this into metaconfig
     package_name, callable_name = checksum_func_str.split(':')
     # This is the easiest way of looking inside a package
     __import__(package_name)
     module = sys.modules[package_name]
-    checksum_func = module.getattr(callable_name)
+    checksum_func = getattr(module, callable_name)
     if not callable(checksum_func):
         raise ValueError("checksum_func %s:%s is not callable" % (package_name, callable_name))
 
