@@ -8,7 +8,7 @@ import os
 
 from drslib.drs import BaseDRS, DRSFileSystem, _ensemble_to_rip, _rip_to_ensemble
 from drslib import config
-
+from drslib.exceptions import TranslationError
 
 
 
@@ -91,10 +91,15 @@ class CordexFileSystem(DRSFileSystem):
         Return a DRS instance deduced from a filename.
 
         """
+        
+        if self._is_ignored(filename):
+            raise TranslationError()
+
         # VariableName_Domain_GCMModelName_CMIP5ExperimentName_CMIP5EnsembleMember_RCMModelName_RCMVersionID_Frequency_StartTime-EndTime.nc 
         m = re.match(r'(?P<variable>.*?)_(?P<domain>.*?)_(?P<gcm_model>.*?)_(?P<experiment>.*?)_(?P<ensemble>.*?)_(?P<institute>.*?)-(?P<rcm_model>.*?)_(?P<rcm_version>.*?)_(?P<frequency>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
-        
-        assert m
+        if not m:
+            raise TranslationError()
+
         comp_dict = m.groupdict()
 
         drs = self.drs_cls(activity='cordex')

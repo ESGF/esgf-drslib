@@ -8,6 +8,7 @@ import os
 
 from drslib.drs import BaseDRS, DRSFileSystem, _ensemble_to_rip, _rip_to_ensemble
 from drslib import config
+from drslib.exceptions import TranslationError
 
 
 
@@ -100,9 +101,14 @@ class SpecsFileSystem(DRSFileSystem):
         # var_table_model_exptfamily_startdate_ensemble_subset
         # E.g. pr_day_MPI-ESM-LR_decadal_series1_S19610101_r1i1p1_19610101-19701231.nc 
 
+        if self._is_ignored(filename):
+            raise TranslationError()
+
         m = re.match(r'(?P<variable>.*?)_(?P<table>.*?)_(?P<model>.*?)_(?P<experiment>.*?)_(?P<start_date>S\d{8}?)_(?P<ensemble>.*?)(?:_(?P<subset>.*?))?\.nc', filename)
         
-        assert m
+        if not m:
+            raise TranslationError()
+
         comp_dict = m.groupdict()
 
         drs = self.drs_cls(activity='specs')
