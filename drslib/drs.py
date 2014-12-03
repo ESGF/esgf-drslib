@@ -526,7 +526,7 @@ class DRSFileSystem(object):
             else:
                 into_version = version
 
-        for filedir in [f for f in os.listdir(path) if not re.match(self.IGNORE_FILES_REGEXP, f)]:
+        for filedir in [f for f in os.listdir(path) if not self._is_ignored(f)]:
             subdrs = self.storage_to_drs(os.path.join(self.VERSIONING_FILES_DIR, filedir))
             
             if version is not None and version != subdrs.version:
@@ -534,9 +534,15 @@ class DRSFileSystem(object):
 
             filepath = os.path.join(path, filedir)
 
-            for filename in [f for f in os.listdir(filepath) if not re.match(self.IGNORE_FILES_REGEXP, f)]:
+            for filename in [f for f in os.listdir(filepath) if not self._is_ignored(f)]:
                 drs = self.publication_path_to_drs(path)
                 drs.update(subdrs)
 
                 yield os.path.join(filepath, filename), self.drs_to_linkpath(drs, into_version)
         
+
+    def _is_ignored(self, filename):
+        if re.match(self.IGNORE_FILES_REGEXP, filename):
+            return True
+        else:
+            return False
