@@ -144,6 +144,41 @@ class TestSpecsListing2(TestSpecsListing1):
     listing_file = 'specs_2.ls'
 
 
+class TestSpecsMapfile(TestListing):
+    __test__ = True
+
+    listing_file = 'specs_1.ls'
+
+    # Test mapfile generation
+    
+    def setUp(self):
+        super(TestSpecsMapfile, self).setUp()
+
+        # incoming is not tmpdir/output.
+        self.incoming = self.tmpdir
+
+        self.dt.discover(self.incoming, activity='specs',
+                         product='output',
+                         realm='ocean',
+                         frequency='mon',
+                         institute='IPSL',
+                         )
+        self.pt = self.dt.pub_trees.values()[0]
+        self._do_version(self.pt)
+
+    def _init_drs_fs(self):
+        self.drs_fs = SpecsFileSystem(self.tmpdir)
+
+#    def version_to_mapfile(self, version, fh=None, checksum_func=None):
+
+    def test_mapfile(self):
+        from cStringIO import StringIO
+
+        fh = StringIO()
+        self.pt.version_to_mapfile(self.pt.versions.keys()[0], fh)
+        
+        assert 'specs.output.IPSL.IPSL-CM5A-LR.decadal.S19630101.mon.ocean.day.clt.r3i1p1' in fh.getvalue()
+            
 
 #-----------------------------------------------------------------------------
 # drs_tool tests
