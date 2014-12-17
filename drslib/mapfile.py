@@ -17,24 +17,6 @@ CHECKSUM_BLOCKSIZE = 2**20
 import stat, os
 
 
-def drs_to_id(drs):
-    """
-    Returns an esgpublish id for this drs object.
-
-    The esgpublish id is a '.'-separated sequence of DRS components
-    from the activity to realm level.
-    
-    """
-    return '.'.join([drs.activity,
-                     drs.product,
-                     drs.institute,
-                     drs.model,
-                     drs.experiment,
-                     drs.frequency,
-                     drs.realm,
-                     drs.table,
-                     'r%di%dp%d' % drs.ensemble])
-
 def write_mapfile(stream, fh, checksum_func=None):
     """
     Write an esgpublish mapfile from a stream of tuples (filepath, drs).
@@ -48,7 +30,7 @@ def write_mapfile(stream, fh, checksum_func=None):
         size = file_stat[stat.ST_SIZE]
         mtime = file_stat[stat.ST_MTIME]
 
-        params = [drs_to_id(drs), path, str(size), "mod_time=%f"%float(mtime)]
+        params = [drs.to_dataset_id(with_version=False), path, str(size), "mod_time=%f"%float(mtime)]
 
         if checksum_func:
             ret = checksum_func(path)
